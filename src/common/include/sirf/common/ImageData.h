@@ -63,6 +63,7 @@ namespace sirf {
 		virtual Iterator_const& begin() const = 0;
 		virtual Iterator& end() = 0;
 		virtual Iterator_const& end() const = 0;
+		virtual void scale(float s) = 0;
 		virtual bool ordered() const
 		{
 			return true;
@@ -79,6 +80,14 @@ namespace sirf {
             Iterator& end = this->end();
             for (; dst != end; ++dst, ++src)
 				*dst = *src;
+        }
+        void fill(float v)
+        {
+            Iterator& dst = this->begin();
+            Iterator& end = this->end();
+            FloatRef fr(&v);
+            for (; dst != end; ++dst)
+                *dst = fr;
         }
         /// Write image to file
         //virtual void write(const std::string &filename) const = 0;

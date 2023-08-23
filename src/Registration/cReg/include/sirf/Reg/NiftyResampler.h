@@ -123,6 +123,8 @@ public:
     /// Do the adjoint transformation
     virtual void adjoint(std::shared_ptr<DataContainer> output_sptr, const std::shared_ptr<const DataContainer> input_sptr);
 
+    virtual float norm(int num_iter, int verb) const;
+
 protected:
 
     /// Set up

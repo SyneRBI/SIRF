@@ -62,6 +62,8 @@ limitations under the License.
 #include "stir/recon_buildblock/ProjMatrixByBinPinholeSPECTUB.h"
 #endif
 #include "stir/recon_buildblock/QuadraticPrior.h"
+#include "stir/recon_buildblock/LogcoshPrior.h"
+#include "stir/recon_buildblock/RelativeDifferencePrior.h"
 #include "stir/SegmentBySinogram.h"
 #include "stir/Shape/Box3D.h"
 #include "stir/Shape/Ellipsoid.h"
@@ -112,6 +114,9 @@ namespace sirf {
 #endif
 	typedef stir::GeneralisedPrior<Image3DF> Prior3DF;
 	typedef stir::QuadraticPrior<float> QuadPrior3DF;
+	typedef stir::LogcoshPrior<float> LogPrior3DF;
+	typedef stir::RelativeDifferencePrior<float> RDPrior3DF;
+	typedef stir::PLSPrior<float> PLSPrior3DF;
 	typedef stir::DataProcessor<Image3DF> DataProcessor3DF;
 	typedef stir::TruncateToCylindricalFOVImageProcessor<float> CylindricFilter3DF;
 

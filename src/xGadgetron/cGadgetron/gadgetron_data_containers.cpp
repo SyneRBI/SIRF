@@ -2568,7 +2568,7 @@ void CoilSensitivitiesVector::calculate_csm
             for (unsigned int x = 0; x < nx; x++, i++) {
                 float r = img(x, y, z);
                 float s;
-                if (r != 0.0)
+                if (r != 0.0 && object_mask[i])
                     s = (float)(1.0 / r);
                 else
                     s = 0.0;

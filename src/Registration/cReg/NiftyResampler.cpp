@@ -346,6 +346,28 @@ void NiftyResampler<dataType>::adjoint(std::shared_ptr<DataContainer> output_spt
     set_post_resample_outputs(output_sptr, this->_output_image_sptr, _output_image_adjoint_niftis);
 }
 
+template<class dataType>
+float NiftyResampler<dataType>::norm(int num_iter, int verb) const
+{
+	auto sptr_r = std::shared_ptr<NiftyResampler<dataType> >(new NiftyResampler<dataType>);
+	NiftyResampler<dataType>& resampler = *sptr_r;;
+        resampler.set_reference_image(this->reference_image_sptr());
+        resampler.set_floating_image(this->floating_image_sptr());
+        resampler.set_interpolation_type(this->get_interpolation_type());
+        auto trans = this->transformations_sptr();
+        for (int i = 0; i < trans.size(); i++)
+	        resampler.add_transformation(this->transformations_sptr()[i]);
+        BFOperator<dataType> bf(sptr_r);
+        JacobiCG<dataType> jcg;
+        jcg.set_num_iterations(num_iter);
+        std::shared_ptr<const ImageData> sptr_im = this->floating_image_sptr();
+        std::shared_ptr<ImageData> sptr_id = sptr_im->clone();
+        sptr_id->fill(1.0f);
+        Wrapped_sptr<ImageData, dataType> wsptr_id(sptr_id);
+        float lmd = jcg.largest(bf, wsptr_id, verb);
+        return std::sqrt(lmd);
+}
+
 namespace sirf {
 template class NiftyResampler<float>;
 using NiftyResample SIRF_DEPRECATED_USING = NiftyResampler<float>;

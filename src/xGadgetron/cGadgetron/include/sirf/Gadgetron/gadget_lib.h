@@ -372,6 +372,83 @@ namespace sirf {
 	};
 
 	/**
+	\brief Class for the generator of xml definition of GenericReconEigenChannelGadget.
+	*/
+	class GenericReconEigenChannelGadget : public Gadget {
+	public:
+		GenericReconEigenChannelGadget() :
+			Gadget("EigenChannel", "gadgetron_mricore",
+			"GenericReconEigenChannelGadget")
+		{
+			add_property("debug_folder", "");
+        	add_property("perform_timing", "true");
+        	add_property("verbose", "true");
+        	add_property("average_all_ref_N", "true");
+        	add_property("average_all_ref_S", "true");
+        	add_property("upstream_coil_compression", "true");
+        	add_property("upstream_coil_compression_thres", "0.002");
+        	add_property("upstream_coil_compression_num_modesKept", "0");
+		}
+		static const char* class_name()
+		{
+			return "GenericReconEigenChannelGadget";
+		}
+	};
+
+	/**
+	\brief Class for the generator of xml definition of GenericReconPartialFourierHandlingFilterGadget.
+	*/
+	class GenericReconPartialFourierHandlingFilterGadget : public Gadget {
+	public:
+		GenericReconPartialFourierHandlingFilterGadget() :
+			Gadget("PartialFourier", "gadgetron_mricore",
+			"GenericReconPartialFourierHandlingFilterGadget")
+		{
+        	add_property("debug_folder", "");
+        	add_property("perform_timing", "false");
+        	add_property("verbose", "false");
+        	add_property("skip_processing_meta_field", "Skip_processing_after_recon");
+        	add_property("partial_fourier_filter_RO_width", "0.15");
+        	add_property("partial_fourier_filter_E1_width", "0.15");
+        	add_property("partial_fourier_filter_E2_width", "0.15");
+        	add_property("partial_fourier_filter_densityComp", "false");
+		}
+		static const char* class_name()
+		{
+			return "GenericReconPartialFourierHandlingFilterGadget";
+		}
+	};
+
+	/**
+	\brief Class for the generator of xml definition of GenericReconKSpaceFilteringGadget.
+	*/
+	class GenericReconKSpaceFilteringGadget : public Gadget {
+	public:
+		GenericReconKSpaceFilteringGadget() :
+			Gadget("ReconKSpaceFiltering", "gadgetron_mricore",
+			"GenericReconKSpaceFilteringGadget")
+		{
+			add_property("debug_folder", "");
+			add_property("perform_timing", "false" );
+			add_property("verbose", "false" );
+			add_property("skip_processing_meta_field", "Skip_processing_after_recon" );
+			add_property("filterRO", "Gaussian" );
+			add_property("filterRO_sigma", "1.0" );
+			add_property("filterRO_width", "0.15" );
+			add_property("filterE1", "Gaussian" );
+			add_property("filterE1_sigma", "1.0" );
+			add_property("filterE1_width", "0.15" );
+			add_property("filterE2", "Gaussian" );
+			add_property("filterE2_sigma", "1.0" );
+			add_property("filterE2_width", "0.15" );
+		}
+		static const char* class_name()
+		{
+			return "GenericReconKSpaceFilteringGadget";
+		}
+	};
+
+	/**
 	\brief Class for the generator of xml definition of SimpleReconGadget.
 	*/
 	class SimpleReconGadget : public Gadget {

@@ -253,7 +253,11 @@ namespace sirf {
 			if (this->_is_empty != -1)
 				return this->_is_empty ? 0 : 1;
 			try {
-				this->get_segment_by_sinogram(0);
+#ifdef STIR_TOF
+                          get_segment_by_sinogram(0,0);
+#else
+                          get_segment_by_sinogram(0);
+#endif
 			}
 			catch (...) {
 				this->_is_empty = 1;
@@ -331,16 +335,32 @@ namespace sirf {
 		{
 			return data()->get_max_segment_num();
 		}
+#ifdef STIR_TOF
 		stir::SegmentBySinogram<float>
-			get_segment_by_sinogram(const int segment_num) const
+                  get_segment_by_sinogram(const int segment_num, const int timing_pos_num) const
 		{
-			return data()->get_segment_by_sinogram(segment_num);
-		}
+                  return data()->get_segment_by_sinogram(segment_num, timing_pos_num);
+                }
+#else
 		stir::SegmentBySinogram<float>
-			get_empty_segment_by_sinogram(const int segment_num) const
+                  get_segment_by_sinogram(const int segment_num) const
 		{
-			return data()->get_empty_segment_by_sinogram(segment_num);
-		}
+                  return data()->get_segment_by_sinogram(segment_num);
+                }
+#endif
+#ifdef STIR_TOF
+		stir::SegmentBySinogram<float>
+                  get_empty_segment_by_sinogram(const int segment_num, const int timing_pos_num) const
+		{
+                  return data()->get_empty_segment_by_sinogram(segment_num, false, timing_pos_num);
+                }
+#else
+		stir::SegmentBySinogram<float>
+                  get_empty_segment_by_sinogram(const int segment_num) const
+		{
+                  return data()->get_empty_segment_by_sinogram(segment_num);
+                }
+#endif
 		void set_segment(const stir::SegmentBySinogram<float>& s)
 		{
 			if (data()->set_segment(s) != stir::Succeeded::yes)
@@ -967,17 +987,18 @@ namespace sirf {
 
 			If "" is passed as argument for format_file, the default format will be used.
 
-			An example is given below for writing the image in the nifti format. STIR uses
+			An example is given below for writing the image in the nifti format (when using the
+                        `.nii` extension or when not specifying an extension). STIR uses
 			ITK to do this, so ensure that STIR is built with ITK if you wish to use it.
 			\verbatim
-			OutputFileFormat Parameters:=
+			Output File Format Parameters:=
 				output file format type := ITK
 				ITK Output File Format Parameters:=
 				number format := float
 				number_of_bytes_per_pixel:=4
 				default extension:=.nii
 				End ITK Output File Format Parameters:=
-		   End:=
+		        End:=
 		   \endverbatim
 		*/
 		virtual void write(const std::string& filename, const std::string& format_file) const;

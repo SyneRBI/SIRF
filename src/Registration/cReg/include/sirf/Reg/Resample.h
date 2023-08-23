@@ -33,6 +33,8 @@ limitations under the License.
 #include <memory>
 #include "sirf/Reg/Transformation.h"
 #include "sirf/iUtilities/iutilities.h"
+#include "sirf/common/JacobiCG.h"
+
 
 namespace sirf {
 
@@ -129,6 +131,20 @@ public:
     /// Backward. Alias for Adjoint
     virtual void backward(std::shared_ptr<DataContainer > output_sptr, const std::shared_ptr<const DataContainer > input_sptr);
 
+    std::shared_ptr<const ImageData> reference_image_sptr() const
+    {
+        return _reference_image_sptr;
+    }
+    std::shared_ptr<const ImageData> floating_image_sptr() const
+    {
+        return _floating_image_sptr;
+    }
+    std::vector<std::shared_ptr<const Transformation<dataType> > > transformations_sptr() const
+    {
+	return _transformations;
+    }
+    virtual float norm(int num_iter, int verb) const = 0;
+
 protected:
 
     /// Set up
@@ -163,4 +179,21 @@ protected:
     bool _need_to_set_up_forward = true;
     bool _need_to_set_up_adjoint = true;
 };
+
+/// Backward projection of the forward projected image
+template<class dataType>
+class BFOperator : public Operator<Wrapped_sptr<ImageData, dataType> >{
+public:
+    BFOperator(std::shared_ptr<Resampler<dataType> > sptr_r) : sptr_r_(sptr_r) {}
+    std::shared_ptr<Wrapped_sptr<ImageData, dataType> > apply(const Wrapped_sptr<ImageData, dataType>& wsptr)
+    {
+        std::shared_ptr<const ImageData> sptr_im = wsptr.sptr();
+        std::shared_ptr<ImageData> sptr_f = sptr_r_->forward(sptr_im);
+        std::shared_ptr<ImageData> sptr_bf = sptr_r_->backward(sptr_f);
+        return std::unique_ptr<Wrapped_sptr<ImageData, dataType> >(new Wrapped_sptr<ImageData, dataType>(sptr_bf));
+    }
+private:
+        std::shared_ptr<Resampler<dataType> > sptr_r_;
+};
+
 }

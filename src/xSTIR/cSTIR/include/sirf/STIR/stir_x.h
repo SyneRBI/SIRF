@@ -994,6 +994,20 @@ The actual algorithm is described in
 		}
 	};
 
+	class xSTIR_LogcoshPrior3DF : public stir::LogcoshPrior < float > {
+	public:
+		void only2D(int only) {
+			only_2D = only != 0;
+		}
+	};
+
+	class xSTIR_RelativeDifferencePrior3DF : public stir::RelativeDifferencePrior < float > {
+	public:
+		void only2D(int only) {
+			only_2D = only != 0;
+		}
+	};
+
 	class xSTIR_PLSPrior3DF : public stir::PLSPrior < float > {
 	public:
 		void only2D(int only) {
