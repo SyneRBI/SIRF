@@ -131,11 +131,11 @@ public:
     /// Backward. Alias for Adjoint
     virtual void backward(std::shared_ptr<DataContainer > output_sptr, const std::shared_ptr<const DataContainer > input_sptr);
 
-    std::shared_ptr<const ImageData> reference_image_sptr() const
+    std::shared_ptr<const DataContainer> reference_image_sptr() const
     {
         return _reference_image_sptr;
     }
-    std::shared_ptr<const ImageData> floating_image_sptr() const
+    std::shared_ptr<const DataContainer> floating_image_sptr() const
     {
         return _floating_image_sptr;
     }
@@ -182,15 +182,16 @@ protected:
 
 /// Backward projection of the forward projected image
 template<class dataType>
-class BFOperator : public Operator<Wrapped_sptr<ImageData, dataType> >{
+class BFOperator : public Operator<Wrapped_sptr<NiftiImageData<dataType>, dataType> >{
 public:
     BFOperator(std::shared_ptr<Resampler<dataType> > sptr_r) : sptr_r_(sptr_r) {}
-    std::shared_ptr<Wrapped_sptr<ImageData, dataType> > apply(const Wrapped_sptr<ImageData, dataType>& wsptr)
+    std::shared_ptr<Wrapped_sptr<NiftiImageData<dataType>, dataType> > apply(const Wrapped_sptr<NiftiImageData<dataType>, dataType>& wsptr)
     {
-        std::shared_ptr<const ImageData> sptr_im = wsptr.sptr();
-        std::shared_ptr<ImageData> sptr_f = sptr_r_->forward(sptr_im);
-        std::shared_ptr<ImageData> sptr_bf = sptr_r_->backward(sptr_f);
-        return std::unique_ptr<Wrapped_sptr<ImageData, dataType> >(new Wrapped_sptr<ImageData, dataType>(sptr_bf));
+        std::shared_ptr<const NiftiImageData<dataType> > sptr_im = wsptr.sptr();
+        std::shared_ptr<DataContainer> sptr_fwd = sptr_r_->forward(sptr_im);
+        std::shared_ptr<DataContainer> sptr_bwd = sptr_r_->backward(sptr_fwd);
+        std::shared_ptr<NiftiImageData<dataType> > sptr_bf = std::dynamic_pointer_cast<NiftiImageData<dataType> >(sptr_bwd);
+        return std::unique_ptr<Wrapped_sptr<NiftiImageData<dataType>, dataType> >(new Wrapped_sptr<NiftiImageData<dataType>, dataType>(sptr_bf));
     }
 private:
         std::shared_ptr<Resampler<dataType> > sptr_r_;

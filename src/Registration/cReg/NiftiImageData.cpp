@@ -1777,6 +1777,13 @@ bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const NiftiImageData 
 // Pure virtual methods from ImageData
 // ------------------------------------------------------------------------------ //
 template<class dataType>
+void NiftiImageData<dataType>::scale(float s)
+{
+    for (unsigned i=0; i<this->_nifti_image->nvox; ++i)
+        _data[i] /= s;
+}
+
+template<class dataType>
 float 
 NiftiImageData<dataType>::dot(const DataContainer& a_x) const
 {

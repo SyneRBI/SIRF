@@ -185,16 +185,11 @@ namespace sirf {
 		}
 		value_type dot(const Wrapped_sptr& y)
 		{
-			value_type s;
-			void* ptr = (void*)&s;
-			sptr_->dot(*y.sptr(), ptr);
-			return s;
+			return sptr_->dot(*y.sptr());
 		}
 		void axpby(value_type a, const Wrapped_sptr& x, value_type b, const Wrapped_sptr& y)
 		{
-			void* ptr_a = (void*)&a;
-			void* ptr_b = (void*)&b;
-			sptr_->axpby(ptr_a, *x.sptr(), ptr_b, *y.sptr());
+			sptr_->axpby(a, *x.sptr(), b, *y.sptr());
 		}
 	protected:
 		std::shared_ptr<vector_type> sptr_;

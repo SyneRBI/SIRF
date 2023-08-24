@@ -360,10 +360,12 @@ float NiftyResampler<dataType>::norm(int num_iter, int verb) const
         BFOperator<dataType> bf(sptr_r);
         JacobiCG<dataType> jcg;
         jcg.set_num_iterations(num_iter);
-        std::shared_ptr<const ImageData> sptr_im = this->floating_image_sptr();
-        std::shared_ptr<ImageData> sptr_id = sptr_im->clone();
+        std::shared_ptr<const DataContainer> sptr_im = this->floating_image_sptr();
+        std::shared_ptr<DataContainer> sptr_imc = sptr_im->clone();
+        std::shared_ptr<NiftiImageData<dataType> > sptr_id = 
+            std::dynamic_pointer_cast<NiftiImageData<dataType> >(sptr_imc);
         sptr_id->fill(1.0f);
-        Wrapped_sptr<ImageData, dataType> wsptr_id(sptr_id);
+        Wrapped_sptr<NiftiImageData<dataType>, dataType> wsptr_id(sptr_id);
         float lmd = jcg.largest(bf, wsptr_id, verb);
         return std::sqrt(lmd);
 }
