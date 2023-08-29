@@ -92,7 +92,7 @@ NiftiImageData<dataType>& NiftiImageData<dataType>::operator=(const ImageData<fl
     // Check for self-assignment
     if (static_cast<void*>(this) != static_cast<const void*>(&to_copy)) {
         // Try to cast to NiftiImageData.
-        const NiftiImageData<dataType> * const nii_ptr = dynamic_cast<const NiftiImageData<dataType> * const >(&to_copy);
+        auto nii_ptr = dynamic_cast<const NiftiImageData<dataType> * const >(&to_copy);
         if (nii_ptr) {
             // Check the image is copyable
             if (!nii_ptr->is_initialised())
@@ -123,7 +123,7 @@ NiftiImageData<dataType>& NiftiImageData<dataType>::operator=(const ImageData<co
     // Check for self-assignment
     if (static_cast<void*>(this) != static_cast<const void*>(&to_copy)) {
         // Try to cast to NiftiImageData.
-        const NiftiImageData<dataType> * const nii_ptr = dynamic_cast<const NiftiImageData<dataType> * const >(&to_copy);
+        auto nii_ptr = dynamic_cast<const NiftiImageData<dataType> * const >(&to_copy);
         if (nii_ptr) {
             // Check the image is copyable
             if (!nii_ptr->is_initialised())
@@ -1712,7 +1712,7 @@ dataType
 NiftiImageData<dataType>::
 get_inner_product(const NiftiImageData &other) const
 {
-    return (dataType)this->dot(other);
+    return static_cast<dataType>(this->dot(other));
 }
 
 template<class dataType>
