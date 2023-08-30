@@ -12,8 +12,7 @@ Options:
                               subfolder of SIRF root folder
   -s <slcs>, --slices=<slcs>  max number of slices to display [default: 8]
   -i <flag>, --ignore=<flag>  ignore acquisitions with non-zero value of <flag>
-                              (try e.g. --ignore=ISMRMRD_ACQ_IS_NOISE_MEASUREMENT
-                              and --file=grappa2_6rep.h5)
+                              (try e.g. --ignore=19 and --file=grappa2_6rep.h5)
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
   --non-interactive           do not show plots
 '''
@@ -55,7 +54,7 @@ slcs = int(args['--slices'])
 to_be_ignored = args['--ignore']
 ignored_mask = IgnoreMask(0)
 if to_be_ignored is not None:
-    ignored_mask.ignore(eval(to_be_ignored))
+    ignored_mask.ignore(literal_eval(to_be_ignored))
 show_plot = not args['--non-interactive']
 
 def main():
@@ -64,7 +63,7 @@ def main():
     input_file = existing_filepath(data_path, data_file)
 
     # acquisition data will be read from an HDF file input_file
-    acq_data = AcquisitionData(input_file, ignored=ignored_mask)
+    acq_data = AcquisitionData(input_file, False, ignored=ignored_mask)
 
     # the raw k-space data is a list of different readouts
     # of different data type (e.g. noise correlation data, navigator data,
