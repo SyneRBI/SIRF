@@ -105,7 +105,7 @@ def try_complex_resample(raw_mr_filename):
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
 
-    raw_mr = mr.AcquisitionData(raw_mr_filename)
+    raw_mr = mr.AcquisitionData(raw_mr_filename, False)
     print('%d acquisitions read' % raw_mr.number())
 
     recon_gadgets = ['NoiseAdjustGadget',
