@@ -1,5 +1,11 @@
 # ChangeLog
 
+## xx.xx.xx
+
+* CMake/building:
+  - default `DISABLE_MATLAB` to `ON` as our Matlab support is out-of-date and could
+  generate conflicts with Python shared libraries.
+
 ## v3.5.0
 
 * GitHub Action: remove temporarily the Ubuntu 20.04 build, #1178
