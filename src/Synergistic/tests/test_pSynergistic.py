@@ -106,7 +106,7 @@ def try_complex_resample(raw_mr_filename):
     time.sleep(0.5)
 
     raw_mr = mr.AcquisitionData(raw_mr_filename, False)
-    print('%d acquisitions read' % raw_mr.number())
+    print('%d acquisitions read...' % raw_mr.number())
 
     recon_gadgets = ['NoiseAdjustGadget',
                      'AsymmetricEchoAdjustROGadget',
@@ -121,7 +121,7 @@ def try_complex_resample(raw_mr_filename):
     recon.process()
 
     ismrmrd_im = recon.get_output()
-    print('%d images reconstructed' % ismrmrd_im.number())
+    print('%d images reconstructed...' % ismrmrd_im.number())
 
     if ismrmrd_im.is_real():
         raise AssertionError("Expected output of reconstruction to be complex")
