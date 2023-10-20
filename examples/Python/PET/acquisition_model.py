@@ -42,10 +42,13 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
+from sirf.Utilities import error, examples_data_path, existing_filepath
 from sirf.Utilities import show_2D_array
 
 # import engine module
-exec('from sirf.' + args['--engine'] + ' import *')
+import importlib
+engine = args['--engine']
+pet = importlib.import_module('sirf.' + engine)
 
 
 # process command-line options
@@ -70,17 +73,17 @@ except:
 
 def main():
 
-    print(scanner_names())
+    print(pet.scanner_names())
 
 ##    AcquisitionData.set_storage_scheme('mem')
 
     # no info printing from the engine, warnings and errors sent to stdout
-    msg_red = MessageRedirector()
+    msg_red = pet.MessageRedirector()
     # output goes to files
-##    msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
+##    msg_red = pet.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     # raw data to be used as a template for the acquisition model
-    acq_template = AcquisitionData(raw_data_file)
+    acq_template = pet.AcquisitionData(raw_data_file)
 
     # create an empty image
     image = acq_template.create_uniform_image(0.0, xy=111)
@@ -88,7 +91,7 @@ def main():
     print('image size: %d by %d by %d' % image_size)
 
     # create a shape
-    shape = EllipticCylinder()
+    shape = pet.EllipticCylinder()
     shape.set_length(400)
     shape.set_radii((40, 100))
     shape.set_origin((10, 60, 0))
@@ -106,7 +109,7 @@ def main():
     image.add_shape(shape, scale = 0.75)
 
     # apply Gaussian filter
-    filter = SeparableGaussianImageFilter()
+    filter = pet.SeparableGaussianImageFilter()
     filter.set_fwhms((10, 20, 30))
     filter.set_max_kernel_sizes((10, 10, 2))
     filter.set_normalise()
@@ -124,10 +127,10 @@ def main():
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
     if parallelproj:
-        acq_model = AcquisitionModelUsingParallelproj()
+        acq_model = pet.AcquisitionModelUsingParallelproj()
         num_subsets = 1
     else:
-        acq_model = AcquisitionModelUsingRayTracingMatrix()
+        acq_model = pet.AcquisitionModelUsingRayTracingMatrix()
         num_subsets = 4
 
     # testing bin efficiencies
@@ -144,7 +147,7 @@ def main():
         show_2D_array('Bin efficiencies', bin_eff_arr[0,0,:,:])
     bin_eff.fill(bin_eff_arr)
 
-    asm = AcquisitionSensitivityModel(bin_eff)
+    asm = pet.AcquisitionSensitivityModel(bin_eff)
     acq_model.set_acquisition_sensitivity(asm)
 
     # As an example, add both an additive term and background term
@@ -205,7 +208,7 @@ def main():
 
     # do same with pre-smoothing (often used for resolution modelling)
     print('Using some PSF modelling for comparison')
-    smoother = SeparableGaussianImageFilter()
+    smoother = pet.SeparableGaussianImageFilter()
     smoother.set_fwhms((6,11,12))
     acq_model.set_image_data_processor(smoother)
     acq_model.set_up(acq_template, image)

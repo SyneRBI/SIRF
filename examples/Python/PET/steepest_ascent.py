@@ -39,8 +39,12 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
+from sirf.Utilities import error, examples_data_path, existing_filepath
+
 # import engine module
-exec('from sirf.' + args['--engine'] + ' import *')
+import importlib
+engine = args['--engine']
+pet = importlib.import_module('sirf.' + engine)
 
 
 # process command-line options
@@ -70,18 +74,18 @@ def trunc(image):
 def main():
 
     # engine's messages go to files
-    msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
+    msg_red = pet.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     # create acquisition model
-    acq_model = AcquisitionModelUsingRayTracingMatrix()
+    acq_model = pet.AcquisitionModelUsingRayTracingMatrix()
 
     # PET acquisition data to be read from the file specified by --file option
     print('raw data: %s' % raw_data_file)
-    acq_data = AcquisitionData(raw_data_file)
+    acq_data = pet.AcquisitionData(raw_data_file)
 
     # create filter that zeroes the image outside a cylinder of the same
     # diameter as the image xy-section size
-    filter = TruncateToCylinderProcessor()
+    filter = pet.TruncateToCylinderProcessor()
 
     # create initial image estimate
     nx = 111
@@ -89,7 +93,7 @@ def main():
     nz = 31
     image_size = (nz, ny, nx)
     voxel_size = (3.375, 3, 3) # sizes are in mm
-    image = ImageData()
+    image = pet.ImageData()
     image.initialise(image_size, voxel_size)
     image.fill(1.0)
     # apply the filter to the image
@@ -97,7 +101,7 @@ def main():
 
     # create objective function of Poisson logarithmic likelihood type
     # compatible with the acquisition data type
-    obj_fun = make_Poisson_loglikelihood(acq_data)
+    obj_fun = pet.make_Poisson_loglikelihood(acq_data)
     obj_fun.set_acquisition_model(acq_model)
     obj_fun.set_num_subsets(12)
     obj_fun.set_up(image)

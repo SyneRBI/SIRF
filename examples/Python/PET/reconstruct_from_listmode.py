@@ -52,11 +52,19 @@ args = docopt(__doc__, version=__version__)
 from ast import literal_eval
 import os
 
-from pUtilities import show_2D_array
+from sirf.Utilities import error, examples_data_path, existing_filepath
+from sirf.Utilities import show_2D_array
 import PET_plot_functions
+try:
+    import pylab
+    HAVE_PYLAB = True
+except:
+    HAVE_PYLAB = False
 
 # import engine module
-exec('from sirf.' + args['--engine'] + ' import *')
+import importlib
+engine = args['--engine']
+pet = importlib.import_module('sirf.' + engine)
 
 
 # process command-line options
@@ -107,10 +115,10 @@ else:
 def main():
 
     # engine's messages go to files, except error messages, which go to stdout
-    msg_red = MessageRedirector('info.txt', 'warn.txt')
+    msg_red = pet.MessageRedirector('info.txt', 'warn.txt')
 
     # select acquisition data storage scheme
-    AcquisitionData.set_storage_scheme(storage)
+    pet.AcquisitionData.set_storage_scheme(storage)
 
     # First step is to create AcquisitionData ("sinograms") from the
     # listmode file.
@@ -118,7 +126,7 @@ def main():
 
     # create listmode-to-sinograms converter object
     # See also the listmode_to_sinograms demo
-    lm2sino = ListmodeToSinograms()
+    lm2sino = pet.ListmodeToSinograms()
 
     # set input, output and template files
     lm2sino.set_input(list_file)
@@ -171,7 +179,7 @@ def main():
         image.fill(1.0)
 
     # read attenuation image
-    attn_image = ImageData(attn_file)
+    attn_image = pet.ImageData(attn_file)
     if visualisations:
         attn_image_as_array = attn_image.as_array()
         show_2D_array('Attenuation image', attn_image_as_array[z,:,:])
@@ -187,26 +195,26 @@ def main():
     if not use_gpu:
         # select acquisition model that implements the geometric
         # forward projection by a ray tracing matrix multiplication
-        acq_model = AcquisitionModelUsingRayTracingMatrix()
+        acq_model = pet.AcquisitionModelUsingRayTracingMatrix()
         acq_model.set_num_tangential_LORs(10)
     else:
-        acq_model = AcquisitionModelUsingNiftyPET()
+        acq_model = pet.AcquisitionModelUsingNiftyPET()
 
     # create acquisition sensitivity model from ECAT8 normalisation data
-    asm_norm = AcquisitionSensitivityModel(norm_file)
+    asm_norm = pet.AcquisitionSensitivityModel(norm_file)
 
     # create attenuation factors
-    asm_attn = AcquisitionSensitivityModel(attn_image, acq_model)
+    asm_attn = pet.AcquisitionSensitivityModel(attn_image, acq_model)
     # converting attenuation image into attenuation factors (one for every bin)
     asm_attn.set_up(acq_data)
     ac_factors = acq_data.get_uniform_copy(value=1)
     print('applying attenuation (please wait, may take a while)...')
     asm_attn.unnormalise(ac_factors)
-    asm_attn = AcquisitionSensitivityModel(ac_factors)
+    asm_attn = pet.AcquisitionSensitivityModel(ac_factors)
 
     # scatter estimation
     print('estimating scatter (this will take a while!)')
-    scatter_estimator = ScatterEstimator()
+    scatter_estimator = pet.ScatterEstimator()
 
     scatter_estimator.set_input(acq_data)
     scatter_estimator.set_attenuation_image(attn_image)
@@ -228,7 +236,7 @@ def main():
         PET_plot_functions.plot_sinogram_profile(acq_data, randoms=randoms, scatter=scatter_estimate)
 
     # chain attenuation and ECAT8 normalisation
-    asm = AcquisitionSensitivityModel(asm_norm, asm_attn)
+    asm = pet.AcquisitionSensitivityModel(asm_norm, asm_attn)
     asm.set_up(acq_data)
 
     acq_model.set_acquisition_sensitivity(asm)
@@ -236,7 +244,7 @@ def main():
 
     # define objective function to be maximized as
     # Poisson logarithmic likelihood (with linear model for mean)
-    obj_fun = make_Poisson_loglikelihood(acq_data)
+    obj_fun = pet.make_Poisson_loglikelihood(acq_data)
     obj_fun.set_acquisition_model(acq_model)
 
     # select Ordered Subsets Maximum A-Posteriori One Step Late as the
@@ -245,7 +253,7 @@ def main():
     # this algorithm does not converge to the maximum of the objective function
     # but is used in practice to speed-up calculations
     # See the reconstruction demos for more complicated examples
-    recon = OSMAPOSLReconstructor()
+    recon = pet.OSMAPOSLReconstructor()
     recon.set_objective_function(obj_fun)
     recon.set_num_subsets(num_subsets)
     recon.set_num_subiterations(num_subiterations)
@@ -269,7 +277,7 @@ def main():
     else:
         sirf.Reg.NiftiImageData(out).write(outp_file)
 
-    if visualisations:
+    if visualisations and HAVE_PYLAB:
         # show reconstructed image
         image_array = out.as_array()
         show_2D_array('Reconstructed image', image_array[z,:,:])

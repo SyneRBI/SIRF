@@ -47,8 +47,12 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
+from sirf.Utilities import error, examples_data_path, existing_filepath
+
 # import engine module
-exec('from sirf.' + args['--engine'] + ' import *')
+import importlib
+engine = args['--engine']
+pet = importlib.import_module('sirf.' + engine)
 
 
 # process command-line options
@@ -70,23 +74,23 @@ show_plot = not args['--non-interactive']
 def main():
  
     # direct all engine's information and warnings printing to files
-    msg_red = MessageRedirector('info.txt', 'warn.txt')
+    msg_red = pet.MessageRedirector('info.txt', 'warn.txt')
 
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
-    acq_model = AcquisitionModelUsingRayTracingMatrix()
+    acq_model = pet.AcquisitionModelUsingRayTracingMatrix()
 
     # PET acquisition data to be read from this file
     # (TODO: a link to raw data formats document to be given here)
     print('raw data: %s' % raw_data_file)
-    acq_data = AcquisitionData(raw_data_file)
+    acq_data = pet.AcquisitionData(raw_data_file)
 
     if ai_file is not None:
-        anatomical_image = ImageData()
+        anatomical_image = pet.ImageData()
         anatomical_image.read_from_file(ai_file)
         image = anatomical_image.get_uniform_copy()
         kappa = anatomical_image.get_uniform_copy()
-        prior = PLSPrior()
+        prior = pet.PLSPrior()
         prior.set_anatomical_image(anatomical_image)
         prior.set_kappa(kappa)
         prior.set_only_2D(True)
@@ -96,7 +100,7 @@ def main():
         tf = prior.get_only_2D()
         print(tf)
     else:
-        prior = QuadraticPrior()
+        prior = pet.QuadraticPrior()
         print('using Quadratic prior...')
         # create initial image estimate of dimensions and voxel sizes
         # compatible with the scanner geometry (included in the AcquisitionData
@@ -110,13 +114,13 @@ def main():
 
     # define objective function to be maximized as
     # Poisson logarithmic likelihood (with linear model for mean)
-    obj_fun = make_Poisson_loglikelihood(acq_data)
+    obj_fun = pet.make_Poisson_loglikelihood(acq_data)
     obj_fun.set_acquisition_model(acq_model)
     obj_fun.set_prior(prior)
 
     # select Ordered Subsets Maximum A-Posteriori One Step Late as the
     # reconstruction algorithm 
-    recon = OSMAPOSLReconstructor()
+    recon = pet.OSMAPOSLReconstructor()
     recon.set_objective_function(obj_fun)
     recon.set_num_subsets(num_subsets)
     recon.set_num_subiterations(num_subiterations)

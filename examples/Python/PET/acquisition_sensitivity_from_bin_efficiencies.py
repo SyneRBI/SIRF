@@ -36,10 +36,13 @@ args = docopt(__doc__, version=__version__)
 
 import math
 
+from sirf.Utilities import error, examples_data_path, existing_filepath
 from sirf.Utilities import show_2D_array
 
 # import engine module
-exec('from sirf.' + args['--engine'] + ' import *')
+import importlib
+engine = args['--engine']
+pet = importlib.import_module('sirf.' + engine)
 
 
 # process command-line options
@@ -54,15 +57,15 @@ show_plot = not args['--non-interactive']
 def main():
 
     # direct all engine's messages to files
-    msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
+    msg_red = pet.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     # select acquisition data storage scheme
-    AcquisitionData.set_storage_scheme(storage)
+    pet.AcquisitionData.set_storage_scheme(storage)
 
     # PET acquisition data to be read from this file
     raw_data_file = existing_filepath(data_path, data_file)
     print('raw data: %s' % raw_data_file)
-    acq_data = AcquisitionData(raw_data_file)
+    acq_data = pet.AcquisitionData(raw_data_file)
 
     # copy the acquisition data into a Python array and display it
     acq_array = acq_data.as_array()
@@ -81,7 +84,7 @@ def main():
     bin_eff.fill(bin_eff_arr)
 
     # create acquisition sensitivity model from bin efficiencies
-    asm = AcquisitionSensitivityModel(bin_eff)
+    asm = pet.AcquisitionSensitivityModel(bin_eff)
 
     # apply normalization to acquisition data
     ad = acq_data.clone()
@@ -100,10 +103,10 @@ def main():
     bin_eff2.fill(bin_eff_arr)
 
     # create another acquisition sensitivity model from bin efficiencies
-    asm2 = AcquisitionSensitivityModel(bin_eff2)
+    asm2 = pet.AcquisitionSensitivityModel(bin_eff2)
 
     # chain the two models
-    asm12 = AcquisitionSensitivityModel(asm, asm2)
+    asm12 = pet.AcquisitionSensitivityModel(asm, asm2)
     asm12.set_up(acq_data)
 
     # apply the chain of models to acquisition data

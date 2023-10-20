@@ -34,8 +34,12 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
+from sirf.Utilities import error, examples_data_path, existing_filepath
+
 # import engine module
-exec('from sirf.' + args['--engine'] + ' import *')
+import importlib
+engine = args['--engine']
+pet = importlib.import_module('sirf.' + engine)
 
 
 # process command-line options
@@ -50,14 +54,14 @@ show_plot = not args['--non-interactive']
 def main():
 
     # no info printing from the engine, warnings and errors sent to stdout
-    msg_red = MessageRedirector()
+    msg_red = pet.MessageRedirector()
 
     # PET acquisition data to be read from the file specified by --file option
     print('raw data: %s' % raw_data_file)
-    acq_data = AcquisitionData(raw_data_file)
+    acq_data = pet.AcquisitionData(raw_data_file)
 
     # create reconstructor object
-    recon = FBP2DReconstructor()
+    recon = pet.FBP2DReconstructor()
     # specify the acquisition data
     recon.set_input(acq_data)
 

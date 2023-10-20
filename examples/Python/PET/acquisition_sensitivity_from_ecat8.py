@@ -37,10 +37,13 @@ args = docopt(__doc__, version=__version__)
 
 import math
 
+from sirf.Utilities import error, examples_data_path, existing_filepath
 from sirf.Utilities import show_2D_array
 
 # import engine module
-exec('from sirf.' + args['--engine'] + ' import *')
+import importlib
+engine = args['--engine']
+pet = importlib.import_module('sirf.' + engine)
 
 
 # process command-line options
@@ -61,20 +64,20 @@ show_plot = not args['--non-interactive']
 def main():
 
     # direct all engine's messages to files
-    msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
+    msg_red = pet.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     # select acquisition data storage scheme
-    AcquisitionData.set_storage_scheme(storage)
+    pet.AcquisitionData.set_storage_scheme(storage)
 
     # obtain an acquisition data template
-    template = AcquisitionData(temp_file)
+    template = pet.AcquisitionData(temp_file)
 
     # create a uniform acquisition data from template
-    acq_data = AcquisitionData(template)
+    acq_data = pet.AcquisitionData(template)
     acq_data.fill(1.0)
 
     # create acquisition sensitivity model from ECAT8 normalization data
-    asm = AcquisitionSensitivityModel(norm_file)
+    asm = pet.AcquisitionSensitivityModel(norm_file)
     asm.set_up(template)
 
     # apply normalization to the uniform acquisition data to obtain
