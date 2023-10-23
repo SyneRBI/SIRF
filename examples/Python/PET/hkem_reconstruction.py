@@ -252,6 +252,9 @@ def main():
     diff = simulated_data * (acq_data.norm()/simulated_data.norm()) - acq_data
     print('relative residual norm: %e' % (diff.norm()/acq_data.norm()))
 
+    msg_red.quit()
+
+
 # if anything goes wrong, an exception will be thrown 
 # (cf. Error Handling section in the spec)
 try:

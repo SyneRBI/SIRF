@@ -116,6 +116,8 @@ def main():
     if show_plot:
         show_2D_array('Chain-normalized acquisition data', ad_array[0,z,:,:])
 
+    msg_red.quit()
+
 
 try:
     main()

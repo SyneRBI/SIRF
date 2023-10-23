@@ -109,12 +109,12 @@ def main():
     image.add_shape(shape, scale = 0.75)
 
     # apply Gaussian filter
-    filter = pet.SeparableGaussianImageFilter()
-    filter.set_fwhms((10, 20, 30))
-    filter.set_max_kernel_sizes((10, 10, 2))
-    filter.set_normalise()
-    filter.set_up(image)
-    filter.apply(image)
+    Filter = pet.SeparableGaussianImageFilter()
+    Filter.set_fwhms((10, 20, 30))
+    Filter.set_max_kernel_sizes((10, 10, 2))
+    Filter.set_normalise()
+    Filter.set_up(image)
+    Filter.apply(image)
 
     # z-pixel coordinate of the xy-crossection to show
     z = int(image_size[0]/2)
@@ -263,6 +263,9 @@ def main():
     if show_plot:
         back_projected_image_as_array_adj = back_projected_image_adj.as_array()
         show_2D_array('Adjoint projection', back_projected_image_as_array_adj[z,:,:])
+
+    msg_red.quit()
+
 
 try:
     main()

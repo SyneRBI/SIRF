@@ -167,6 +167,8 @@ def main():
     tmx = image.transf_matrix()
     print(tmx)
 
+    msg_red.quit()
+
 
 try:
     main()

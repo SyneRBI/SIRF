@@ -119,6 +119,8 @@ def main():
     if show_plot:
         image.show(z)
 
+    msg_red.quit()
+
 
 # if anything goes wrong, an exception will be thrown 
 # (cf. Error Handling section in the spec)
