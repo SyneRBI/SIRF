@@ -51,7 +51,6 @@ args = docopt(__doc__, version=__version__)
 
 from ast import literal_eval
 import os
-import warnings
 
 from sirf.Utilities import error, examples_data_path, existing_filepath
 from sirf.Utilities import show_2D_array

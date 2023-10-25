@@ -50,7 +50,6 @@ from sirf.Utilities import error, examples_data_path, existing_filepath
 from sirf.Utilities import show_3D_array
 
 import numpy as np
-import warnings
 try:
     import pylab
     HAVE_PYLAB = True

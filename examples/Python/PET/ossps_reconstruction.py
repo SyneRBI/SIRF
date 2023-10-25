@@ -39,7 +39,6 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
-import warnings
 try:
     import pylab
     HAVE_PYLAB = True
