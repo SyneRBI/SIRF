@@ -39,10 +39,11 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
+import warnings
 try:
     import pylab
     HAVE_PYLAB = True
-except:
+except RuntimeWarning:
     HAVE_PYLAB = False
 
 from sirf.Utilities import error, examples_data_path, existing_filepath
@@ -133,6 +134,8 @@ def main():
         #image.show((1, 10, 11, 12))
         #image.show(range(2, 30, 3)) # show range
         image.show(title='Reconstructed images') # show all
+
+    msg_red.quit()
 
 
 # if anything goes wrong, an exception will be thrown 

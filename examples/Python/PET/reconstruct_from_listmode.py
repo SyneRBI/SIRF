@@ -51,6 +51,7 @@ args = docopt(__doc__, version=__version__)
 
 from ast import literal_eval
 import os
+import warnings
 
 from sirf.Utilities import error, examples_data_path, existing_filepath
 from sirf.Utilities import show_2D_array
@@ -58,7 +59,7 @@ import PET_plot_functions
 try:
     import pylab
     HAVE_PYLAB = True
-except:
+except RuntimeWarning:
     HAVE_PYLAB = False
 
 # import engine module
@@ -282,6 +283,8 @@ def main():
         image_array = out.as_array()
         show_2D_array('Reconstructed image', image_array[z,:,:])
         pylab.show()
+
+    msg_red.quit()
 
 
 try:

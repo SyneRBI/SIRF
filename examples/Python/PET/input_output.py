@@ -154,6 +154,8 @@ def main():
     if show_plot:
         show_2D_array('Phantom', image_array[z,:,:])
 
+    msg_red.quit()
+
 
 try:
     main()

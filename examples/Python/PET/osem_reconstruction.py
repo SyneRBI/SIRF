@@ -40,10 +40,11 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
+import warnings
 try:
     import pylab
     HAVE_PYLAB = True
-except:
+except RuntimeWarning:
     HAVE_PYLAB = False
 
 from sirf.Utilities import error, examples_data_path, existing_filepath
@@ -155,6 +156,8 @@ def main():
     # compute the reconstruction residual
     diff = simulated_data * (acq_data.norm()/simulated_data.norm()) - acq_data
     print('relative residual norm: %e' % (diff.norm()/acq_data.norm()))
+
+    msg_red.quit()
 
 
 # if anything goes wrong, an exception will be thrown 

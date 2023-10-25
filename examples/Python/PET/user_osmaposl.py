@@ -58,7 +58,7 @@ show_plot = not args['--non-interactive']
 
 # user implementation of Ordered Subset Maximum A Posteriori One Step Late
 # reconstruction algorithm
-def my_osmaposl(image, obj_fun, prior, filter, num_subsets, num_subiterations):
+def my_osmaposl(image, obj_fun, prior, Filter, num_subsets, num_subiterations):
 
     for sub_iter in range(1, num_subiterations + 1):
         print('\n------------- Subiteration %d' % sub_iter) 
@@ -83,7 +83,7 @@ def my_osmaposl(image, obj_fun, prior, filter, num_subsets, num_subiterations):
         image = image*update
 
         # apply filter
-        filter.apply(image)
+        Filter.apply(image)
 
     return image
 
@@ -102,7 +102,7 @@ def main():
 
     # create filter that zeroes the image outside a cylinder of the same
     # diameter as the image xy-section size
-    filter = pet.TruncateToCylinderProcessor()
+    Filter = pet.TruncateToCylinderProcessor()
 
     # create initial image estimate
     image_size = (31, 111, 111)
@@ -124,7 +124,7 @@ def main():
 
     # reconstruct using your own SIRF-based implementation of OSMAPOSL
     image = my_osmaposl \
-        (image, obj_fun, prior, filter, num_subsets, num_subiterations)
+        (image, obj_fun, prior, Filter, num_subsets, num_subiterations)
 
     if show_plot:
         # show reconstructed image at z = 20
@@ -132,6 +132,8 @@ def main():
         show_2D_array('Reconstructed image at z = 20', image_array[20,:,:])
 
 #    image.write('my_image.hv')
+
+    msg_red.quit()
 
 
 # if anything goes wrong, an exception will be thrown 

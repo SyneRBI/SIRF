@@ -85,7 +85,7 @@ def main():
 
     # create filter that zeroes the image outside a cylinder of the same
     # diameter as the image xy-section size
-    filter = pet.TruncateToCylinderProcessor()
+    Filter = pet.TruncateToCylinderProcessor()
 
     # create initial image estimate
     nx = 111
@@ -97,7 +97,7 @@ def main():
     image.initialise(image_size, voxel_size)
     image.fill(1.0)
     # apply the filter to the image
-    filter.apply(image)
+    Filter.apply(image)
 
     # create objective function of Poisson logarithmic likelihood type
     # compatible with the acquisition data type
@@ -126,7 +126,7 @@ def main():
         # obtain gradient for subset = iter
         grad = obj_fun.get_subset_gradient(image, iter % 12)
         # zero the gradient outside the cylindric FOV
-        filter.apply(grad)
+        Filter.apply(grad)
 
         # compute step size bazed on an estimate of the largest
         # eigenvalue lmd_max of the Hessian H
@@ -164,7 +164,7 @@ def main():
         print('step %d, change in image %e' % (iter, rc))
         image = new_image
         # filter the new image
-        filter.apply(image)
+        Filter.apply(image)
 
         if show_plot:
             # display the current image estimate
@@ -173,6 +173,8 @@ def main():
     if not opt or disp == 0:
         print('computing attained objective function value...')
         print('objective function value: %e' % (obj_fun.value(image)))
+
+    msg_red.quit()
 
 
 # if anything goes wrong, an exception will be thrown 

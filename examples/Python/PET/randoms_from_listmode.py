@@ -50,10 +50,11 @@ from sirf.Utilities import error, examples_data_path, existing_filepath
 from sirf.Utilities import show_3D_array
 
 import numpy as np
+import warnings
 try:
     import pylab
     HAVE_PYLAB = True
-except:
+except RuntimeWarning:
     HAVE_PYLAB = False
 
 
@@ -134,6 +135,8 @@ def main():
     if show_plot:
         show_3D_array(np.stack((delayeds_acq_array[0,z,:,:], randoms_estimate_acq_array[0,z,:,:])), titles=('raw delayeds', ' estimated randoms'))
         pylab.show()
+
+    msg_red.quit()
 
 
 try:
