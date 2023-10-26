@@ -16,11 +16,10 @@ Options:
                               subfolder of SIRF root folder
   -o <file>, --output=<file>  output file for simulated data
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
-  -r <bool>, --recon=<bool>   run recon iff non-cartesian code was compiled
-                              [default: False]
   --traj=<str>                trajectory type, must match the data supplied in file
                               options are cartesian, radial, goldenangle or grpe
                               [default: grpe]
+  --recon                     reconstruct iff non-cartesian code was compiled
   --non-interactive           do not show plots
 '''
 
@@ -45,15 +44,18 @@ Options:
 
 __version__ = '0.1.0'
 from docopt import docopt
-from pUtilities import *
+args = docopt(__doc__, version=__version__)
+
+#from pUtilities import *
 
 import numpy as np
 import matplotlib.pyplot as plt
 
-args = docopt(__doc__, version=__version__)
+from sirf.Utilities import error, examples_data_path, existing_filepath, show_3D_array
 
 # import engine module
-exec('from sirf.' + args['--engine'] + ' import *')
+import importlib
+mr = importlib.import_module('sirf.' + args['--engine'])
 
 # process command-line options
 data_file = args['--file']
@@ -63,18 +65,18 @@ if data_path is None:
 output_file = args['--output']
 show_plot = not args['--non-interactive']
 trajtype = args['--traj']
-run_recon = str(args['--recon']) == 'True'
+run_recon = args['--recon']
 
 def main():
 
     # locate the k-space raw data file adn read
     input_file = existing_filepath(data_path, data_file)
-    acq_data = AcquisitionData(input_file)
+    acq_data = mr.AcquisitionData(input_file)
     
     # pre-process acquisition data
     if trajtype != 'radial' and trajtype != 'goldenangle':
         print('---\n pre-processing acquisition data...')
-        processed_data  = preprocess_acquisition_data(acq_data)
+        processed_data  = mr.preprocess_acquisition_data(acq_data)
     else:
         processed_data = acq_data
 
@@ -83,17 +85,17 @@ def main():
     if trajtype == 'cartesian':
         pass
     elif trajtype == 'grpe':
-        processed_data = set_grpe_trajectory(processed_data)
+        processed_data = mr.set_grpe_trajectory(processed_data)
     elif trajtype == 'radial':
-        processed_data = set_radial2D_trajectory(processed_data)
+        processed_data = mr.set_radial2D_trajectory(processed_data)
     elif trajtype == 'goldenangle':
-            processed_data = set_goldenangle2D_trajectory(processed_data)
+            processed_data = mr.set_goldenangle2D_trajectory(processed_data)
     else:
         raise NameError('Please submit a trajectory name of the following list: (cartesian, grpe, radial). You gave {}'\
                         .format(trajtype))
 
     if show_plot:
-        traj = np.transpose( get_data_trajectory(processed_data))
+        traj = np.transpose( mr.get_data_trajectory(processed_data))
         print("--- traj shape is {}".format(traj.shape))
         plt.figure()
         plt.scatter(traj[0,:], traj[1,:], marker='.')
@@ -106,7 +108,7 @@ def main():
     if run_recon is True:
     
         print('---\n computing coil sensitivity maps...')
-        csms = CoilSensitivityData()
+        csms = mr.CoilSensitivityData()
         csms.smoothness = 10
         csms.calculate(processed_data)
 
@@ -121,7 +123,7 @@ def main():
         # create acquisition model based on the acquisition parameters
         print('---\n Setting up Acquisition Model...')
     
-        acq_model = AcquisitionModel()
+        acq_model = mr.AcquisitionModel()
         acq_model.set_up(processed_data, csms.copy())
         acq_model.set_coil_sensitivity_maps(csms)
     

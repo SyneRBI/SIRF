@@ -69,7 +69,7 @@ def get_STIR_version_string():
 
 
 def get_STIR_doc_dir():
-    """Returns STIR engine version as Python str."""
+    """Returns STIR engine documentation folder name as Python str."""
     handle = pystir.cSTIR_get_STIR_doc_dir()
     check_status(handle)
     path = pyiutil.charDataFromHandle(handle)
@@ -78,12 +78,27 @@ def get_STIR_doc_dir():
 
 
 def get_STIR_examples_dir():
-    """Returns STIR engine version as Python str."""
+    """Returns STIR engine examples folder name as Python str."""
     handle = pystir.cSTIR_get_STIR_examples_dir()
     check_status(handle)
     path = pyiutil.charDataFromHandle(handle)
     pyiutil.deleteDataHandle(handle)
     return path
+
+
+def get_engine_version_string():
+    """Returns engine version as Python str."""
+    return get_STIR_version_string()
+
+
+def get_engine_doc_dir():
+    """Returns STIR engine documentation folder name as Python str."""
+    return get_STIR_doc_dir()
+
+
+def get_engine_examples_dir():
+    """Returns STIR engine examples folder name as Python str."""
+    return get_STIR_examples_dir()
 
 
 def set_verbosity(verbosity):
@@ -132,14 +147,6 @@ def get_default_num_omp_threads():
     h = pystir.cSTIR_getDefaultOMPThreads()
     check_status(h, inspect.stack()[1])
     value = pyiutil.intDataFromHandle(h)
-    pyiutil.deleteDataHandle(h)
-    return value
-
-
-def scanner_names():
-    h = pystir.cSTIR_scannerNames()
-    check_status(h, inspect.stack()[1])
-    value = pyiutil.charDataFromHandle(h)
     pyiutil.deleteDataHandle(h)
     return value
 

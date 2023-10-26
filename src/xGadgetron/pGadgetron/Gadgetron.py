@@ -884,7 +884,7 @@ class AcquisitionData(DataContainer):
         else:
             return self.number()
     def number_of_acquisitions(self, select='image'):
-        return self.number_of_readouts
+        return self.number_of_readouts(select)
 
     def check_traj_type(self, trajname):
         '''

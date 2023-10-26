@@ -38,10 +38,11 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
-from ast import literal_eval
+from sirf.Utilities import error, examples_data_path, existing_filepath
 
-# import engine module
-exec('from sirf.' + args['--engine'] + ' import *')
+# import MR engine module
+import importlib
+mr = importlib.import_module('sirf.' + args['--engine'])
 
 # process command-line options
 data_file = args['--file']
@@ -57,7 +58,7 @@ def main():
     input_file = existing_filepath(data_path, data_file)
 
     # acquisition data will be read from an HDF file input_file
-    acq_data = AcquisitionData(input_file, True)
+    acq_data = mr.AcquisitionData(input_file, True)
 
     # the raw k-space data is a list of different readouts
     # of different data type (e.g. noise correlation data, navigator data,
@@ -85,7 +86,7 @@ def main():
 
     # inspect the first readout flag
     flags0 = acq_data.get_ISMRMRD_info('flags', range(1))
-    if flags0 & IMAGE_DATA_MASK:
+    if flags0 & mr.IMAGE_DATA_MASK:
         print('first readout is image data')
     else:
         # should see this if input data file is test_2D_2x.h5
@@ -143,7 +144,7 @@ def main():
     # direction. So far only the removal of readout oversampling and noise and
     # asymmetric echo adjusting is implemented
     print('pre-processing acquisition data...')
-    processed_acq_data = preprocess_acquisition_data(acq_data).abs()
+    processed_acq_data = mr.preprocess_acquisition_data(acq_data).abs()
     acq_max = processed_acq_data.maximum(processed_acq_data*10)
     acq_min = processed_acq_data.minimum(processed_acq_data*10)
     print('norm of acq_data: %f' % processed_acq_data.norm())

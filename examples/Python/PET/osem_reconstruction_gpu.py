@@ -51,6 +51,8 @@ args = docopt(__doc__, version=__version__)
 from ast import literal_eval
 import os
 
+from sirf.Utilities import error, examples_data_path, show_2D_array
+
 def file_exists(filename):
     """Check if file exists, optionally throw error if not"""
     return os.path.isfile(filename)
@@ -63,7 +65,9 @@ def check_file_exists(filename):
 
 
 # import engine module
-exec('from sirf.' + args['--engine'] + ' import *')
+import importlib
+engine = args['--engine']
+pet = importlib.import_module('sirf.' + engine)
 
 
 # Sinogram. if sino not found, get the one in the example data
@@ -135,22 +139,25 @@ num_subiterations = int(args['--subiter'])
 
 def main():
 
+    # direct all engine's messages to files
+    _ = pet.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
+
     if not use_gpu:
         print("Using CPU projector...")
         # select acquisition model that implements the geometric
         # forward projection by a ray tracing matrix multiplication
-        acq_model = AcquisitionModelUsingRayTracingMatrix()
+        acq_model = pet.AcquisitionModelUsingRayTracingMatrix()
     else:
         print("Using GPU projector...")
         # If using GPU, use the niftypet projector
-        acq_model = AcquisitionModelUsingNiftyPET()
+        acq_model = pet.AcquisitionModelUsingNiftyPET()
         # Truncate to FOV
         acq_model.set_use_truncation(True)
 
     # PET acquisition data to be read from this file
     # (TODO: a link to raw data formats document to be given here)
     print('raw data: %s' % sino_file)
-    acq_data = AcquisitionData(sino_file)
+    acq_data = pet.AcquisitionData(sino_file)
 
     # create initial image estimate of dimensions and voxel sizes
     # compatible with the scanner geometry (included in the AcquisitionData
@@ -167,17 +174,17 @@ def main():
         raise error("For normalisation, only give ECAT8 or sinogram.")
     if norm_e8_file:
         # create acquisition sensitivity model from ECAT8 normalisation data
-        asm_norm = AcquisitionSensitivityModel(norm_e8_file)
+        asm_norm = pet.AcquisitionSensitivityModel(norm_e8_file)
     if norm_sn_file:
-        norm_sino = AcquisitionData(norm_sn_file)
-        asm_norm = AcquisitionSensitivityModel(norm_sino)
+        norm_sino = pet.AcquisitionData(norm_sn_file)
+        asm_norm = pet.AcquisitionSensitivityModel(norm_sino)
     
     # If attenuation is present
     asm_attn = None
     if attn_im_file and attn_sn_file:
         raise error("For attenuation, only give image or sinogram.")
     if attn_im_file:
-        attn_image = ImageData(attn_im_file)
+        attn_image = pet.ImageData(attn_im_file)
         # If gpu, make sure that the attn. image is same dimensions as image to recon
         if use_gpu:
             resampler = sirf.Reg.NiftyResampler()
@@ -186,24 +193,24 @@ def main():
             resampler.set_interpolation_type_to_linear()
             resampler.set_padding_value(0.0)
             attn_image = resampler.forward(attn_image)
-        asm_attn = AcquisitionSensitivityModel(attn_image, acq_model)
+        asm_attn = pet.AcquisitionSensitivityModel(attn_image, acq_model)
         # temporary fix pending attenuation offset fix in STIR:
         # converting attenuation into 'bin efficiency'
         asm_attn.set_up(acq_data)
-        bin_eff = AcquisitionData(acq_data)
+        bin_eff = pet.AcquisitionData(acq_data)
         bin_eff.fill(1.0)
         print('applying attenuation (please wait, may take a while)...')
         asm_attn.unnormalise(bin_eff)
-        asm_attn = AcquisitionSensitivityModel(bin_eff)
+        asm_attn = pet.AcquisitionSensitivityModel(bin_eff)
     if attn_sn_file:
-        attn_sino = AcquisitionData(attn_sn_file)
-        asm_attn = AcquisitionSensitivityModel(attn_sino)
+        attn_sino = pet.AcquisitionData(attn_sn_file)
+        asm_attn = pet.AcquisitionSensitivityModel(attn_sino)
 
     # Get ASM dependent on attn and/or norm
     asm = None
     if asm_norm and asm_attn:
         print("AcquisitionSensitivityModel contains norm and attenuation...")
-        asm = AcquisitionSensitivityModel(asm_norm, asm_attn)
+        asm = pet.AcquisitionSensitivityModel(asm_norm, asm_attn)
     elif asm_norm:
         print("AcquisitionSensitivityModel contains norm...")
         asm = asm_norm
@@ -217,12 +224,12 @@ def main():
     # If randoms are present
     if rand_file:
         print("Adding randoms...")
-        randoms = AcquisitionData(rand_file)
+        randoms = pet.AcquisitionData(rand_file)
         acq_model.set_background_term(randoms)
 
     # define objective function to be maximized as
     # Poisson logarithmic likelihood (with linear model for mean)
-    obj_fun = make_Poisson_loglikelihood(acq_data)
+    obj_fun = pet.make_Poisson_loglikelihood(acq_data)
     obj_fun.set_acquisition_model(acq_model)
 
     # select Ordered Subsets Maximum A-Posteriori One Step Late as the
@@ -230,7 +237,7 @@ def main():
     # this example, we actually run OSEM);
     # this algorithm does not converge to the maximum of the objective function
     # but is used in practice to speed-up calculations
-    recon = OSMAPOSLReconstructor()
+    recon = pet.OSMAPOSLReconstructor()
     recon.set_objective_function(obj_fun)
     recon.set_num_subsets(num_subsets)
     recon.set_num_subiterations(num_subiterations)
@@ -260,7 +267,7 @@ def main():
         image_array = out.as_array()
         z = image_array.shape[0]//3
         show_2D_array('Reconstructed image', image_array[z,:,:])
-        pylab.show()
+        #pylab.show()
 
 
 # if anything goes wrong, an exception will be thrown 
