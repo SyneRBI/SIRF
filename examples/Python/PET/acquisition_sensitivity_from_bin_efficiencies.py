@@ -57,7 +57,7 @@ show_plot = not args['--non-interactive']
 def main():
 
     # direct all engine's messages to files
-    msg_red = pet.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
+    _ = pet.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     # select acquisition data storage scheme
     pet.AcquisitionData.set_storage_scheme(storage)
@@ -115,8 +115,6 @@ def main():
     ad_array = ad.as_array()
     if show_plot:
         show_2D_array('Chain-normalized acquisition data', ad_array[0,z,:,:])
-
-    msg_red.quit()
 
 
 try:

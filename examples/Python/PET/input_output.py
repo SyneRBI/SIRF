@@ -58,7 +58,7 @@ show_plot = not args['--non-interactive']
 def main():
 
     # engine's messages go to files, except error messages, which go to stdout
-    msg_red = pet.MessageRedirector('info.txt', 'warn.txt')
+    _ = pet.MessageRedirector('info.txt', 'warn.txt')
 
     acq_template = pet.AcquisitionData(templ_file)
 ##    # create acquisition data from scanner parameters to be used as a template
@@ -153,8 +153,6 @@ def main():
     z = int(image_array.shape[0]/2)
     if show_plot:
         show_2D_array('Phantom', image_array[z,:,:])
-
-    msg_red.quit()
 
 
 try:

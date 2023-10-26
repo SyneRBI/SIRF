@@ -139,6 +139,9 @@ num_subiterations = int(args['--subiter'])
 
 def main():
 
+    # direct all engine's messages to files
+    _ = pet.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
+
     if not use_gpu:
         print("Using CPU projector...")
         # select acquisition model that implements the geometric

@@ -118,7 +118,7 @@ def image_data_processor(image_array, im_num):
 def main():
 
     # direct all engine's information and warnings printing to files
-    msg_red = pet.MessageRedirector('info.txt', 'warn.txt')
+    _ = pet.MessageRedirector('info.txt', 'warn.txt')
 
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
@@ -251,8 +251,6 @@ def main():
     # compute the reconstruction residual
     diff = simulated_data * (acq_data.norm()/simulated_data.norm()) - acq_data
     print('relative residual norm: %e' % (diff.norm()/acq_data.norm()))
-
-    msg_red.quit()
 
 
 # if anything goes wrong, an exception will be thrown 

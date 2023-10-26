@@ -64,7 +64,7 @@ show_plot = not args['--non-interactive']
 def main():
 
     # direct all engine's messages to files
-    msg_red = pet.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
+    _ = pet.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     # select acquisition data storage scheme
     pet.AcquisitionData.set_storage_scheme(storage)
@@ -90,8 +90,6 @@ def main():
     z = acq_dim[1]//2
     if show_plot:
         show_2D_array('Bin efficiencies', acq_array[0,z,:,:])
-
-    msg_red.quit()
 
 
 try:

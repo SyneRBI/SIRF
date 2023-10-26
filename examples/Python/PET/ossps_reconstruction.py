@@ -70,7 +70,7 @@ show_plot = not args['--non-interactive'] and HAVE_PYLAB
 def main():
 
     # no info printing from the engine, warnings and errors sent to stdout
-    msg_red = pet.MessageRedirector()
+    _ = pet.MessageRedirector()
     # all engine's printing goes to files
 ##    msg_red = pet.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
@@ -133,8 +133,6 @@ def main():
         #image.show((1, 10, 11, 12))
         #image.show(range(2, 30, 3)) # show range
         image.show(title='Reconstructed images') # show all
-
-    msg_red.quit()
 
 
 # if anything goes wrong, an exception will be thrown 

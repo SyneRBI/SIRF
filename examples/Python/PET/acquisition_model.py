@@ -78,9 +78,9 @@ def main():
 ##    AcquisitionData.set_storage_scheme('mem')
 
     # no info printing from the engine, warnings and errors sent to stdout
-    msg_red = pet.MessageRedirector()
+    _ = pet.MessageRedirector()
     # output goes to files
-##    msg_red = pet.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
+##    _ = pet.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     # raw data to be used as a template for the acquisition model
     acq_template = pet.AcquisitionData(raw_data_file)
@@ -263,8 +263,6 @@ def main():
     if show_plot:
         back_projected_image_as_array_adj = back_projected_image_adj.as_array()
         show_2D_array('Adjoint projection', back_projected_image_as_array_adj[z,:,:])
-
-    msg_red.quit()
 
 
 try:

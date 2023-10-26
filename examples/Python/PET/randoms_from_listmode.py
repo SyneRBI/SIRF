@@ -84,7 +84,7 @@ show_plot = not args['--non-interactive'] and HAVE_PYLAB
 def main():
 
     # direct all engine's messages to files
-    msg_red = pet.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
+    _ = pet.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     # select acquisition data storage scheme
     pet.AcquisitionData.set_storage_scheme(storage)
@@ -134,8 +134,6 @@ def main():
     if show_plot:
         show_3D_array(np.stack((delayeds_acq_array[0,z,:,:], randoms_estimate_acq_array[0,z,:,:])), titles=('raw delayeds', ' estimated randoms'))
         pylab.show()
-
-    msg_red.quit()
 
 
 try:

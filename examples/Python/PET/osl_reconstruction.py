@@ -74,7 +74,7 @@ show_plot = not args['--non-interactive']
 def main():
  
     # direct all engine's information and warnings printing to files
-    msg_red = pet.MessageRedirector('info.txt', 'warn.txt')
+    _ = pet.MessageRedirector('info.txt', 'warn.txt')
 
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
@@ -139,8 +139,6 @@ def main():
     recon.reconstruct(image)
     if show_plot:
         image.show(title = 'Reconstructed images')
-
-    msg_red.quit()
 
 
 # if anything goes wrong, an exception will be thrown 

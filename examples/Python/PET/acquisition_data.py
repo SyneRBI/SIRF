@@ -75,7 +75,7 @@ def main():
     print('%s examples path: %s' % (engine, pet.get_engine_examples_dir()))
 
     # direct all engine's messages to files
-    msg_red = pet.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
+    _ = pet.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     # PET acquisition data to be read from this file
     raw_data_file = existing_filepath(data_path, data_file)
@@ -166,8 +166,6 @@ def main():
     print('image transform matrix:')
     tmx = image.transf_matrix()
     print(tmx)
-
-    msg_red.quit()
 
 
 try:

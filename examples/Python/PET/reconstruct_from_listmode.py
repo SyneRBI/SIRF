@@ -115,7 +115,7 @@ else:
 def main():
 
     # engine's messages go to files, except error messages, which go to stdout
-    msg_red = pet.MessageRedirector('info.txt', 'warn.txt')
+    _ = pet.MessageRedirector('info.txt', 'warn.txt')
 
     # select acquisition data storage scheme
     pet.AcquisitionData.set_storage_scheme(storage)
@@ -282,8 +282,6 @@ def main():
         image_array = out.as_array()
         show_2D_array('Reconstructed image', image_array[z,:,:])
         pylab.show()
-
-    msg_red.quit()
 
 
 try:

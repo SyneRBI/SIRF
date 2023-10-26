@@ -74,7 +74,7 @@ def trunc(image):
 def main():
 
     # engine's messages go to files
-    msg_red = pet.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
+    _ = pet.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     # create acquisition model
     acq_model = pet.AcquisitionModelUsingRayTracingMatrix()
@@ -173,8 +173,6 @@ def main():
     if not opt or disp == 0:
         print('computing attained objective function value...')
         print('objective function value: %e' % (obj_fun.value(image)))
-
-    msg_red.quit()
 
 
 # if anything goes wrong, an exception will be thrown 

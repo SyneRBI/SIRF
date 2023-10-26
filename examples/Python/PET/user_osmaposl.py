@@ -91,7 +91,7 @@ def my_osmaposl(image, obj_fun, prior, Filter, num_subsets, num_subiterations):
 def main():
 
     # output goes to files
-    msg_red = pet.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
+    _ = pet.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     # create acquisition model
     acq_model = pet.AcquisitionModelUsingRayTracingMatrix()
@@ -132,8 +132,6 @@ def main():
         show_2D_array('Reconstructed image at z = 20', image_array[20,:,:])
 
 #    image.write('my_image.hv')
-
-    msg_red.quit()
 
 
 # if anything goes wrong, an exception will be thrown 

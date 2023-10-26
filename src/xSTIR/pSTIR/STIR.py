@@ -220,12 +220,6 @@ class MessageRedirector(object):
             try_calling(pystir.deleteTextWriter(self.errr))
         pystir.closeChannel(2, self.errr)
 
-    def quit(self):
-        """dummy method to prevent Codacy complaints about unused redirector"""
-        if self.info_case < 0:
-            raise error('wrong info_case')
-        return
-
 
 class Shape(object):
     """Base class for an abstract geometric shape.

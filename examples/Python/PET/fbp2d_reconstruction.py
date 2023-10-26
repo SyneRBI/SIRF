@@ -54,7 +54,7 @@ show_plot = not args['--non-interactive']
 def main():
 
     # no info printing from the engine, warnings and errors sent to stdout
-    msg_red = pet.MessageRedirector()
+    _ = pet.MessageRedirector()
 
     # PET acquisition data to be read from the file specified by --file option
     print('raw data: %s' % raw_data_file)
@@ -118,8 +118,6 @@ def main():
     print('--------\n alternative setup')
     if show_plot:
         image.show(z)
-
-    msg_red.quit()
 
 
 # if anything goes wrong, an exception will be thrown 
