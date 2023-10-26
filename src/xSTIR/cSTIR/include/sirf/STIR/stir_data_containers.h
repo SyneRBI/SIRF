@@ -249,7 +249,11 @@ namespace sirf {
 			if (_is_empty != -1)
 				return _is_empty ? 0 : 1;
 			try {
-				get_segment_by_sinogram(0);
+#ifdef STIR_TOF
+                          get_segment_by_sinogram(0,0);
+#else
+                          get_segment_by_sinogram(0);
+#endif
 			}
 			catch (...) {
 				_is_empty = 1;
@@ -404,16 +408,32 @@ namespace sirf {
 		{
 			return data()->get_max_segment_num();
 		}
+#ifdef STIR_TOF
 		stir::SegmentBySinogram<float>
-			get_segment_by_sinogram(const int segment_num) const
+                  get_segment_by_sinogram(const int segment_num, const int timing_pos_num) const
 		{
-			return data()->get_segment_by_sinogram(segment_num);
-		}
+                  return data()->get_segment_by_sinogram(segment_num, timing_pos_num);
+                }
+#else
 		stir::SegmentBySinogram<float>
-			get_empty_segment_by_sinogram(const int segment_num) const
+                  get_segment_by_sinogram(const int segment_num) const
 		{
-			return data()->get_empty_segment_by_sinogram(segment_num);
-		}
+                  return data()->get_segment_by_sinogram(segment_num);
+                }
+#endif
+#ifdef STIR_TOF
+		stir::SegmentBySinogram<float>
+                  get_empty_segment_by_sinogram(const int segment_num, const int timing_pos_num) const
+		{
+                  return data()->get_empty_segment_by_sinogram(segment_num, false, timing_pos_num);
+                }
+#else
+		stir::SegmentBySinogram<float>
+                  get_empty_segment_by_sinogram(const int segment_num) const
+		{
+                  return data()->get_empty_segment_by_sinogram(segment_num);
+                }
+#endif
 		void set_segment(const stir::SegmentBySinogram<float>& s)
 		{
 			if (data()->set_segment(s) != stir::Succeeded::yes)

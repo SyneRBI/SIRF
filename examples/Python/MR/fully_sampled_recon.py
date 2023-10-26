@@ -38,8 +38,13 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
+import numpy
+
+from sirf.Utilities import error, examples_data_path, existing_filepath
+
 # import engine module
-exec('from sirf.' + args['--engine'] + ' import *')
+import importlib
+mr = importlib.import_module('sirf.' + args['--engine'])
 
 # process command-line options
 data_file = args['--file']
@@ -58,7 +63,7 @@ def main():
     # bruker_to_ismrmrd on https://github.com/ismrmrd/.
     # Acquisition data will be read from an HDF file input_file
     print('---\n reading in file %s...' % input_file)
-    acq_data = AcquisitionData(input_file)
+    acq_data = mr.AcquisitionData(input_file)
 
     # pre-process acquired k-space data:
     # prior to image reconstruction several pre-processing steps such as 
@@ -67,12 +72,12 @@ def main():
     # direction. So far only the removal of readout oversampling and noise and
     # asymmetric echo adjusting is implemented
     print('---\n pre-processing acquisition data...')
-    processed_data = preprocess_acquisition_data(acq_data)
+    processed_data = mr.preprocess_acquisition_data(acq_data)
 
     # set up reconstruction:
     # create a reconstruction object using 2D inverse Fourier transform and
     # provide pre-processed k-space data as input
-    recon = FullySampledReconstructor()
+    recon = mr.FullySampledReconstructor()
     recon.set_input(processed_data)
     
     # perform reconstruction

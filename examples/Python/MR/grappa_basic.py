@@ -57,8 +57,11 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
+from sirf.Utilities import error, examples_data_path, existing_filepath
+
 # import engine module
-exec('from sirf.' + args['--engine'] + ' import *')
+import importlib
+mr = importlib.import_module('sirf.' + args['--engine'])
 
 # process command-line options
 data_file = args['--file']
@@ -82,19 +85,19 @@ def main():
     
     # Create an acquisition container of type AcquisitionData
     print('---\n reading in file %s...' % input_file)
-    AcquisitionData.set_storage_scheme('memory')
+    mr.AcquisitionData.set_storage_scheme('memory')
 
-    acq_data = AcquisitionData(input_file)
+    acq_data = mr.AcquisitionData(input_file)
     
     # Pre-process this input data.
     # (Currently this is a Python script that just sets up a 3 chain gadget.
     # In the future it will be independent of the MR recon engine.)
     print('---\n pre-processing acquisition data...')
-    preprocessed_data = preprocess_acquisition_data(acq_data)
+    preprocessed_data = mr.preprocess_acquisition_data(acq_data)
     
     # Perform reconstruction of the preprocessed data.
     # 1. set the reconstruction to be for Cartesian GRAPPA data.
-    recon = CartesianGRAPPAReconstructor();
+    recon = mr.CartesianGRAPPAReconstructor();
     
     # 2. set the reconstruction input to be the data we just preprocessed.
     recon.set_input(preprocessed_data);

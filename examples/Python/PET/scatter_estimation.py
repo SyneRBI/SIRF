@@ -71,7 +71,7 @@ interactive = not args['--non-interactive']
 def main():
 
     # direct all engine's messages to files
-    msg_red = PET.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
+    _ = PET.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     PET.AcquisitionData.set_storage_scheme('memory')
 

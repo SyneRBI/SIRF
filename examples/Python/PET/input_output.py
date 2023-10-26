@@ -36,10 +36,13 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
+from sirf.Utilities import error, examples_data_path, existing_filepath
 from sirf.Utilities import show_2D_array
 
 # import engine module
-exec('from sirf.' + args['--engine'] + ' import *')
+import importlib
+engine = args['--engine']
+pet = importlib.import_module('sirf.' + engine)
 
 
 data_path = args['--path']
@@ -55,9 +58,9 @@ show_plot = not args['--non-interactive']
 def main():
 
     # engine's messages go to files, except error messages, which go to stdout
-    msg_red = MessageRedirector('info.txt', 'warn.txt')
+    _ = pet.MessageRedirector('info.txt', 'warn.txt')
 
-    acq_template = AcquisitionData(templ_file)
+    acq_template = pet.AcquisitionData(templ_file)
 ##    # create acquisition data from scanner parameters to be used as a template
 ##    print('creating Siemens_mMR acquisition data...')
 ##    acq_template = AcquisitionData('Siemens_mMR')
@@ -84,11 +87,11 @@ def main():
     print('phantom voxel sizes: %fx%fx%f' % (vz, vy, vx))
     image_size = (int(nz), 111, 111)
     voxel_size = (float(vz), 3.0, 3.0)
-    image = ImageData()
+    image = pet.ImageData()
     image.initialise(image_size, voxel_size)
 
     # create a shape
-    shape = EllipticCylinder()
+    shape = pet.EllipticCylinder()
     shape.set_length(400)
     shape.set_radii((40, 100))
     shape.set_origin((10, 60, 0))
@@ -112,7 +115,7 @@ def main():
 
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
-    acq_model = AcquisitionModelUsingRayTracingMatrix()
+    acq_model = pet.AcquisitionModelUsingRayTracingMatrix()
     print('setting up the acquisition model...')
     acq_model.set_up(acq_template, image)
     # project the image to obtain simulated acquisition data
@@ -134,7 +137,7 @@ def main():
     image.write(img_file)
 
     # read acquisition data and image from files
-    acq_data = AcquisitionData('simulated_data.hs')
+    acq_data = pet.AcquisitionData('simulated_data.hs')
     acq_array = acq_data.as_array()
     acq_dim = acq_array.shape
 ##    print('acquisition data dimensions: %dx%dx%d' % acq_dim)
@@ -143,7 +146,7 @@ def main():
         show_2D_array('Simulated acquisition data', acq_array[0,z,:,:])
 
     # show the image again
-    img = ImageData()
+    img = pet.ImageData()
     img.read_from_file('phantom.hv')
     image_array = img.as_array()
 ##    print('phantom dimensions: %dx%dx%d' % image_array.shape[2::-1])

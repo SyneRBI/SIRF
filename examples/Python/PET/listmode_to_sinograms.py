@@ -40,10 +40,13 @@ args = docopt(__doc__, version=__version__)
 
 from ast import literal_eval
 
+from sirf.Utilities import error, examples_data_path, existing_filepath
 from sirf.Utilities import show_2D_array
 
 # import engine module
-exec('from sirf.' + args['--engine'] + ' import *')
+import importlib
+engine = args['--engine']
+pet = importlib.import_module('sirf.' + engine)
 
 
 # process command-line options
@@ -67,13 +70,13 @@ show_plot = not args['--non-interactive']
 def main():
 
     # select acquisition data storage scheme
-    AcquisitionData.set_storage_scheme(storage)
+    pet.AcquisitionData.set_storage_scheme(storage)
 
     # read acquisition data template
-    acq_data_template = AcquisitionData(tmpl_file)
+    acq_data_template = pet.AcquisitionData(tmpl_file)
 
     # create listmode-to-sinograms converter object
-    lm2sino = ListmodeToSinograms()
+    lm2sino = pet.ListmodeToSinograms()
 
     # set input, output and template files
     lm2sino.set_input(list_file)

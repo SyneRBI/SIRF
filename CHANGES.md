@@ -1,5 +1,18 @@
 # ChangeLog
 
+## v3.5.1
+
+* CMake/building:
+  - default `DISABLE_MATLAB` to `ON` as our Matlab support is out-of-date and could
+  generate conflicts with Python shared libraries.
+
+* Demo scripts:
+  - replaced importing reconstruction engines by
+```
+ exec('from sirf.' + args['--engine'] + ' import *')
+```
+  with importing via `importlib.import_module` thus getting rid of Codacy complaints about undefined modules.
+
 ## v3.5.0
 
 * GitHub Action: remove temporarily the Ubuntu 20.04 build, #1178

@@ -410,7 +410,11 @@ void
 PETAcquisitionSensitivityModel::unnormalise(STIRAcquisitionData& ad) const
 {
 	BinNormalisation* norm = norm_.get();
+#if STIR_VERSION < 050000
 	norm->undo(*ad.data(), 0, 1);
+#else
+	norm->undo(*ad.data());
+#endif
 }
 
 void
