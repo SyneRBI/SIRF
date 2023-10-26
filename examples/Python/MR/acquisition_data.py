@@ -40,6 +40,7 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
+import ast
 from sirf.Utilities import error, examples_data_path, existing_filepath
 
 # import MR engine module
@@ -53,9 +54,9 @@ if data_path is None:
     data_path = examples_data_path('MR')
 slcs = int(args['--slices'])
 to_be_ignored = args['--ignore']
-ignored_mask = IgnoreMask(0)
+ignored_mask = mr.IgnoreMask(0)
 if to_be_ignored is not None:
-    ignored_mask.ignore(literal_eval(to_be_ignored))
+    ignored_mask.ignore(ast.literal_eval(to_be_ignored))
 show_plot = not args['--non-interactive']
 
 def main():
