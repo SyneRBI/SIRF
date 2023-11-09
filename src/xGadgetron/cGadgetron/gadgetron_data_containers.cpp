@@ -97,10 +97,9 @@ MRAcquisitionData::write(const std::string &filename) const
 
 void
 MRAcquisitionData::read(const std::string& filename_ismrmrd_with_ext, int all,
-	IgnoreMask ignore_mask)
+	const IgnoreMask& ignore_mask)
 {
-	
-    bool const verbose = true;
+	bool const verbose = true;
 
 	if( verbose )
 		std::cout<< "Started reading acquisitions from " << filename_ismrmrd_with_ext << std::endl;

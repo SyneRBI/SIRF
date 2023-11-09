@@ -121,8 +121,9 @@ namespace sirf {
 	*/
 	class IgnoreMask {
 	public:
-		IgnoreMask(int mask = ~0x13bffff) : ignore_(mask) {}
-		void set(int mask)
+		IgnoreMask(unsigned long int mask = (1 << 18)) :
+		    ignore_(mask), max_(8*sizeof(mask)) {}
+		void set(unsigned long int mask)
 		{
 			ignore_ = mask;
 		}
@@ -130,55 +131,49 @@ namespace sirf {
 		{
 			if (i < 1 || i > max_)
 				return;
-			size_t one = 1;
+			unsigned long int one = 1;
 			ignore_ = ignore_ | (one << (i - 1));
 		}
 		void ignore_not(unsigned int i)
 		{
 			if (i < 1 || i > max_)
 				return;
-			int one = 1;
+			unsigned long int one = 1;
 			ignore_ = ignore_ & ~(one << (i - 1));
 		}
 		bool bit(unsigned int i) const
 		{
 			if (i < 1 || i > max_)
 				return true;
-			int one = 1;
+			unsigned long int one = 1;
 			return ignore_ & (one << (i - 1));
 		}
-		int bits() const
+		unsigned long int bits() const
 		{
 			return ignore_;
 		}
-		bool ignored(int bits) const
+		bool ignored(unsigned long int bits) const
 		{
 			return bits & ignore_;
 		}
 		void show_bits() const
 		{
-			int one = 1;
-			for (unsigned int i = 0; i < max_; i++) {
-				std::cout << bool(ignore_ & (one << i));
-				if ((i + 1) % 4 == 0)
-					std::cout << ' ';
-			}
-			std::cout << '\n';
-		}
-		static void show_bits(int mask)
-		{
-			unsigned int size = 8 * sizeof(int);
-			unsigned int bitmask = (1 << (size - 1));
+			unsigned int size = max_;
+			unsigned long int one = 1;
+			unsigned long int bitmask = (one << (size - 1));
 			for (unsigned int i = 0; i < size; i++) {
-				std::cout << bool(mask & (bitmask >> i));
+				if (ignore_ & (bitmask >> i))
+					std::cout << '1';
+				else
+					std::cout << '0';
 				if ((i + 1) % 4 == 0)
 					std::cout << ' ';
 			}
 			std::cout << '\n';
 		}
 	private:
-		int ignore_;
-		const unsigned int max_ = 8 * sizeof(int);
+		unsigned long int ignore_;
+		unsigned int max_;
 	};
 
     /*!
@@ -733,7 +728,7 @@ namespace sirf {
 		* to exclude potentially incompatible input.
 		*/
 		void read(const std::string& filename_ismrmrd_with_ext, int all = 0,
-			IgnoreMask ignore_mask = IgnoreMask());
+			const IgnoreMask& ignore_mask = IgnoreMask());
 
 	protected:
 		bool sorted_ = false;

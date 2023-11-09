@@ -561,19 +561,23 @@ cGT_sortAcquisitionsByTime(void* ptr_acqs)
 
 extern "C"
 void*
-cGT_ISMRMRDAcquisitionsFromFile(const char* file, int all, int ignored)
+cGT_ISMRMRDAcquisitionsFromFile(const char* file, int all, size_t ptr)
 {
 	if (!file_exists(file))
 		return fileNotFound(file, __FILE__, __LINE__);
 	try {
+		unsigned long int* ptr_ignored = (unsigned long int*)ptr;
+		unsigned long int ignored = *ptr_ignored;
 		std::cout << "reading from " << file << " using ignore mask ";
+		IgnoreMask mask;
 		if (all)
-			IgnoreMask::show_bits(0);
+			mask.set(0);
 		else
-			IgnoreMask::show_bits(ignored);
+			mask.set(ignored);
+		mask.show_bits();
 		shared_ptr<MRAcquisitionData>
 			acquisitions(new AcquisitionsVector);
-		acquisitions->read(file, all, ignored);
+		acquisitions->read(file, all, mask);
 		return newObjectHandle<MRAcquisitionData>(acquisitions);
 	}
 	CATCH;

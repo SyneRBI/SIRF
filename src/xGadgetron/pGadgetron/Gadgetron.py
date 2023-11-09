@@ -123,9 +123,9 @@ ISMRMRD_ACQ_USER8                               = 64
 
 # acquisition ignoring helper class
 class IgnoreMask(object):
-    def __init__(self, mask = None):
+    def __init__(self, mask=None):
         if mask is None:
-            self.mask = ~0x13BFFFF
+            self.mask = 1 << 18
         else:
             self.mask = mask
     def set(self, mask):
@@ -906,12 +906,14 @@ class AcquisitionData(DataContainer):
     Class for an MR acquisitions container.
     Each item is a 2D complex array of acquisition samples for each coil.
     '''
-    def __init__(self, file=None, all_=True, ignored = IgnoreMask()):
+    def __init__(self, file=None, all_=True, ignored=IgnoreMask()):
         self.handle = None
         self.sorted = False
         self.info = None
         if file is not None:
-            self.handle = pygadgetron.cGT_ISMRMRDAcquisitionsFromFile(file, 1*all_, ignored.mask)
+            mask = numpy.ndarray((1,), dtype=numpy.int64)
+            mask[0] = ignored.mask
+            self.handle = pygadgetron.cGT_ISMRMRDAcquisitionsFromFile(file, 1*all_, mask.ctypes.data)
             check_status(self.handle)
 
     def __del__(self):
