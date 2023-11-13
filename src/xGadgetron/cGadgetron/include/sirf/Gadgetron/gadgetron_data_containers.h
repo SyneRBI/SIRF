@@ -481,8 +481,8 @@ namespace sirf {
 				name, name of k-space dimension to modify
 				min_max_ctr = minimium, maximum and center value of sampled region
     	*/
-		void set_encoding_limits(const std::string& name, \
-									const std::tuple<unsigned short,unsigned short,unsigned short> min_max_ctr)
+		void set_encoding_limits(const std::string& name,
+			const std::tuple<unsigned short,unsigned short,unsigned short> min_max_ctr)
 		{
 			ISMRMRD::IsmrmrdHeader hdr = this->acquisitions_info().get_IsmrmrdHeader();
 			ISMRMRD::EncodingLimits enc_limits = hdr.encoding[0].encodingLimits;
@@ -643,9 +643,9 @@ namespace sirf {
 
 		AcquisitionsInfo acquisitions_info() const { return acqs_info_; }
 		void set_acquisitions_info(std::string info) { acqs_info_ = info; }
-        void set_acquisitions_info(const AcquisitionsInfo info) { acqs_info_ = info;}
+		void set_acquisitions_info(const AcquisitionsInfo info) { acqs_info_ = info;}
 
-        ISMRMRD::TrajectoryType get_trajectory_type() const;
+		ISMRMRD::TrajectoryType get_trajectory_type() const;
 		
 		void set_trajectory_type(const ISMRMRD::TrajectoryType type);
 
@@ -670,8 +670,8 @@ namespace sirf {
 		}
 
 		bool undersampled() const;
-        int get_acquisitions_dimensions(size_t ptr_dim) const;
-        void get_kspace_dimensions(std::vector<size_t>& dims) const;
+		int get_acquisitions_dimensions(size_t ptr_dim) const;
+		void get_kspace_dimensions(std::vector<size_t>& dims) const;
 		uint16_t get_trajectory_dimensions(void) const;
 	
 		void sort();
@@ -679,31 +679,32 @@ namespace sirf {
 		bool sorted() const { return sorted_; }
 		void set_sorted(bool sorted) { sorted_ = sorted; }
 
-        //! Function to get the indices of the acquisitions belonging to different dimensions of k-space
-        /*!
-        * All acquisitions belong to only one subset in a multi-dimensional k-space.
-        * This function returns a vector of sets of indices belonging to the acquisitions of the individual subsets.
-        */
-        std::vector<KSpaceSubset::SetType > get_kspace_order() const;
+		//! Function to get the indices of the acquisitions belonging to different dimensions of k-space
+		/*!
+		 * All acquisitions belong to only one subset in a multi-dimensional k-space.
+		 * This function returns a vector of sets of indices belonging to the acquisitions of the individual subsets.
+		 */
+		std::vector<KSpaceSubset::SetType > get_kspace_order() const;
 
-        //! Function to get the all KSpaceSubset's of the MRAcquisitionData
-        std::vector<KSpaceSubset> get_kspace_sorting() const { return this->sorting_; }
+		//! Function to get the all KSpaceSubset's of the MRAcquisitionData
+		std::vector<KSpaceSubset> get_kspace_sorting() const { return this->sorting_; }
 
-        //! Function to go through Acquisitions and assign them to their k-space dimension
-        /*!
-        * All acquisitions belong to only one subset in a multi-dimensional k-space. This function goes through
-        * all acquisitions in the container, extracts their subset (i.e. which slice contrast etc.) and stores
-        * this information s.t. consisten subsets (i.e. all acquisitions belonging to the same slice) can be
-        * extracted.
-        */
-        void organise_kspace();
+		//! Function to go through Acquisitions and assign them to their k-space dimension
+		/*!
+		 * All acquisitions belong to only one subset in a multi-dimensional k-space. This function goes through
+		 * all acquisitions in the container, extracts their subset (i.e. which slice contrast etc.) and stores
+		 * this information s.t. consisten subsets (i.e. all acquisitions belonging to the same slice) can be
+		 * extracted.
+		 */
+		void organise_kspace();
 
-		virtual std::vector<int> get_flagged_acquisitions_index(const std::vector<ISMRMRD::ISMRMRD_AcquisitionFlags> flags) const;
-		virtual std::vector<int> get_slice_encoding_index(const unsigned kspace_encode_step_2) const;
+		virtual std::vector<int> get_flagged_acquisitions_index
+			(const std::vector<ISMRMRD::ISMRMRD_AcquisitionFlags> flags) const;
+		virtual std::vector<int> get_slice_encoding_index
+			(const unsigned kspace_encode_step_2) const;
 
-
-        virtual void get_subset(MRAcquisitionData& subset, const std::vector<int> subset_idx) const;
-        virtual void set_subset(const MRAcquisitionData &subset, const std::vector<int> subset_idx);
+		virtual void get_subset(MRAcquisitionData& subset, const std::vector<int> subset_idx) const;
+		virtual void set_subset(const MRAcquisitionData &subset, const std::vector<int> subset_idx);
 
 		std::vector<int> index() { return index_; }
 		const std::vector<int>& index() const { return index_; }
@@ -733,7 +734,7 @@ namespace sirf {
 	protected:
 		bool sorted_ = false;
 		std::vector<int> index_;
-        std::vector<KSpaceSubset> sorting_;
+		std::vector<KSpaceSubset> sorting_;
 		AcquisitionsInfo acqs_info_;
 
 		// new MRAcquisitionData objects will be created from this template
@@ -756,12 +757,12 @@ namespace sirf {
 	*/
 	class AcquisitionsVector : public MRAcquisitionData {
 	public:
-        AcquisitionsVector(const std::string& filename_with_ext, int all = 0)
-        {
-            this->read(filename_with_ext, all);
-        }
+		AcquisitionsVector(const std::string& filename_with_ext, int all = 0)
+		{
+			this->read(filename_with_ext, all);
+		}
 
-        AcquisitionsVector(const AcquisitionsInfo& info = AcquisitionsInfo())
+		AcquisitionsVector(const AcquisitionsInfo& info = AcquisitionsInfo())
 		{
 			acqs_info_ = info;
 		}
