@@ -562,8 +562,7 @@ namespace sirf {
 		virtual gadgetron::shared_ptr<ISMRMRD::Acquisition>
 			get_acquisition_sptr(unsigned int num) = 0;
 		virtual int get_acquisition(unsigned int,
-			ISMRMRD::Acquisition&,
-			IgnoreMask ignore_mask = IgnoreMask()) const = 0;
+			ISMRMRD::Acquisition&) const = 0; 
 		virtual void set_acquisition(unsigned int,
 			ISMRMRD::Acquisition&) = 0;
 		virtual void append_acquisition(ISMRMRD::Acquisition& acq) = 0;
@@ -576,10 +575,8 @@ namespace sirf {
 		virtual MRAcquisitionData*
 			same_acquisitions_container(const AcquisitionsInfo& info) const = 0;
 
-		virtual void set_data(const complex_float_t* z, int all = 1,
-			IgnoreMask ignore_mask = IgnoreMask()) = 0;
-		virtual void get_data(complex_float_t* z, int all = 1,
-			IgnoreMask ignore_mask = IgnoreMask());
+		virtual void set_data(const complex_float_t* z, int all = 1) = 0;
+		virtual void get_data(complex_float_t* z, int all = 1);
 
 		virtual void set_user_floats(float const * const z, int const idx);
 
@@ -644,6 +641,8 @@ namespace sirf {
 		AcquisitionsInfo acquisitions_info() const { return acqs_info_; }
 		void set_acquisitions_info(std::string info) { acqs_info_ = info; }
 		void set_acquisitions_info(const AcquisitionsInfo info) { acqs_info_ = info;}
+		IgnoreMask ignore_mask() const { return ignore_mask_; }
+		void set_ignore_mask(IgnoreMask ignore_mask) const { ignore_mask_= ignore_mask; }
 
 		ISMRMRD::TrajectoryType get_trajectory_type() const;
 		
@@ -712,7 +711,8 @@ namespace sirf {
 		int index(int i) const
 		{
 			const std::size_t ni = index_.size();
-			if (i < 0 || (ni > 0 && static_cast<std::size_t>(i) >= ni) || static_cast<unsigned>(i) >= number())
+			if (i < 0 || (ni > 0 && static_cast<std::size_t>(i) >= ni) 
+				|| static_cast<unsigned>(i) >= number())
 				THROW("Aquisition number is out of range");
 			if (ni > 0)
 				return index_[i];
@@ -728,14 +728,15 @@ namespace sirf {
 		* To avoid reading noise samples and other calibration data, IgnoreMask may be employed
 		* to exclude potentially incompatible input.
 		*/
-		void read(const std::string& filename_ismrmrd_with_ext, int all = 0,
-			const IgnoreMask& ignore_mask = IgnoreMask());
+		void read(const std::string& filename_ismrmrd_with_ext, int all = 0);
 
 	protected:
 		bool sorted_ = false;
 		std::vector<int> index_;
 		std::vector<KSpaceSubset> sorting_;
 		AcquisitionsInfo acqs_info_;
+
+		mutable IgnoreMask ignore_mask_= IgnoreMask();
 
 		// new MRAcquisitionData objects will be created from this template
 		// using same_acquisitions_container()
@@ -782,9 +783,9 @@ namespace sirf {
 			return acqs_[ind];
 		}
 		virtual int get_acquisition(unsigned int num,
-			ISMRMRD::Acquisition& acq,
-			IgnoreMask ignore_mask = IgnoreMask()) const
+			ISMRMRD::Acquisition& acq) const
 		{
+			IgnoreMask ignore_mask = this->ignore_mask();
 			int ind = index(num);
 			acq = *acqs_[ind];
 			if (ignore_mask.ignored(acq.flags()))
@@ -801,8 +802,7 @@ namespace sirf {
 			acqs_info_ = ac.acquisitions_info();
 		}
 		virtual void copy_acquisitions_data(const MRAcquisitionData& ac);
-		virtual void set_data(const complex_float_t* z, int all = 1,
-			IgnoreMask ignore_mask = IgnoreMask());
+		virtual void set_data(const complex_float_t* z, int all = 1);
 
 		virtual AcquisitionsVector* same_acquisitions_container
 			(const AcquisitionsInfo& info) const

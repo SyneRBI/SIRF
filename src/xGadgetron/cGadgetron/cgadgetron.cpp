@@ -577,7 +577,10 @@ cGT_ISMRMRDAcquisitionsFromFile(const char* file, int all, size_t ptr)
 		mask.show_bits();
 		shared_ptr<MRAcquisitionData>
 			acquisitions(new AcquisitionsVector);
-		acquisitions->read(file, all, mask);
+		IgnoreMask copy = acquisitions->ignore_mask();
+		acquisitions->set_ignore_mask(mask);
+		acquisitions->read(file, all);
+		acquisitions->set_ignore_mask(copy);
 		return newObjectHandle<MRAcquisitionData>(acquisitions);
 	}
 	CATCH;
