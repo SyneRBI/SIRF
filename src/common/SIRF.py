@@ -31,7 +31,7 @@ import sys
 import warnings
 
 from sirf.Utilities import assert_validity, assert_validities, \
-     cpp_int_dtype, check_status, try_calling
+     cpp_int_dtype, check_status, try_calling, error
 import pyiutilities as pyiutil
 import sirf.pysirf as pysirf
 
@@ -154,6 +154,31 @@ class DataContainer(ABC):
         y = self.clone()
         y.fill(value)
         return y
+
+    def fill(self, value=0):
+        return
+
+    def allocate(self, value=0, **kwargs):
+        """Allocates a copy of self and fills with values
+
+        CIL/SIRF compatibility
+        """
+        out = self.clone()
+        if value in ['random', 'random_int']:
+            shape = out.shape
+            seed = kwargs.get('seed', None)
+            if seed is not None:
+                numpy.random.seed(seed)
+            if value == 'random':
+                out.fill(numpy.random.random_sample(shape))
+            elif value == 'random_int':
+                max_value = kwargs.get('max_value', 100)
+                out.fill(numpy.random.randint(max_value,size=shape))
+        elif value is None:
+            out.fill(0)
+        else:
+            out.fill(value)
+        return out
 
     def write(self, filename):
         '''
@@ -535,13 +560,17 @@ class DataContainer(ABC):
 
     @property
     def shape(self):
-        '''Returns the shape of the data array
+        '''Returns the shape of the object data
         '''
+        if self.is_empty():
+            return None
         return self.dimensions()
 
     @property
     def size(self):
-        '''Returns the (total) size of the data array.'''
+        '''Returns the size of the object data.'''
+        if self.is_empty():
+            return 0
         return numpy.prod(self.dimensions())
 
     @property

@@ -643,28 +643,6 @@ class ImageData(SIRF.ImageData):
                           suptitle=title, show=(t == ni))
             f = t
 
-    def allocate(self, value=0, **kwargs):
-        """Alias to get_uniform_copy for CIL/SIRF compatibility."""
-        if value in ['random', 'random_int']:
-            out = self.get_uniform_copy()
-            shape = out.as_array().shape
-            seed = kwargs.get('seed', None)
-            if seed is not None:
-                numpy.random.seed(seed)
-            if value == 'random':
-                out.fill(numpy.random.random_sample(shape))
-            elif value == 'random_int':
-                max_value = kwargs.get('max_value', 100)
-                out.fill(numpy.random.randint(max_value, size=shape))
-        elif value is None:
-            if self.is_empty():
-                out = self.get_uniform_copy(0)
-            else:
-                out = self.copy()
-        else:
-            out = self.get_uniform_copy(value)
-        return out
-
     def zoom_image(self, zooms=(1., 1., 1.), offsets_in_mm=(0., 0., 0.),
                    size=(-1, -1, -1), scaling='preserve_sum'):
         """
@@ -1393,28 +1371,6 @@ class AcquisitionData(DataContainer):
                 xlabel='tang.pos', ylabel='view',
                 suptitle=title, show=(t == ns))
             f = t
-
-    def allocate(self, value=0, **kwargs):
-        """Alias to get_uniform_copy.
-
-        CIL/SIRF compatibility
-        """
-        if value in ['random', 'random_int']:
-            out = self.get_uniform_copy()
-            shape = out.as_array().shape
-            seed = kwargs.get('seed', None)
-            if seed is not None:
-                numpy.random.seed(seed)
-            if value == 'random':
-                out.fill(numpy.random.random_sample(shape))
-            elif value == 'random_int':
-                max_value = kwargs.get('max_value', 100)
-                out.fill(numpy.random.randint(max_value,size=shape))
-        elif value is None:
-            out = self.get_uniform_copy(0)
-        else:
-            out = self.get_uniform_copy(value)
-        return out
 
     def get_info(self):
         """Returns the AcquisitionData's metadata as Python str."""

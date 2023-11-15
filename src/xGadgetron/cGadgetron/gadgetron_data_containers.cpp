@@ -185,8 +185,8 @@ MRAcquisitionData::get_acquisitions_dimensions(size_t ptr_dim) const
     int* dim = (int*)ptr_dim;
 
     ISMRMRD::Acquisition acq;
-    int ns;
-    int nc;
+    int ns = 0;
+    int nc = 0;
     int num_acq = 0;
     for (int i = 0; i < na; ++i)
     {
