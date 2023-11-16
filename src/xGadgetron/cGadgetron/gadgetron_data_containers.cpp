@@ -223,7 +223,7 @@ uint16_t MRAcquisitionData::get_trajectory_dimensions(void) const
     {
         if (!get_acquisition(i, acq))
             continue;
-        if (traj_dims == 65535)
+        if (num_acq == 0)
             traj_dims = acq.trajectory_dimensions();
         else if (acq.trajectory_dimensions() != traj_dims)
             throw LocalisedException("Not every acquisition in your container has the same trajectory dimension." , __FILE__, __LINE__);
@@ -239,14 +239,14 @@ void MRAcquisitionData::get_kspace_dimensions(std::vector<size_t>& dims) const
     ASSERT(na > 0, "You are asking for dimensions on an empty acquisition container. Please don't...");
 
     ISMRMRD::Acquisition acq;
-    int nro = -1;
+    int nro;
     int nc;
     int num_acq = 0;
     for (int i = 0; i < na; ++i)
     {
         if (!get_acquisition(i, acq))
             continue;
-        if (nro == -1) {
+        if (num_acq == 0) {
             nro = acq.number_of_samples();
             nc = acq.active_channels();
         }
@@ -258,7 +258,7 @@ void MRAcquisitionData::get_kspace_dimensions(std::vector<size_t>& dims) const
         }
         num_acq++;
     }
-    ASSERT(num_acq > 0, "All acquisitions ignored, k-space dimensions undefined");
+    ASSERT(num_acq > 0, "All acquisitions ignored, some k-space dimensions undefined");
 
     ISMRMRD::IsmrmrdHeader hdr = this->acquisitions_info().get_IsmrmrdHeader();
     ISMRMRD::Encoding e = hdr.encoding[0];
