@@ -201,6 +201,7 @@ MRAcquisitionData::get_acquisitions_dimensions(size_t ptr_dim) const
         }
         num_acq++;
     }
+    ASSERT(num_acq > 0, "All acquisitions ignored, dimensions undefined,");
 
     int const num_dims = 3;
     dim[0] = ns;
@@ -216,7 +217,8 @@ uint16_t MRAcquisitionData::get_trajectory_dimensions(void) const
     ASSERT(na > 0, "You are asking for dimensions on an empty acquisition container. Please don't...");
 
     ISMRMRD::Acquisition acq;
-    uint16_t traj_dims = 65535;
+    uint16_t traj_dims;
+    int num_acq = 0;
     for (int i = 0; i < na; ++i)
     {
         if (!get_acquisition(i, acq))
@@ -225,7 +227,9 @@ uint16_t MRAcquisitionData::get_trajectory_dimensions(void) const
             traj_dims = acq.trajectory_dimensions();
         else if (acq.trajectory_dimensions() != traj_dims)
             throw LocalisedException("Not every acquisition in your container has the same trajectory dimension." , __FILE__, __LINE__);
+        num_acq++;
     }
+    ASSERT(num_acq > 0, "All acquisitions ignored, trajectory dimensions undefined.");
     return traj_dims;
 }
 
@@ -237,6 +241,7 @@ void MRAcquisitionData::get_kspace_dimensions(std::vector<size_t>& dims) const
     ISMRMRD::Acquisition acq;
     int nro = -1;
     int nc;
+    int num_acq = 0;
     for (int i = 0; i < na; ++i)
     {
         if (!get_acquisition(i, acq))
@@ -251,7 +256,9 @@ void MRAcquisitionData::get_kspace_dimensions(std::vector<size_t>& dims) const
             if (acq.number_of_samples() != nro)
                 throw std::runtime_error("The number of readout points is not consistent within this container.");
         }
+        num_acq++;
     }
+    ASSERT(num_acq > 0, "All acquisitions ignored, k-space dimensions undefined");
 
     ISMRMRD::IsmrmrdHeader hdr = this->acquisitions_info().get_IsmrmrdHeader();
     ISMRMRD::Encoding e = hdr.encoding[0];
