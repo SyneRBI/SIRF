@@ -54,9 +54,9 @@ if data_path is None:
     data_path = examples_data_path('MR')
 slcs = int(args['--slices'])
 to_be_ignored = args['--ignore']
-ignored_mask = mr.IgnoreMask(0)
+ignore_mask = mr.IgnoreMask(0)
 if to_be_ignored is not None:
-    ignored_mask.ignore(ast.literal_eval(to_be_ignored))
+    ignore_mask.ignore(ast.literal_eval(to_be_ignored))
 show_plot = not args['--non-interactive']
 
 def main():
@@ -65,7 +65,7 @@ def main():
     input_file = existing_filepath(data_path, data_file)
 
     # acquisition data will be read from an HDF file input_file
-    acq_data = mr.AcquisitionData(input_file, False, ignored=ignored_mask)
+    acq_data = mr.AcquisitionData(input_file, False, ignored=ignore_mask)
 
     # the raw k-space data is a list of different readouts
     # of different data type (e.g. noise correlation data, navigator data,

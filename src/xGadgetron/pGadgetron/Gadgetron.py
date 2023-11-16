@@ -941,6 +941,10 @@ class AcquisitionData(DataContainer):
             new_ad.handle = pygadgetron.cGT_cloneAcquisitions(self.handle)
         check_status(new_ad.handle)
         return new_ad
+    def set_ignore_mask(self, ignored):
+        mask = numpy.ndarray((1,), dtype=numpy.int64)
+        mask[0] = ignored.mask
+        try_calling(pygadgetron.cGT_setAcquisitionsIgnoreMask(self.handle, mask.ctypes.data))
     def number_of_readouts(self, select='image'):
         if select == 'image':
             dim = self.dimensions()

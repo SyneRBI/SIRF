@@ -717,6 +717,23 @@ cGT_getAcquisitionDataDimensions(void* ptr_acqs, size_t ptr_dim)
 
 extern "C"
 void*
+cGT_setAcquisitionsIgnoreMask(void* ptr_acqs, size_t ptr_im)
+{
+	try {
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		MRAcquisitionData& acqs =
+			objectFromHandle<MRAcquisitionData>(h_acqs);
+		shared_ptr<ISMRMRD::Acquisition>
+			sptr_acq(new ISMRMRD::Acquisition);
+		unsigned long int im = *(unsigned long int*)ptr_im;
+		acqs.set_ignore_mask(im);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cGT_acquisitionDataAsArray(void* ptr_acqs, size_t ptr_z, int all)
 {
 	try {
