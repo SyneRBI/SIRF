@@ -155,16 +155,13 @@ class DataContainer(ABC):
         y.fill(value)
         return y
 
-    def fill(self, value=0):
-        return
-
     def allocate(self, value=0, **kwargs):
         """Allocates a copy of self and fills with values
 
         CIL/SIRF compatibility
         """
-        out = self.clone()
         if value in ['random', 'random_int']:
+            out = self.get_uniform_copy()
             shape = out.shape
             seed = kwargs.get('seed', None)
             if seed is not None:
@@ -174,10 +171,8 @@ class DataContainer(ABC):
             elif value == 'random_int':
                 max_value = kwargs.get('max_value', 100)
                 out.fill(numpy.random.randint(max_value,size=shape))
-        elif value is None:
-            out.fill(0)
         else:
-            out.fill(value)
+            out = self.get_uniform_copy(value)
         return out
 
     def write(self, filename):
@@ -568,7 +563,7 @@ class DataContainer(ABC):
 
     @property
     def size(self):
-        '''Returns the size of the object data.'''
+        '''Returns the number of elements in the object data.'''
         if self.is_empty():
             return 0
         return numpy.prod(self.dimensions())
