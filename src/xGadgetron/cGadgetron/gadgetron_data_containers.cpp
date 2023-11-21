@@ -2764,11 +2764,12 @@ void CoilSensitivitiesVector::calculate_csm
             }
         }
     }
-
+/*
     int* object_mask = new int[nx*ny*nz];
     memset(object_mask, 0, nx*ny*nz * sizeof(int));
 
     ISMRMRD::NDArray<complex_float_t> v(cm0);
+*/
     ISMRMRD::NDArray<complex_float_t> w(cm0);
 
     float* ptr_img = img.getDataPtr();
@@ -2784,18 +2785,18 @@ void CoilSensitivitiesVector::calculate_csm
             }
         }
     }
-
+/*
     float max_im = max_(nx, ny, nz, ptr_img);
     float small_grad = max_im * 2 / (nx + ny + 0.0f);
     for (int i = 0; i < 3; i++)
-        smoothen_(nx, ny, nz, nc, v.getDataPtr(), w.getDataPtr(), 0, 1);
+        smoothen_(nx, ny, nz, nc, v.getDataPtr(), w.getDataPtr(), 0, 3);
     float noise = max_diff_(nx, ny, nz, nc, small_grad,
         v.getDataPtr(), cm0.getDataPtr());
     mask_noise_(nx, ny, nz, ptr_img, noise, object_mask);
-
+*/
     for (int i = 0; i < csm_smoothness_; i++)
-        smoothen_(nx, ny, nz, nc, cm0.getDataPtr(), w.getDataPtr(), //0, 1);
-            object_mask, 1);
+        smoothen_(nx, ny, nz, nc, cm0.getDataPtr(), w.getDataPtr(), 0, 3);
+//            object_mask, 3);
 
     for (unsigned int z = 0; z < nz; z++) {
         for (unsigned int y = 0; y < ny; y++) {
@@ -2815,7 +2816,7 @@ void CoilSensitivitiesVector::calculate_csm
             for (unsigned int x = 0; x < nx; x++, i++) {
                 float r = img(x, y, z);
                 float s;
-                if (r != 0.0 && object_mask[i])
+                if (r != 0.0) // && object_mask[i])
                     s = (float)(1.0 / r);
                 else
                     s = 0.0;
@@ -2827,7 +2828,7 @@ void CoilSensitivitiesVector::calculate_csm
         }
     }
 
-    delete[] object_mask;
+//    delete[] object_mask;
 }
 
 
@@ -2856,10 +2857,10 @@ CoilSensitivitiesVector::smoothen_
         for (int iz = 0, k = 0; iz < nz; iz++)
             for (int iy = 0; iy < ny; iy++)
                 for (int ix = 0; ix < nx; ix++, i++, k++) {
-                    if (obj_mask && !obj_mask[k]) {
+/*                    if (obj_mask && !obj_mask[k]) {
                         v[i] = u[i];
                         continue;
-                    }
+                    }*/
                     int n = 0;
                     complex_float_t r(0.0, 0.0);
                     complex_float_t s(0.0, 0.0);
@@ -2871,7 +2872,7 @@ CoilSensitivitiesVector::smoothen_
                                 continue;
                             int j = i + jx + jy*nx;
                             int l = k + jx + jy*nx;
-                            if (i != j && (!obj_mask || obj_mask[l])) {
+                            if (i != j) { // && (!obj_mask || obj_mask[l] == obj_mask[k])) {
                                 n++;
                                 r += ONE;
                                 s += u[j];
@@ -2884,7 +2885,7 @@ CoilSensitivitiesVector::smoothen_
                 }
     memcpy(u, v, nx*ny*nz*nc * sizeof(complex_float_t));
 }
-
+/*
 float
 CoilSensitivitiesVector::max_(int nx, int ny, int nz, float* u)
 {
@@ -2925,4 +2926,4 @@ CoilSensitivitiesVector::max_diff_
     }
     return s;
 }
-
+*/
