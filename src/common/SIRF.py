@@ -158,6 +158,14 @@ class DataContainer(ABC):
     def allocate(self, value=0, **kwargs):
         """Allocates a copy of self and fills with values
 
+        value: Python float or str
+            float: the value to fill with
+            'random': fill with random values ranging between 0 1nd 1 generated
+                by numpy.random.random_sample, optionally using seed provided by
+                kwarg 'seed'
+            'random_int': fill with random integers ranging between 0 and the
+                value optionally provided by kwarg 'max_value' (by default, 100)
+
         CIL/SIRF compatibility
         """
         if value in ['random', 'random_int']:
