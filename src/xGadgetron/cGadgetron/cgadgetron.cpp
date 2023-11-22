@@ -574,7 +574,7 @@ cGT_ISMRMRDAcquisitionsFromFile(const char* file, int all, size_t ptr)
 			mask.set(0);
 		else
 			mask.set(ignored);
-		mask.show_bits();
+		std::cout << mask.bits_string() << '\n';
 		shared_ptr<MRAcquisitionData>
 			acquisitions(new AcquisitionsVector);
 		IgnoreMask copy = acquisitions->ignore_mask();

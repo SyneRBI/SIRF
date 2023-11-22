@@ -137,7 +137,7 @@ def main():
 
     # acquisition data will be read from an HDF file input_file
     # AcquisitionData.set_storage_scheme('memory')
-    acq_data = mr.AcquisitionData(input_file, False)
+    acq_data = mr.AcquisitionData(input_file)
     
     print('---\n acquisition data norm: %e' % acq_data.norm())
 

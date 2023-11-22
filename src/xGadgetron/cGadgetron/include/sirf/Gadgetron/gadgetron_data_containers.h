@@ -117,7 +117,17 @@ namespace sirf {
 
 	/*!
 	\ingroup Gadgetron Data Containers
-	\brief Class enabling ignoring certain 'irregular' acquisitions.
+	\brief Class enabling ignoring acquisitions with certain ISMRMRD acquisition flags.
+
+	Most of the acquisitiondata can be represented by a multidimensional array.
+	However, the input raw data may also contain acquisitions serving some special
+	purposes different from the rest, e.g. acquisitions with noise calibration data
+	(ISMRMRD flag 19). These may have incompatible shape, and must be ignored e.g.
+	when calculating multidimensional data dimensions or performing algebraic operations
+	on acquisition data by some reconstruction algorithms. Class IgnoreMask encapsulates
+	a 64-bit integer with non-zero bits representing 'forbidden' ISMRMRD flags, i.e. any
+	acquisition acq that has at least one of these flags in its bit field returned by
+	its acq.flags() method will be ignored.
 	*/
 	class IgnoreMask {
 	public:
@@ -156,20 +166,22 @@ namespace sirf {
 		{
 			return bits & ignore_;
 		}
-		void show_bits() const
+		std::string bits_string() const
 		{
 			unsigned int size = max_;
 			unsigned long int one = 1;
 			unsigned long int bitmask = (one << (size - 1));
+			std::stringstream str;
 			for (unsigned int i = 0; i < size; i++) {
 				if (ignore_ & (bitmask >> i))
-					std::cout << '1';
+					str << '1';
 				else
-					std::cout << '0';
+					str << '0';
 				if ((i + 1) % 4 == 0)
-					std::cout << ' ';
+					str << ' ';
 			}
-			std::cout << '\n';
+			str << '\n';
+			return str.str();
 		}
 	private:
 		unsigned long int ignore_;
@@ -722,11 +734,13 @@ namespace sirf {
 
 		/*!
 		\brief Reader for ISMRMRD::Acquisition from ISMRMRD file.
-		* filename_ismrmrd_with_ext: filename of ISMRMRD rawdata file with .h5 extension.
 		* In case the ISMRMRD::Dataset constructor throws an std::runtime_error the reader catches it,
 		* displays the message and throws it again.
-		* To avoid reading noise samples and other calibration data, IgnoreMask may be employed
-		* to exclude potentially incompatible input.
+		* To avoid reading noise samples and other calibration data, IgnoreMask may be set
+		* (see method set_ignore_mask) to exclude potentially incompatible input.
+
+		* filename_ismrmrd_with_ext: filename of ISMRMRD rawdata file with .h5 extension.
+		* all: overrider of the ignore mask - non-zero value forces reading all acquisitions.
 		*/
 		void read(const std::string& filename_ismrmrd_with_ext, int all = 0);
 
