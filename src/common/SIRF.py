@@ -558,7 +558,7 @@ class DataContainer(ABC):
         '''Returns the shape of the object data
         '''
         if self.is_empty():
-            return None
+            return (0,)
         return self.dimensions()
 
     @property
