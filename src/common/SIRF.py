@@ -168,6 +168,8 @@ class DataContainer(ABC):
 
         CIL/SIRF compatibility
         """
+        if value is None:
+            value = 0
         if value in ['random', 'random_int']:
             out = self.get_uniform_copy()
             shape = out.shape
