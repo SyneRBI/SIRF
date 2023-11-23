@@ -1515,7 +1515,14 @@ namespace sirf {
             throw std::runtime_error("This has not been implemented yet.");
         }
 
-        void set_csm_smoothness(int s){csm_smoothness_ = s;}
+        void set_csm_smoothness(int s)
+        {
+            csm_smoothness_ = s;
+        }
+        void set_csm_smth_kernel_size(int w)
+        {
+            csm_smth_kernel_size_ = w;
+        }
 
         void calculate(CoilImagesVector& iv);
         void calculate(const MRAcquisitionData& acq)
@@ -1546,7 +1553,10 @@ namespace sirf {
 
     private:
         int csm_smoothness_ = 0;
-        void smoothen_(int nx, int ny, int nz, int nc, complex_float_t* u, complex_float_t* v, int* obj_mask, int w);
+        int csm_smth_kernel_size_ = 1;
+        void smoothen_(int nx, int ny, int nz, int nc, complex_float_t* u, complex_float_t* v, 
+        //int* obj_mask, 
+        int w);
         void mask_noise_(int nx, int ny, int nz, float* u, float noise, int* mask);
         float max_diff_(int nx, int ny, int nz, int nc, float small_grad, complex_float_t* u, complex_float_t* v);
         float max_(int nx, int ny, int nz, float* u);

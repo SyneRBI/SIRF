@@ -631,6 +631,7 @@ class CoilSensitivityData(ImageData):
     def __init__(self):
         self.handle = None
         self.smoothness = 0
+        self.smth_kernel_size = 1
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
@@ -657,6 +658,7 @@ class CoilSensitivityData(ImageData):
         self.handle = pygadgetron.cGT_CoilSensitivities('')
         check_status(self.handle)
         nit = self.smoothness
+        w = self.smth_kernel_size
         
         if method is not None:
             method_name, parm_list = name_and_parameters(method)
@@ -668,6 +670,7 @@ class CoilSensitivityData(ImageData):
             parm = {}
         
         parms.set_int_par(self.handle, 'coil_sensitivity', 'smoothness', nit)
+        parms.set_int_par(self.handle, 'coil_sensitivity', 'smth_kernel_size', w)
 
         if isinstance(data, AcquisitionData):
             self.__calc_from_acquisitions(data, method_name)

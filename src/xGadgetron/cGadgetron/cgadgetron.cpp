@@ -323,6 +323,8 @@ cGT_setCSParameter(void* ptr, const char* par, const void* val)
 	if (sirf::iequals(par, "smoothness"))
 		csms.set_csm_smoothness(dataFromHandle<int>(val));
 	//csms.set_csm_smoothness(intDataFromHandle(val)); // causes problems with Matlab
+	else if (sirf::iequals(par, "smth_kernel_size"))
+		csms.set_csm_smth_kernel_size(dataFromHandle<int>(val));
 	else
 		return unknownObject("parameter", par, __FILE__, __LINE__);
 	return new DataHandle;
