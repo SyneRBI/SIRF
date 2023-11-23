@@ -131,7 +131,8 @@ def main():
         simulated_acq_data.write(output_file)
 
     # display simulated acquisition data
-    simulated_acq_data.show(title = 'Simulated acquisition data (magnitude)')
+    if show_plot:
+        simulated_acq_data.show(title = 'Simulated acquisition data (magnitude)')
 
     print('\n--- Computing the norm of the acquisition model operator...')
     acqm_norm = acq_model.norm()

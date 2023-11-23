@@ -31,7 +31,7 @@ import sys
 import warnings
 
 from sirf.Utilities import assert_validity, assert_validities, \
-     cpp_int_dtype, check_status, try_calling
+     cpp_int_dtype, check_status, try_calling, error
 import pyiutilities as pyiutil
 import sirf.pysirf as pysirf
 
@@ -154,6 +154,36 @@ class DataContainer(ABC):
         y = self.clone()
         y.fill(value)
         return y
+
+    def allocate(self, value=0, **kwargs):
+        """Allocates a copy of self and fills with values
+
+        value: Python float or str
+            float: the value to fill with
+            'random': fill with random values ranging between 0 1nd 1 generated
+                by numpy.random.random_sample, optionally using seed provided by
+                kwarg 'seed'
+            'random_int': fill with random integers ranging between 0 and the
+                value optionally provided by kwarg 'max_value' (by default, 100)
+
+        CIL/SIRF compatibility
+        """
+        if value is None:
+            value = 0
+        if value in ['random', 'random_int']:
+            out = self.get_uniform_copy()
+            shape = out.shape
+            seed = kwargs.get('seed', None)
+            if seed is not None:
+                numpy.random.seed(seed)
+            if value == 'random':
+                out.fill(numpy.random.random_sample(shape))
+            elif value == 'random_int':
+                max_value = kwargs.get('max_value', 100)
+                out.fill(numpy.random.randint(max_value,size=shape))
+        else:
+            out = self.get_uniform_copy(value)
+        return out
 
     def write(self, filename):
         '''
@@ -535,13 +565,17 @@ class DataContainer(ABC):
 
     @property
     def shape(self):
-        '''Returns the shape of the data array
+        '''Returns the shape of the object data
         '''
+        if self.is_empty():
+            return (0,)
         return self.dimensions()
 
     @property
     def size(self):
-        '''Returns the (total) size of the data array.'''
+        '''Returns the number of elements in the object data.'''
+        if self.is_empty():
+            return 0
         return numpy.prod(self.dimensions())
 
     @property
