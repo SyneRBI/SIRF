@@ -1,6 +1,6 @@
 # ChangeLog
 
-## v3.5.1
+## v3.6.0
 
 * CMake/building:
   - default `DISABLE_MATLAB` to `ON` as our Matlab support is out-of-date and could
@@ -19,6 +19,9 @@
 
 * MR
   - Further improvements in handling of "irregular" ISMRMRD acquisitions.
+
+* PET
+  - Added missing `set`/`get` methods for OSSPS `relaxation_parameter`, `relaxation_gamma` and `upper_bound`.
 
 ## v3.5.0
 
