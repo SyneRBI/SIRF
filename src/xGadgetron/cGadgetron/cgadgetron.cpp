@@ -734,6 +734,23 @@ cGT_setAcquisitionsIgnoreMask(void* ptr_acqs, size_t ptr_im)
 
 extern "C"
 void*
+cGT_acquisitionsIgnoreMask(void* ptr_acqs, size_t ptr_im)
+{
+	try {
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		MRAcquisitionData& acqs =
+			objectFromHandle<MRAcquisitionData>(h_acqs);
+		shared_ptr<ISMRMRD::Acquisition>
+			sptr_acq(new ISMRMRD::Acquisition);
+		unsigned long int* im = (unsigned long int*)ptr_im;
+		*im = acqs.ignore_mask().bits();
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cGT_acquisitionDataAsArray(void* ptr_acqs, size_t ptr_z, int all)
 {
 	try {

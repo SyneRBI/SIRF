@@ -945,6 +945,10 @@ class AcquisitionData(DataContainer):
         mask = numpy.ndarray((1,), dtype=numpy.int64)
         mask[0] = ignored.mask
         try_calling(pygadgetron.cGT_setAcquisitionsIgnoreMask(self.handle, mask.ctypes.data))
+    def ignore_mask(self):
+        mask = numpy.ndarray((1,), dtype=numpy.int64)
+        try_calling(pygadgetron.cGT_setAcquisitionsIgnoreMask(self.handle, mask.ctypes.data))
+        return mask[0]
     def number_of_readouts(self, select='image'):
         if select == 'image':
             dim = self.dimensions()

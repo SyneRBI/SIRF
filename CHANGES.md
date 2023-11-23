@@ -13,6 +13,9 @@
 ```
   with importing via `importlib.import_module` thus getting rid of Codacy complaints about undefined modules.
 
+* MR
+  - Further improvements in handling of "irregular" ISMRMRD acquisitions.
+
 ## v3.5.0
 
 * GitHub Action: remove temporarily the Ubuntu 20.04 build, #1178

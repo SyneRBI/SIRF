@@ -67,6 +67,7 @@ extern "C" {
 	void* cGT_ISMRMRDAcquisitionsFromFile(const char* file, int all, size_t ptr);
 	void* cGT_ISMRMRDAcquisitionsFile(const char* file);
 	void* cGT_setAcquisitionsIgnoreMask(void* ptr_acqs, size_t ptr_im);
+	void* cGT_acquisitionsIgnoreMask(void* ptr_acqs, size_t ptr_im);
 	void* cGT_processAcquisitions(void* ptr_proc, void* ptr_input);
 	void* cGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num);
 	void* cGT_appendAcquisition(void* ptr_acqs, void* ptr_acq);
