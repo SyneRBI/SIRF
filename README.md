@@ -12,7 +12,8 @@ Platform for Synergistic Reconstruction for Biomedical Imaging (formerly CCP PET
 Please start with our latest [User's Guide](doc/UserGuide.md).
 See [our Wiki page for installation instructions](https://github.com/SyneRBI/SIRF/wiki/Installation-instructions).
 
-You can also [download a VM](https://doi.org/10.5281/zenodo.2707911) with SIRF and related software preinstalled.
+## How do obtain SIRF
+There are multiple ways to obtain a binary version of SIRF, please check them out in our documentation page [how to obtain SIRF](https://github.com/SyneRBI/SIRF/wiki/How-to-obtain-SIRF)
 
 # Where is everything installed?
 
