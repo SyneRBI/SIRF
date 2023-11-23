@@ -705,6 +705,26 @@ The actual algorithm is described in
         {
           return stir::ScatterEstimation::get_num_iterations();
         }
+        
+        void set_OSEM_num_subiterations(int arg)
+        {
+          this->recon_sptr->set_num_subiterations(arg);
+        }
+
+        int get_OSEM_num_subiterations() const
+        {
+          return this->recon_sptr->get_num_subiterations();
+        }
+        
+        void set_OSEM_num_subsets(int arg)
+        {
+          this->recon_sptr->set_num_subsets(arg);
+        }
+
+        int get_OSEM_num_subsets() const
+        {
+          return this->recon_sptr->get_num_subsets();
+        }
 
         std::shared_ptr<STIRAcquisitionData> get_scatter_estimate(int est_num = -1) const
         {
