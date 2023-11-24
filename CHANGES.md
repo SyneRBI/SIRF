@@ -1,5 +1,9 @@
 # ChangeLog
 
+* PET:
+  - added extra members to ScatterEstimation to set behaviour of OSEM used during scatter estimation
+  - added test for scatter simulation and estimation
+
 ## v3.5.1
 
 * CMake/building:
