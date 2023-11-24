@@ -84,6 +84,11 @@ def test_main(rec=False, verb=False, throw=True):
     scat_est.set_asm(pet.AcquisitionSensitivityModel(acq_data.get_uniform_copy(1)))
     scat_est.set_randoms(acq_data.get_uniform_copy(0))
     scat_est.set_OSEM_num_subsets(4)
+    assert scat_est.get_OSEM_num_subsets() == 4
+    scat_est.set_OSEM_num_subiterations(3)
+    assert scat_est.get_OSEM_num_subiterations() == 3
+    scat_est.set_num_iterations(5)
+    assert scat_est.get_num_iterations() == 5
     scat_est.set_up()
     scat_est.process()
     scatter_estimate = scat_est.get_output()
