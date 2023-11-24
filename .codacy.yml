@@ -1,3 +1,4 @@
 exclude_paths:
   - '**.md'
-assert_used: skips: ['*test*.py']
+assert_used:
+  - skips: ['*test*.py', 'test*.py']
