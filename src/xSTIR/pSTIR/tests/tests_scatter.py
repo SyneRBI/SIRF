@@ -6,7 +6,7 @@ Usage:
   tests_scatter [--help | options]
 
 Options:
-  -r, --record   record the measurements rather than check them
+  -r, --record   record the measurements rather than check them [actually not used for current test]
   -v, --verbose  report each test status
 
 {author}
@@ -15,13 +15,13 @@ Options:
 """
 import sirf.STIR as pet
 import os
-from sirf.Utilities import runner, RE_PYEXT, __license__
+from sirf.Utilities import runner, __license__
 __version__ = "0.1.0"
 __author__ = "Kris Thielemans"
 
 
 def test_main(rec=False, verb=False, throw=True):
-    msg_red = pet.MessageRedirector()
+    _ = pet.MessageRedirector()
 
     #data_path = pet.examples_data_path('PET')
     #raw_data_file = pet.existing_filepath(data_path,'Utahscat600k_ca_seg4.hs')
@@ -36,7 +36,7 @@ def test_main(rec=False, verb=False, throw=True):
     atten_image = act_image.get_uniform_copy(0)
     image_size = atten_image.dimensions()
     voxel_size = atten_image.voxel_sizes()
-    
+
     # create a cylindrical water shape
     water_cyl = pet.EllipticCylinder()
     water_cyl.set_length(image_size[0]*voxel_size[0])

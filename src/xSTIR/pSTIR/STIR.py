@@ -3361,7 +3361,7 @@ class ScatterEstimator():
     
     def get_OSEM_num_subsets(self):
         """Get number of subsets used by OSEM in the SSS algorithm."""
-        return parms.int_par(self.handle, 'PETScatterEstimator', 'OSEM_num_subsets')    
+        return parms.int_par(self.handle, 'PETScatterEstimator', 'OSEM_num_subsets')
 
     def set_attenuation_image(self, image):
         assert_validity(image, ImageData)
@@ -3390,12 +3390,11 @@ class ScatterEstimator():
         
     def set_OSEM_num_subsets(self, v):
         """Set number of subsets used by OSEM in the SSS algorithm."""
-        parms.set_int_par(self.handle, 'PETScatterEstimator', 'set_OSEM_num_subsets', v)    
+        parms.set_int_par(self.handle, 'PETScatterEstimator', 'set_OSEM_num_subsets', v)
          
     def set_num_iterations(self, v):
         """Set number of iterations of the SSS algorithm to use."""
-        parms.set_int_par(self.handle, 'PETScatterEstimator', 'set_num_iterations', v)        
-        
+        parms.set_int_par(self.handle, 'PETScatterEstimator', 'set_num_iterations', v)
 
     def set_output_prefix(self, v):
         """
