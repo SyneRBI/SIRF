@@ -750,7 +750,7 @@ namespace sirf {
 		std::vector<KSpaceSubset> sorting_;
 		AcquisitionsInfo acqs_info_;
 
-		mutable IgnoreMask ignore_mask_= IgnoreMask();
+		mutable IgnoreMask ignore_mask_; //= IgnoreMask();
 
 		// new MRAcquisitionData objects will be created from this template
 		// using same_acquisitions_container()
@@ -772,13 +772,15 @@ namespace sirf {
 	*/
 	class AcquisitionsVector : public MRAcquisitionData {
 	public:
-		AcquisitionsVector(const std::string& filename_with_ext, int all = 0)
+		AcquisitionsVector(const std::string& filename_with_ext, int all = 0, IgnoreMask ignore_mask = IgnoreMask())
 		{
+			this->set_ignore_mask(ignore_mask);
 			this->read(filename_with_ext, all);
 		}
 
-		AcquisitionsVector(const AcquisitionsInfo& info = AcquisitionsInfo())
+		AcquisitionsVector(const AcquisitionsInfo& info = AcquisitionsInfo(), IgnoreMask ignore_mask = IgnoreMask())
 		{
+			this->set_ignore_mask(ignore_mask);
 			acqs_info_ = info;
 		}
 		virtual void empty();
@@ -821,11 +823,11 @@ namespace sirf {
 		virtual AcquisitionsVector* same_acquisitions_container
 			(const AcquisitionsInfo& info) const
 		{
-			return new AcquisitionsVector(info);
+			return new AcquisitionsVector(info, ignore_mask_);
 		}
 		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
-			DataContainer* ptr = new AcquisitionsVector(acqs_info_);
+			DataContainer* ptr = new AcquisitionsVector(acqs_info_, ignore_mask_);
 			return new ObjectHandle<DataContainer>
 				(gadgetron::shared_ptr<DataContainer>(ptr));
 		}
@@ -833,7 +835,7 @@ namespace sirf {
 			new_acquisitions_container()
 		{
 			return gadgetron::unique_ptr<MRAcquisitionData>
-				(new AcquisitionsVector(acqs_info_));
+				(new AcquisitionsVector(acqs_info_, ignore_mask_));
 		}
 
 	private:

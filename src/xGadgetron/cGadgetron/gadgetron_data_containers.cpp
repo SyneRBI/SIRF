@@ -1295,7 +1295,7 @@ AcquisitionsVector*
 AcquisitionsVector::clone_impl() const
 {
 	AcquisitionsVector* ptr_ad =
-		new AcquisitionsVector(this->acqs_info_);
+		new AcquisitionsVector(this->acqs_info_, this->ignore_mask_);
 	for (int i = 0; i < number(); i++) {
 		ISMRMRD::Acquisition acq;
 		get_acquisition(i, acq);
