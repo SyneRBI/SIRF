@@ -38,28 +38,34 @@ using namespace sirf;
 
 ImageDataWrap::ImageDataWrap(const std::string &filename, const std::string &engine, bool verbose)
 {
+    std::shared_ptr<const VoxelisedGeometricalInfo3D > gi_sptr;
     if (strcmp(engine.c_str(), "Reg") == 0) {
         std::shared_ptr<NiftiImageData<float> > nifti_sptr = 
 		std::make_shared<NiftiImageData3D<float> >(filename);
         if (verbose) nifti_sptr->print_header();
         img_sptr_ = nifti_sptr;
+        gi_sptr = nifti_sptr->get_geom_info_sptr();
     }
     else if (strcmp(engine.c_str(), "STIR") == 0) {
-        img_sptr_ = std::make_shared<STIRImageData>(filename);
+        std::shared_ptr<STIRImageData> stir_sptr = std::make_shared<STIRImageData>(filename);
+        img_sptr_ = stir_sptr;
+        gi_sptr = stir_sptr->get_geom_info_sptr();
+        //img_sptr_ = std::make_shared<STIRImageData>(filename);
     }
     else if (strcmp(engine.c_str(), "Gadgetron") == 0) {
         std::shared_ptr<GadgetronImagesVector> gadgetron_sptr(new GadgetronImagesVector);
 		gadgetron_sptr->read(filename);
         if (verbose) gadgetron_sptr->print_header(0);
         img_sptr_ = gadgetron_sptr;
+        gi_sptr = gadgetron_sptr->get_geom_info_sptr();
     }
     else
         throw std::runtime_error("unknown engine - " + engine + ".\n");
 
     // If verbose print geom info
 	if (verbose) {
-		std::shared_ptr<const VoxelisedGeometricalInfo3D > gi_sptr =
-			img_sptr_->get_geom_info_sptr();
+		//std::shared_ptr<const VoxelisedGeometricalInfo3D > gi_sptr =
+		//	img_sptr_->get_geom_info_sptr();
 		if (gi_sptr.get())
 			gi_sptr->print_info();
 	}

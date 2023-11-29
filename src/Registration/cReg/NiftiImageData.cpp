@@ -64,29 +64,66 @@ static void check_folder_exists_if_not_create(const std::string &path)
 template<class dataType>
 NiftiImageData<dataType>::NiftiImageData(const NiftiImageData<dataType>& to_copy)
 {
-    *this = dynamic_cast<const ImageData&>(to_copy);
+    *this = dynamic_cast<const ImageData<dataType>&>(to_copy);
 }
 
 template<class dataType>
 NiftiImageData<dataType>& NiftiImageData<dataType>::operator=(const NiftiImageData<dataType>& to_copy)
 {
-    *this = dynamic_cast<const ImageData&>(to_copy);
+    *this = dynamic_cast<const ImageData<dataType>&>(to_copy);
     return *this;
 }
 
 template<class dataType>
-NiftiImageData<dataType>::NiftiImageData(const ImageData& to_copy)
+NiftiImageData<dataType>::NiftiImageData(const ImageData<float>& to_copy)
 {
     *this = to_copy;
 }
 
 template<class dataType>
-NiftiImageData<dataType>& NiftiImageData<dataType>::operator=(const ImageData& to_copy)
+NiftiImageData<dataType>::NiftiImageData(const ImageData<complex_float_t>& to_copy)
+{
+    *this = to_copy;
+}
+
+template<class dataType>
+NiftiImageData<dataType>& NiftiImageData<dataType>::operator=(const ImageData<float>& to_copy)
 {
     // Check for self-assignment
-    if (this != &to_copy) {
+    if (static_cast<void*>(this) != static_cast<const void*>(&to_copy)) {
         // Try to cast to NiftiImageData.
-        const NiftiImageData<dataType> * const nii_ptr = dynamic_cast<const NiftiImageData<dataType> * const >(&to_copy);
+        auto nii_ptr = dynamic_cast<const NiftiImageData<dataType> * const >(&to_copy);
+        if (nii_ptr) {
+            // Check the image is copyable
+            if (!nii_ptr->is_initialised())
+                throw std::runtime_error("Trying to copy an uninitialised image.");
+            copy_nifti_image(_nifti_image,nii_ptr->_nifti_image);
+            this->_data = static_cast<float*>(_nifti_image->data);
+            this->_original_datatype = nii_ptr->_original_datatype;
+            set_up_geom_info();
+        }
+        else {
+            this->_nifti_image = NiftiImageData<float>::create_from_geom_info(*to_copy.get_geom_info_sptr());
+            // Always float
+            this->set_up_data(NIFTI_TYPE_FLOAT32);
+            // Finally, copy the data
+            auto &it_src = to_copy.begin();
+            auto &it_dst = this->begin();
+            for (; it_src != to_copy.end(); ++it_src, ++it_dst)
+                *it_dst = *it_src;
+            set_up_geom_info();
+        }
+    }
+    return *this;
+}
+
+template<class dataType>
+NiftiImageData<dataType>& NiftiImageData<dataType>::operator=(const ImageData<complex_float_t>& to_copy)
+{
+    // Check for self-assignment
+    if (static_cast<void*>(this) != static_cast<const void*>(&to_copy)) {
+        // Try to cast to NiftiImageData.
+        auto nii_ptr = dynamic_cast<const NiftiImageData<dataType> * const >(&to_copy);
         if (nii_ptr) {
             // Check the image is copyable
             if (!nii_ptr->is_initialised())
@@ -102,7 +139,11 @@ NiftiImageData<dataType>& NiftiImageData<dataType>::operator=(const ImageData& t
             // Always float
             this->set_up_data(NIFTI_TYPE_FLOAT32);
             // Finally, copy the data
-            this->copy(to_copy.begin(), this->begin(), this->end());
+            auto &it_src = to_copy.begin();
+            auto &it_dst = this->begin();
+            for (; it_src != to_copy.end(); ++it_src, ++it_dst)
+                *it_dst = (*it_src).complex_float().real();
+            set_up_geom_info();
         }
     }
     return *this;
@@ -213,9 +254,9 @@ std::shared_ptr<nifti_image> NiftiImageData<dataType>::create_from_geom_info(con
 }
 
 template<class dataType>
-void NiftiImageData<dataType>::construct_NiftiImageData_from_complex_im_real_component(std::shared_ptr<NiftiImageData> &out_sptr, const std::shared_ptr<const ImageData> in_sptr)
+void NiftiImageData<dataType>::construct_NiftiImageData_from_complex_im_real_component(std::shared_ptr<NiftiImageData>& out_sptr, const std::shared_ptr<const DataContainer> dc_sptr)
 {
-    // Create image from input
+    auto in_sptr = std::dynamic_pointer_cast<const ImageData<complex_float_t> >(dc_sptr);
     out_sptr = std::make_shared<NiftiImageData<dataType> >(*in_sptr);
 
     auto &it_in = in_sptr->begin();
@@ -225,8 +266,9 @@ void NiftiImageData<dataType>::construct_NiftiImageData_from_complex_im_real_com
 }
 
 template<class dataType>
-void NiftiImageData<dataType>::construct_NiftiImageData_from_complex_im_imag_component(std::shared_ptr<NiftiImageData> &out_sptr, const std::shared_ptr<const ImageData> in_sptr)
+void NiftiImageData<dataType>::construct_NiftiImageData_from_complex_im_imag_component(std::shared_ptr<NiftiImageData>& out_sptr, const std::shared_ptr<const DataContainer> dc_sptr)
 {
+    auto in_sptr = std::dynamic_pointer_cast<const ImageData<complex_float_t> >(dc_sptr);
     if (!in_sptr->is_complex())
         std::cout << "\nNiftiImageData<dataType>::construct_NiftiImageData_from_complex_im. Warning, input image is not complex. Complex component will be empty\n";
 
@@ -240,7 +282,7 @@ void NiftiImageData<dataType>::construct_NiftiImageData_from_complex_im_imag_com
 }
 
 template<class dataType>
-void NiftiImageData<dataType>::construct_NiftiImageData_from_complex_im(std::shared_ptr<NiftiImageData> &out_real_sptr, std::shared_ptr<NiftiImageData> &out_imag_sptr, const std::shared_ptr<const ImageData> in_sptr)
+void NiftiImageData<dataType>::construct_NiftiImageData_from_complex_im(std::shared_ptr<NiftiImageData> &out_real_sptr, std::shared_ptr<NiftiImageData> &out_imag_sptr, const std::shared_ptr<const DataContainer> in_sptr)
 {
     construct_NiftiImageData_from_complex_im_real_component(out_real_sptr,in_sptr);
     construct_NiftiImageData_from_complex_im_imag_component(out_imag_sptr,in_sptr);
@@ -410,7 +452,7 @@ void NiftiImageData<dataType>::write(const std::string &filename, const int data
 
     nifti_set_filenames(copy._nifti_image.get(), filename.c_str(), 0, 0);
     nifti_image_write(copy._nifti_image.get());
-    std::cout << "done.\n\n";
+    std::cout << "done.\n\n" << std::flush;
 }
 
 template<class dataType>
@@ -1670,10 +1712,7 @@ dataType
 NiftiImageData<dataType>::
 get_inner_product(const NiftiImageData &other) const
 {
-	dataType s;
-	this->dot(other, &s);
-	return s;
-//    return std::inner_product(this->begin(),this->end(),other.begin(),dataType(0));
+    return static_cast<dataType>(this->dot(other));
 }
 
 template<class dataType>
@@ -1738,29 +1777,35 @@ bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const NiftiImageData 
 // Pure virtual methods from ImageData
 // ------------------------------------------------------------------------------ //
 template<class dataType>
-void NiftiImageData<dataType>::dot(const DataContainer& a_x, void* ptr) const
+void NiftiImageData<dataType>::scale(float s)
+{
+    for (unsigned i=0; i<this->_nifti_image->nvox; ++i)
+        _data[i] /= s;
+}
+
+template<class dataType>
+float 
+NiftiImageData<dataType>::dot(const DataContainer& a_x) const
 {
     const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
     ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "dot operands size mismatch");
     double s = 0.0;
     for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
         s += double(_data[i]) * x._data[i];
-    float* ptr_s = static_cast<float*>(ptr);
-    *ptr_s = (float)s;
+    return (float)s;
 }
 
 template<class dataType>
-void NiftiImageData<dataType>::sum(void* ptr) const
+float NiftiImageData<dataType>::sum() const
 {
     double s = 0.0;
     for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
         s += _data[i];
-    float* ptr_s = static_cast<float*>(ptr);
-    *ptr_s = (float)s;
+    return (float)s;
 }
 
 template<class dataType>
-void NiftiImageData<dataType>::max(void* ptr) const
+float NiftiImageData<dataType>::max() const
 {
     float s = 0.0;
     for (unsigned i = 0; i < this->_nifti_image->nvox; ++i) {
@@ -1768,10 +1813,60 @@ void NiftiImageData<dataType>::max(void* ptr) const
         if (si > s)
             s = si;
     }
-    float* ptr_s = static_cast<float*>(ptr);
-    *ptr_s = s;
+    return s;
 }
 
+template<class dataType>
+void NiftiImageData<dataType>::axpby(
+    dataType a, const DataContainer& a_x,
+    dataType b, const DataContainer& a_y)
+{
+    //const float a = *static_cast<const float*>(ptr_a);
+    //const float b = *static_cast<const float*>(ptr_b);
+    const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
+    const NiftiImageData<dataType>& y = dynamic_cast<const NiftiImageData<dataType>&>(a_y);
+
+    // If the result hasn't been initialised, make a clone of one of them
+    if (!this->is_initialised())
+        *this = *x.clone();
+
+    ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "axpby operands size mismatch");
+	ASSERT(_nifti_image->nvox == y._nifti_image->nvox, "axpby operands size mismatch");
+
+    for (unsigned i=0; i<this->_nifti_image->nvox; ++i)
+        _data[i] = a * x._data[i] + b * y._data[i];
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::xapyb(
+    const DataContainer& a_x, dataType a,
+    const DataContainer& a_y, dataType b)
+{
+    NiftiImageData<dataType>::axpby(a, a_x, b, a_y);
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::xapyb(
+    const DataContainer& a_x, dataType a,
+    const DataContainer& a_y, const DataContainer& a_b)
+{
+    //const float a = *static_cast<const float*>(ptr_a);
+    const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
+    const NiftiImageData<dataType>& y = dynamic_cast<const NiftiImageData<dataType>&>(a_y);
+    const NiftiImageData<dataType>& b = dynamic_cast<const NiftiImageData<dataType>&>(a_b);
+
+    // If the result hasn't been initialised, make a clone of one of them
+    if (!this->is_initialised())
+        *this = *x.clone();
+
+    ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "axpby operands size mismatch");
+    ASSERT(_nifti_image->nvox == y._nifti_image->nvox, "axpby operands size mismatch");
+    ASSERT(_nifti_image->nvox == b._nifti_image->nvox, "axpby operands size mismatch");
+
+    for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
+        _data[i] = a * x._data[i] + b._data[i] * y._data[i];
+}
+/*
 template<class dataType>
 void NiftiImageData<dataType>::axpby(
     const void* ptr_a, const DataContainer& a_x,
@@ -1787,9 +1882,9 @@ void NiftiImageData<dataType>::axpby(
         *this = *x.clone();
 
     ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "axpby operands size mismatch");
-	ASSERT(_nifti_image->nvox == y._nifti_image->nvox, "axpby operands size mismatch");
+    ASSERT(_nifti_image->nvox == y._nifti_image->nvox, "axpby operands size mismatch");
 
-    for (unsigned i=0; i<this->_nifti_image->nvox; ++i)
+    for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
         _data[i] = a * x._data[i] + b * y._data[i];
 }
 
@@ -1822,7 +1917,7 @@ void NiftiImageData<dataType>::xapyb(
 {
 	NiftiImageData<dataType>::axpby(ptr_a, a_x, ptr_b, a_y);
 }
-
+*/
 template<class dataType>
 void NiftiImageData<dataType>::xapyb(
     const DataContainer& a_x, const DataContainer& a_a,
@@ -1881,11 +1976,12 @@ NiftiImageData<dataType>::unary_op(const DataContainer& a_x,
 template<class dataType>
 void
 NiftiImageData<dataType>::semibinary_op(const DataContainer& a_x,
-    const void* a_y, dataType(*f)(dataType, dataType))
+    //const void* a_y, 
+    dataType y,
+    dataType(*f)(dataType, dataType))
 {
     const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
-    dataType y = *static_cast<const dataType*>(a_y);
-    //dataType y = *(dataType*)a_y;
+    //dataType y = *static_cast<const dataType*>(a_y);
 
     // If the result hasn't been initialised, make a clone of one of them
     if (!this->is_initialised())
@@ -1913,113 +2009,6 @@ void NiftiImageData<dataType>::binary_op(const DataContainer& a_x,
 
     for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
         _data[i] = f(x._data[i], y._data[i]);
-}
-
-template<class dataType>
-void NiftiImageData<dataType>::scale(float s)
-{
-    for (unsigned i=0; i<this->_nifti_image->nvox; ++i)
-        _data[i] /= s;
-}
-
-template<class dataType>
-void NiftiImageData<dataType>::multiply
-    (const DataContainer& a_x, const DataContainer& a_y)
-{
-    binary_op(a_x, a_y, DataContainer::product<dataType>);
-}
-
-template<class dataType>
-void NiftiImageData<dataType>::multiply
-(const DataContainer& a_x, const void* a_y)
-{
-    semibinary_op(a_x, a_y, DataContainer::product<dataType>);
-}
-
-template<class dataType>
-void NiftiImageData<dataType>::add
-(const DataContainer& a_x, const void* a_y)
-{
-    semibinary_op(a_x, a_y, DataContainer::sum<dataType>);
-}
-
-template<class dataType>
-void NiftiImageData<dataType>::divide
-    (const DataContainer& a_x, const DataContainer& a_y)
-{
-    binary_op(a_x, a_y, DataContainer::ratio<dataType>);
-}
-
-template<class dataType>
-void NiftiImageData<dataType>::maximum
-(const DataContainer& a_x, const DataContainer& a_y)
-{
-    binary_op(a_x, a_y, DataContainer::maximum<dataType>);
-}
-
-template<class dataType>
-void NiftiImageData<dataType>::maximum
-(const DataContainer& a_x, const void* a_y)
-{
-    semibinary_op(a_x, a_y, DataContainer::maximum<dataType>);
-}
-
-template<class dataType>
-void NiftiImageData<dataType>::minimum
-(const DataContainer& a_x, const DataContainer& a_y)
-{
-    binary_op(a_x, a_y, DataContainer::minimum<dataType>);
-}
-
-template<class dataType>
-void NiftiImageData<dataType>::minimum
-(const DataContainer& a_x, const void* a_y)
-{
-    semibinary_op(a_x, a_y, DataContainer::minimum<dataType>);
-}
-
-template<class dataType>
-void NiftiImageData<dataType>::power
-(const DataContainer& a_x, const DataContainer& a_y)
-{
-    binary_op(a_x, a_y, std::pow);
-}
-
-template<class dataType>
-void NiftiImageData<dataType>::power
-(const DataContainer& a_x, const void* a_y)
-{
-    semibinary_op(a_x, a_y, std::pow);
-}
-
-template<class dataType>
-void NiftiImageData<dataType>::exp(const DataContainer& a_x)
-{
-    unary_op(a_x, std::exp);
-}
-
-template<class dataType>
-void NiftiImageData<dataType>::log(const DataContainer& a_x)
-{
-    unary_op(a_x, std::log);
-}
-
-template<class dataType>
-void NiftiImageData<dataType>::sqrt(const DataContainer& a_x)
-{
-    unary_op(a_x, std::sqrt);
-}
-
-template<class dataType>
-void NiftiImageData<dataType>::sign(const DataContainer& a_x)
-{
-    unary_op(a_x, DataContainer::sign);
-}
-
-template<class dataType>
-void NiftiImageData<dataType>::abs(const DataContainer& a_x)
-{
-    unary_op(a_x, DataContainer::abs);
 }
 
 template<class dataType>

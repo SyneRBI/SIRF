@@ -22,19 +22,21 @@ limitations under the License.
 
 using namespace sirf;
 
-void ImageData::reorient(const VoxelisedGeometricalInfo3D &)
-{
-    throw std::runtime_error("ImageData::reorient not yet implemented for your image type.");
-}
+//template<typename T>
+//void ImageData<T>::reorient(const VoxelisedGeometricalInfo3D & geom_info)
+//{
+//    throw std::runtime_error("ImageData::reorient not yet implemented for your image type.");
+//}
 
-bool ImageData::can_reorient(const VoxelisedGeometricalInfo3D &geom_1, const VoxelisedGeometricalInfo3D &geom_2, const bool throw_error)
-{
-    // If size and spacing match, return true
-    if (geom_1.get_size() == geom_2.get_size())
-        return true;
-    // Else (and error desired), print error
-    if (throw_error)
-        throw std::runtime_error("ImageData::can_reorient: num voxels do not match.");
-    // Else, return false
-    return false;
-}
+//template<typename T>
+//bool ImageData<T>::can_reorient(const VoxelisedGeometricalInfo3D &geom_1, const VoxelisedGeometricalInfo3D &geom_2, const bool throw_error)
+//{
+//    // If size and spacing match, return true
+//    if (geom_1.get_size() == geom_2.get_size())
+//        return true;
+//    // Else (and error desired), print error
+//    if (throw_error)
+//        throw std::runtime_error("ImageData::can_reorient: num voxels do not match.");
+//    // Else, return false
+//    return false;
+//}

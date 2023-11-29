@@ -393,13 +393,13 @@ bool test_acq_mod_adjointness(MRAcquisitionData& ad)
         shared_ptr<ISMRMRDImageData> sptr_random = std::move(sptr_bwd->clone());
         sptr_random->set_data(&random_data[0]);
 
-        complex_float_t Eh_kdat_Dot_img;
-        sptr_bwd->dot(*sptr_random, &Eh_kdat_Dot_img);
+        complex_float_t Eh_kdat_Dot_img = sptr_bwd->dot(*sptr_random);
+        //sptr_bwd->dot(*sptr_random, &Eh_kdat_Dot_img);
 
         auto sptr_fwd = AM.fwd(*sptr_random);
 
-        complex_float_t E_img_Dot_kdat;
-        ad.dot(*sptr_fwd, &E_img_Dot_kdat);
+        complex_float_t E_img_Dot_kdat = ad.dot(*sptr_fwd);
+        //ad.dot(*sptr_fwd, &E_img_Dot_kdat);
 
         std::cout << "Backward kdata dot random image: " << Eh_kdat_Dot_img << std::endl;
         std::cout << "Forward random image dot kdata : " << E_img_Dot_kdat  << std::endl;

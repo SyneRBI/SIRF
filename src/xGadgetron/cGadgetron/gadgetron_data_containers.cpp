@@ -266,8 +266,6 @@ void MRAcquisitionData::get_kspace_dimensions(std::vector<size_t>& dims) const
     dims.push_back(nc);
 }
 
-
-
 void
 MRAcquisitionData::get_data(complex_float_t* z, int a)
 {
@@ -302,7 +300,6 @@ MRAcquisitionData::get_data(complex_float_t* z, int a)
 void
 MRAcquisitionData::set_user_floats(float const * const z, int const idx)
 {
-
     if(idx >= ISMRMRD::ISMRMRD_USER_FLOATS)
         throw LocalisedException("You try to set the user floats of an index higher than available in the memory of ISMRMRDAcquisition. Pass a smaller idx." , __FILE__, __LINE__);
 
@@ -374,6 +371,7 @@ MRAcquisitionData::xapyb
     }
 }
 
+/*
 void
 MRAcquisitionData::binary_op
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, 
@@ -417,106 +415,107 @@ void
 MRAcquisitionData::multiply
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
-    MRAcquisitionData::binary_op(acq_x, acq_y, DataContainer::product<complex_float_t>);
+    MRAcquisitionData::binary_op(acq_x, acq_y, DataContainerTempl<complex_float_t>::product);
 }
 
 void
 MRAcquisitionData::multiply
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y)
 {
-    MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainer::product<complex_float_t>);
+    MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainerTempl<complex_float_t>::product);
 }
 
 void
 MRAcquisitionData::add
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y)
 {
-    MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainer::sum<complex_float_t>);
+    MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainerTempl<complex_float_t>::sum);
 }
 
 void
 MRAcquisitionData::divide
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
-    MRAcquisitionData::binary_op(acq_x, acq_y, DataContainer::ratio<complex_float_t>);
+    MRAcquisitionData::binary_op(acq_x, acq_y, DataContainerTempl<complex_float_t>::ratio);
 }
 
 void
 MRAcquisitionData::maximum
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
-    MRAcquisitionData::binary_op(acq_x, acq_y, DataContainer::maxreal<complex_float_t>);
+    MRAcquisitionData::binary_op(acq_x, acq_y, DataContainerTempl<complex_float_t>::maxreal);
 }
 
 void
 MRAcquisitionData::maximum
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y)
 {
-    MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainer::maxreal<complex_float_t>);
+    MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainerTempl<complex_float_t>::maxreal);
 }
 
 void
 MRAcquisitionData::minimum
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
-    MRAcquisitionData::binary_op(acq_x, acq_y, DataContainer::minreal<complex_float_t>);
+    MRAcquisitionData::binary_op(acq_x, acq_y, DataContainerTempl<complex_float_t>::minreal);
 }
 
 void
 MRAcquisitionData::minimum
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y)
 {
-    MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainer::minreal<complex_float_t>);
+    MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainerTempl<complex_float_t>::minreal);
 }
 
 void
 MRAcquisitionData::power
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
-    MRAcquisitionData::binary_op(acq_x, acq_y, DataContainer::power);
+    MRAcquisitionData::binary_op(acq_x, acq_y, DataContainerTempl<complex_float_t>::power);
 }
 
 void
 MRAcquisitionData::power
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y)
 {
-    MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainer::power);
+    MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainerTempl<complex_float_t>::power);
 }
 
 void
 MRAcquisitionData::exp
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
-    MRAcquisitionData::unary_op(acq_x, acq_y, DataContainer::exp);
+    MRAcquisitionData::unary_op(acq_x, acq_y, DataContainerTempl<complex_float_t>::exp);
 }
 
 void
 MRAcquisitionData::log
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
-    MRAcquisitionData::unary_op(acq_x, acq_y, DataContainer::log);
+    MRAcquisitionData::unary_op(acq_x, acq_y, DataContainerTempl<complex_float_t>::log);
 }
 
 void
 MRAcquisitionData::sqrt
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
-    MRAcquisitionData::unary_op(acq_x, acq_y, DataContainer::sqrt);
+    MRAcquisitionData::unary_op(acq_x, acq_y, DataContainerTempl<complex_float_t>::sqrt);
 }
 
 void
 MRAcquisitionData::sign
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
-    MRAcquisitionData::unary_op(acq_x, acq_y, DataContainer::sign);
+    MRAcquisitionData::unary_op(acq_x, acq_y, DataContainerTempl<complex_float_t>::sign);
 }
 
 void
 MRAcquisitionData::abs
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
-    MRAcquisitionData::unary_op(acq_x, acq_y, DataContainer::abs);
+    MRAcquisitionData::unary_op(acq_x, acq_y, DataContainerTempl<complex_float_t>::abs);
 }
+*/
 
 complex_float_t
 MRAcquisitionData::dot
@@ -570,8 +569,8 @@ MRAcquisitionData::max(const ISMRMRD::Acquisition& acq_a)
     return z;
 }
 
-void
-MRAcquisitionData::dot(const DataContainer& dc, void* ptr) const
+complex_float_t
+MRAcquisitionData::dot(const DataContainer& dc) const
 {
 	SIRF_DYNAMIC_CAST(const MRAcquisitionData, other, dc);
 	int n = number();
@@ -592,12 +591,11 @@ MRAcquisitionData::dot(const DataContainer& dc, void* ptr) const
 		i++;
 		j++;
 	}
-    complex_float_t* ptr_z = static_cast<complex_float_t*>(ptr);
-    *ptr_z = z;
+    return z;
 }
 
-void
-MRAcquisitionData::sum(void* ptr) const
+complex_float_t
+MRAcquisitionData::sum() const
 {
     int n = number();
     complex_float_t z = 0;
@@ -610,12 +608,11 @@ MRAcquisitionData::sum(void* ptr) const
         z += MRAcquisitionData::sum(a);
         i++;
     }
-    complex_float_t* ptr_z = static_cast<complex_float_t*>(ptr);
-    *ptr_z = z;
+    return z;
 }
 
-void
-MRAcquisitionData::max(void* ptr) const
+complex_float_t
+MRAcquisitionData::max() const
 {
     int n = number();
     complex_float_t z = 0;
@@ -632,21 +629,18 @@ MRAcquisitionData::max(void* ptr) const
             z = zi;
         i++;
     }
-    complex_float_t* ptr_z = static_cast<complex_float_t*>(ptr);
-    *ptr_z = z;
+    return z;
 }
 
 void
 MRAcquisitionData::axpby(
-    const void* ptr_a, const DataContainer& a_x,
-    const void* ptr_b, const DataContainer& a_y)
+    complex_float_t a, const DataContainer& a_x,
+    complex_float_t b, const DataContainer& a_y)
 {
     SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
     SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
     if (!x.sorted() || !y.sorted())
         THROW("a*x + b*y cannot be applied to unsorted x or y");
-    complex_float_t a = *static_cast<const complex_float_t*>(ptr_a);
-    complex_float_t b = *static_cast<const complex_float_t*>(ptr_b);
     int nx = x.number();
     int ny = y.number();
     ISMRMRD::Acquisition ax;
@@ -678,6 +672,62 @@ MRAcquisitionData::axpby(
             set_acquisition(k, ay);
         ix++;
         iy++;
+        k++;
+    }
+    this->set_sorted(true);
+    this->organise_kspace();
+}
+
+void
+MRAcquisitionData::xapyb(
+    const DataContainer& a_x, complex_float_t a,
+    const DataContainer& a_y, const DataContainer& a_b)
+{
+    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+    SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
+    SIRF_DYNAMIC_CAST(const MRAcquisitionData, b, a_b);
+    if (!x.sorted() || !y.sorted() || !b.sorted())
+        THROW("x*a + y*b cannot be applied to unsorted a, b, x or y");
+    int nx = x.number();
+    int ny = y.number();
+    int nb = b.number();
+    ISMRMRD::Acquisition ax;
+    ISMRMRD::Acquisition ay;
+    ISMRMRD::Acquisition ab;
+    ISMRMRD::Acquisition acq;
+    bool isempty = (number() < 1);
+    for (int ix = 0, iy = 0, ib = 0, k = 0;
+        ix < nx && iy < ny && ib < nb;) {
+        if (!x.get_acquisition(ix, ax)) {
+            std::cout << ix << " ignored (ax)\n";
+            ix++;
+            continue;
+        }
+        if (!y.get_acquisition(iy, ay)) {
+            std::cout << iy << " ignored (ay)\n";
+            iy++;
+            continue;
+        }
+        if (!b.get_acquisition(ib, ab)) {
+            std::cout << ib << " ignored (ab)\n";
+            ib++;
+            continue;
+        }
+        if (!isempty) {
+            if (!get_acquisition(k, acq)) {
+                std::cout << k << " ignored (acq)\n";
+                k++;
+                continue;
+            }
+        }
+        MRAcquisitionData::xapyb(ax, a, ay, ab);
+        if (isempty)
+            append_acquisition(ay);
+        else
+            set_acquisition(k, ay);
+        ix++;
+        iy++;
+        ib++;
         k++;
     }
     this->set_sorted(true);
@@ -750,26 +800,22 @@ MRAcquisitionData::xapyb(
 }
 
 void
-MRAcquisitionData::xapyb(
-    const DataContainer& a_x, const void* ptr_a,
-    const DataContainer& a_y, const DataContainer& a_b)
+MRAcquisitionData::binary_op(
+    const DataContainer& a_x, const DataContainer& a_y,
+    complex_float_t(*f)(complex_float_t, complex_float_t))
 {
     SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
     SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
-    SIRF_DYNAMIC_CAST(const MRAcquisitionData, b, a_b);
-    if (!x.sorted() || !y.sorted() || !b.sorted())
-        THROW("x*a + y*b cannot be applied to unsorted a, b, x or y");
-    complex_float_t a = *static_cast<const complex_float_t*>(ptr_a);
+    if (!x.sorted() || !y.sorted())
+        THROW("binary algebraic operations cannot be applied to unsorted data");
+
     int nx = x.number();
     int ny = y.number();
-    int nb = b.number();
     ISMRMRD::Acquisition ax;
     ISMRMRD::Acquisition ay;
-    ISMRMRD::Acquisition ab;
     ISMRMRD::Acquisition acq;
     bool isempty = (number() < 1);
-    for (int ix = 0, iy = 0, ib = 0, k = 0;
-        ix < nx && iy < ny && ib < nb;) {
+    for (int ix = 0, iy = 0, k = 0; ix < nx && iy < ny;) {
         if (!x.get_acquisition(ix, ax)) {
             std::cout << ix << " ignored (ax)\n";
             ix++;
@@ -780,11 +826,6 @@ MRAcquisitionData::xapyb(
             iy++;
             continue;
         }
-        if (!b.get_acquisition(ib, ab)) {
-            std::cout << ib << " ignored (ab)\n";
-            ib++;
-            continue;
-        }
         if (!isempty) {
             if (!get_acquisition(k, acq)) {
                 std::cout << k << " ignored (acq)\n";
@@ -792,14 +833,18 @@ MRAcquisitionData::xapyb(
                 continue;
             }
         }
-        MRAcquisitionData::xapyb(ax, a, ay, ab);
+        const complex_float_t* px;
+        complex_float_t* py;
+        for (px = ax.data_begin(), py = ay.data_begin();
+            px != ax.data_end() && py != ay.data_end(); px++, py++) {
+            *py = f(*px, *py);
+        }
         if (isempty)
             append_acquisition(ay);
         else
             set_acquisition(k, ay);
         ix++;
         iy++;
-        ib++;
         k++;
     }
     this->set_sorted(true);
@@ -807,170 +852,9 @@ MRAcquisitionData::xapyb(
 }
 
 void
-MRAcquisitionData::multiply(const DataContainer& a_x, const DataContainer& a_y)
-{
-	SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-	SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
-	binary_op(x, y, MRAcquisitionData::multiply);
-}
-
-void
-MRAcquisitionData::multiply(const DataContainer& a_x, const void* ptr_y)
-{
-    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-    complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
-    semibinary_op(x, y, MRAcquisitionData::multiply);
-}
-
-void
-MRAcquisitionData::add(const DataContainer& a_x, const void* ptr_y)
-{
-    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-    complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
-    semibinary_op(x, y, MRAcquisitionData::add);
-}
-
-void
-MRAcquisitionData::divide(const DataContainer& a_x, const DataContainer& a_y)
-{
-	SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-	SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
-	binary_op(x, y, MRAcquisitionData::divide);
-}
-
-void
-MRAcquisitionData::maximum(const DataContainer& a_x, const DataContainer& a_y)
-{
-    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-    SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
-    binary_op(x, y, MRAcquisitionData::maximum);
-}
-
-void
-MRAcquisitionData::maximum(const DataContainer& a_x, const void* ptr_y)
-{
-    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-    complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
-    semibinary_op(x, y, MRAcquisitionData::maximum);
-}
-
-void
-MRAcquisitionData::minimum(const DataContainer& a_x, const DataContainer& a_y)
-{
-    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-    SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
-    binary_op(x, y, MRAcquisitionData::minimum);
-}
-
-void
-MRAcquisitionData::minimum(const DataContainer& a_x, const void* ptr_y)
-{
-    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-    complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
-    semibinary_op(x, y, MRAcquisitionData::minimum);
-}
-
-void
-MRAcquisitionData::power(const DataContainer& a_x, const DataContainer& a_y)
-{
-    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-    SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
-    binary_op(x, y, MRAcquisitionData::power);
-}
-
-void
-MRAcquisitionData::power(const DataContainer& a_x, const void* ptr_y)
-{
-    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-    complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
-    semibinary_op(x, y, MRAcquisitionData::power);
-}
-
-void
-MRAcquisitionData::exp(const DataContainer& a_x)
-{
-    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-    unary_op(x, MRAcquisitionData::exp);
-}
-
-void
-MRAcquisitionData::log(const DataContainer& a_x)
-{
-    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-    unary_op(x, MRAcquisitionData::log);
-}
-
-void
-MRAcquisitionData::sqrt(const DataContainer& a_x)
-{
-    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-    unary_op(x, MRAcquisitionData::sqrt);
-}
-
-void
-MRAcquisitionData::sign(const DataContainer& a_x)
-{
-    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-    unary_op(x, MRAcquisitionData::sign);
-}
-
-void
-MRAcquisitionData::abs(const DataContainer& a_x)
-{
-    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-    unary_op(x, MRAcquisitionData::abs);
-}
-
-void
-MRAcquisitionData::binary_op(
-    const DataContainer& a_x, const DataContainer& a_y,
-    void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&))
-{
-	SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-	SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
-	if (!x.sorted() || !y.sorted())
-		THROW("binary algebraic operations cannot be applied to unsorted data");
-
-	int nx = x.number();
-	int ny = y.number();
-	ISMRMRD::Acquisition ax;
-	ISMRMRD::Acquisition ay;
-	ISMRMRD::Acquisition acq;
-	bool isempty = (number() < 1);
-    for (int ix = 0, iy = 0, k = 0; ix < nx && iy < ny;) {
-		if (!x.get_acquisition(ix, ax)) {
-			std::cout << ix << " ignored (ax)\n";
-			ix++;
-			continue;
-		}
-		if (!y.get_acquisition(iy, ay)) {
-			std::cout << iy << " ignored (ay)\n";
-			iy++;
-			continue;
-		}
-		if (!isempty) {
-			if (!get_acquisition(k, acq)) {
-				std::cout << k << " ignored (acq)\n";
-				k++;
-				continue;
-			}
-		}
-        f(ax, ay);
-		if (isempty)
-			append_acquisition(ay);
-		else
-			set_acquisition(k, ay);
-		ix++;
-		iy++;
-		k++;
-	}
-	this->set_sorted(true);
-	this->organise_kspace();
-}
-
-void
-MRAcquisitionData::semibinary_op(const DataContainer& a_x, complex_float_t y,
-    void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&, complex_float_t y))
+MRAcquisitionData::semibinary_op(
+    const DataContainer& a_x, complex_float_t y,
+    complex_float_t(*f)(complex_float_t, complex_float_t))
 {
     SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
     if (!x.sorted())
@@ -995,7 +879,12 @@ MRAcquisitionData::semibinary_op(const DataContainer& a_x, complex_float_t y,
             }
         }
         x.get_acquisition(ix, ay);
-        f(ax, ay, y);
+        const complex_float_t* px;
+        complex_float_t* py;
+        for (px = ax.data_begin(), py = ay.data_begin();
+            px != ax.data_end() && py != ay.data_end(); px++, py++) {
+            *py = f(*px, y);
+        }
         if (isempty)
             append_acquisition(ay);
         else
@@ -1008,8 +897,9 @@ MRAcquisitionData::semibinary_op(const DataContainer& a_x, complex_float_t y,
 }
 
 void
-MRAcquisitionData::unary_op(const DataContainer& a_x,
-    void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&))
+MRAcquisitionData::unary_op(
+    const DataContainer& a_x,
+    complex_float_t(*f)(complex_float_t))
 {
     SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
     if (!x.sorted())
@@ -1034,7 +924,12 @@ MRAcquisitionData::unary_op(const DataContainer& a_x,
             }
         }
         x.get_acquisition(ix, ay);
-        f(ax, ay);
+        const complex_float_t* px;
+        complex_float_t* py;
+        for (px = ax.data_begin(), py = ay.data_begin();
+            px != ax.data_end() && py != ay.data_end(); px++, py++) {
+            *py = f(*px);
+        }
         if (isempty)
             append_acquisition(ay);
         else
@@ -1062,7 +957,6 @@ MRAcquisitionData::norm() const
 	return std::sqrt(r);
 }
 
-
 ISMRMRD::TrajectoryType
 MRAcquisitionData::get_trajectory_type() const
 {
@@ -1073,7 +967,6 @@ MRAcquisitionData::get_trajectory_type() const
         std::cout << "You have a file with " << hdr.encoding.size() << " encodings. Just the first one is picked." << std::endl;
 
     return hdr.encoding[0].trajectory;
-
 }
 
 void MRAcquisitionData::set_trajectory_type(const ISMRMRD::TrajectoryType type) 
@@ -1130,7 +1023,6 @@ MRAcquisitionData::sort_by_time()
 
     this->organise_kspace();
     sorted_ = true;
-
 }
 
 std::vector<KSpaceSubset::SetType > MRAcquisitionData::get_kspace_order() const
@@ -1139,7 +1031,6 @@ std::vector<KSpaceSubset::SetType > MRAcquisitionData::get_kspace_order() const
         throw LocalisedException("Your acquisition data object contains no data, so no order is determined." , __FILE__, __LINE__);
     else if(this->sorting_.size() == 0)
         throw LocalisedException("The kspace is not sorted yet. Please call organise_kspace(), sort() or sort_by_time() first." , __FILE__, __LINE__);
-    
 
     std::vector<KSpaceSubset::SetType > output;
     for(unsigned i = 0; i<sorting_.size(); ++i)
@@ -1255,7 +1146,6 @@ std::vector<int> MRAcquisitionData::get_slice_encoding_index(const unsigned kspa
 
     return slice_encode_index;
 }
-
 
 void MRAcquisitionData::get_subset(MRAcquisitionData& subset, const std::vector<int> subset_idx) const
 {
@@ -1382,7 +1272,6 @@ KSpaceSubset::TagType KSpaceSubset::get_tag_from_img(const CFImage& img)
     return tag;
 }
 
-
 KSpaceSubset::TagType KSpaceSubset::get_tag_from_acquisition(ISMRMRD::Acquisition acq)
 {
     TagType tag;
@@ -1416,8 +1305,8 @@ void KSpaceSubset::print_acquisition_tag(ISMRMRD::Acquisition acq)
     print_tag(tag);
 }
 
-void
-GadgetronImageData::dot(const DataContainer& dc, void* ptr) const
+complex_float_t
+GadgetronImageData::dot(const DataContainer& dc) const
 {
 	SIRF_DYNAMIC_CAST(const GadgetronImageData, ic, dc);
 	complex_float_t z = 0;
@@ -1426,12 +1315,11 @@ GadgetronImageData::dot(const DataContainer& dc, void* ptr) const
 		const ImageWrap& v = ic.image_wrap(i);
 		z += u.dot(v);
 	}
-    complex_float_t* ptr_z = static_cast<complex_float_t*>(ptr);
-    *ptr_z = z;
+    return z;
 }
 
-void
-GadgetronImageData::sum(void* ptr) const
+complex_float_t
+GadgetronImageData::sum() const
 {
     complex_float_t z = 0;
     for (unsigned int i = 0; i < number(); i++) {
@@ -1439,12 +1327,11 @@ GadgetronImageData::sum(void* ptr) const
         complex_float_t t = u.sum();
         z += t;
     }
-    complex_float_t* ptr_z = static_cast<complex_float_t*>(ptr);
-    *ptr_z = z;
+    return z;
 }
 
-void
-GadgetronImageData::max(void* ptr) const
+complex_float_t
+GadgetronImageData::max() const
 {
     complex_float_t z = 0;
     for (unsigned int i = 0; i < number(); i++) {
@@ -1455,17 +1342,14 @@ GadgetronImageData::max(void* ptr) const
         if (ri > r)
             z = zi;
     }
-    complex_float_t* ptr_z = static_cast<complex_float_t*>(ptr);
-    *ptr_z = z;
+    return z;
 }
 
 void
 GadgetronImageData::axpby(
-const void* ptr_a, const DataContainer& a_x,
-const void* ptr_b, const DataContainer& a_y)
+    complex_float_t a, const DataContainer& a_x,
+    complex_float_t b, const DataContainer& a_y)
 {
-    complex_float_t a = *static_cast<const complex_float_t*>(ptr_a);
-    complex_float_t b = *static_cast<const complex_float_t*>(ptr_b);
     SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
 	SIRF_DYNAMIC_CAST(const GadgetronImageData, y, a_y);
 	unsigned int nx = x.number();
@@ -1564,127 +1448,6 @@ GadgetronImageData::unary_op(const DataContainer& a_x,
         }
     }
     this->set_meta_data(x.get_meta_data());
-}
-
-void
-GadgetronImageData::multiply(const DataContainer& a_x, const DataContainer& a_y)
-{
-	SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-	SIRF_DYNAMIC_CAST(const GadgetronImageData, y, a_y);
-    binary_op(x, y, DataContainer::product<complex_float_t>);
-}
-
-void
-GadgetronImageData::multiply(const DataContainer& a_x, const void* ptr_y)
-{
-    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-    complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
-    semibinary_op(x, y, DataContainer::product<complex_float_t>);
-}
-
-void
-GadgetronImageData::add(const DataContainer& a_x, const void* ptr_y)
-{
-    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-    complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
-    semibinary_op(x, y, DataContainer::sum<complex_float_t>);
-}
-
-void
-GadgetronImageData::divide(const DataContainer& a_x, const DataContainer& a_y)
-{
-	SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-	SIRF_DYNAMIC_CAST(const GadgetronImageData, y, a_y);
-    binary_op(x, y, DataContainer::ratio<complex_float_t>);
-}
-
-void
-GadgetronImageData::maximum(
-    const DataContainer& a_x,
-    const DataContainer& a_y)
-{
-    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-    SIRF_DYNAMIC_CAST(const GadgetronImageData, y, a_y);
-    binary_op(x, y, DataContainer::maxreal<complex_float_t>);
-}
-
-void
-GadgetronImageData::maximum(const DataContainer& a_x, const void* ptr_y)
-{
-    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-    complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
-    semibinary_op(x, y, DataContainer::maxreal<complex_float_t>);
-}
-
-void
-GadgetronImageData::minimum(
-    const DataContainer& a_x,
-    const DataContainer& a_y)
-{
-    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-    SIRF_DYNAMIC_CAST(const GadgetronImageData, y, a_y);
-    binary_op(x, y, DataContainer::minreal<complex_float_t>);
-}
-
-void
-GadgetronImageData::minimum(const DataContainer& a_x, const void* ptr_y)
-{
-    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-    complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
-    semibinary_op(x, y, DataContainer::minreal<complex_float_t>);
-}
-
-void
-GadgetronImageData::power(
-    const DataContainer& a_x,
-    const DataContainer& a_y)
-{
-    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-    SIRF_DYNAMIC_CAST(const GadgetronImageData, y, a_y);
-    binary_op(x, y, DataContainer::power);
-}
-
-void
-GadgetronImageData::power(const DataContainer& a_x, const void* ptr_y)
-{
-    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-    complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
-    semibinary_op(x, y, DataContainer::power);
-}
-
-void
-GadgetronImageData::exp(const DataContainer& a_x)
-{
-    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-    unary_op(x, DataContainer::exp);
-}
-
-void
-GadgetronImageData::log(const DataContainer& a_x)
-{
-    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-    unary_op(x, DataContainer::log);
-}
-
-void
-GadgetronImageData::sqrt(const DataContainer& a_x)
-{
-    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-    unary_op(x, DataContainer::sqrt);
-}
-
-void
-GadgetronImageData::sign(const DataContainer& a_x)
-{
-    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-    unary_op(x, DataContainer::sign);
-}
-
-void
-GadgetronImageData::abs(const DataContainer& a_x)
-{
-    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-    unary_op(x, DataContainer::abs);
 }
 
 float
@@ -2025,7 +1788,6 @@ GadgetronImagesVector::GadgetronImagesVector(const MRAcquisitionData& ad, const 
     set_meta_data(ad.acquisitions_info());
 }    
 
-
 GadgetronImagesVector::GadgetronImagesVector
 (const GadgetronImagesVector& images) :
 images_()
@@ -2240,7 +2002,7 @@ GadgetronImagesVector::print_header(const unsigned im_num)
         std::cout << acqs_info_.c_str() << "\n";
     }
 }
-
+/*
 bool GadgetronImagesVector::is_complex() const {
     // If any of the wraps are complex, return true.
     for (unsigned i=0; i<number(); ++i)
@@ -2248,7 +2010,7 @@ bool GadgetronImagesVector::is_complex() const {
             return true;
     return false;
 }
-
+*/
 void GadgetronImagesVector::reorient(const VoxelisedGeometricalInfo3D &geom_info_out)
 {
     const VoxelisedGeometricalInfo3D &geom_info_in = *this->get_geom_info_sptr();
@@ -2524,7 +2286,6 @@ CoilImagesVector::calculate(const MRAcquisitionData& ad)
     }
 }
 
-
 std::unique_ptr<MRAcquisitionData> CoilImagesVector::extract_calibration_data(const MRAcquisitionData& ad) const
 {
     using ISMRMRD::ISMRMRD_AcquisitionFlags;
@@ -2696,7 +2457,6 @@ void CoilSensitivitiesVector::combine_images_with_coilmaps(GadgetronImageData& c
         combined_img.append(iw_dst);
     }
 }
-
 
 void 
 CoilSensitivitiesVector::calculate(CoilImagesVector& iv)
@@ -2918,4 +2678,3 @@ CoilSensitivitiesVector::max_diff_
     }
     return s;
 }
-

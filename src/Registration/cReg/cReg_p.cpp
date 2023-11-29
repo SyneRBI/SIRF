@@ -115,15 +115,15 @@ sirf::cReg_NiftiImageDataParameter(const DataHandle* handle, const char* name)
 void*
 sirf::cReg_setRegistrationParameter(void* hp, const char* name, const void* hv)
 {
-    std::shared_ptr<const ImageData> im_sptr;
+    std::shared_ptr<const ImageData<float> > im_sptr;
 
     Registration<float>& s = objectFromHandle<Registration<float> >(hp);
     if (strcmp(name, "reference_image") == 0) {
-        getObjectSptrFromHandle<const ImageData>(hv, im_sptr);
+        getObjectSptrFromHandle<const ImageData<float> >(hv, im_sptr);
         s.set_reference_image(im_sptr);
     }
     else if (strcmp(name, "floating_image") == 0) {
-        getObjectSptrFromHandle<const ImageData>(hv, im_sptr);
+        getObjectSptrFromHandle<const ImageData<float> >(hv, im_sptr);
         s.set_floating_image(im_sptr);
     }
 	else
@@ -137,17 +137,17 @@ sirf::cReg_setRegistrationParameter(void* hp, const char* name, const void* hv)
 void*
 sirf::cReg_setNiftyRegistrationParameter(void* hp, const char* name, const void* hv)
 {
-    std::shared_ptr<const ImageData> im_sptr;
+    std::shared_ptr<const ImageData<float> > im_sptr;
 
     NiftyRegistration<float>& s = objectFromHandle<NiftyRegistration<float> >(hp);
     if (strcmp(name, "parameter_file") == 0)
         s.set_parameter_file(charDataFromHandle(hv));
     else if (strcmp(name, "reference_mask") == 0) {
-        getObjectSptrFromHandle<const ImageData>(hv, im_sptr);
+        getObjectSptrFromHandle<const ImageData<float> >(hv, im_sptr);
         s.set_reference_mask(im_sptr);
     }
     else if (strcmp(name, "floating_mask") == 0) {
-        getObjectSptrFromHandle<const ImageData>(hv, im_sptr);
+        getObjectSptrFromHandle<const ImageData<float> >(hv, im_sptr);
         s.set_floating_mask(im_sptr);
     }
 	else
@@ -202,15 +202,15 @@ sirf::cReg_setSPMRegistrationParameter(void* hp, const char* name, const void* h
 void*
 sirf::cReg_setNiftyResamplerParameter(void* hp, const char* name, const void* hv)
 {
-    std::shared_ptr<const ImageData> im_sptr;
+    std::shared_ptr<const ImageData<float> > im_sptr;
 
     NiftyResampler<float>& s = objectFromHandle<NiftyResampler<float> >(hp);
     if (strcmp(name, "reference_image") == 0) {
-        getObjectSptrFromHandle<const ImageData>(hv, im_sptr);
+        getObjectSptrFromHandle<const ImageData<float> >(hv, im_sptr);
         s.set_reference_image(im_sptr);
     }
     else if (strcmp(name, "floating_image") == 0) {
-        getObjectSptrFromHandle<const ImageData>(hv, im_sptr);
+        getObjectSptrFromHandle<const ImageData<float> >(hv, im_sptr);
         s.set_floating_image(im_sptr);
     }
     else if (strcmp(name, "interpolation_type") == 0)

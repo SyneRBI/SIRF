@@ -46,7 +46,7 @@ enum Algorithm {
     SPM
 };
 
-static std::shared_ptr<const ImageData> image_as_sptr(const std::string &filename, const std::string &engine)
+static std::shared_ptr<const DataContainer> image_as_sptr(const std::string &filename, const std::string &engine)
 {
     if      (strcmp(engine.c_str(), "Reg") == 0)
         return std::make_shared<const NiftiImageData3D<float> >(filename);
@@ -287,21 +287,21 @@ int main(int argc, char* argv[])
 
         // Ref
         if (ref_str.empty()) throw std::runtime_error("--ref not set");
-        reg->set_reference_image(image_as_sptr(ref_str,ref_eng_str));
+        reg->set_reference_image(std::dynamic_pointer_cast<const ImageData<float> >(image_as_sptr(ref_str,ref_eng_str)));
         // Flo
         if (flo_strs.empty()) throw std::runtime_error("--flo not set");
         for (unsigned i=0; i<flo_strs.size(); ++i)
-            reg->add_floating_image(image_as_sptr(flo_strs.at(i).first,flo_strs.at(i).second));
+            reg->add_floating_image(std::dynamic_pointer_cast<const ImageData<float> >(image_as_sptr(flo_strs.at(i).first,flo_strs.at(i).second)));
 
         // rmask
         if (!rmask_str.empty()) {
             if (algo == SPM) throw std::runtime_error("--rmask not available for spm");
-            std::dynamic_pointer_cast<NiftyRegistration<float> >(reg)->set_reference_mask(image_as_sptr(rmask_str,rmask_eng_str));
+            std::dynamic_pointer_cast<NiftyRegistration<float> >(reg)->set_reference_mask(std::dynamic_pointer_cast<const ImageData<float> >(image_as_sptr(rmask_str,rmask_eng_str)));
         }
         // fmask
         if (!fmask_str.empty()) {
             if (algo == SPM) throw std::runtime_error("--fmask not available for spm");
-            std::dynamic_pointer_cast<NiftyRegistration<float> >(reg)->set_reference_mask(image_as_sptr(fmask_str,fmask_eng_str));
+            std::dynamic_pointer_cast<NiftyRegistration<float> >(reg)->set_reference_mask(std::dynamic_pointer_cast<const ImageData<float> >(image_as_sptr(fmask_str,fmask_eng_str)));
         }
         // print
         if (print) {

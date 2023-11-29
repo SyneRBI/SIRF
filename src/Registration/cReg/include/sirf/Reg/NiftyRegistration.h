@@ -64,10 +64,10 @@ public:
     void set_parameter(const std::string &par, const std::string &arg1 = "", const std::string &arg2 = "");
 
     /// Set reference mask
-    void set_reference_mask(const std::shared_ptr<const ImageData> reference_mask_sptr) { _reference_mask_sptr = reference_mask_sptr; }
+    void set_reference_mask(const std::shared_ptr<const ImageData<dataType> > reference_mask_sptr) { _reference_mask_sptr = reference_mask_sptr; }
 
     /// Set floating mask
-    void set_floating_mask(const std::shared_ptr<const ImageData> floating_mask_sptr)   {  _floating_mask_sptr = floating_mask_sptr;  }
+    void set_floating_mask(const std::shared_ptr<const ImageData<dataType> > floating_mask_sptr)   {  _floating_mask_sptr = floating_mask_sptr;  }
 
 protected:
 
@@ -87,9 +87,9 @@ protected:
     std::string _parameter_filename;
 
     /// Floating mask
-    std::shared_ptr<const ImageData> _floating_mask_sptr;
+    std::shared_ptr<const ImageData<dataType> > _floating_mask_sptr;
     /// Reference mask
-    std::shared_ptr<const ImageData> _reference_mask_sptr;
+    std::shared_ptr<const ImageData<dataType> > _reference_mask_sptr;
 
     /// Floating mask (as NiftiImageData3D)
     std::shared_ptr<const NiftiImageData3D<dataType> > _floating_mask_nifti_sptr;

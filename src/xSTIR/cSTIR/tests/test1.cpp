@@ -245,7 +245,7 @@ int test1()
 		float alpha = 1.0 / sim_norm;
 		float beta = -alpha;
 		acq_diff.axpby
-			(&alpha, sim_data, &beta, acq_data);
+			(alpha, sim_data, beta, acq_data);
 		std::cout << "relative data difference: " << acq_diff.norm() << std::endl;
 
 		// backproject the simulated data
@@ -264,7 +264,7 @@ int test1()
 		alpha = 1.0 / im_norm;
 		beta = -1.0 / bd_norm;
 		img_diff.axpby
-			(&alpha, image_data, &beta, back_data);
+			(alpha, image_data, beta, back_data);
 		std::cout << "relative images difference: " << img_diff.norm() << std::endl;
 
 		// compute the norm of the linear part of the acquisition model
