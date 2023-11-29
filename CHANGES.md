@@ -2,6 +2,11 @@
 
 ## v3.6.0
 
+* PET:
+  - added extra members to ScatterEstimation to set behaviour of OSEM used during scatter estimation
+  - added test for scatter simulation and estimation
+  - added missing `set`/`get` methods for OSSPS `relaxation_parameter`, `relaxation_gamma` and `upper_bound`.
+
 * CMake/building:
   - default `DISABLE_MATLAB` to `ON` as our Matlab support is out-of-date and could
   generate conflicts with Python shared libraries.
@@ -18,10 +23,7 @@
   - `return None` in the method `Datacontainer.shape()` replaced with more Pythonesque `return (0,)`.
 
 * MR
-  - Further improvements in handling of "irregular" ISMRMRD acquisitions.
-
-* PET
-  - Added missing `set`/`get` methods for OSSPS `relaxation_parameter`, `relaxation_gamma` and `upper_bound`.
+  - Handling of "irregular" ISMRMRD acquisitions hit what appears to be a bug in recent Gadgetron (HEAD detached at 0670db84). A quick fix applied, Gadgetron issue to be raised.
 
 ## v3.5.0
 
