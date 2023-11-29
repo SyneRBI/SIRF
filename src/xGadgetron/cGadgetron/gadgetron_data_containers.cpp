@@ -2674,7 +2674,6 @@ void CoilSensitivitiesVector::combine_images_with_coilmaps(GadgetronImageData& c
         if( img_dims != csm_dims)
             throw LocalisedException("The data dimensions of the image don't match the sensitivity maps.",   __FILE__, __LINE__);
 
-        
 		CFImage* ptr_dst_img = new CFImage(Nx, Ny, Nz, 1); //urgh this is so horrible
 		sirf::ImageWrap iw_dst(ISMRMRD::ISMRMRD_CXFLOAT, ptr_dst_img );
 		
@@ -2703,7 +2702,6 @@ void CoilSensitivitiesVector::combine_images_with_coilmaps(GadgetronImageData& c
         combined_img.append(iw_dst);
     }
 }
-
 
 void 
 CoilSensitivitiesVector::calculate(CoilImagesVector& iv)
@@ -2764,12 +2762,7 @@ void CoilSensitivitiesVector::calculate_csm
             }
         }
     }
-/*
-    int* object_mask = new int[nx*ny*nz];
-    memset(object_mask, 0, nx*ny*nz * sizeof(int));
 
-    ISMRMRD::NDArray<complex_float_t> v(cm0);
-*/
     ISMRMRD::NDArray<complex_float_t> w(cm0);
 
     float* ptr_img = img.getDataPtr();
@@ -2785,19 +2778,10 @@ void CoilSensitivitiesVector::calculate_csm
             }
         }
     }
-/*
-    float max_im = max_(nx, ny, nz, ptr_img);
-    float small_grad = max_im * 2 / (nx + ny + 0.0f);
-    for (int i = 0; i < 3; i++)
-        smoothen_(nx, ny, nz, nc, v.getDataPtr(), w.getDataPtr(), 0, 3);
-    float noise = max_diff_(nx, ny, nz, nc, small_grad,
-        v.getDataPtr(), cm0.getDataPtr());
-    mask_noise_(nx, ny, nz, ptr_img, noise, object_mask);
-*/
+
     for (int i = 0; i < csm_smoothness_; i++)
-        smoothen_(nx, ny, nz, nc, cm0.getDataPtr(), w.getDataPtr(), csm_conv_kernel_halfsize_);
-        //0, 3);
-//            object_mask, 3);
+        smoothen_(nx, ny, nz, nc, cm0.getDataPtr(), w.getDataPtr(),
+        csm_conv_kernel_halfsize_);
 
     for (unsigned int z = 0; z < nz; z++) {
         for (unsigned int y = 0; y < ny; y++) {
@@ -2817,7 +2801,7 @@ void CoilSensitivitiesVector::calculate_csm
             for (unsigned int x = 0; x < nx; x++, i++) {
                 float r = img(x, y, z);
                 float s;
-                if (r != 0.0) // && object_mask[i])
+                if (r != 0.0)
                     s = (float)(1.0 / r);
                 else
                     s = 0.0;
@@ -2829,29 +2813,12 @@ void CoilSensitivitiesVector::calculate_csm
         }
     }
 
-//    delete[] object_mask;
-}
-
-
-
-void CoilSensitivitiesVector::mask_noise_
-(int nx, int ny, int nz, float* u, float noise, int* mask)
-{
-    int i = 0;
-    for (int iz = 0; iz < nz; iz++)
-        for (int iy = 0; iy < ny; iy++)
-            for (int ix = 0; ix < nx; ix++, i++) {
-            float t = fabs(u[i]);
-            mask[i] = (t > noise);
-        }
 }
 
 void
 CoilSensitivitiesVector::smoothen_
 (int nx, int ny, int nz, int nc,
-    complex_float_t* u, complex_float_t* v,
-    //int* obj_mask, 
-    int w)
+    complex_float_t* u, complex_float_t* v, int w)
 {
     const complex_float_t ONE(1.0, 0.0);
     const complex_float_t TWO(2.0, 0.0);
@@ -2859,10 +2826,6 @@ CoilSensitivitiesVector::smoothen_
         for (int iz = 0, k = 0; iz < nz; iz++)
             for (int iy = 0; iy < ny; iy++)
                 for (int ix = 0; ix < nx; ix++, i++, k++) {
-/*                    if (obj_mask && !obj_mask[k]) {
-                        v[i] = u[i];
-                        continue;
-                    }*/
                     int n = 0;
                     complex_float_t r(0.0, 0.0);
                     complex_float_t s(0.0, 0.0);
@@ -2874,7 +2837,7 @@ CoilSensitivitiesVector::smoothen_
                                 continue;
                             int j = i + jx + jy*nx;
                             int l = k + jx + jy*nx;
-                            if (i != j) { // && (!obj_mask || obj_mask[l] == obj_mask[k])) {
+                            if (i != j) {
                                 n++;
                                 r += ONE;
                                 s += u[j];
@@ -2887,45 +2850,4 @@ CoilSensitivitiesVector::smoothen_
                 }
     memcpy(u, v, nx*ny*nz*nc * sizeof(complex_float_t));
 }
-/*
-float
-CoilSensitivitiesVector::max_(int nx, int ny, int nz, float* u)
-{
-    float r = 0.0;
-    int i = 0;
-    for (int iz = 0; iz < nz; iz++)
-        for (int iy = 0; iy < ny; iy++)
-            for (int ix = 0; ix < nx; ix++, i++) {
-            float t = fabs(u[i]);
-            if (t > r)
-                r = t;
-        }
-    return r;
-}
 
-float
-CoilSensitivitiesVector::max_diff_
-(int nx, int ny, int nz, int nc, float small_grad,
-    complex_float_t* u, complex_float_t* v)
-{
-    int nxy = nx*ny;
-    int nxyz = nxy*nz;
-    float s = 0.0f;
-    for (int ic = 0; ic < nc; ic++) {
-        for (int iz = 0; iz < nz; iz++) {
-            for (int iy = 1; iy < ny - 1; iy++) {
-                for (int ix = 1; ix < nx - 1; ix++) {
-                    int i = ix + nx*iy + nxy*iz + nxyz*ic;
-                    float gx = std::abs(u[i + 1] - u[i - 1]) / 2.0f;
-                    float gy = std::abs(u[i + nx] - u[i - nx]) / 2.0f;
-                    float g = (float)std::sqrt(gx*gx + gy*gy);
-                    float si = std::abs(u[i] - v[i]);
-                    if (g <= small_grad && si > s)
-                        s = si;
-                }
-            }
-        }
-    }
-    return s;
-}
-*/
