@@ -2795,7 +2795,7 @@ void CoilSensitivitiesVector::calculate_csm
     mask_noise_(nx, ny, nz, ptr_img, noise, object_mask);
 */
     for (int i = 0; i < csm_smoothness_; i++)
-        smoothen_(nx, ny, nz, nc, cm0.getDataPtr(), w.getDataPtr(), csm_smth_kernel_size_);
+        smoothen_(nx, ny, nz, nc, cm0.getDataPtr(), w.getDataPtr(), csm_conv_kernel_halfsize_);
         //0, 3);
 //            object_mask, 3);
 

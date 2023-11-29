@@ -609,8 +609,8 @@ class CoilSensitivityData(ImageData):
     '''
     def __init__(self):
         self.handle = None
-        self.smoothness = 0
-        self.smth_kernel_size = 1
+        self.smoothing_iterations = 0
+        self.conv_kernel_halfsize = 1
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
@@ -636,8 +636,8 @@ class CoilSensitivityData(ImageData):
             pyiutil.deleteDataHandle(self.handle)
         self.handle = pygadgetron.cGT_CoilSensitivities('')
         check_status(self.handle)
-        nit = self.smoothness
-        w = self.smth_kernel_size
+        nit = self.smoothing_iterations
+        w = self.conv_kernel_halfsize # convolution kernel size is (2w+1)-by-(2w+1) pixels
         
         if method is not None:
             method_name, parm_list = name_and_parameters(method)
@@ -648,8 +648,8 @@ class CoilSensitivityData(ImageData):
             method_name = 'SRSS'
             parm = {}
         
-        parms.set_int_par(self.handle, 'coil_sensitivity', 'smoothness', nit)
-        parms.set_int_par(self.handle, 'coil_sensitivity', 'smth_kernel_size', w)
+        parms.set_int_par(self.handle, 'coil_sensitivity', 'smoothing_iterations', nit)
+        parms.set_int_par(self.handle, 'coil_sensitivity', 'conv_kernel_size', w)
 
         if isinstance(data, AcquisitionData):
             self.__calc_from_acquisitions(data, method_name)

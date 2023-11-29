@@ -320,11 +320,11 @@ cGT_setCSParameter(void* ptr, const char* par, const void* val)
 	CAST_PTR(DataHandle, h_csms, ptr);
 	CoilSensitivitiesVector& csms =
 		objectFromHandle<CoilSensitivitiesVector>(h_csms);
-	if (sirf::iequals(par, "smoothness"))
+	if (sirf::iequals(par, "smoothing_iterations"))
 		csms.set_csm_smoothness(dataFromHandle<int>(val));
 	//csms.set_csm_smoothness(intDataFromHandle(val)); // causes problems with Matlab
-	else if (sirf::iequals(par, "smth_kernel_size"))
-		csms.set_csm_smth_kernel_size(dataFromHandle<int>(val));
+	else if (sirf::iequals(par, "conv_kernel_size"))
+		csms.set_csm_conv_kernel_size(dataFromHandle<int>(val));
 	else
 		return unknownObject("parameter", par, __FILE__, __LINE__);
 	return new DataHandle;

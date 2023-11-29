@@ -71,7 +71,7 @@ def ConjugateGradient(rawdata, num_iter = 10, stop_criterion = 1e-7):
 
     print('---\n computing coil sensitivity maps...')
     csms = mr.CoilSensitivityData()
-    csms.smoothness = 10
+    csms.smoothing_iterations = 10
     csms.calculate(rawdata)
     
     # create acquisition model based on the acquisition parameters

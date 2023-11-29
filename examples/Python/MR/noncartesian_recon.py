@@ -109,8 +109,8 @@ def main():
     
         print('---\n computing coil sensitivity maps...')
         csms = mr.CoilSensitivityData()
-        csms.smoothness = 10
-        csms.smth_kernel_size = 3
+        csms.smoothing_iterations = 10
+        csms.conv_kernel_halfsize = 3
         csms.calculate(processed_data)
 
         if show_plot:

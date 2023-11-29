@@ -11,6 +11,7 @@ Options:
   -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
                               subfolder of SIRF root folder
   -i <iter>, --iter=<iter>    number of smoothing iterations [default: 10]
+  -c <size>, --conv=<size>    smoothing convolution kernel halfsize [default: 1]
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
   --non-interactive           do not show plots
 '''
@@ -50,6 +51,7 @@ data_path = args['--path']
 if data_path is None:
     data_path = examples_data_path('MR')
 nit = int(args['--iter'])
+cks = int(args['--conv'])
 show_plot = not args['--non-interactive']
 
 def main():
@@ -76,7 +78,8 @@ def main():
     CSMs = mr.CoilSensitivityData()
     #
     # set number of smoothing iterations to suppress noise
-    CSMs.smoothness = nit
+    CSMs.smoothing_iterations = nit
+    CSMs.conv_kernel_halfsize = cks
     
     # calculate coil sensitivity maps directly from the raw k-space data by the
     # Square-Root-of-the-Sum-of-Squares over all coils (SRSS) method
@@ -106,6 +109,7 @@ def main():
     # to the image data prior to the calculation of the coil sensitivity maps
     CIs.calculate(processed_data)
     CSs = mr.CoilSensitivityData()
+    CSs.conv_kernel_halfsize = cks
     print('B) calculating from coil images...')
     CSs.calculate(CIs, method='SRSS(niter=%d)' % nit)
     diff = CSs - CSMs

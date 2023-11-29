@@ -1521,9 +1521,9 @@ namespace sirf {
         {
             csm_smoothness_ = s;
         }
-        void set_csm_smth_kernel_size(int w)
+        void set_csm_conv_kernel_size(int w)
         {
-            csm_smth_kernel_size_ = w;
+            csm_conv_kernel_halfsize_ = w;
         }
 
         void calculate(CoilImagesVector& iv);
@@ -1555,7 +1555,7 @@ namespace sirf {
 
     private:
         int csm_smoothness_ = 0;
-        int csm_smth_kernel_size_ = 1;
+        int csm_conv_kernel_halfsize_ = 1;
         void smoothen_(int nx, int ny, int nz, int nc, complex_float_t* u, complex_float_t* v, 
         //int* obj_mask, 
         int w);
