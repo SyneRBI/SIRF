@@ -22,9 +22,6 @@
   - Several allocate methods in STIR.py, Gadgetron.py and Reg.py are replaced with just one allocate in DataContainer class that does not copy data between Python and C++.
   - `return None` in the method `Datacontainer.shape()` replaced with more Pythonesque `return (0,)`.
 
-* MR
-  - Handling of "irregular" ISMRMRD acquisitions hit what appears to be a bug in recent Gadgetron (HEAD detached at 0670db84). A quick fix applied, Gadgetron issue to be raised.
-
 ## v3.5.0
 
 * GitHub Action: remove temporarily the Ubuntu 20.04 build, #1178

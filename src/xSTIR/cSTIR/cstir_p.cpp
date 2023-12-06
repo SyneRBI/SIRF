@@ -849,6 +849,21 @@ sirf::cSTIR_setScatterEstimatorParameter
         int value = dataFromHandle<int>(hv);
         obj.set_num_iterations(value);
     }
+    
+    else if (sirf::iequals(name, "set_OSEM_num_subiterations"))
+    {
+        int value = dataFromHandle<int>(hv);
+        obj.set_OSEM_num_subiterations(value);
+    }
+    
+    else if (sirf::iequals(name, "set_OSEM_num_subsets"))
+    {
+        int value = dataFromHandle<int>(hv);
+        obj.set_OSEM_num_subsets(value);
+    }
+    
+    
+    
     else if (sirf::iequals(name, "set_output_prefix"))
     {
         obj.set_output_prefix(charDataFromHandle(hv));
@@ -867,6 +882,10 @@ sirf::cSTIR_ScatterEstimatorParameter(DataHandle* hp, const char* name)
 		return newObjectHandle(processor.get_output());
 	if (sirf::iequals(name, "num_iterations"))
           return dataHandle<int>(processor.get_num_iterations());
+	if (sirf::iequals(name, "OSEM_num_subiterations"))
+          return dataHandle<int>(processor.get_OSEM_num_subiterations());
+	if (sirf::iequals(name, "OSEM_num_subsets"))
+          return dataHandle<int>(processor.get_OSEM_num_subsets());
 	return parameterNotFound(name, __FILE__, __LINE__);
 }
 

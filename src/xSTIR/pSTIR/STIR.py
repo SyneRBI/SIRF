@@ -69,7 +69,7 @@ def get_STIR_version_string():
 
 
 def get_STIR_doc_dir():
-    """Returns STIR engine version as Python str."""
+    """Returns STIR engine documentation folder name as Python str."""
     handle = pystir.cSTIR_get_STIR_doc_dir()
     check_status(handle)
     path = pyiutil.charDataFromHandle(handle)
@@ -78,12 +78,27 @@ def get_STIR_doc_dir():
 
 
 def get_STIR_examples_dir():
-    """Returns STIR engine version as Python str."""
+    """Returns STIR engine examples folder name as Python str."""
     handle = pystir.cSTIR_get_STIR_examples_dir()
     check_status(handle)
     path = pyiutil.charDataFromHandle(handle)
     pyiutil.deleteDataHandle(handle)
     return path
+
+
+def get_engine_version_string():
+    """Returns engine version as Python str."""
+    return get_STIR_version_string()
+
+
+def get_engine_doc_dir():
+    """Returns STIR engine documentation folder name as Python str."""
+    return get_STIR_doc_dir()
+
+
+def get_engine_examples_dir():
+    """Returns STIR engine examples folder name as Python str."""
+    return get_STIR_examples_dir()
 
 
 def set_verbosity(verbosity):
@@ -132,14 +147,6 @@ def get_default_num_omp_threads():
     h = pystir.cSTIR_getDefaultOMPThreads()
     check_status(h, inspect.stack()[1])
     value = pyiutil.intDataFromHandle(h)
-    pyiutil.deleteDataHandle(h)
-    return value
-
-
-def scanner_names():
-    h = pystir.cSTIR_scannerNames()
-    check_status(h, inspect.stack()[1])
-    value = pyiutil.charDataFromHandle(h)
     pyiutil.deleteDataHandle(h)
     return value
 
@@ -635,28 +642,6 @@ class ImageData(SIRF.ImageData):
                           label='slice', xlabel='x', ylabel='y',
                           suptitle=title, show=(t == ni))
             f = t
-
-    def allocate(self, value=0, **kwargs):
-        """Alias to get_uniform_copy for CIL/SIRF compatibility."""
-        if value in ['random', 'random_int']:
-            out = self.get_uniform_copy()
-            shape = out.as_array().shape
-            seed = kwargs.get('seed', None)
-            if seed is not None:
-                numpy.random.seed(seed)
-            if value == 'random':
-                out.fill(numpy.random.random_sample(shape))
-            elif value == 'random_int':
-                max_value = kwargs.get('max_value', 100)
-                out.fill(numpy.random.randint(max_value, size=shape))
-        elif value is None:
-            if self.is_empty():
-                out = self.get_uniform_copy(0)
-            else:
-                out = self.copy()
-        else:
-            out = self.get_uniform_copy(value)
-        return out
 
     def zoom_image(self, zooms=(1., 1., 1.), offsets_in_mm=(0., 0., 0.),
                    size=(-1, -1, -1), scaling='preserve_sum'):
@@ -1386,28 +1371,6 @@ class AcquisitionData(DataContainer):
                 xlabel='tang.pos', ylabel='view',
                 suptitle=title, show=(t == ns))
             f = t
-
-    def allocate(self, value=0, **kwargs):
-        """Alias to get_uniform_copy.
-
-        CIL/SIRF compatibility
-        """
-        if value in ['random', 'random_int']:
-            out = self.get_uniform_copy()
-            shape = out.as_array().shape
-            seed = kwargs.get('seed', None)
-            if seed is not None:
-                numpy.random.seed(seed)
-            if value == 'random':
-                out.fill(numpy.random.random_sample(shape))
-            elif value == 'random_int':
-                max_value = kwargs.get('max_value', 100)
-                out.fill(numpy.random.randint(max_value,size=shape))
-        elif value is None:
-            out = self.get_uniform_copy(0)
-        else:
-            out = self.get_uniform_copy(value)
-        return out
 
     def get_info(self):
         """Returns the AcquisitionData's metadata as Python str."""
@@ -3391,6 +3354,14 @@ class ScatterEstimator():
     def get_num_iterations(self):
         """Get number of iterations of the SSS algorithm to use."""
         return parms.int_par(self.handle, 'PETScatterEstimator', 'num_iterations')
+    
+    def get_OSEM_num_subiterations(self):
+        """Get number of subiterations used by OSEM in the SSS algorithm."""
+        return parms.int_par(self.handle, 'PETScatterEstimator', 'OSEM_num_subiterations')
+    
+    def get_OSEM_num_subsets(self):
+        """Get number of subsets used by OSEM in the SSS algorithm."""
+        return parms.int_par(self.handle, 'PETScatterEstimator', 'OSEM_num_subsets')
 
     def set_attenuation_image(self, image):
         assert_validity(image, ImageData)
@@ -3413,6 +3384,14 @@ class ScatterEstimator():
         assert_validity(asm, AcquisitionSensitivityModel)
         parms.set_parameter(self.handle, self.name, 'setASM', asm.handle)
 
+    def set_OSEM_num_subiterations(self, v):
+        """Set number of subiterations used by OSEM in the SSS algorithm."""
+        parms.set_int_par(self.handle, 'PETScatterEstimator', 'set_OSEM_num_subiterations', v)
+        
+    def set_OSEM_num_subsets(self, v):
+        """Set number of subsets used by OSEM in the SSS algorithm."""
+        parms.set_int_par(self.handle, 'PETScatterEstimator', 'set_OSEM_num_subsets', v)
+         
     def set_num_iterations(self, v):
         """Set number of iterations of the SSS algorithm to use."""
         parms.set_int_par(self.handle, 'PETScatterEstimator', 'set_num_iterations', v)

@@ -10,11 +10,12 @@ This software is the main output of [SyneRBI](https://www.ccpsynerbi.ac.uk), the
 Platform for Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR).
 
 Please start with our latest [User's Guide](doc/UserGuide.md).
-See [our Wiki page for installation instructions](https://github.com/SyneRBI/SIRF/wiki/Installation-instructions).
 
-You can also [download a VM](https://doi.org/10.5281/zenodo.2707911) with SIRF and related software preinstalled.
+## How to obtain SIRF
+There are multiple ways to obtain a binary version of SIRF, please check them out in our documentation page [how to obtain SIRF](https://github.com/SyneRBI/SIRF/wiki/How-to-obtain-SIRF)
+or [our Wiki page for installation instructions](https://github.com/SyneRBI/SIRF/wiki/Installation-instructions).
 
-# Where is everything installed?
+## Where is everything installed?
 
 SIRF largely follows the usual directory structure with some minor tweaks. When using
 the default options when building SIRF, you will get (most of the) following, depending
@@ -40,7 +41,7 @@ what was found/built:
 [gh-action-link]: https://github.com/SyneRBI/SIRF/actions/workflows/build-test.yml
 [travis-badge]: https://travis-ci.org/SyneRBI/SIRF.svg?branch=master
 [travis]: https://travis-ci.org/SyneRBI/SIRF
-[style-badge]: https://api.codacy.com/project/badge/Grade/392861b4085f4f438d12c41029f86b47
-[style-link]: https://www.codacy.com/gh/SyneRBI/SIRF?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=SyneRBI/SIRF&amp;utm_campaign=Badge_Grade
+[style-badge]: https://app.codacy.com/project/badge/Grade/392861b4085f4f438d12c41029f86b47
+[style-link]: https://app.codacy.com/gh/SyneRBI/SIRF/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade
 [zenodo-badge]: https://zenodo.org/badge/DOI/10.5281/zenodo.2707911.svg
 [zenodo-link]: https://doi.org/10.5281/zenodo.2707911

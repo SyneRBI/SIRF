@@ -177,7 +177,7 @@ else(DISABLE_PYTHON)
 endif(DISABLE_PYTHON)
 
 
-option(DISABLE_Matlab "Disable building SIRF matlab support" OFF)
+option(DISABLE_Matlab "Disable building SIRF matlab support" ON)
 if (DISABLE_Matlab)
   message(STATUS "Matlab support disabled")
 else(DISABLE_Matlab)

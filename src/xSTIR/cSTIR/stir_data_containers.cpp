@@ -1,7 +1,7 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2017 - 2019 Rutherford Appleton Laboratory STFC
-Copyright 2018 - 2020 University College London
+Copyright 2017 - 2023 Rutherford Appleton Laboratory STFC
+Copyright 2018 - 2023 University College London
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -23,6 +23,8 @@ limitations under the License.
 #include "stir/KeyParser.h"
 #include "stir/is_null_ptr.h"
 #include "stir/zoom.h"
+#include "stir/CartesianCoordinate3D.h"
+#include "stir/numerics/norm.h"
 
 using namespace stir;
 using namespace sirf;
@@ -32,27 +34,25 @@ using namespace sirf;
 std::string STIRAcquisitionData::_storage_scheme;
 std::shared_ptr<STIRAcquisitionData> STIRAcquisitionData::_template;
 
+#ifdef STIR_TOF
+#define TOF_LOOP  for (int k=data()->get_min_tof_pos_num(); k<=data()->get_max_tof_pos_num(); ++k)
+#define TOF_ARG , k
+#else
+#define TOF_LOOP
+#define TOF_ARG
+#endif
+
 float
 STIRAcquisitionData::norm() const
 {
 	double t = 0.0;
-	for (int s = 0; s <= get_max_segment_num(); ++s)
+        TOF_LOOP
+          for (int s = data()->get_min_segment_num(); s <= data()->get_max_segment_num(); ++s)
 	{
-		SegmentBySinogram<float> seg = get_segment_by_sinogram(s);
-		SegmentBySinogram<float>::full_iterator seg_iter;
-		for (seg_iter = seg.begin_all(); seg_iter != seg.end_all();) {
-			double r = *seg_iter++;
-			t += r*r;
-		}
-		if (s != 0) {
-			seg = get_segment_by_sinogram(-s);
-			for (seg_iter = seg.begin_all(); seg_iter != seg.end_all();) {
-				double r = *seg_iter++;
-				t += r*r;
-			}
-		}
+		const auto seg = get_segment_by_sinogram(s TOF_ARG);
+		t += stir::norm_squared(seg.begin_all(), seg.end_all());
 	}
-	return std::sqrt((float)t);
+	return static_cast<float>(std::sqrt(t));
 }
 
 void
@@ -60,14 +60,15 @@ STIRAcquisitionData::sum(void* ptr) const
 {
 	int n = get_max_segment_num();
 	double t = 0;
+        TOF_LOOP
 	for (int s = 0; s <= n; ++s)
 	{
-		SegmentBySinogram<float> seg = get_segment_by_sinogram(s);
+		SegmentBySinogram<float> seg = get_segment_by_sinogram(s TOF_ARG);
 		SegmentBySinogram<float>::full_iterator seg_iter;
 		for (seg_iter = seg.begin_all(); seg_iter != seg.end_all();)
 			t += *seg_iter++;
 		if (s != 0) {
-			seg = get_segment_by_sinogram(-s);
+			seg = get_segment_by_sinogram(-s TOF_ARG);
 			for (seg_iter = seg.begin_all(); seg_iter != seg.end_all();)
 				t += *seg_iter++;
 		}
@@ -81,14 +82,15 @@ STIRAcquisitionData::max(void* ptr) const
 {
 	int n = get_max_segment_num();
 	float t = 0;
+        TOF_LOOP
 	for (int s = 0; s <= n; ++s)
 	{
-		SegmentBySinogram<float> seg = get_segment_by_sinogram(s);
+		SegmentBySinogram<float> seg = get_segment_by_sinogram(s TOF_ARG);
 		SegmentBySinogram<float>::full_iterator seg_iter;
 		for (seg_iter = seg.begin_all(); seg_iter != seg.end_all();)
 			t = std::max(t, *seg_iter++);
 		if (s != 0) {
-			seg = get_segment_by_sinogram(-s);
+			seg = get_segment_by_sinogram(-s TOF_ARG);
 			for (seg_iter = seg.begin_all(); seg_iter != seg.end_all();)
 				t = std::max(t, *seg_iter++);
 		}
@@ -104,10 +106,11 @@ STIRAcquisitionData::dot(const DataContainer& a_x, void* ptr) const
 	int n = get_max_segment_num();
 	int nx = x.get_max_segment_num();
 	double t = 0;
+        TOF_LOOP
 	for (int s = 0; s <= n && s <= nx; ++s)
 	{
-		SegmentBySinogram<float> seg = get_segment_by_sinogram(s);
-		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s);
+		SegmentBySinogram<float> seg = get_segment_by_sinogram(s TOF_ARG);
+		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s TOF_ARG);
 		SegmentBySinogram<float>::full_iterator seg_iter;
 		SegmentBySinogram<float>::full_iterator sx_iter;
 		for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
@@ -116,8 +119,8 @@ STIRAcquisitionData::dot(const DataContainer& a_x, void* ptr) const
 			t += (*seg_iter++) * double(*sx_iter++);
 		}
 		if (s != 0) {
-			seg = get_segment_by_sinogram(-s);
-			sx = x.get_segment_by_sinogram(-s);
+			seg = get_segment_by_sinogram(-s TOF_ARG);
+			sx = x.get_segment_by_sinogram(-s TOF_ARG);
 			for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
 				seg_iter != seg.end_all() && sx_iter != sx.end_all();
 				/*empty*/)
@@ -188,11 +191,12 @@ STIRAcquisitionData::inv(float amin, const DataContainer& a_x)
 	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, x, a_x);
 	int n = get_max_segment_num();
 	int nx = x.get_max_segment_num();
+        TOF_LOOP
 	for (int s = 0; s <= n && s <= nx; ++s)
 	{
 		//std::cout << "processing segment " << s << std::endl;
-		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s);
-		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s);
+		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s TOF_ARG);
+		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s TOF_ARG);
 		SegmentBySinogram<float>::full_iterator seg_iter;
 		SegmentBySinogram<float>::full_iterator sx_iter;
 		for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
@@ -202,8 +206,8 @@ STIRAcquisitionData::inv(float amin, const DataContainer& a_x)
 		set_segment(seg);
 		if (s != 0) {
 			//std::cout << "processing segment " << -s << std::endl;
-			seg = get_empty_segment_by_sinogram(-s);
-			sx = x.get_segment_by_sinogram(-s);
+			seg = get_empty_segment_by_sinogram(-s TOF_ARG);
+			sx = x.get_segment_by_sinogram(-s TOF_ARG);
 			for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
 				seg_iter != seg.end_all() && sx_iter != sx.end_all();
 				/*empty*/) {
@@ -223,9 +227,10 @@ STIRAcquisitionData::unary_op(
 	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, x, a_x);
 	int n = get_max_segment_num();
 	int nx = x.get_max_segment_num();
+        TOF_LOOP
 	for (int s = 0; s <= n && s <= nx; ++s) {
-		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s);
-		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s);
+		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s TOF_ARG);
+		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s TOF_ARG);
 		SegmentBySinogram<float>::full_iterator seg_iter;
 		SegmentBySinogram<float>::full_iterator sx_iter;
 		for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
@@ -233,8 +238,8 @@ STIRAcquisitionData::unary_op(
 			*seg_iter++ = f(*sx_iter++);
 		set_segment(seg);
 		if (s > 0) {
-			SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(-s);
-			SegmentBySinogram<float> sx = x.get_segment_by_sinogram(-s);
+			SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(-s TOF_ARG);
+			SegmentBySinogram<float> sx = x.get_segment_by_sinogram(-s TOF_ARG);
 			SegmentBySinogram<float>::full_iterator seg_iter;
 			SegmentBySinogram<float>::full_iterator sx_iter;
 			for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
@@ -256,9 +261,10 @@ STIRAcquisitionData::semibinary_op(
 	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, x, a_x);
 	int n = get_max_segment_num();
 	int nx = x.get_max_segment_num();
+        TOF_LOOP
 	for (int s = 0; s <= n && s <= nx; ++s) {
-		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s);
-		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s);
+		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s TOF_ARG);
+		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s TOF_ARG);
 		SegmentBySinogram<float>::full_iterator seg_iter;
 		SegmentBySinogram<float>::full_iterator sx_iter;
 		for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
@@ -266,8 +272,8 @@ STIRAcquisitionData::semibinary_op(
 			*seg_iter++ = f(*sx_iter++, y);
 		set_segment(seg);
 		if (s > 0) {
-			SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(-s);
-			SegmentBySinogram<float> sx = x.get_segment_by_sinogram(-s);
+			SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(-s TOF_ARG);
+			SegmentBySinogram<float> sx = x.get_segment_by_sinogram(-s TOF_ARG);
 			SegmentBySinogram<float>::full_iterator seg_iter;
 			SegmentBySinogram<float>::full_iterator sx_iter;
 			for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
@@ -296,11 +302,12 @@ STIRAcquisitionData::binary_op(
 	SegmentBySinogram<float>::full_iterator seg_iter;
 	SegmentBySinogram<float>::full_iterator sx_iter;
 	SegmentBySinogram<float>::full_iterator sy_iter;
+        TOF_LOOP
 	for (int s = 0; s <= n; ++s)
 	{
-		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s);
-		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s);
-		SegmentBySinogram<float> sy = y.get_segment_by_sinogram(s);
+		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s TOF_ARG);
+		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s TOF_ARG);
+		SegmentBySinogram<float> sy = y.get_segment_by_sinogram(s TOF_ARG);
 		if (seg.size_all() != sx.size_all() || seg.size_all() != sy.size_all())
 			throw std::runtime_error("binary_op error: operands sizes differ");
 		for (seg_iter = seg.begin_all(),
@@ -309,9 +316,9 @@ STIRAcquisitionData::binary_op(
 			*seg_iter++ = f(*sx_iter++, *sy_iter++);
 		set_segment(seg);
 		if (s != 0) {
-			seg = get_empty_segment_by_sinogram(-s);
-			sx = x.get_segment_by_sinogram(-s);
-			sy = y.get_segment_by_sinogram(-s);
+			seg = get_empty_segment_by_sinogram(-s TOF_ARG);
+			sx = x.get_segment_by_sinogram(-s TOF_ARG);
+			sy = y.get_segment_by_sinogram(-s TOF_ARG);
 			for (seg_iter = seg.begin_all(),
 				sx_iter = sx.begin_all(), sy_iter = sy.begin_all();
 				seg_iter != seg.end_all();	/*empty*/)
@@ -340,12 +347,13 @@ STIRAcquisitionData::xapyb(
 	SegmentBySinogram<float>::full_iterator sx_iter;
 	SegmentBySinogram<float>::full_iterator sy_iter;
 	SegmentBySinogram<float>::full_iterator sb_iter;
+        TOF_LOOP
 	for (int s = 0; s <= n; ++s)
 	{
-		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s);
-		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s);
-		SegmentBySinogram<float> sy = y.get_segment_by_sinogram(s);
-		SegmentBySinogram<float> sb = b.get_segment_by_sinogram(s);
+		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s TOF_ARG);
+		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s TOF_ARG);
+		SegmentBySinogram<float> sy = y.get_segment_by_sinogram(s TOF_ARG);
+		SegmentBySinogram<float> sb = b.get_segment_by_sinogram(s TOF_ARG);
 		size_t size_seg = seg.size_all();
 		size_t size_sx = sx.size_all();
 		size_t size_sy = sy.size_all();
@@ -358,10 +366,10 @@ STIRAcquisitionData::xapyb(
 			*seg_iter++ = (*sx_iter++) * a + (*sy_iter++) * (*sb_iter++);
 		set_segment(seg);
 		if (s != 0) {
-			seg = get_empty_segment_by_sinogram(-s);
-			sx = x.get_segment_by_sinogram(-s);
-			sy = y.get_segment_by_sinogram(-s);
-			sb = b.get_segment_by_sinogram(-s);
+			seg = get_empty_segment_by_sinogram(-s TOF_ARG);
+			sx = x.get_segment_by_sinogram(-s TOF_ARG);
+			sy = y.get_segment_by_sinogram(-s TOF_ARG);
+			sb = b.get_segment_by_sinogram(-s TOF_ARG);
 			for (seg_iter = seg.begin_all(),
 				sx_iter = sx.begin_all(), sy_iter = sy.begin_all(), sb_iter = sb.begin_all();
 				seg_iter != seg.end_all(); /*empty*/)
@@ -870,7 +878,7 @@ STIRImageData::set_up_geom_info()
             = vox_image->get_LPS_coordinates_for_indices(next_vox_along_axis);
         Coord3DF axis_direction
             = next_vox_along_axis_coord - first_vox_coord;
-        axis_direction /= stir::norm(axis_direction);
+        axis_direction /= stir::norm(axis_direction.begin(), axis_direction.end());
         for (int dim = 0; dim < 3; dim++)
             direction[dim][axis] = axis_direction[3 - dim];
     }

@@ -42,7 +42,7 @@ Options: (defaults are set to work for mMR data processed in the current directo
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
 
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 from docopt import docopt
 
 args = docopt(__doc__, version=__version__)
@@ -71,7 +71,7 @@ interactive = not args['--non-interactive']
 def main():
 
     # direct all engine's messages to files
-    msg_red = PET.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
+    _ = PET.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     PET.AcquisitionData.set_storage_scheme('memory')
 
@@ -94,9 +94,12 @@ def main():
         se.set_asm(PET.AcquisitionSensitivityModel(norm_file))
     if not(acf_file is None):
         se.set_attenuation_correction_factors(PET.AcquisitionData(acf_file))
-    # could set number of iterations if you want to
+    # Could set number of iterations if you want to (we recommend at least 3)
     se.set_num_iterations(1)
     print("number of scatter iterations that will be used: %d" % se.get_num_iterations())
+    # Could set number of subsets used by the OSEM reconstruction inside the scatter estimation loop.
+    # Here we will set it to 7 (which is in fact the default), which is appropriate for the mMR
+    set.set_OSEM_num_subsets(7)
     se.set_output_prefix(output_prefix)
     se.set_up()
     se.process()
