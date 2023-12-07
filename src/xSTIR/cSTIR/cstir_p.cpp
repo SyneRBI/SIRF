@@ -1158,6 +1158,10 @@ sirf::cSTIR_setOSSPSParameter(DataHandle* hp, const char* name, const DataHandle
 		objectFromHandle<xSTIR_OSSPSReconstruction3DF >(hp);
 	if (sirf::iequals(name, "relaxation_parameter"))
 		recon.relaxation_parameter_value() = dataFromHandle<float>(hv);
+	else if (sirf::iequals(name, "relaxation_gamma"))
+		recon.relaxation_gamma_value() = dataFromHandle<float>(hv);
+	else if (sirf::iequals(name, "upper_bound"))
+		recon.upper_bound_value() = dataFromHandle<double>(hv);
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;
@@ -1168,6 +1172,12 @@ sirf::cSTIR_OSSPSParameter(const DataHandle* handle, const char* name)
 {
 	xSTIR_OSSPSReconstruction3DF& recon =
 		objectFromHandle<xSTIR_OSSPSReconstruction3DF>(handle);
+	if (sirf::iequals(name, "relaxation_parameter"))
+		return dataHandle<float>(recon.relaxation_parameter_value());
+	else if (sirf::iequals(name, "relaxation_gamma"))
+		return dataHandle<float>(recon.relaxation_gamma_value());
+	else if (sirf::iequals(name, "upper_bound"))
+		return dataHandle<double>(recon.upper_bound_value());
 	return parameterNotFound(name, __FILE__, __LINE__);
 }
 

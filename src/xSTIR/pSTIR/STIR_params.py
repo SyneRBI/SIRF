@@ -56,8 +56,15 @@ def set_bool_par(handle, group, par, value):
     set_parameter(handle, group, par, h, inspect.stack()[1])
     pyiutil.deleteDataHandle(h)
 
+
 def set_float_par(handle, group, par, value):
     h = pyiutil.floatDataHandle(float(value))
+    set_parameter(handle, group, par, h, inspect.stack()[1])
+    pyiutil.deleteDataHandle(h)
+
+
+def set_double_par(handle, group, par, value):
+    h = pyiutil.doubleDataHandle(float(value))
     set_parameter(handle, group, par, h, inspect.stack()[1])
     pyiutil.deleteDataHandle(h)
 
@@ -142,6 +149,14 @@ def float_pars(handle, group, par, n):
         value += (pyiutil.floatDataItemFromHandle(h, i),)
     pyiutil.deleteDataHandle(h)
     return value
+
+
+def double_par(handle, group, par):
+    h = parameter(handle, group, par)
+    check_status(h)
+    v = pyiutil.doubleDataFromHandle(h)
+    pyiutil.deleteDataHandle(h)
+    return v
 
 
 def parameter_handle(hs, group, par):

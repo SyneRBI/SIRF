@@ -520,6 +520,7 @@ Class for reconstructor objects using Ordered Subsets Separable Paraboloidal Sur
 
     OSSPSReconstructor       Constructor. Creates new OSSPS reconstructor object.
     set_relaxation_parameter Sets relaxation parameter.
+    set_relaxation_gamma Sets relaxation gamma parameter.
 
 ##### FullySampledReconstructor (MR) 
 
