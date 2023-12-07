@@ -38,10 +38,13 @@ args = docopt(__doc__, version=__version__)
 
 import math
 
+from sirf.Utilities import error, examples_data_path, existing_filepath
 from sirf.Utilities import show_2D_array
 
 # import engine module
-exec('from sirf.' + args['--engine'] + ' import *')
+import importlib
+engine = args['--engine']
+pet = importlib.import_module('sirf.' + engine)
 
 
 # process command-line options
@@ -62,33 +65,33 @@ show_plot = not args['--non-interactive']
 def main():
 
     # direct all engine's messages to files
-    msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
+    _ = pet.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     # select acquisition data storage scheme
-    AcquisitionData.set_storage_scheme(storage)
+    pet.AcquisitionData.set_storage_scheme(storage)
 
     # obtain an acquisition data template
-    template = AcquisitionData(temp_file)
+    template = pet.AcquisitionData(temp_file)
 
     # create uniform acquisition data from template
     print('creating uniform acquisition data...')
-    acq_data = AcquisitionData(template)
+    acq_data = pet.AcquisitionData(template)
     acq_data.fill(1.0)
 
     # read attenuation image
-    attn_image = ImageData(attn_file)
+    attn_image = pet.ImageData(attn_file)
     attn_image_as_array = attn_image.as_array()
     z = attn_image_as_array.shape[0]//2
     if show_plot:
         show_2D_array('Attenuation image', attn_image_as_array[z,:,:])
 
     # create acquisition model
-    am = AcquisitionModelUsingRayTracingMatrix()
+    am = pet.AcquisitionModelUsingRayTracingMatrix()
     am.set_up(template, attn_image)
 
     # create acquisition sensitivity model from attenuation image
     print('creating acquisition sensitivity model...')
-    asm = AcquisitionSensitivityModel(attn_image, am)
+    asm = pet.AcquisitionSensitivityModel(attn_image, am)
     asm.set_up(template)
     am.set_acquisition_sensitivity(asm)
 ##    print('projecting (please wait, may take a while)...')
