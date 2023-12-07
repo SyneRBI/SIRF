@@ -1246,6 +1246,12 @@ namespace sirf {
 			const Coord3DI& new_sizes = { -1,-1,-1 },
 			const stir::ZoomOptions zoom_options = stir::ZoomOptions::preserve_sum);
 
+		void zoom_image(const STIRImageData& original_image,
+			const stir::ZoomOptions zoom_options = stir::ZoomOptions::preserve_sum);
+
+		void zoom_image(const STIRImageData& original_image, 
+		    const char* const zoom_options_str = "preserve_sum");
+
 		/// Move to scanner centre. The acquisition needs to be supplied such that in the future,
 		/// bed offset etc can be taken into account.
 		void move_to_scanner_centre(const STIRAcquisitionData&);
