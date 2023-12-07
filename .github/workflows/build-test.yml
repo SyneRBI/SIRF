@@ -121,7 +121,7 @@ jobs:
     - name: tests
       shell: bash
       run:
-          bash -ev ${GITHUB_WORKSPACE}/SIRF-SuperBuild/docker/ctest_sirf.sh
+          bash -v ${GITHUB_WORKSPACE}/SIRF-SuperBuild/docker/ctest_sirf.sh
 
     - name: Coverage
       shell: bash

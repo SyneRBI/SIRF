@@ -71,7 +71,7 @@ def main():
 
     # locate the k-space raw data file adn read
     input_file = existing_filepath(data_path, data_file)
-    acq_data = mr.AcquisitionData(input_file)
+    acq_data = mr.AcquisitionData(input_file, False)
     
     # pre-process acquisition data
     if trajtype != 'radial' and trajtype != 'goldenangle':
@@ -109,7 +109,8 @@ def main():
     
         print('---\n computing coil sensitivity maps...')
         csms = mr.CoilSensitivityData()
-        csms.smoothness = 10
+        csms.smoothing_iterations = 10
+        csms.conv_kernel_halfsize = 3
         csms.calculate(processed_data)
 
         if show_plot:

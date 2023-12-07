@@ -58,7 +58,7 @@ else:
 MAX_ACQ_DIMENSIONS = 16
 
 # mask for image-related acquisitions
-IMAGE_DATA_MASK = 0x11BFFFF
+IMAGE_DATA_MASK = 0x13BFFFF
 
 # image type
 ISMRMRD_IMTYPE_MAGNITUDE = 1
@@ -66,7 +66,7 @@ ISMRMRD_IMTYPE_PHASE     = 2
 ISMRMRD_IMTYPE_REAL      = 3
 ISMRMRD_IMTYPE_IMAG      = 4
 
-#image data type
+# image data type
 ISMRMRD_USHORT   = 1 ##, /**< corresponds to uint16_t */
 ISMRMRD_SHORT    = 2 ##, /**< corresponds to int16_t */
 ISMRMRD_UINT     = 3 ##, /**< corresponds to uint32_t */
@@ -75,6 +75,68 @@ ISMRMRD_FLOAT    = 5 ##, /**< corresponds to float */
 ISMRMRD_DOUBLE   = 6 ##, /**< corresponds to double */
 ISMRMRD_CXFLOAT  = 7 ##, /**< corresponds to complex float */
 ISMRMRD_CXDOUBLE = 8 ##  /**< corresponds to complex double */
+
+# ISMRMRD acquisition flags
+ISMRMRD_ACQ_FIRST_IN_ENCODE_STEP1               =  1
+ISMRMRD_ACQ_LAST_IN_ENCODE_STEP1                =  2
+ISMRMRD_ACQ_FIRST_IN_ENCODE_STEP2               =  3
+ISMRMRD_ACQ_LAST_IN_ENCODE_STEP2                =  4
+ISMRMRD_ACQ_FIRST_IN_AVERAGE                    =  5
+ISMRMRD_ACQ_LAST_IN_AVERAGE                     =  6
+ISMRMRD_ACQ_FIRST_IN_SLICE                      =  7
+ISMRMRD_ACQ_LAST_IN_SLICE                       =  8
+ISMRMRD_ACQ_FIRST_IN_CONTRAST                   =  9
+ISMRMRD_ACQ_LAST_IN_CONTRAST                    = 10
+ISMRMRD_ACQ_FIRST_IN_PHASE                      = 11
+ISMRMRD_ACQ_LAST_IN_PHASE                       = 12
+ISMRMRD_ACQ_FIRST_IN_REPETITION                 = 13
+ISMRMRD_ACQ_LAST_IN_REPETITION                  = 14
+ISMRMRD_ACQ_FIRST_IN_SET                        = 15
+ISMRMRD_ACQ_LAST_IN_SET                         = 16
+ISMRMRD_ACQ_FIRST_IN_SEGMENT                    = 17
+ISMRMRD_ACQ_LAST_IN_SEGMENT                     = 18
+ISMRMRD_ACQ_IS_NOISE_MEASUREMENT                = 19
+ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION             = 20
+ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING = 21
+ISMRMRD_ACQ_IS_REVERSE                          = 22
+ISMRMRD_ACQ_IS_NAVIGATION_DATA                  = 23
+ISMRMRD_ACQ_IS_PHASECORR_DATA                   = 24
+ISMRMRD_ACQ_LAST_IN_MEASUREMENT                 = 25
+ISMRMRD_ACQ_IS_HPFEEDBACK_DATA                  = 26
+ISMRMRD_ACQ_IS_DUMMYSCAN_DATA                   = 27
+ISMRMRD_ACQ_IS_RTFEEDBACK_DATA                  = 28
+ISMRMRD_ACQ_IS_SURFACECOILCORRECTIONSCAN_DATA   = 29
+
+ISMRMRD_ACQ_COMPRESSION1                        = 53
+ISMRMRD_ACQ_COMPRESSION2                        = 54
+ISMRMRD_ACQ_COMPRESSION3                        = 55
+ISMRMRD_ACQ_COMPRESSION4                        = 56
+ISMRMRD_ACQ_USER1                               = 57
+ISMRMRD_ACQ_USER2                               = 58
+ISMRMRD_ACQ_USER3                               = 59
+ISMRMRD_ACQ_USER4                               = 60
+ISMRMRD_ACQ_USER5                               = 61
+ISMRMRD_ACQ_USER6                               = 62
+ISMRMRD_ACQ_USER7                               = 63
+ISMRMRD_ACQ_USER8                               = 64
+
+
+# acquisition ignoring helper class
+class IgnoreMask(object):
+    def __init__(self, mask=None):
+        if mask is None:
+            self.mask = 1 << 18
+        else:
+            self.mask = mask
+    def set(self, mask):
+        self.mask = mask
+    def ignore(self, bit):
+        self.mask = self.mask | 1 << (bit - 1)
+    def ignore_not(self, bit):
+        self.mask = self.mask & ~(1 << (bit - 1))
+    def ignored(self, bits):
+        return bits & self.mask
+
 
 # data path finding helper functions
 @deprecated(
@@ -547,7 +609,8 @@ class CoilSensitivityData(ImageData):
     '''
     def __init__(self):
         self.handle = None
-        self.smoothness = 0
+        self.smoothing_iterations = 0
+        self.conv_kernel_halfsize = 1
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
@@ -573,7 +636,8 @@ class CoilSensitivityData(ImageData):
             pyiutil.deleteDataHandle(self.handle)
         self.handle = pygadgetron.cGT_CoilSensitivities('')
         check_status(self.handle)
-        nit = self.smoothness
+        nit = self.smoothing_iterations
+        w = self.conv_kernel_halfsize # convolution kernel size is (2w+1)-by-(2w+1) pixels
         
         if method is not None:
             method_name, parm_list = name_and_parameters(method)
@@ -584,7 +648,8 @@ class CoilSensitivityData(ImageData):
             method_name = 'SRSS'
             parm = {}
         
-        parms.set_int_par(self.handle, 'coil_sensitivity', 'smoothness', nit)
+        parms.set_int_par(self.handle, 'coil_sensitivity', 'smoothing_iterations', nit)
+        parms.set_int_par(self.handle, 'coil_sensitivity', 'conv_kernel_size', w)
 
         if isinstance(data, AcquisitionData):
             self.__calc_from_acquisitions(data, method_name)
@@ -823,12 +888,14 @@ class AcquisitionData(DataContainer):
     Class for an MR acquisitions container.
     Each item is a 2D complex array of acquisition samples for each coil.
     '''
-    def __init__(self, file=None, all_=False):
+    def __init__(self, file=None, all_=False, ignored=IgnoreMask()):
         self.handle = None
         self.sorted = False
         self.info = None
         if file is not None:
-            self.handle = pygadgetron.cGT_ISMRMRDAcquisitionsFromFile(file, 1*all_)
+            mask = numpy.ndarray((1,), dtype=numpy.int64)
+            mask[0] = ignored.mask
+            self.handle = pygadgetron.cGT_ISMRMRDAcquisitionsFromFile(file, 1*all_, mask.ctypes.data)
             check_status(self.handle)
 
     def __del__(self):
@@ -856,6 +923,14 @@ class AcquisitionData(DataContainer):
             new_ad.handle = pygadgetron.cGT_cloneAcquisitions(self.handle)
         check_status(new_ad.handle)
         return new_ad
+    def set_ignore_mask(self, ignored):
+        mask = numpy.ndarray((1,), dtype=numpy.int64)
+        mask[0] = ignored.mask
+        try_calling(pygadgetron.cGT_setAcquisitionsIgnoreMask(self.handle, mask.ctypes.data))
+    def ignore_mask(self):
+        mask = numpy.ndarray((1,), dtype=numpy.int64)
+        try_calling(pygadgetron.cGT_acquisitionsIgnoreMask(self.handle, mask.ctypes.data))
+        return mask[0]
     def number_of_readouts(self, select='image'):
         if select == 'image':
             dim = self.dimensions()
