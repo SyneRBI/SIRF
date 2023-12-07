@@ -1,10 +1,11 @@
 # ChangeLog
 
+## v3.6.0
+
 * PET:
   - added extra members to ScatterEstimation to set behaviour of OSEM used during scatter estimation
   - added test for scatter simulation and estimation
-
-## v3.5.1
+  - added missing `set`/`get` methods for OSSPS `relaxation_parameter`, `relaxation_gamma` and `upper_bound`.
 
 * CMake/building:
   - default `DISABLE_MATLAB` to `ON` as our Matlab support is out-of-date and could
