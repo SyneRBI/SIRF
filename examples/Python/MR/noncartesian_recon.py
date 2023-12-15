@@ -71,7 +71,7 @@ def main():
 
     # locate the k-space raw data file adn read
     input_file = existing_filepath(data_path, data_file)
-    acq_data = mr.AcquisitionData(input_file, False)
+    acq_data = mr.AcquisitionData(input_file)
     
     # pre-process acquisition data
     if trajtype != 'radial' and trajtype != 'goldenangle':

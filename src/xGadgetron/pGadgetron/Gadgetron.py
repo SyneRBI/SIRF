@@ -888,7 +888,7 @@ class AcquisitionData(DataContainer):
     Class for an MR acquisitions container.
     Each item is a 2D complex array of acquisition samples for each coil.
     '''
-    def __init__(self, file=None, all_=False, ignored=IgnoreMask()):
+    def __init__(self, file=None, all_=True, ignored=IgnoreMask(0)):
         self.handle = None
         self.sorted = False
         self.info = None
