@@ -2386,7 +2386,7 @@ GadgetronImagesVector::set_up_geom_info()
 
     for (unsigned im=1; im<number(); ++im) {
         ISMRMRD::ImageHeader &ih = image_wrap(im).head();
-        
+
         // record which is the largest slice index
         // this allows to differentiate between slice number and this->number() as the
         // latter also includes different contrasts, phases, repetitions etc. that have

@@ -476,9 +476,11 @@ class NiftiImageData(SIRF.ImageData):
         im_real.handle = \
             pyreg.cReg_NiftiImageData_from_complex_ImageData_real_component(
                 complex_im.handle)
+        check_status(im_real.handle)
         im_imag.handle = \
             pyreg.cReg_NiftiImageData_from_complex_ImageData_imag_component(
                 complex_im.handle)
+        check_status(im_imag.handle)
         return [im_real, im_imag]
 
     @staticmethod
@@ -1108,6 +1110,14 @@ class NiftyResampler(object):
     def norm(self, num_iter=2, verb=0):
         '''Computes the norm of the forward projection operator.
         '''
+        if self.reference_image.is_complex():
+            reference_image, _ = NiftiImageData.construct_from_complex_image(self.reference_image)
+            parms.set_parameter(
+                self.handle, self.name, 'reference_image', reference_image.handle)
+        if self.floating_image.is_complex():
+            floating_image, _ = NiftiImageData.construct_from_complex_image(self.floating_image)
+            parms.set_parameter(
+                self.handle, self.name, 'floating_image', floating_image.handle)
         handle = pyreg.cReg_NiftyResampler_norm(self.handle, num_iter, verb)
         check_status(handle)
         r = pyiutil.floatDataFromHandle(handle)
