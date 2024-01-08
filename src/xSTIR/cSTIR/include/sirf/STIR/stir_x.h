@@ -170,8 +170,13 @@ The actual algorithm is described in
 			if (LmToProjData::set_up() == Succeeded::no)
 				THROW("LmToProjData setup failed");
 			fan_size = -1;
-			const int max_fan_size =
+#if STIR_VERSION < 060000
+			const auto max_fan_size =
 				lm_data_ptr->get_scanner_ptr()->get_max_num_non_arccorrected_bins();
+#else
+			const auto max_fan_size =
+                          lm_data_ptr->get_scanner().get_max_num_non_arccorrected_bins();
+#endif
 			if (fan_size == -1)
 				fan_size = max_fan_size;
 			else
