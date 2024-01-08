@@ -320,9 +320,11 @@ cGT_setCSParameter(void* ptr, const char* par, const void* val)
 	CAST_PTR(DataHandle, h_csms, ptr);
 	CoilSensitivitiesVector& csms =
 		objectFromHandle<CoilSensitivitiesVector>(h_csms);
-	if (sirf::iequals(par, "smoothness"))
+	if (sirf::iequals(par, "smoothing_iterations"))
 		csms.set_csm_smoothness(dataFromHandle<int>(val));
 	//csms.set_csm_smoothness(intDataFromHandle(val)); // causes problems with Matlab
+	else if (sirf::iequals(par, "conv_kernel_size"))
+		csms.set_csm_conv_kernel_size(dataFromHandle<int>(val));
 	else
 		return unknownObject("parameter", par, __FILE__, __LINE__);
 	return new DataHandle;
@@ -561,14 +563,26 @@ cGT_sortAcquisitionsByTime(void* ptr_acqs)
 
 extern "C"
 void*
-cGT_ISMRMRDAcquisitionsFromFile(const char* file, int all)
+cGT_ISMRMRDAcquisitionsFromFile(const char* file, int all, size_t ptr)
 {
 	if (!file_exists(file))
 		return fileNotFound(file, __FILE__, __LINE__);
 	try {
+		auto ptr_ignored = reinterpret_cast<unsigned long int*>(ptr);
+		auto ignored = *ptr_ignored;
+		std::cout << "reading from " << file << " using ignore mask ";
+		IgnoreMask mask;
+		if (all)
+			mask.set(0);
+		else
+			mask.set(ignored);
+		std::cout << mask.bits_string() << '\n';
 		shared_ptr<MRAcquisitionData>
 			acquisitions(new AcquisitionsVector);
+		IgnoreMask copy = acquisitions->ignore_mask();
+		acquisitions->set_ignore_mask(mask);
 		acquisitions->read(file, all);
+		acquisitions->set_ignore_mask(copy);
 		return newObjectHandle<MRAcquisitionData>(acquisitions);
 	}
 	CATCH;
@@ -699,6 +713,40 @@ cGT_getAcquisitionDataDimensions(void* ptr_acqs, size_t ptr_dim)
 			sptr_acq(new ISMRMRD::Acquisition);
 		int num_reg_dim = acqs.get_acquisitions_dimensions(ptr_dim);
 		return dataHandle(num_reg_dim);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_setAcquisitionsIgnoreMask(void* ptr_acqs, size_t ptr_im)
+{
+	try {
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		MRAcquisitionData& acqs =
+			objectFromHandle<MRAcquisitionData>(h_acqs);
+		shared_ptr<ISMRMRD::Acquisition>
+			sptr_acq(new ISMRMRD::Acquisition);
+		auto im = *reinterpret_cast<unsigned long int*>(ptr_im);
+		acqs.set_ignore_mask(im);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_acquisitionsIgnoreMask(void* ptr_acqs, size_t ptr_im)
+{
+	try {
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		MRAcquisitionData& acqs =
+			objectFromHandle<MRAcquisitionData>(h_acqs);
+		shared_ptr<ISMRMRD::Acquisition>
+			sptr_acq(new ISMRMRD::Acquisition);
+		auto im = reinterpret_cast<unsigned long int*>(ptr_im);
+		*im = acqs.ignore_mask().bits();
+		return new DataHandle;
 	}
 	CATCH;
 }
