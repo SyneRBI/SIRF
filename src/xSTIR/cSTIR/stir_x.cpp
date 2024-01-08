@@ -99,11 +99,13 @@ void
 ListmodeToSinograms::compute_fan_sums_(bool prompt_fansum)
 {
 	//*********** get Scanner details
-	const int num_rings =
-		lm_data_ptr->get_scanner_ptr()->get_num_rings();
-	const int num_detectors_per_ring =
-		lm_data_ptr->get_scanner_ptr()->get_num_detectors_per_ring();
-
+#if STIR_VERSION < 060000
+        const auto& scanner = *lm_data_ptr->get_scanner_ptr();
+#else
+        const auto& scanner = lm_data_ptr->get_scanner();
+#endif
+	const auto num_rings = scanner.get_num_rings();
+	const auto num_detectors_per_ring = scanner.get_num_detectors_per_ring();
 
 	//*********** Finally, do the real work
 
@@ -118,12 +120,11 @@ ListmodeToSinograms::compute_fan_sums_(bool prompt_fansum)
 	// go to the beginning of the binary data
 	lm_data_ptr->reset();
 
-	// TODO have to use lm_data_ptr->get_proj_data_info_sptr() once STIR PR 108 is merged
 	max_ring_diff_for_fansums = 60;
-	if (*lm_data_ptr->get_scanner_ptr() != Scanner(Scanner::Siemens_mMR))
+	if (scanner != Scanner(Scanner::Siemens_mMR))
 	{
 		warning("This is not mMR data. Assuming all possible ring differences are in the listmode file");
-		max_ring_diff_for_fansums = lm_data_ptr->get_scanner_ptr()->get_num_rings() - 1;
+		max_ring_diff_for_fansums = num_rings - 1;
 	}
 	unsigned int current_frame_num = 1;
 	{
@@ -447,7 +448,11 @@ PETAttenuationModel::unnormalise(STIRAcquisitionData& ad) const
 	BinNormalisation* norm = norm_.get();
         stir::shared_ptr<DataSymmetriesForViewSegmentNumbers>
 		symmetries_sptr(sptr_forw_projector_->get_symmetries_used()->clone());
+#if STIR_VERSION < 050000
 	norm->undo(*ad.data(), 0, 1, symmetries_sptr);
+#else
+	norm->undo(*ad.data(), symmetries_sptr);
+#endif
 }
 
 void
