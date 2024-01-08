@@ -220,7 +220,7 @@ void NiftiImageData<dataType>::construct_NiftiImageData_from_complex_im_real_com
 
     auto &it_in = in_sptr->begin();
     auto &it_out = out_sptr->begin();
-    for (; it_in!=in_sptr->end(); ++it_in, ++it_out)
+    for (; it_out != out_sptr->end(); ++it_in, ++it_out)
         *it_out = (*it_in).complex_float().real();
 }
 
@@ -235,7 +235,7 @@ void NiftiImageData<dataType>::construct_NiftiImageData_from_complex_im_imag_com
 
     auto &it_in = in_sptr->begin();
     auto &it_out = out_sptr->begin();
-    for (; it_in!=in_sptr->end(); ++it_in, ++it_out)
+    for (; it_out != out_sptr->end(); ++it_in, ++it_out)
         *it_out = (*it_in).complex_float().imag();
 }
 
