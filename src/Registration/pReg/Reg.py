@@ -1108,8 +1108,7 @@ class NiftyResampler(object):
     def norm(self, num_iter=2, verb=0):
         '''Computes the norm of the forward projection operator.
         '''
-        '''reference and floating images need to be real.
-        '''
+        # reference and floating images need to be real.
         if self.reference_image.is_complex():
             reference_image, _ = NiftiImageData.construct_from_complex_image(self.reference_image)
             parms.set_parameter(
@@ -1122,8 +1121,7 @@ class NiftyResampler(object):
         check_status(handle)
         r = pyiutil.floatDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
-        '''Restore reference and floating images.
-        '''
+        # Restore reference and floating images.
         if self.reference_image.is_complex():
             parms.set_parameter(
                 self.handle, self.name, 'reference_image', self.reference_image.handle)
