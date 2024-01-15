@@ -35,6 +35,7 @@ using namespace ecat;
 using namespace sirf;
 
 #if defined(HAVE_HDF5)
+blabla error
 #include "stir/IO/GEHDF5Wrapper.h"
 #include "stir/data/SinglesRatesFromGEHDF5.h"
 #include "stir/recon_buildblock/BinNormalisationFromGEHDF5.h"
