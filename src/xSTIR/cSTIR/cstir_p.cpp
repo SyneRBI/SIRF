@@ -614,7 +614,7 @@ void*
 sirf::cSTIR_setGeneralisedPriorParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
-	Prior3DF& prior = objectFromHandle< Prior3DF >(hp);
+	auto& prior = objectFromHandle< Prior3DF >(hp);
 	if (sirf::iequals(name, "penalisation_factor"))
 		prior.set_penalisation_factor(dataFromHandle<float>((void*)hv));
 	else
@@ -625,7 +625,7 @@ sirf::cSTIR_setGeneralisedPriorParameter
 void*
 sirf::cSTIR_generalisedPriorParameter(const DataHandle* handle, const char* name)
 {
-	Prior3DF& prior = objectFromHandle< Prior3DF >(handle);
+	auto& prior = objectFromHandle<Prior3DF>(handle);
 	if (sirf::iequals(name, "penalisation_factor"))
 		return dataHandle<float>(prior.get_penalisation_factor());
 	return parameterNotFound(name, __FILE__, __LINE__);
@@ -635,10 +635,99 @@ void*
 sirf::cSTIR_setQuadraticPriorParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
-	xSTIR_QuadraticPrior3DF& prior =
-		objectFromHandle<xSTIR_QuadraticPrior3DF>(hp);
+	auto& prior = objectFromHandle<xSTIR_QuadraticPrior3DF>(hp);
 	if (sirf::iequals(name, "only_2D"))
 		prior.only2D(dataFromHandle<int>((void*)hv));
+	else if (sirf::iequals(name, "kappa")) {
+		auto& id = objectFromHandle<STIRImageData>(hv);
+		prior.set_kappa_sptr(id.data_sptr());
+	}
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
+}
+
+void*
+sirf::cSTIR_QuadraticPriorParameter
+(DataHandle* hp, const char* name)
+{
+	auto& prior = objectFromHandle<xSTIR_QuadraticPrior3DF>(hp);
+	if (sirf::iequals(name, "kappa")) {
+		auto sptr_im = std::make_shared<STIRImageData>(*prior.get_kappa_sptr());
+		return newObjectHandle(sptr_im);
+	}
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
+}
+
+void*
+sirf::cSTIR_setLogcoshPriorParameter
+(DataHandle* hp, const char* name, const DataHandle* hv)
+{
+	auto& prior = objectFromHandle<xSTIR_LogcoshPrior3DF>(hp);
+	if (sirf::iequals(name, "only_2D"))
+		prior.only2D(dataFromHandle<int>((void*)hv));
+	else if (sirf::iequals(name, "kappa")) {
+		auto& id = objectFromHandle<STIRImageData>(hv);
+		prior.set_kappa_sptr(id.data_sptr());
+	}
+	else if (sirf::iequals(name, "scalar"))
+		prior.set_scalar(dataFromHandle<float>((void*)hv));
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
+}
+
+void*
+sirf::cSTIR_LogcoshPriorParameter
+(DataHandle* hp, const char* name)
+{
+	auto& prior = objectFromHandle<xSTIR_LogcoshPrior3DF >(hp);
+	if (sirf::iequals(name, "kappa")) {
+		auto sptr_im = std::make_shared<STIRImageData>(*prior.get_kappa_sptr());
+		return newObjectHandle(sptr_im);
+	}
+	else if (sirf::iequals(name, "scalar"))
+		return dataHandle<float>(prior.get_scalar());
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
+}
+
+void*
+sirf::cSTIR_setRelativeDifferencePriorParameter
+(DataHandle* hp, const char* name, const DataHandle* hv)
+{
+	auto& prior = objectFromHandle<xSTIR_RelativeDifferencePrior3DF>(hp);
+	if (sirf::iequals(name, "only_2D"))
+		prior.only2D(dataFromHandle<int>((void*)hv));
+	else if (sirf::iequals(name, "kappa")) {
+		auto& id = objectFromHandle<STIRImageData>(hv);
+		prior.set_kappa_sptr(id.data_sptr());
+	}
+	else if (sirf::iequals(name, "gamma"))
+		prior.set_gamma(dataFromHandle<float>((void*)hv));
+	else if (sirf::iequals(name, "epsilon"))
+		prior.set_epsilon(dataFromHandle<float>((void*)hv));
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
+}
+
+void*
+sirf::cSTIR_RelativeDifferencePriorParameter
+(DataHandle* hp, const char* name)
+{
+	auto& prior = objectFromHandle<xSTIR_RelativeDifferencePrior3DF >(hp);
+	if (sirf::iequals(name, "kappa")) {
+		auto sptr_im = std::make_shared<STIRImageData>(*prior.get_kappa_sptr());
+		return newObjectHandle(sptr_im);
+	}
+	else if (sirf::iequals(name, "gamma"))
+		return dataHandle<float>(prior.get_gamma());
+	else if (sirf::iequals(name, "epsilon"))
+		return dataHandle<float>(prior.get_epsilon());
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;
@@ -648,10 +737,7 @@ void*
 sirf::cSTIR_setPLSPriorParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
-	//xSTIR_PLSPrior3DF& prior =
-	//	objectFromHandle<xSTIR_PLSPrior3DF>(hp);
-	PLSPrior<float>& prior =
-		objectFromHandle<PLSPrior<float> >(hp);
+	auto& prior = objectFromHandle<PLSPrior<float> >(hp);
 	if (sirf::iequals(name, "only_2D"))
 		prior.set_only_2D(dataFromHandle<int>((void*)hv));
 	else if (sirf::iequals(name, "alpha"))
@@ -659,11 +745,11 @@ sirf::cSTIR_setPLSPriorParameter
 	else if (sirf::iequals(name, "eta"))
 		prior.set_eta(dataFromHandle<float>((void*)hv));
 	else if (sirf::iequals(name, "anatomical_image")) {
-		STIRImageData& id = objectFromHandle<STIRImageData>(hv);
+		auto& id = objectFromHandle<STIRImageData>(hv);
 		prior.set_anatomical_image_sptr(id.data_sptr());
 	}
 	else if (sirf::iequals(name, "kappa")) {
-		STIRImageData& id = objectFromHandle<STIRImageData>(hv);
+		auto& id = objectFromHandle<STIRImageData>(hv);
 		prior.set_kappa_sptr(id.data_sptr());
 	}
 	else if (sirf::iequals(name, "kappa_filename"))
@@ -679,8 +765,7 @@ void*
 sirf::cSTIR_PLSPriorParameter
 (DataHandle* hp, const char* name)
 {
-	PLSPrior<float>& prior =
-		objectFromHandle<PLSPrior<float> >(hp);
+	auto& prior = objectFromHandle<PLSPrior<float> >(hp);
 	if (sirf::iequals(name, "only_2D"))
 		return dataHandle<int>(prior.get_only_2D());
 	else if (sirf::iequals(name, "alpha"))
@@ -693,9 +778,8 @@ sirf::cSTIR_PLSPriorParameter
 		return newObjectHandle(sptr_id);
 	}
 	else if (sirf::iequals(name, "kappa")) {
-		auto sptr_im = prior.get_kappa_sptr();
-		auto sptr_id = std::make_shared<STIRImageData>(*sptr_im);
-		return newObjectHandle(sptr_id);
+		auto sptr_im = std::make_shared<STIRImageData>(*prior.get_kappa_sptr());
+		return newObjectHandle(sptr_im);
 	}
 	else if (sirf::iequals(name, "norm")) {
 		auto sptr_im = prior.get_norm_sptr();
@@ -768,6 +852,21 @@ sirf::cSTIR_setScatterEstimatorParameter
         int value = dataFromHandle<int>(hv);
         obj.set_num_iterations(value);
     }
+    
+    else if (sirf::iequals(name, "set_OSEM_num_subiterations"))
+    {
+        int value = dataFromHandle<int>(hv);
+        obj.set_OSEM_num_subiterations(value);
+    }
+    
+    else if (sirf::iequals(name, "set_OSEM_num_subsets"))
+    {
+        int value = dataFromHandle<int>(hv);
+        obj.set_OSEM_num_subsets(value);
+    }
+    
+    
+    
     else if (sirf::iequals(name, "set_output_prefix"))
     {
         obj.set_output_prefix(charDataFromHandle(hv));
@@ -786,6 +885,10 @@ sirf::cSTIR_ScatterEstimatorParameter(DataHandle* hp, const char* name)
 		return newObjectHandle(processor.get_output());
 	if (sirf::iequals(name, "num_iterations"))
           return dataHandle<int>(processor.get_num_iterations());
+	if (sirf::iequals(name, "OSEM_num_subiterations"))
+          return dataHandle<int>(processor.get_OSEM_num_subiterations());
+	if (sirf::iequals(name, "OSEM_num_subsets"))
+          return dataHandle<int>(processor.get_OSEM_num_subsets());
 	return parameterNotFound(name, __FILE__, __LINE__);
 }
 
@@ -1065,6 +1168,7 @@ sirf::cSTIR_OSMAPOSLParameter(const DataHandle* handle, const char* name)
 		return newObjectHandle(recon.get_objective_function_sptr());
 	return parameterNotFound(name, __FILE__, __LINE__);
 }
+
 #ifdef USE_HKEM
 void*
 sirf::cSTIR_setKOSMAPOSLParameter
@@ -1098,7 +1202,18 @@ sirf::cSTIR_setKOSMAPOSLParameter
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;
 }
+
+void*
+sirf::cSTIR_KOSMAPOSLParameter(const DataHandle* handle, const char* name)
+{
+	OSMAPOSLReconstruction<Image3DF>& recon =
+		objectFromHandle<OSMAPOSLReconstruction<Image3DF> >(handle);
+	if (sirf::iequals(name, "objective_function"))
+		return newObjectHandle(recon.get_objective_function_sptr());
+	return parameterNotFound(name, __FILE__, __LINE__);
+}
 #endif
+
 void*
 sirf::cSTIR_setOSSPSParameter(DataHandle* hp, const char* name, const DataHandle* hv)
 {
@@ -1106,6 +1221,10 @@ sirf::cSTIR_setOSSPSParameter(DataHandle* hp, const char* name, const DataHandle
 		objectFromHandle<xSTIR_OSSPSReconstruction3DF >(hp);
 	if (sirf::iequals(name, "relaxation_parameter"))
 		recon.relaxation_parameter_value() = dataFromHandle<float>(hv);
+	else if (sirf::iequals(name, "relaxation_gamma"))
+		recon.relaxation_gamma_value() = dataFromHandle<float>(hv);
+	else if (sirf::iequals(name, "upper_bound"))
+		recon.upper_bound_value() = dataFromHandle<double>(hv);
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;
@@ -1116,6 +1235,12 @@ sirf::cSTIR_OSSPSParameter(const DataHandle* handle, const char* name)
 {
 	xSTIR_OSSPSReconstruction3DF& recon =
 		objectFromHandle<xSTIR_OSSPSReconstruction3DF>(handle);
+	if (sirf::iequals(name, "relaxation_parameter"))
+		return dataHandle<float>(recon.relaxation_parameter_value());
+	else if (sirf::iequals(name, "relaxation_gamma"))
+		return dataHandle<float>(recon.relaxation_gamma_value());
+	else if (sirf::iequals(name, "upper_bound"))
+		return dataHandle<double>(recon.upper_bound_value());
 	return parameterNotFound(name, __FILE__, __LINE__);
 }
 

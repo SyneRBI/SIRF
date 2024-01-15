@@ -247,7 +247,7 @@ def main():
     # Create coil sensitivity data
     print("Calculating coil sensitivity map...")
     csm = mr.CoilSensitivityData()
-    csm.smoothness = 500
+    csm.smoothing_iterations = 500
     csm.calculate(template_MR_raw)
 
     # Create interleaved sampling

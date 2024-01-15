@@ -174,54 +174,6 @@ class NiftiImageData(SIRF.ImageData):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
-    def __add__(self, other):
-        """Overloads + operator."""
-        z = self.clone()
-        if isinstance(other, NiftiImageData):
-            try_calling(
-                pyreg.cReg_NiftiImageData_maths_im(
-                    z.handle, self.handle, other.handle, NiftiImageData._ADD))
-        else:
-            try_calling(
-                pyreg.cReg_NiftiImageData_maths_num(
-                    z.handle, self.handle, float(other), NiftiImageData._ADD))
-        check_status(z.handle)
-        return z
-
-    def __sub__(self, other):
-        """Overloads - operator."""
-        z = self.clone()
-        if isinstance(other, NiftiImageData):
-            try_calling(pyreg.cReg_NiftiImageData_maths_im(z.handle,
-                        self.handle, other.handle, NiftiImageData._SUBTRACT))
-        else:
-            try_calling(pyreg.cReg_NiftiImageData_maths_num(z.handle,
-                        self.handle, float(other), NiftiImageData._SUBTRACT))
-        check_status(z.handle)
-        return z
-
-    def __mul__(self, other):
-        """Overloads * operator."""
-        z = self.clone()
-        if isinstance(other, NiftiImageData):
-            try_calling(pyreg.cReg_NiftiImageData_maths_im(z.handle,
-                        self.handle, other.handle, NiftiImageData._MULTIPLY))
-        else:
-            try_calling(pyreg.cReg_NiftiImageData_maths_num(z.handle,
-                        self.handle, float(other), NiftiImageData._MULTIPLY))
-        check_status(z.handle)
-        return z
-    def __div__(self, other):
-        """Overloads / operator."""
-        z = self.clone()
-        if isinstance(other, NiftiImageData):
-            try_calling(pyreg.cReg_NiftiImageData_maths_im(z.handle,
-                        self.handle, other.handle, NiftiImageData._DIVIDE))
-        else:
-            try_calling(pyreg.cReg_NiftiImageData_maths_num(z.handle,
-                        self.handle, float(other), NiftiImageData._DIVIDE))
-        check_status(z.handle)
-        return z
     def equal(self, other):
         """Overload comparison operator."""
         if not isinstance(other, NiftiImageData):
@@ -351,25 +303,6 @@ class NiftiImageData(SIRF.ImageData):
             image.handle, self.handle))
         return image
 
-    def allocate(self, value=0, **kwargs):
-        """Alias to get_uniform_copy for CIL/SIRF compatibility."""
-        if value in ['random', 'random_int']:
-            out = self.deep_copy()
-            shape = out.as_array().shape
-            seed = kwargs.get('seed', None)
-            if seed is not None:
-                numpy.random.seed(seed)
-            if value == 'random':
-                out.fill(numpy.random.random_sample(shape))
-            elif value == 'random_int':
-                max_value = kwargs.get('max_value', 100)
-                out.fill(numpy.random.randint(max_value, size=shape))
-        else:
-            out = self.deep_copy()
-            out *= 0
-            out.fill(value * numpy.ones_like(out.as_array()))
-        return out
-
     def as_array(self):
         """Get data as numpy array."""
         if self.handle is None:
@@ -455,7 +388,12 @@ class NiftiImageData(SIRF.ImageData):
 
     def same_object(self):
         """See DataContainer method."""
-        return NiftiImageData()
+        obj = ImageData()
+        if obj.handle is not None:
+            pyiutil.deleteDataHandle(obj.handle)
+            obj.handle = None
+        return obj
+        #return NiftiImageData()
 
     def set_voxel_spacing(self, spacing, interpolation_order):
         """Set the voxel spacing.
@@ -561,9 +499,6 @@ class NiftiImageData(SIRF.ImageData):
     @property
     def shape(self):
         return self.dimensions()
-    @property
-    def dtype(self):
-        return numpy.float32
 
 
 class NiftiImageData3D(NiftiImageData):
@@ -1169,6 +1104,31 @@ class NiftyResampler(object):
     def set_padding_value(self, val):
         """Set padding value."""
         parms.set_float_par(self.handle, self.name, 'padding', val)
+
+    def norm(self, num_iter=2, verb=0):
+        '''Computes the norm of the forward projection operator.
+        '''
+        # reference and floating images need to be real.
+        if self.reference_image.is_complex():
+            reference_image, _ = NiftiImageData.construct_from_complex_image(self.reference_image)
+            parms.set_parameter(
+                self.handle, self.name, 'reference_image', reference_image.handle)
+        if self.floating_image.is_complex():
+            floating_image, _ = NiftiImageData.construct_from_complex_image(self.floating_image)
+            parms.set_parameter(
+                self.handle, self.name, 'floating_image', floating_image.handle)
+        handle = pyreg.cReg_NiftyResampler_norm(self.handle, num_iter, verb)
+        check_status(handle)
+        r = pyiutil.floatDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        # Restore reference and floating images.
+        if self.reference_image.is_complex():
+            parms.set_parameter(
+                self.handle, self.name, 'reference_image', self.reference_image.handle)
+        if self.floating_image.is_complex():
+            parms.set_parameter(
+                self.handle, self.name, 'floating_image', self.floating_image.handle)
+        return r;
 
     def process(self):
         """Process.

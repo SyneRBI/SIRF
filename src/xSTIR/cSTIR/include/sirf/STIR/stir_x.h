@@ -171,8 +171,13 @@ The actual algorithm is described in
 			if (LmToProjData::set_up() == Succeeded::no)
 				THROW("LmToProjData setup failed");
 			fan_size = -1;
-			const int max_fan_size =
+#if STIR_VERSION < 060000
+			const auto max_fan_size =
 				lm_data_ptr->get_scanner_ptr()->get_max_num_non_arccorrected_bins();
+#else
+			const auto max_fan_size =
+                          lm_data_ptr->get_scanner().get_max_num_non_arccorrected_bins();
+#endif
 			if (fan_size == -1)
 				fan_size = max_fan_size;
 			else
@@ -362,7 +367,7 @@ The actual algorithm is described in
 			{
 				num_sub_ = num_sub;
 			}
-			virtual std::shared_ptr<STIRImageData> apply(STIRImageData& image_data)
+			virtual std::shared_ptr<STIRImageData> apply(const STIRImageData& image_data)
 			{
 				std::shared_ptr<STIRAcquisitionData> sptr_fwd =
 					sptr_am_->forward(image_data, sub_num_, num_sub_); // , true);
@@ -507,10 +512,10 @@ The actual algorithm is described in
 			int subset_num, int num_subsets, bool zero = false, bool do_linear_only = false) const;
 
 		// computes and returns back-projected subset of acquisition data 
-		std::shared_ptr<STIRImageData> backward(STIRAcquisitionData& ad,
+		std::shared_ptr<STIRImageData> backward(const STIRAcquisitionData& ad,
 			int subset_num = 0, int num_subsets = 1) const;
 		// puts back-projected subset of acquisition data into image 
-		void backward(STIRImageData& image, STIRAcquisitionData& ad,
+		void backward(STIRImageData& image, const STIRAcquisitionData& ad,
 			int subset_num = 0, int num_subsets = 1) const;
 
 	protected:
@@ -621,7 +626,7 @@ The actual algorithm is described in
       \brief Class for estimating the scatter contribution in PET projection data
 
       This class implements the SSS iterative algorithm from STIR. It
-      is an iterative loop of reconstruction, single scatter estimation,
+      is an iterative loop of reconstruction via OSEM, single scatter estimation,
       upsampling, tail-fitting.
 
       Output is an acquisition_data object with the scatter contribution.
@@ -629,14 +634,18 @@ The actual algorithm is described in
     */
     class PETScatterEstimator : private stir::ScatterEstimation
     {
+      using recon_type = stir::OSMAPOSLReconstruction<DiscretisedDensity<3,float>>;
     public:
-        //!
+        //! constructor.
+        /*! sets reconstruction to OSEM with 8 subiterations, 7 subsets, and a postfilter of (15mm)^3.
+
+         \warning The default settings might not work for your data, in particular the number of subsets.
+         Use set_OSEM_num_subsets() to change it.
+        */
         PETScatterEstimator() : stir::ScatterEstimation()
         {
-          stir::shared_ptr<stir::PoissonLogLikelihoodWithLinearModelForMeanAndProjData<DiscretisedDensity<3,float> > >
-            obj_sptr(new PoissonLogLikelihoodWithLinearModelForMeanAndProjData<DiscretisedDensity<3,float> >);
-          stir::shared_ptr<stir::OSMAPOSLReconstruction<DiscretisedDensity<3,float> > >
-            recon_sptr(new stir::OSMAPOSLReconstruction<DiscretisedDensity<3,float> >);
+          auto obj_sptr = std::make_shared<PoissonLogLikelihoodWithLinearModelForMeanAndProjData<DiscretisedDensity<3,float>>>();
+          auto recon_sptr = std::make_shared<recon_type>();
           recon_sptr->set_num_subiterations(8);
           recon_sptr->set_num_subsets(7); // this works for the mMR. TODO
           recon_sptr->set_disable_output(true);
@@ -706,6 +715,27 @@ The actual algorithm is described in
         {
           return stir::ScatterEstimation::get_num_iterations();
         }
+        
+        void set_OSEM_num_subiterations(int arg)
+        {
+          this->get_reconstruction_method().set_num_subiterations(arg);
+        }
+
+        int get_OSEM_num_subiterations() const
+        {
+          return this->get_reconstruction_method().get_num_subiterations();
+        }
+        
+        void set_OSEM_num_subsets(int arg)
+        {
+          this->get_reconstruction_method().set_num_subsets(arg);
+          this->_already_set_up_sirf = false;
+        }
+
+        int get_OSEM_num_subsets() const
+        {
+          return this->get_reconstruction_method().get_num_subsets();
+        }
 
         std::shared_ptr<STIRAcquisitionData> get_scatter_estimate(int est_num = -1) const
         {
@@ -752,14 +782,26 @@ The actual algorithm is described in
           stir::ScatterEstimation::set_initial_activity_image_sptr(image_sptr);
           if (stir::ScatterEstimation::set_up() == Succeeded::no)
             THROW("scatter estimation set_up failed");
+          this->_already_set_up_sirf = true;
           return Succeeded::yes;
         }
         void process()
         {
+          if (!this->_already_set_up_sirf)
+            THROW("scatter estimation needs to be set-up first");
           if (!stir::ScatterEstimation::already_setup())
             THROW("scatter estimation needs to be set-up first");
           if (stir::ScatterEstimation::process_data() == Succeeded::no)
             THROW("scatter estimation failed");
+        }
+    private:
+        //! work-around for private variable in stir::ScatterEstimation
+        bool _already_set_up_sirf;
+
+        //! work-around to missing method in stir::ScatterEstimation
+        recon_type& get_reconstruction_method() const
+        {
+          return dynamic_cast<recon_type&>(*this->reconstruction_template_sptr);
         }
     };
 
@@ -995,6 +1037,20 @@ The actual algorithm is described in
 		}
 	};
 
+	class xSTIR_LogcoshPrior3DF : public stir::LogcoshPrior < float > {
+	public:
+		void only2D(int only) {
+			only_2D = only != 0;
+		}
+	};
+
+	class xSTIR_RelativeDifferencePrior3DF : public stir::RelativeDifferencePrior < float > {
+	public:
+		void only2D(int only) {
+			only_2D = only != 0;
+		}
+	};
+
 	class xSTIR_PLSPrior3DF : public stir::PLSPrior < float > {
 	public:
 		void only2D(int only) {
@@ -1156,6 +1212,12 @@ The actual algorithm is described in
 	public:
 		float& relaxation_parameter_value() {
 			return relaxation_parameter;
+		}
+		float& relaxation_gamma_value() {
+			return relaxation_gamma;
+		}
+		double& upper_bound_value() {
+			return upper_bound;
 		}
 	};
 

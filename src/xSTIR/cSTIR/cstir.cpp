@@ -25,7 +25,9 @@ limitations under the License.
 #include "sirf/STIR/stir_types.h"
 #include "sirf/iUtilities/DataHandle.h"
 #include "sirf/STIR/cstir_p.h"
+#include "stir/find_STIR_config.h"
 #include "sirf/STIR/stir_x.h"
+#include "stir/config.h"
 #include "stir/ImagingModality.h"
 #include "stir/Scanner.h"
 #include "stir/Verbosity.h"
@@ -50,6 +52,31 @@ unknownObject(const char* obj, const char* name, const char* file, int line)
 	ExecutionStatus status(error.c_str(), file, line);
 	handle->set(0, &status);
 	return (void*)handle;
+}
+
+extern "C"
+void*
+cSTIR_STIR_version_string()
+{
+#if defined(STIR_VERSION_STRING)
+	return charDataHandleFromCharData(STIR_VERSION_STRING);
+#else
+	return charDataHandleFromCharData("unknown");
+#endif
+}
+
+extern "C"
+void*
+cSTIR_get_STIR_doc_dir()
+{
+	return charDataHandleFromCharData(get_STIR_doc_dir().c_str());
+}
+
+extern "C"
+void*
+cSTIR_get_STIR_examples_dir()
+{
+	return charDataHandleFromCharData(get_STIR_examples_dir().c_str());
 }
 
 template<class Method>
@@ -153,8 +180,12 @@ void* cSTIR_newObject(const char* name)
 #endif
 		if (sirf::iequals(name, "QuadraticPrior"))
 			return NEW_OBJECT_HANDLE(QuadPrior3DF);
+		if (sirf::iequals(name, "LogcoshPrior"))
+			return NEW_OBJECT_HANDLE(LogPrior3DF);
+		if (sirf::iequals(name, "RelativeDifferencePrior"))
+			return NEW_OBJECT_HANDLE(RDPrior3DF);
 		if (sirf::iequals(name, "PLSPrior"))
-			return NEW_OBJECT_HANDLE(PLSPrior<float>);
+			return NEW_OBJECT_HANDLE(PLSPrior3DF);
 		if (sirf::iequals(name, "TruncateToCylindricalFOVImageProcessor"))
 			return NEW_OBJECT_HANDLE(CylindricFilter3DF);
 		if (sirf::iequals(name, "Box3D"))
@@ -216,6 +247,10 @@ void* cSTIR_setParameter
 			return cSTIR_setGeneralisedPriorParameter(hs, name, hv);
 		else if (sirf::iequals(obj, "QuadraticPrior"))
 			return cSTIR_setQuadraticPriorParameter(hs, name, hv);
+		else if (sirf::iequals(obj, "LogcoshPrior"))
+			return cSTIR_setLogcoshPriorParameter(hs, name, hv);
+		else if (sirf::iequals(obj, "RelativeDifferencePrior"))
+			return cSTIR_setRelativeDifferencePriorParameter(hs, name, hv);
 		else if (sirf::iequals(obj, "PLSPrior"))
 			return cSTIR_setPLSPriorParameter(hs, name, hv);
 		else if (sirf::iequals(obj, "GeneralisedObjectiveFunction"))
@@ -291,6 +326,12 @@ void* cSTIR_parameter(const void* ptr, const char* obj, const char* name)
 			return cSTIR_generalisedPriorParameter(handle, name);
 		else if (sirf::iequals(obj, "PLSPrior"))
 			return cSTIR_PLSPriorParameter(handle, name);
+		else if (sirf::iequals(obj, "QuadraticPrior"))
+			return cSTIR_QuadraticPriorParameter(handle, name);
+		else if (sirf::iequals(obj, "LogcoshPrior"))
+			return cSTIR_LogcoshPriorParameter(handle, name);
+		else if (sirf::iequals(obj, "RelativeDifferencePrior"))
+			return cSTIR_RelativeDifferencePriorParameter(handle, name);
 		else if (sirf::iequals(obj, "GeneralisedObjectiveFunction"))
 			return cSTIR_generalisedObjectiveFunctionParameter(handle, name);
         else if (sirf::iequals(obj,
@@ -306,6 +347,8 @@ void* cSTIR_parameter(const void* ptr, const char* obj, const char* name)
 		else if (sirf::iequals(obj, "IterativeReconstruction"))
 			return cSTIR_iterativeReconstructionParameter(handle, name);
 		else if (sirf::iequals(obj, "OSMAPOSL"))
+			return cSTIR_OSMAPOSLParameter(handle, name);
+		else if (sirf::iequals(obj, "KOSMAPOSL"))
 			return cSTIR_OSMAPOSLParameter(handle, name);
 		else if (sirf::iequals(obj, "OSSPS"))
 			return cSTIR_OSSPSParameter(handle, name);
@@ -707,6 +750,20 @@ void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad,
 		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
 		STIRAcquisitionData& ad = objectFromHandle<STIRAcquisitionData>(ptr_ad);
 		return newObjectHandle(am.backward(ad, subset_num, num_subsets));
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_setupSPECTUBMatrix
+(const void* h_smx, const void* h_acq, const void* h_img)
+{
+	try {
+		SPECTUBMatrix& matrix = objectFromHandle<SPECTUBMatrix>(h_smx);
+		PETAcquisitionData& acq = objectFromHandle<PETAcquisitionData>(h_acq);
+		STIRImageData& img = objectFromHandle<STIRImageData>(h_img);
+		matrix.set_up(acq.get_proj_data_info_sptr(), img.data_sptr());
+		return (void*)new DataHandle;
 	}
 	CATCH;
 }

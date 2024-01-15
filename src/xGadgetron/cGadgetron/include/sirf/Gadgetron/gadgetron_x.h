@@ -376,7 +376,7 @@ namespace sirf {
 		public:
 			BFOperator(gadgetron::shared_ptr<MRAcquisitionModel> sptr_am) : sptr_am_(sptr_am) {}
 			virtual gadgetron::shared_ptr<GadgetronImageData>
-				apply(GadgetronImageData& image_data)
+				apply(const GadgetronImageData& image_data)
 			{
 				gadgetron::shared_ptr<MRAcquisitionData> sptr_fwd =
 					sptr_am_->fwd(image_data);
@@ -477,7 +477,7 @@ namespace sirf {
 		
 		// Forward projects the whole ImageContainer using
 		// coil sensitivity maps in the second argument.
-        void fwd(GadgetronImageData& ic, CoilSensitivitiesVector& cc,
+        void fwd(const GadgetronImageData& ic, CoilSensitivitiesVector& cc,
 			MRAcquisitionData& ac);
 
 		// Backprojects the whole AcquisitionContainer using
@@ -487,7 +487,7 @@ namespace sirf {
 
 		// Forward projects the whole ImageContainer using
 		// coil sensitivity maps referred to by sptr_csms_.
-		gadgetron::shared_ptr<MRAcquisitionData> fwd(GadgetronImageData& ic)
+		gadgetron::shared_ptr<MRAcquisitionData> fwd(const GadgetronImageData& ic)
 		{
 
             if (!sptr_acqs_.get())

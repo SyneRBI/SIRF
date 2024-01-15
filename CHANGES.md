@@ -1,9 +1,50 @@
 # ChangeLog
 
-## v3.5.0
+## v3.6.0
+
+* PET:
+  - added extra members to ScatterEstimation to set behaviour of OSEM used during scatter estimation
+  - added test for scatter simulation and estimation
+  - added missing `set`/`get` methods for OSSPS `relaxation_parameter`, `relaxation_gamma` and `upper_bound`.
+
+* CMake/building:
+  - default `DISABLE_MATLAB` to `ON` as our Matlab support is out-of-date and could
+  generate conflicts with Python shared libraries.
+
+* Demo scripts:
+  - replaced importing reconstruction engines by
+```
+ exec('from sirf.' + args['--engine'] + ' import *')
+```
+  with importing via `importlib.import_module` thus getting rid of Codacy complaints about undefined modules.
+
+* Python interfaces for the reconstruction engines:
+  - Several allocate methods in STIR.py, Gadgetron.py and Reg.py are replaced with just one allocate in DataContainer class that does not copy data between Python and C++.
+  - `return None` in the method `Datacontainer.shape()` replaced with more Pythonesque `return (0,)`.
 
 * MR
-  - Re-designed handling of "irregular" ISMRMRD acquisitions, making it user-controlled and more flexible. See https://github.com/SyneRBI/SIRF/pull/1174 for more information
+  - Handling of "irregular" ISMRMRD acquisitions hit what appears to be a bug in recent Gadgetron (HEAD detached at 0670db84). A quick fix applied, Gadgetron issue to be raised.
+
+## v3.5.0
+
+* GitHub Action: remove temporarily the Ubuntu 20.04 build, #1178
+
+* SIRF/common:
+  - Replaced Python implementation of `DataContainer` methods with simple Python wraps of their C++ implementation.
+  - Provided C++ tools for accessing the examples data (`examples_data_path` and utility functions such as `append_path` in `common/utilities.h`).
+
+* MR
+  - Re-designed handling of "irregular" ISMRMRD acquisitions, making it user-controlled and more flexible. See https://github.com/SyneRBI/SIRF/pull/1174 for more information.
+  - Allow user to set radial, goldenangle, spiral and rpe trajectories.
+  - Added setter for acquisition header information and encoding limits. This allows the user to modify the reconstructed k-space dimensions and enables e.g. retrospective motion resolved or time-resolved reconstructions, or combinations of such dimensions. The acquisition model picks up these changes automatically if the encoding limits are set correctly.
+  - Added Gadgetron gadgets that allow for k-space filtering, coil compression and partial fourier reconstruction.
+
+* PET/SPECT
+  - Added SIRF interfaces to STIR functions to know where its files are: `get_STIR_doc_dir()` and `get_STIR_examples_dir()`.
+  - Added SIRF interfaces to STIR functions for `LogcoshPrior` and `RelativeDifferencePrior`.
+  - Added SIRF interfaces to STIR functions for `kappa` (spatially variant penalty strengths) for QP, Log-cosh, and RDP.
+  - Fixed `IterativeReconstructor.get_objective_function()`.
+
 
 ## v3.4.0
 

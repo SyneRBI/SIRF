@@ -29,11 +29,11 @@ except ImportError:
     print('WARNING: nibabel is not installed, so not running corresponding tests')
 
 import sirf.Reg
+from sirf.Utilities import examples_data_path
 from sirf.Utilities import is_operator_adjoint
 
 # Paths
-SIRF_PATH = os.environ.get('SIRF_PATH')
-examples_path = SIRF_PATH + '/data/examples/Registration'
+examples_path = examples_data_path('Registration')
 output_prefix = os.getcwd() + '/results/python_'
 
 # Input filenames
@@ -773,8 +773,12 @@ def try_niftyaladin():
     resample.set_padding_value(0.)
     resample.set_interpolation_type_to_linear()
     resample.add_transformation(def_inverse)
-    out1 = resample.forward(ref_aladin)
 
+    print('=============== computing resampler norm...')
+    res_norm = resample.norm(num_iter=16, verb=1)
+    print('=============== resampler norm: %f' % res_norm)
+
+    out1 = resample.forward(ref_aladin)
     # Reference forward with def_fwd_then_inv
     resample.clear_transformations()
     resample.add_transformation(def_fwd_then_inv)

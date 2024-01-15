@@ -15,13 +15,10 @@ Options:
                               subfolder of SIRF root folder
   -o <file>, --output=<file>  output file for simulated data
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
-  -n <bool>, --non-cart=<bool> run recon iff non-cartesian code was compiled
-                              [default: False]
-  -r <bool>, --recon=<bool>   run recon iff non-cartesian code was compiled
-                              [default: False]
   --traj=<str>                trajectory type, must match the data supplied in file
                               options are cartesian, radial, goldenangle or grpe
                               [default: grpe]
+  --recon                     reconstruct iff non-cartesian code was compiled
   --non-interactive           do not show plots
 '''
 
@@ -46,11 +43,13 @@ Options:
 
 __version__ = '0.1.0'
 from docopt import docopt
-
 args = docopt(__doc__, version=__version__)
 
+from sirf.Utilities import error, examples_data_path, existing_filepath
+
 # import engine module
-exec('from sirf.' + args['--engine'] + ' import *')
+import importlib
+mr = importlib.import_module('sirf.' + args['--engine'])
 
 # process command-line options
 data_file = args['--file']
@@ -60,7 +59,7 @@ if data_path is None:
 output_file = args['--output']
 show_plot = not args['--non-interactive']
 trajtype = args['--traj']
-run_recon = str(args['--recon']) == 'True'
+run_recon = args['--recon']
 
 import numpy
 
@@ -71,15 +70,15 @@ def EhE(E, image):
 def ConjugateGradient(rawdata, num_iter = 10, stop_criterion = 1e-7):
 
     print('---\n computing coil sensitivity maps...')
-    csms = CoilSensitivityData()
-    csms.smoothness = 10
+    csms = mr.CoilSensitivityData()
+    csms.smoothing_iterations = 10
     csms.calculate(rawdata)
     
     # create acquisition model based on the acquisition parameters
     print('---\n Setting up Acquisition Model...')
 
     #set up the acquisition model
-    E = AcquisitionModel()
+    E = mr.AcquisitionModel()
     E.set_up(rawdata, csms.copy())
     E.set_coil_sensitivity_maps(csms)
 
@@ -138,7 +137,7 @@ def main():
 
     # acquisition data will be read from an HDF file input_file
     # AcquisitionData.set_storage_scheme('memory')
-    acq_data = AcquisitionData(input_file)
+    acq_data = mr.AcquisitionData(input_file, False)
     
     print('---\n acquisition data norm: %e' % acq_data.norm())
 
@@ -146,7 +145,7 @@ def main():
     # pre-process acquisition data only for cartesian readouts
     if trajtype != 'radial' and trajtype != 'goldenangle':
         print('---\n pre-processing acquisition data...')
-        processed_data  = preprocess_acquisition_data(acq_data)
+        processed_data  = mr.preprocess_acquisition_data(acq_data)
     else:
         processed_data = acq_data
 
@@ -155,11 +154,11 @@ def main():
     if trajtype == 'cartesian':
         pass
     elif trajtype == 'grpe':
-        processed_data = set_grpe_trajectory(processed_data)
+        processed_data = mr.set_grpe_trajectory(processed_data)
     elif trajtype == 'radial':
-        processed_data = set_radial2D_trajectory(processed_data)
+        processed_data = mr.set_radial2D_trajectory(processed_data)
     elif trajtype == 'goldenangle':
-        processed_data = set_goldenangle2D_trajectory(processed_data)
+        processed_data = mr.set_goldenangle2D_trajectory(processed_data)
     else:
         raise NameError('Please submit a trajectory name of the following list: (cartesian, grpe, radial). You gave {}'\
                         .format(trajtype))

@@ -29,7 +29,7 @@ limitations under the License.
 */
 
 #include <iostream>
-#include "sirf/common/getenv.h"
+#include "sirf/common/utilities.h"
 #include "sirf/Reg/NiftyAladinSym.h"
 #include "sirf/Reg/NiftyF3dSym.h"
 #include "sirf/Reg/NiftyResampler.h"
@@ -52,12 +52,7 @@ int main(int argc, char* argv[])
     try {
 
     // Paths
-    std::string SIRF_PATH;
-    if (argc==1)
-        SIRF_PATH = sirf::getenv("SIRF_PATH", true);
-    else
-        SIRF_PATH = argv[1];
-    const std::string examples_path = SIRF_PATH + "/data/examples/Registration";
+    const std::string examples_path = examples_data_path("Registration");
     const std::string output_prefix   = "results/cplusplus_";
 
     // Input filenames
@@ -804,6 +799,14 @@ int main(int argc, char* argv[])
         resample.set_interpolation_type_to_linear();
         resample.add_transformation(def_inverse_sptr);
         const std::shared_ptr<const NiftiImageData<float> > out1_sptr = std::dynamic_pointer_cast<const NiftiImageData<float> >(resample.forward(ref_aladin));
+
+        std::cout << "ref image norm: " << flo_aladin->norm() << '\n';
+        std::cout << "flo image norm: " << ref_aladin->norm() << '\n';
+        std::cout << "fwd(flo) image norm: " << out1_sptr->norm() << '\n';
+
+        float s = resample.norm(8, 1);
+        std::cout << "resampler norm: " << s << '\n';
+        //return 0;
 
         // Reference forward with def_fwd_then_inv_sptr
         resample.clear_transformations();

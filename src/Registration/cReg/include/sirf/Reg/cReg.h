@@ -110,6 +110,7 @@ extern "C" {
     void* cReg_NiftyResampler_process(void* ptr);
     void* cReg_NiftyResampler_forward(const void *output_ptr, const void * const input_ptr, const void *resampler_ptr);
     void* cReg_NiftyResampler_adjoint(const void *output_ptr, const void * const input_ptr, const void *resampler_ptr);
+    void* cReg_NiftyResampler_norm(const void* ptr_res, int num_iter, int verb);
 
     // ImageWeightedMean
     void* cReg_ImageWeightedMean_add_image(void* ptr, const void* obj, const float weight);
@@ -139,6 +140,14 @@ extern "C" {
     void* cReg_Quaternion_construct_from_AffineTransformation(const void* ptr);
     void* cReg_Quaternion_get_average(const void *handle_vector_ptr);
     void* cReg_Quaternion_as_array(const void* ptr, PTR_FLOAT arr);
+
+    // TextWriter methods
+    void* newTextPrinter(const char* stream);
+    void* newTextWriter(const char* stream);
+    void openChannel(int channel, void* ptr_w);
+    void closeChannel(int channel, void* ptr_w);
+    void* deleteTextPrinter(void* ptr);
+    void* deleteTextWriter(void* ptr_w);
 
 #ifndef CREG_FOR_MATLAB
 }

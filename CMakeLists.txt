@@ -57,7 +57,7 @@ endif()
 
 ####### Set Version number etc
 set(VERSION_MAJOR   3 )
-set(VERSION_MINOR   4 )
+set(VERSION_MINOR   5 )
 set(VERSION_PATCH   0 )
 mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 
@@ -177,7 +177,7 @@ else(DISABLE_PYTHON)
 endif(DISABLE_PYTHON)
 
 
-option(DISABLE_Matlab "Disable building SIRF matlab support" OFF)
+option(DISABLE_Matlab "Disable building SIRF matlab support" ON)
 if (DISABLE_Matlab)
   message(STATUS "Matlab support disabled")
 else(DISABLE_Matlab)
@@ -210,7 +210,8 @@ ENABLE_TESTING()
 # create location of SHARE_DIR to be used when creating Shepp Logan phantom during build
 set(SHARE_DIR ${CMAKE_INSTALL_PREFIX}/share/SIRF-${VERSION_MAJOR}.${VERSION_MINOR})
 
-configure_file("cmake/version.h.in" "${CMAKE_CURRENT_BINARY_DIR}/cmake/include/sirf/common/version.h")
+set(BUILD_INCLUDE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/cmake/include)
+configure_file("cmake/version.h.in" "${BUILD_INCLUDE_DIRECTORY}/sirf/common/version.h")
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/cmake/include/sirf/common/version.h" DESTINATION "${CMAKE_INSTALL_PREFIX}/include/sirf/common/")
 
 if (CMAKE_VERSION VERSION_LESS 3.21.0)

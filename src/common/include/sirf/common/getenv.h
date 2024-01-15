@@ -6,7 +6,7 @@
 #include "sirf/iUtilities/LocalisedException.h"
 
 namespace sirf {
-	std::string getenv(const char* name, bool throws=false)
+	inline std::string getenv(const char* name, bool throws=false)
 	{
 		const char* value = std::getenv(name);
 		std::string s;

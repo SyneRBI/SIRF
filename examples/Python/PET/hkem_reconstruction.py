@@ -36,14 +36,19 @@ Options:
 ##   limitations under the License.
 
 __version__ = '0.1.0'
-from cgitb import small
 from docopt import docopt
-from matplotlib.pyplot import title
 args = docopt(__doc__, version=__version__)
+
+from cgitb import small
+from matplotlib.pyplot import title
 import numpy as np
 
+from sirf.Utilities import error, examples_data_path, existing_filepath
+
 # import engine module
-exec('from sirf.' + args['--engine'] + ' import *')
+import importlib
+engine = args['--engine']
+pet = importlib.import_module('sirf.' + engine)
 
 
 # process command-line options
@@ -113,19 +118,19 @@ def image_data_processor(image_array, im_num):
 def main():
 
     # direct all engine's information and warnings printing to files
-    msg_red = MessageRedirector('info.txt', 'warn.txt')
+    _ = pet.MessageRedirector('info.txt', 'warn.txt')
 
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
-    acq_model = AcquisitionModelUsingRayTracingMatrix()
+    acq_model = pet.AcquisitionModelUsingRayTracingMatrix()
 
     # PET acquisition data to be read from this file
     # (TODO: a link to raw data formats document to be given here)
     print('raw data: %s' % raw_data_file)
-    acq_data = AcquisitionData(raw_data_file)
+    acq_data = pet.AcquisitionData(raw_data_file)
 
     # read anatomical image
-    anatomical_image = ImageData(ai_file)
+    anatomical_image = pet.ImageData(ai_file)
     if show_plot:
         anatomical_image.show(title='Image used as anatomical prior')
     image_array = anatomical_image.as_array()
@@ -147,12 +152,12 @@ def main():
     acq_model.set_up(acq_data, image)
     # define objective function to be maximized as
     # Poisson logarithmic likelihood (with linear model for mean)
-    obj_fun = make_Poisson_loglikelihood(acq_data)
+    obj_fun = pet.make_Poisson_loglikelihood(acq_data)
     obj_fun.set_acquisition_model(acq_model)
 
     # select Kernelized Ordered Subsets Maximum A-Posteriori One Step Late
     # as the reconstruction algorithm
-    recon = KOSMAPOSLReconstructor()
+    recon = pet.KOSMAPOSLReconstructor()
     recon.set_objective_function(obj_fun)
     recon.set_num_subsets(1)
     recon.set_num_subiterations(num_subiterations)
@@ -179,6 +184,8 @@ def main():
     recon.set_up(current_alpha1)
     # set the initial image estimate
     sens1=obj_fun.get_subset_sensitivity(0)
+    # alternatively:
+    #sens1=recon.get_subset_sensitivity()
 
     Ksensitivity1 = recon.compute_kernelised_image(sens1, iterative_kernel_info1)
     recon.set_current_estimate(current_alpha1)
@@ -192,7 +199,7 @@ def main():
         recon.set_current_estimate(current_alpha1)  
 
 # Now let's create a KOSMAPOSL algorithm in python
-    recon2 = KOSMAPOSLReconstructor()
+    recon2 = pet.KOSMAPOSLReconstructor()
     recon2.set_objective_function(obj_fun)
     recon2.set_num_subsets(1)
     recon2.set_num_subiterations(num_subiterations)
@@ -244,6 +251,7 @@ def main():
     # compute the reconstruction residual
     diff = simulated_data * (acq_data.norm()/simulated_data.norm()) - acq_data
     print('relative residual norm: %e' % (diff.norm()/acq_data.norm()))
+
 
 # if anything goes wrong, an exception will be thrown 
 # (cf. Error Handling section in the spec)
