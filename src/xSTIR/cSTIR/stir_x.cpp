@@ -336,10 +336,14 @@ ListmodeToSinograms::estimate_randoms()
 			SinglesRatesFromGEHDF5  singles;
 			singles.read_from_file(input_filename);
 			GEHDF5Wrapper input_file(input_filename);
+#if STIR_VERSION < 060000
 			float coincidence_time_window = input_file.get_coincidence_time_window();
 			ProjData& proj_data = *randoms_sptr->data();
 			randoms_from_singles(proj_data, singles, coincidence_time_window);
-			return 0;
+#else
+                        randoms_from_singles(*randoms_sptr->data(), singles);
+#endif
+                        return 0;
 		}
 	}
 	catch (...) {
