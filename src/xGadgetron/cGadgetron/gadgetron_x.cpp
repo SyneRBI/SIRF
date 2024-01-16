@@ -186,6 +186,8 @@ AcquisitionsProcessor::process(MRAcquisitionData& acquisitions)
 	// quick fix: checking if AcquisitionFinishGadget is needed (= running old Gadgetron)
 	shared_ptr<MRAcquisitionData> sptr_acqs = acquisitions.new_acquisitions_container();
 	{
+		IgnoreMask im = acquisitions.ignore_mask();
+		acquisitions.set_ignore_mask(IgnoreMask());
 		GTConnector conn;
 		conn().register_reader(GADGET_MESSAGE_ISMRMRD_ACQUISITION,
 			shared_ptr<GadgetronClientMessageReader>
@@ -196,7 +198,12 @@ AcquisitionsProcessor::process(MRAcquisitionData& acquisitions)
 				conn().connect(host_, port_);
 				conn().send_gadgetron_configuration_script(config);
 				conn().send_gadgetron_parameters(acquisitions.acquisitions_info());
-				acquisitions.get_acquisition(0, acq_tmp);
+				for (uint32_t i = 0; i < nacq; i++)
+					if (acquisitions.get_acquisition(i, acq_tmp))
+						break;
+					else
+						std::cout << "ignoring acquisition " << i << '\n';
+//				acquisitions.get_acquisition(0, acq_tmp);
 				conn().send_ismrmrd_acquisition(acq_tmp);
 				conn().send_gadgetron_close();
 				conn().wait();
@@ -207,6 +214,7 @@ AcquisitionsProcessor::process(MRAcquisitionData& acquisitions)
 					THROW("Server running Gadgetron not accessible");
 			}
 		}
+		acquisitions.set_ignore_mask(im);
 	}
 
 	uint32_t na = sptr_acqs->number();
