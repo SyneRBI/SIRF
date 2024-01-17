@@ -1,7 +1,7 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC
-Copyright 2018 - 2020 University College London
+Copyright 2015 - 223 Rutherford Appleton Laboratory STFC
+Copyright 2018 - 2024 University College London
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -139,7 +139,7 @@ namespace sirf {
 	\ingroup PET
 	\brief Abstract base class for PET scanner data
 	*/
-	class STIRScanData : public DataContainer {
+	class STIRScanData {
 	public:
 		virtual ~STIRScanData() {}
 		//virtual stir::shared_ptr<stir::ExamData> data_sptr() = 0;
@@ -158,7 +158,7 @@ namespace sirf {
 	storage mode (file/memory) selection.
 	*/
 
-	class STIRAcquisitionData : public STIRScanData {
+	class STIRAcquisitionData : public STIRScanData, public DataContainer {
 	public:
 		virtual ~STIRAcquisitionData() {}
 
@@ -242,7 +242,7 @@ namespace sirf {
 		{
 			return _data;
 		}
-		virtual stir::shared_ptr<stir::ExamData> data_sptr() const
+		virtual stir::shared_ptr<stir::ExamData> data_sptr() const override
 		//virtual const stir::shared_ptr<stir::ExamData> data_sptr() const
 		{
 			return _data;
@@ -876,7 +876,7 @@ namespace sirf {
 		}
 	};
 
-	class ListmodeData : public DataContainer {
+	class ListmodeData : public STIRScanData {
 	public:
 		ListmodeData(std::string lmdata_filename)
 		{
@@ -886,7 +886,7 @@ namespace sirf {
 /*		virtual stir::shared_ptr<stir::ExamData> data_sptr() {
 			return _data;
 		}*/
-		virtual const stir::shared_ptr<stir::ExamData> data_sptr() const {
+		virtual stir::shared_ptr<stir::ExamData> data_sptr() const override {
 			return _data;
 		}
 
@@ -895,7 +895,8 @@ namespace sirf {
 			THROW("ListmodeData::new_data_container_handle not implemented");
 			return 0;
 		}
-		virtual unsigned int items() const
+#if 0 // disabled these. They would be needed for DataContainer at the moment
+                virtual unsigned int items() const
 		{
 			return 1;
 		}
@@ -989,7 +990,7 @@ namespace sirf {
 			ptr->conjugate();
 			return std::unique_ptr<DataContainer>(ptr);
 		}
-
+#endif
 	protected:
 		stir::shared_ptr<stir::ListModeData> _data;
 		virtual DataContainer* clone_impl() const
