@@ -29,24 +29,12 @@ limitations under the License.
 
 #include <iostream>
 #include <cstdlib>
-#include "getenv.h"
-
-int test6(const char*);
+#include "sirf/common/getenv.h"
+#include "tests.h"
 
 int main (int argc, char* argv[])
 {
-	std::string data_path;
-	if (argc < 2) {
-		std::string SIRF_path = sirf::getenv("SIRF_PATH");
-		if (SIRF_path.length() < 1) {
-			std::cout << "SIRF_PATH not defined, cannot find data" << std::endl;
-			return 1;
-		}
-		data_path = SIRF_path + "/data/examples/PET/mMR";
-	}
-	else
-		data_path = argv[1];
-	const int failed = test6(data_path.c_str());
+	const int failed = test6();
 	std::cout << failed << " tests failed\n";
         
 	return failed==0 ? EXIT_SUCCESS : EXIT_FAILURE;
