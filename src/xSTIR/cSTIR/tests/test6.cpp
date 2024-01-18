@@ -21,7 +21,7 @@ limitations under the License.
 */
 
 /*!
-\file
+\file test listmode reconstruction
 \ingroup PET
 
 \author Nikos Efthimiou
@@ -43,8 +43,23 @@ limitations under the License.
 
 using namespace sirf;
 
+//! test listmode reconstruction
+/*!
+  \ingroup PET
+
+  Very basic test if we can run the listmode reconstruction.
+  There is currently no test if the output is fine.
+*/
 int test6()
 {
+        std::string SIRF_data_path = examples_data_path("PET");
+        if (SIRF_data_path.length() < 1) {
+            std::cout << "cannot find data" << std::endl;
+            return 1;
+        }
+        std::string data_path = append_path(SIRF_data_path, "mMR");
+        std::string f_listmode = append_path(data_path, "list.l.hdr");
+#if 0
         std::string STIR_data_path = stir::get_STIR_examples_dir();
         if (STIR_data_path.length() < 1) {
             std::cout << "cannot find data" << std::endl;
@@ -54,16 +69,16 @@ int test6()
         const std::string f_listmode = append_path(data_path, "mMR_listmode.l.hdr");
         //const std::string mu_map_filename = data_path + "mu_map.hv";
         //const std::string f_template = append_path(data_path, "mMR_template_span11_small.hs");
-
+#endif
         std::cout << "running test6.cpp (PET listmode recon) with files from "
             << data_path << "...\n";
-
+        stir::Verbosity::set(0);
 	try {
                 stir::TextWriter w; // create writer with no output
 		TextWriterHandle h;
 		//h.set_information_channel(&w); // suppress STIR info output
 
-		const std::string cache_path = data_path;
+		const std::string cache_path = ".";//data_path;
 		//std::string sens_filename = cache_path + "sens_0.hv";
 #if 0
 		std::string tmpl_projdata_filename =
@@ -74,28 +89,23 @@ int test6()
 
 		PETAcquisitionDataInMemory::set_as_template();
 #endif
-#if 0
-		// create compatible image
-		CREATE_OBJ(STIRImageData, image_data, sptr_id, mu_map_filename.c_str());
-		int dim[10];
-		image_data.get_dimensions(dim);
-		size_t image_size = dim[0] * dim[1] * dim[2];
-		std::cout << "Image dimensions: "
-			<< dim[0] << 'x' << dim[1] << 'x' << dim[2] << '\n';
-		image_data.fill(1.0);
-#endif
 		CREATE_OBJECT(ObjectiveFunction3DF,
 			      PoissonLLhLinModMeanListDataProjMatBin3DF,
 			      obj_fun, sptr_fun,);
                 std::shared_ptr<stir::ListModeData> listmode_data_sptr =
                   stir::read_from_file<stir::ListModeData>(f_listmode);
                 obj_fun.set_input_data(listmode_data_sptr);
+                // save time during sensitivity calculation
+                obj_fun.set_max_segment_num_to_process(1);
+                // get target image in appropriate dimensions
                 std::shared_ptr<stir::DiscretisedDensity<3,float>> target_sptr(obj_fun.construct_target_ptr());
                 CREATE_OBJ(STIRImageData, image_data, sptr_id, target_sptr);
-                Coord3DI new_size = {-1,-1,-1};
-                Coord3DF zooms = {1.f,4.f,4.f};
+                // zoom image to larger voxels to save time
+                auto dims = sptr_id->dimensions();
+                Coord3DI new_size = {-1,dims["y"]/5,dims["x"]/5};
+                Coord3DF zooms = {1.f,.2f,.2f};
                 sptr_id->zoom_image(zooms, Coord3DF(0.F,0.F,0.F), new_size, stir::ZoomOptions::preserve_projections);
-
+                sptr_id->fill(1.f);
 
 		//This will activate use of caching and therefore multi-threading
 		std::cout << "Setting cache path..." << std::endl;
@@ -111,24 +121,18 @@ int test6()
 		std::cout << "Setting scanner template..." << std::endl;
 		obj_fun.set_acquisition_data(sptr_ad);
 #endif
-		std::cout << "Setting max segment num to process. ..." << std::endl;
-		//obj_fun.set_max_segment_num_to_process(1); // small number for faster test
 		//obj_fun.set_skip_balanced_subsets(true); // set for faster test
-
-		//std::cout << "Sensitivity images: " << obj_fun.get_subsensitivity_filenames() << std::endl;
-                //obj_fun.set_use_subset_sensitivities(false);
-                // obj_fun.set_sensitivity_filename("1");
 
 		int num_subsets = 1;
 
 		xSTIR_OSMAPOSLReconstruction3DF recon;
 		recon.set_num_subsets(num_subsets);
-		recon.set_num_subiterations(num_subsets);
+		recon.set_num_subiterations(num_subsets*10);
 		std::cout << "Setting objective function ..." << std::endl;
 
 		recon.set_objective_function_sptr(sptr_fun);
-		recon.set_save_interval(1);
-		recon.set_output_filename_prefix(data_path + "/my_output");
+		//recon.set_save_interval(1);
+		recon.set_output_filename_prefix("output_lm_recon_test");
 		std::cout <<  "Setting up the reconstruction, please wait ..." << std::endl;
 
 		Succeeded s = recon.set_up(sptr_id->data_sptr());
@@ -138,6 +142,11 @@ int test6()
 
 		recon.subiteration() = recon.get_start_subiteration_num();
 		recon.reconstruct(sptr_id->data_sptr());
+                float max_value;
+                sptr_id->max(&max_value);
+                if (max_value < .075F/50) // currently see .075, but it's going to be a bit unstable, so let's play safe.
+                  throw std::runtime_error("STIR listmode reconstruction: max (" +
+                                           std::to_string(max_value) + ") too low");
 
 		return 0;
 	}
