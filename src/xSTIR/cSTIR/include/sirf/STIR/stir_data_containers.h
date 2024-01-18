@@ -135,19 +135,19 @@ namespace sirf {
 		std::string _filename;
 	};
 
+#if 0
+        // not used yet. See also https://github.com/SyneRBI/SIRF/pull/1103
 	/*!
 	\ingroup PET
 	\brief Abstract base class for PET scanner data
 	*/
-	class STIRScanData {
+	class STIRScanData: public virtual ContainerBase {
 	public:
 		virtual ~STIRScanData() {}
-		//virtual stir::shared_ptr<stir::ExamData> data_sptr() = 0;
 		virtual stir::shared_ptr<stir::ExamData> data_sptr() const = 0;
-		//virtual const stir::shared_ptr<stir::ExamData> data_sptr() const = 0;
 		//virtual void set_data_sptr(stir::shared_ptr<stir::ExamData> data) = 0;
 	};
-
+#endif
 	/*!
 	\ingroup PET
 	\brief STIR ProjData wrapper with added functionality.
@@ -158,9 +158,8 @@ namespace sirf {
 	storage mode (file/memory) selection.
 	*/
 
-	class STIRAcquisitionData : public STIRScanData, public DataContainer {
+	class STIRAcquisitionData : /*public STIRScanData, */public DataContainer {
 	public:
-		virtual ~STIRAcquisitionData() {}
 
 		// virtual constructors
 		virtual STIRAcquisitionData* same_acquisition_data
@@ -242,11 +241,12 @@ namespace sirf {
 		{
 			return _data;
 		}
-		virtual stir::shared_ptr<stir::ExamData> data_sptr() const override
-		//virtual const stir::shared_ptr<stir::ExamData> data_sptr() const
+                #if 1
+		virtual stir::shared_ptr<stir::ExamData> data_sptr() const
 		{
 			return _data;
 		}
+                #endif
 		void set_data(stir::shared_ptr<stir::ProjData> data)
 		{
 			_data = data;
@@ -876,20 +876,17 @@ namespace sirf {
 		}
 	};
 
-	class ListmodeData : public STIRScanData {
+	class ListmodeData /*: public STIRScanData*/ {
 	public:
 		ListmodeData(std::string lmdata_filename)
 		{
 			_data = stir::read_from_file<stir::ListModeData>(lmdata_filename);
 		}
-		virtual ~ListmodeData() {}
-/*		virtual stir::shared_ptr<stir::ExamData> data_sptr() {
-			return _data;
-		}*/
-		virtual stir::shared_ptr<stir::ExamData> data_sptr() const override {
+                virtual ~ListmodeData() {}
+
+		virtual stir::shared_ptr<stir::ExamData> data_sptr() const {
 			return _data;
 		}
-
 		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
 			THROW("ListmodeData::new_data_container_handle not implemented");

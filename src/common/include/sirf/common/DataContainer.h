@@ -1,6 +1,7 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC
+Copyright 2015 - 2019, 2021, 2023 Rutherford Appleton Laboratory STFC
+Copyright 2024 University College London
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -25,21 +26,36 @@ limitations under the License.
 #include <map>
 #include "sirf/iUtilities/DataHandle.h"
 
+namespace sirf {
+
+	typedef std::map<std::string, int> Dimensions;
+
 /*!
 \ingroup Common
 \brief Abstract data container.
+
+This preliminary class essentially only exists to be able to check run-time type
+information of different types of containers.
+
+Its naming and methods are likely to change in future versions. Do not
+use it directly therefore.
+*/
+        
+	class ContainerBase {
+	public:
+		virtual ~ContainerBase() {}
+		//virtual ObjectHandle<DataContainer>* new_data_container_handle() const = 0;
+        };
+/*!
+\ingroup Common
+\brief Abstract data container with numerical operations.
 
 A class for a set of generally heterogeneous items of data.
 
 Has vector features: norm, dot product, linear combination,
 which rely on the same features of the items.
 */
-
-namespace sirf {
-
-	typedef std::map<std::string, int> Dimensions;
-
-	class DataContainer {
+	class DataContainer: public virtual ContainerBase {
 	public:
 		virtual ~DataContainer() {}
 		//virtual DataContainer* new_data_container() const = 0;
