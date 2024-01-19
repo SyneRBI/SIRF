@@ -14,8 +14,9 @@ from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
 
-from sirf.Utilities import error, examples_data_path, existing_filepath
-from sirf.Utilities import show_2D_array
+from sirf.Utilities import error
+#, examples_data_path, existing_filepath
+#from sirf.Utilities import show_2D_array
 
 # import engine module
 import importlib

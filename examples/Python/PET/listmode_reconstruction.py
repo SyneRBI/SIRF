@@ -103,7 +103,7 @@ if args['--non-interactive']:
 
 if args['--gpu']:
     use_gpu = True
-    import sirf.Reg
+#    import sirf.Reg
 else:
     use_gpu = False
 
@@ -255,7 +255,7 @@ def main():
         z = out.shape[0]//2
         image_array = out.as_array()
         show_2D_array('Reconstructed image', image_array[z,:,:])
-        pylab.show()
+#        pylab.show()
 
 
 try:
