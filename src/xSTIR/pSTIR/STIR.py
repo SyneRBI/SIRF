@@ -2838,7 +2838,7 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByB
     def get_cache_path(self):
         return parms.char_par(self.handle, self.name, 'cache_path')
     
-    def set_acquisition_data(self, ad): 
+    def set_acquisition_data(self, ad):
         assert_validity(ad, ListmodeData)
         parms.set_parameter(
             self.handle, self.name, 'acquisition_data', ad.handle)
@@ -3579,7 +3579,7 @@ def make_Poisson_loglikelihood(acq_data=None, likelihood_type=None,
             ' requires acquisition data')
     elif likelihood_type == 'LinearModelForMeanAndListModeDataWithProjMatrixByBin':
         obj_fun = PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin()
-        if acq_data is not None: 
+        if acq_data is not None:
             obj_fun.set_acquisition_data(acq_data)
     else:
         raise error('Poisson_loglikelihood of type ' + likelihood_type + \
