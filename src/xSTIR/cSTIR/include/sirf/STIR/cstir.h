@@ -121,7 +121,8 @@ extern "C" {
 	void* cSTIR_fillAcquisitionDataFromAcquisitionData
 		(void* ptr_acq, const void * ptr_from);
 	void* cSTIR_writeAcquisitionData(void* ptr_acq, const char* filename);
-	void* cSTIR_get_ProjDataInfo(void* ptr_acq);
+        // works for AcquisitionData, ListmodeData and ImageData at present
+	void* cSTIR_get_info(void* ptr_acq);
 	void* cSTIR_get_subset(void* ptr_acq, int nv, size_t ptr_views);
 
 	// Reconstruction methods

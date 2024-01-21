@@ -167,6 +167,12 @@ namespace sirf {
 			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info) const = 0;
 		virtual std::shared_ptr<STIRAcquisitionData> new_acquisition_data() const = 0;
 
+                std::string get_info() const
+                {
+                        return this->data()->get_exam_info_sptr()->parameter_info() +
+                          this->data()->get_proj_data_info_sptr()->parameter_info();
+                 }
+
 		virtual bool is_complex() const
 		{
 			return false;
@@ -876,7 +882,12 @@ namespace sirf {
 		}
 	};
 
-	class ListmodeData /*: public STIRScanData*/ {
+        /*! container for STIR PET or SPECT list-mode data
+          \ingroup PET
+
+          This class contains a stir::ListModeData object and has a few methods to access it.
+        */
+	class ListmodeData : public ContainerBase /*STIRScanData*/ {
 	public:
 		ListmodeData(std::string lmdata_filename)
 		{
@@ -884,14 +895,25 @@ namespace sirf {
 		}
                 virtual ~ListmodeData() {}
 
+                // TODO remove
 		virtual stir::shared_ptr<stir::ExamData> data_sptr() const {
 			return _data;
 		}
+		virtual stir::shared_ptr<stir::ListModeData> data() const {
+			return _data;
+		}
+#if 0
 		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
 			THROW("ListmodeData::new_data_container_handle not implemented");
 			return 0;
 		}
+#endif
+                std::string get_info() const
+                {
+                  return this->data()->get_exam_info_sptr()->parameter_info() +
+                          this->data()->get_proj_data_info_sptr()->parameter_info();
+                 }
 #if 0 // disabled these. They would be needed for DataContainer at the moment
                 virtual unsigned int items() const
 		{
@@ -1167,6 +1189,11 @@ namespace sirf {
 			return new ObjectHandle<DataContainer>
 				(std::shared_ptr<DataContainer>(same_image_data()));
 		}
+                std::string get_info() const
+                {
+                        return this->data().get_exam_info_sptr()->parameter_info();
+                        // TODO geometric info, although that's handled separately in SIRF
+                 }
 		virtual bool is_complex() const
 		{
 			return false;

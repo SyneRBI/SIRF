@@ -989,8 +989,12 @@ sirf::cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProj
 //        obj_fun.set_acquisition_model(sptr_pm);
 //    }
     else if (sirf::iequals(name, "acquisition_data")) {
-        SPTR_FROM_HANDLE(stir::ListModeData, sptr_ad, hv);
-        obj_fun.set_input_data(sptr_ad);
+        SPTR_FROM_HANDLE(ContainerBase, sptr_cont, hv);
+        if (auto sptr_ld = std::dynamic_pointer_cast<ListmodeData>(sptr_cont)) {
+            obj_fun.set_input_data(sptr_ld->data_sptr());
+        }
+        else
+            THROW("set_acquisition_data argument needs to be ListmodeData");
     }
 #if 0
     else if (sirf::iequals(name, "skip_lm_input_file")) {
@@ -1062,7 +1066,6 @@ sirf::cSTIR_setReconstructionParameter
         	}
         	else
         	THROW("input_data needs to be either ListmodeData or AcquisitionData");
-	
 	}
 	else if (sirf::iequals(name, "disable_output")) {
 		recon.set_disable_output(true);

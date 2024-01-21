@@ -449,6 +449,14 @@ class ImageData(SIRF.ImageData):
         """See DataContainer method."""
         return ImageData()
 
+    def get_info(self):
+        """Returns the STIR metadata as Python str."""
+        handle = pystir.cSTIR_get_info(self.handle)
+        check_status(handle)
+        info = pyiutil.charDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return info
+
     def modality(self):
         """Returns imaging modality as Python string."""
         return parms.char_par(self.handle, 'ImageData', 'modality')
@@ -1096,6 +1104,14 @@ class PinholeSPECTUBMatrix:
 class ScanData(DataContainer):
     """Abstract base class for STIR raw data."""
 
+    def get_info(self):
+        """Returns the STIR metadata as Python str."""
+        handle = pystir.cSTIR_get_info(self.handle)
+        check_status(handle)
+        info = pyiutil.charDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return info
+
 
 class ListmodeData(ScanData):
     """Class for STIR list mode data."""
@@ -1411,14 +1427,6 @@ class AcquisitionData(ScanData):
                 xlabel='tang.pos', ylabel='view',
                 suptitle=title, show=(t == ns))
             f = t
-
-    def get_info(self):
-        """Returns the AcquisitionData's metadata as Python str."""
-        handle = pystir.cSTIR_get_ProjDataInfo(self.handle)
-        check_status(handle)
-        info = pyiutil.charDataFromHandle(handle)
-        pyiutil.deleteDataHandle(handle)
-        return info
 
     def get_subset(self, views):
         """Returns the subset of self data formed by specified views

@@ -1,7 +1,7 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2017 - 2020 Rutherford Appleton Laboratory STFC
-Copyright 2018 - 2020 University College London.
+Copyright 2017 - 2023 Rutherford Appleton Laboratory STFC
+Copyright 2018 - 2024 University College London.
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -979,12 +979,24 @@ void* cSTIR_writeAcquisitionData(void* ptr_acq, const char* filename)
 }
 
 extern "C"
-void* cSTIR_get_ProjDataInfo(void* ptr_acq)
+void* cSTIR_get_info(void* ptr_cont)
 {
 	try {
-		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_ad, ptr_acq);
+		std::string ret;
+		SPTR_FROM_HANDLE(ContainerBase, sptr_cont, ptr_cont);
+		if (auto sptr_ad = std::dynamic_pointer_cast<STIRAcquisitionData>(sptr_cont)) {
+			ret = sptr_ad->get_info();
+		}
+		else if (auto sptr_ld = std::dynamic_pointer_cast<ListmodeData>(sptr_cont)) {
+			ret = sptr_ld->get_info();
+		}
+		else if (auto sptr_id = std::dynamic_pointer_cast<STIRImageData>(sptr_cont)) {
+			ret = sptr_id->get_info();
+		}
+		else
+		        ret =  "get_info() not supported for this type";
 		return charDataHandleFromCharData(
-			sptr_ad->get_proj_data_info_sptr()->parameter_info().c_str());
+			ret.c_str());
 	}
 	CATCH;
 }
