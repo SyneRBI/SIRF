@@ -2851,6 +2851,12 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByB
         parms.set_parameter(
             self.handle, self.name, 'acquisition_data', ad.handle)
 
+    def set_acquisition_model(self, am):
+        """Sets the acquisition model to be used by this objective function."""
+        assert_validity(am, AcquisitionModel)
+        parms.set_parameter(
+            self.handle, self.name, 'acquisition_model', am.handle)
+
     # disabled for now as this doesn't work yet in STIR
     # def set_skip_lm_input_file(self, tf):
     #    flag = 1 if tf else 0

@@ -984,10 +984,10 @@ sirf::cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProj
     else if (sirf::iequals(name, "set_recompute_cache")) {
         obj_fun.set_skip_lm_input_file(dataFromHandle<int>(hv));
     }
-//    else if (sirf::iequals(name, "acquisition_model")) {
-//        SPTR_FROM_HANDLE(PETAcquisitionModelUsingMatrix, sptr_pm, hv);
-//        obj_fun.set_acquisition_model(sptr_pm);
-//    }
+    else if (sirf::iequals(name, "acquisition_model")) {
+        SPTR_FROM_HANDLE(AcqMod3DF, sptr_am, hv);
+        obj_fun.set_acquisition_model(sptr_am);
+    }
     else if (sirf::iequals(name, "acquisition_data")) {
         SPTR_FROM_HANDLE(ContainerBase, sptr_cont, hv);
         if (auto sptr_ld = std::dynamic_pointer_cast<STIRListmodeData>(sptr_cont)) {

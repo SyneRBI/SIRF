@@ -1079,36 +1079,8 @@ The actual algorithm is described in
 			sptr_ad_ = sptr;
 			set_proj_data_sptr(sptr->data());
 		}
-		void set_acquisition_model(std::shared_ptr<AcqMod3DF> sptr_am)
-		{
-			sptr_am_ = sptr_am;
-			AcqMod3DF& am = *sptr_am;
-			auto sptr_asm = am.asm_sptr();
-			set_projector_pair_sptr(am.projectors_sptr());
-			bool have_a = am.additive_term_sptr().get();
-			bool have_b = am.background_term_sptr().get();
-			bool have_asm = sptr_asm.get();
-			if (!have_b) {
-				if (have_a)
-					set_additive_proj_data_sptr(am.additive_term_sptr()->data());
-			}
-			else {
-				auto sptr_b = am.background_term_sptr();
-				stir::shared_ptr<STIRAcquisitionData> sptr;
-				if (have_asm)
-					sptr = sptr_asm->invert(*sptr_b);
-				else
-					sptr = sptr_b->clone();
-				if (have_a) {
-					auto sptr_a = am.additive_term_sptr();
-					float a = 1.0f;
-					sptr->axpby(&a, *sptr, &a, *sptr_a);
-				}
-				set_additive_proj_data_sptr(sptr->data());
-			}
-			if (am.normalisation_sptr().get())
-				set_normalisation_sptr(am.normalisation_sptr());
-		}
+		void set_acquisition_model(std::shared_ptr<AcqMod3DF> sptr_am);
+
 		std::shared_ptr<AcqMod3DF> acquisition_model_sptr()
 		{
 			return sptr_am_;
@@ -1132,12 +1104,8 @@ The actual algorithm is described in
             set_proj_data_info(*sptr->data());
         }
 #endif
-        void set_acquisition_model(std::shared_ptr<PETAcquisitionModelUsingMatrix> sptr_am)
-        {
-            sptr_am_ = sptr_am;
-            set_proj_matrix(sptr_am_->matrix_sptr());
+        void set_acquisition_model(std::shared_ptr<AcqMod3DF> sptr_am);
 
-        }
         void set_cache_path(const std::string filepath)
         {
             stir::PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin<Image3DF>::
