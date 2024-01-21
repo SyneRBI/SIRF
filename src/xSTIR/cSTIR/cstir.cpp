@@ -393,8 +393,8 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
 			return newObjectHandle(sptr);
 		}
 		if (sirf::iequals(name, "ListmodeData")) {
-			std::shared_ptr<ListmodeData>
-				sptr(new ListmodeData(filename));
+			std::shared_ptr<STIRListmodeData>
+				sptr(new STIRListmodeData(filename));
 			return newObjectHandle(sptr);
 		}
 		if (sirf::iequals(name, "ListmodeToSinograms")) {
@@ -987,7 +987,7 @@ void* cSTIR_get_info(void* ptr_cont)
 		if (auto sptr_ad = std::dynamic_pointer_cast<STIRAcquisitionData>(sptr_cont)) {
 			ret = sptr_ad->get_info();
 		}
-		else if (auto sptr_ld = std::dynamic_pointer_cast<ListmodeData>(sptr_cont)) {
+		else if (auto sptr_ld = std::dynamic_pointer_cast<STIRListmodeData>(sptr_cont)) {
 			ret = sptr_ld->get_info();
 		}
 		else if (auto sptr_id = std::dynamic_pointer_cast<STIRImageData>(sptr_cont)) {

@@ -990,7 +990,7 @@ sirf::cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProj
 //    }
     else if (sirf::iequals(name, "acquisition_data")) {
         SPTR_FROM_HANDLE(ContainerBase, sptr_cont, hv);
-        if (auto sptr_ld = std::dynamic_pointer_cast<ListmodeData>(sptr_cont)) {
+        if (auto sptr_ld = std::dynamic_pointer_cast<STIRListmodeData>(sptr_cont)) {
             obj_fun.set_input_data(sptr_ld->data_sptr());
         }
         else
@@ -1057,15 +1057,15 @@ sirf::cSTIR_setReconstructionParameter
 	if (sirf::iequals(name, "output_filename_prefix"))
 		recon.set_output_filename_prefix(charDataFromDataHandle(hv));
 	else if (sirf::iequals(name, "input_data")) {
-        	SPTR_FROM_HANDLE(ContainerBase, sptr_cont, hv);
-        	if (auto sptr_ad = std::dynamic_pointer_cast<STIRAcquisitionData>(sptr_cont)) {
-        		recon.set_input_data(sptr_ad->data_sptr());
-        	}
-        	else if (auto sptr_ld = std::dynamic_pointer_cast<ListmodeData>(sptr_cont)) {
-        		recon.set_input_data(sptr_ld->data_sptr());
-        	}
-        	else
-        	THROW("input_data needs to be either ListmodeData or AcquisitionData");
+		SPTR_FROM_HANDLE(ContainerBase, sptr_cont, hv);
+		if (auto sptr_ad = std::dynamic_pointer_cast<STIRAcquisitionData>(sptr_cont)) {
+			recon.set_input_data(sptr_ad->data_sptr());
+		}
+		else if (auto sptr_ld = std::dynamic_pointer_cast<STIRListmodeData>(sptr_cont)) {
+			recon.set_input_data(sptr_ld->data_sptr());
+		}
+		else
+		THROW("input_data needs to be either ListmodeData or AcquisitionData");
 	}
 	else if (sirf::iequals(name, "disable_output")) {
 		recon.set_disable_output(true);

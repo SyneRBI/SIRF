@@ -887,13 +887,13 @@ namespace sirf {
 
           This class contains a stir::ListModeData object and has a few methods to access it.
         */
-	class ListmodeData : public ContainerBase /*STIRScanData*/ {
+	class STIRListmodeData : public ContainerBase /*STIRScanData*/ {
 	public:
-		ListmodeData(std::string lmdata_filename)
+		STIRListmodeData(std::string lmdata_filename)
 		{
 			_data = stir::read_from_file<stir::ListModeData>(lmdata_filename);
 		}
-                virtual ~ListmodeData() {}
+                virtual ~STIRListmodeData() {}
 
                 // TODO remove
 		virtual stir::shared_ptr<stir::ExamData> data_sptr() const {
