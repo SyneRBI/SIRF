@@ -46,6 +46,9 @@ def main():
     # select acquisition data storage scheme
     pet.AcquisitionData.set_storage_scheme(storage)
 
+    # print all allowed names. Some scanners have different names, and they appear on 1 line.
+    print(pet.scanner_names())
+
     # create acquisition data from scanner parameters
     acq_data = pet.AcquisitionData('Siemens_mMR')
     # copy the acquisition data into a Python array
@@ -54,6 +57,7 @@ def main():
     print('acquisition data dimensions (maximum resolution): %dx%dx%dx%d' % acq_dim)
 
     # create acquisition data from scanner parameters but with axial compression etc
+    # see https://stir.sourceforge.net/documentation/STIR-glossary.pdf for some information on naming
     acq_data = pet.AcquisitionData('Siemens_mMR', span=11, view_mash_factor=2)
     # set all values to 1.0
     acq_data.fill(1.0)
