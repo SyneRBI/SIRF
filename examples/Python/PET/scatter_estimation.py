@@ -99,7 +99,7 @@ def main():
     print("number of scatter iterations that will be used: %d" % se.get_num_iterations())
     # Could set number of subsets used by the OSEM reconstruction inside the scatter estimation loop.
     # Here we will set it to 7 (which is in fact the default), which is appropriate for the mMR
-    set.set_OSEM_num_subsets(7)
+    se.set_OSEM_num_subsets(7)
     se.set_output_prefix(output_prefix)
     se.set_up()
     se.process()
