@@ -82,13 +82,19 @@ STIRAcquisitionData::max(void* ptr) const
 {
 	int n = get_max_segment_num();
 	float t = 0;
+	bool init = true;
         TOF_LOOP
 	for (int s = 0; s <= n; ++s)
 	{
 		SegmentBySinogram<float> seg = get_segment_by_sinogram(s TOF_ARG);
 		SegmentBySinogram<float>::full_iterator seg_iter;
 		for (seg_iter = seg.begin_all(); seg_iter != seg.end_all();)
-			t = std::max(t, *seg_iter++);
+			if (init) {
+				t = *seg_iter++;
+				init = false;
+			}
+			else
+				t = std::max(t, *seg_iter++);
 		if (s != 0) {
 			seg = get_segment_by_sinogram(-s TOF_ARG);
 			for (seg_iter = seg.begin_all(); seg_iter != seg.end_all();)
@@ -482,9 +488,9 @@ STIRImageData::max(void* ptr) const
 #else
 	typename Array<3, float>::const_full_iterator iter;
 #endif
-
-	float s = 0.0;
-	for (iter = data().begin_all(); iter != data().end_all(); iter++)
+	iter = data().begin_all();
+	float s = *iter++;
+	for (; iter != data().end_all(); iter++)
 		s = std::max(s, *iter);
 	float* ptr_s = static_cast<float*>(ptr);
 	*ptr_s = (float)s;

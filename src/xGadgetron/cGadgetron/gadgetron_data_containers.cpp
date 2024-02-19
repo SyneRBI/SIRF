@@ -566,12 +566,15 @@ MRAcquisitionData::max(const ISMRMRD::Acquisition& acq_a)
 {
     const complex_float_t* pa;
     complex_float_t z = 0;
+    bool init = true;
     for (pa = acq_a.data_begin(); pa != acq_a.data_end(); pa++) {
         complex_float_t zi = *pa;
         float r = std::real(z);
         float ri = std::real(zi);
-        if (ri > r)
+        if (init || ri > r) {
             z = zi;
+            init = false;
+        }
     }
     return z;
 }
@@ -626,6 +629,7 @@ MRAcquisitionData::max(void* ptr) const
     int n = number();
     complex_float_t z = 0;
     ISMRMRD::Acquisition a;
+    bool init = true;
     for (int i = 0; i < n;) {
         if (!get_acquisition(i, a)) {
             i++;
@@ -634,8 +638,10 @@ MRAcquisitionData::max(void* ptr) const
         complex_float_t zi = MRAcquisitionData::max(a);
         float r = std::real(z);
         float ri = std::real(zi);
-        if (ri > r)
+        if (init || ri > r) {
             z = zi;
+            init = false;
+        }
         i++;
     }
     complex_float_t* ptr_z = static_cast<complex_float_t*>(ptr);
@@ -1459,7 +1465,7 @@ GadgetronImageData::max(void* ptr) const
         complex_float_t zi = wi.max();
         float r = std::real(z);
         float ri = std::real(zi);
-        if (ri > r)
+        if (i == 0 || ri > r)
             z = zi;
     }
     complex_float_t* ptr_z = static_cast<complex_float_t*>(ptr);

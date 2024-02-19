@@ -970,7 +970,7 @@ namespace sirf {
 				complex_float_t si = (complex_float_t)*i;
 				float r = std::real(*s);
 				float ri = std::real(si);
-				if (ri > r)
+				if (ii == 0 || ri > r)
 					*s = si;
 			}
 		}
