@@ -286,6 +286,16 @@ class DataContainer(ABC):
             return z[0]
         return z[0] + 1j*z[1]
 
+    def min(self):
+        '''
+        Returns the maximum of the elements of self data
+        '''
+        z = numpy.zeros((2,), dtype=numpy.float32)
+        try_calling(pysirf.cSIRF_compute_min(self.handle, z.ctypes.data))
+        if z[1] == 0:
+            return z[0]
+        return z[0] + 1j*z[1]
+
     def add(self, other, out=None):
         '''
         Addition for data containers.

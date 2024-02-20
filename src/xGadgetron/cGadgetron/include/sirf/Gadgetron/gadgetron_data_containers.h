@@ -309,6 +309,7 @@ namespace sirf {
 		static complex_float_t sum(const ISMRMRD::Acquisition& acq_x);
 		// the value of the element of x with the largest real part
 		static complex_float_t max(const ISMRMRD::Acquisition& acq_x);
+		static complex_float_t min(const ISMRMRD::Acquisition& acq_x);
 		// elementwise multiplication
 		// y := x .* y
 		static void multiply
@@ -601,6 +602,7 @@ namespace sirf {
 		/// below all void* are actually complex_float_t*
 		virtual void sum(void* ptr) const;
 		virtual void max(void* ptr) const;
+		virtual void min(void* ptr) const;
 		virtual void dot(const DataContainer& dc, void* ptr) const;
 		complex_float_t dot(const DataContainer& a_x)
 		{
@@ -956,6 +958,7 @@ namespace sirf {
 		/// below all void* are actually complex_float_t*
 		virtual void sum(void* ptr) const;
 		virtual void max(void* ptr) const;
+		virtual void min(void* ptr) const;
 		virtual void dot(const DataContainer& dc, void* ptr) const;
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& a_x,

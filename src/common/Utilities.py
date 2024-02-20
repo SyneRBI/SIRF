@@ -604,6 +604,10 @@ def test_data_container_algebra(test, x, eps=1e-5):
     t = numpy.max(ax)
     test.check_if_equal_within_tolerance(t, s, 0, eps);
 
+    s = x.min()
+    t = numpy.min(ax)
+    test.check_if_equal_within_tolerance(t, s, 0, eps);
+
     s = x.sum()
     t = numpy.sum(ax)
     r = numpy.sum(abs(ax))

@@ -579,6 +579,24 @@ MRAcquisitionData::max(const ISMRMRD::Acquisition& acq_a)
     return z;
 }
 
+complex_float_t
+MRAcquisitionData::min(const ISMRMRD::Acquisition& acq_a)
+{
+    const complex_float_t* pa;
+    complex_float_t z = 0;
+    bool init = true;
+    for (pa = acq_a.data_begin(); pa != acq_a.data_end(); pa++) {
+        complex_float_t zi = *pa;
+        float r = std::real(z);
+        float ri = std::real(zi);
+        if (init || ri < r) {
+            z = zi;
+            init = false;
+        }
+    }
+    return z;
+}
+
 void
 MRAcquisitionData::dot(const DataContainer& dc, void* ptr) const
 {
@@ -639,6 +657,31 @@ MRAcquisitionData::max(void* ptr) const
         float r = std::real(z);
         float ri = std::real(zi);
         if (init || ri > r) {
+            z = zi;
+            init = false;
+        }
+        i++;
+    }
+    complex_float_t* ptr_z = static_cast<complex_float_t*>(ptr);
+    *ptr_z = z;
+}
+
+void
+MRAcquisitionData::min(void* ptr) const
+{
+    int n = number();
+    complex_float_t z = 0;
+    ISMRMRD::Acquisition a;
+    bool init = true;
+    for (int i = 0; i < n;) {
+        if (!get_acquisition(i, a)) {
+            i++;
+            continue;
+        }
+        complex_float_t zi = MRAcquisitionData::min(a);
+        float r = std::real(z);
+        float ri = std::real(zi);
+        if (init || ri < r) {
             z = zi;
             init = false;
         }
@@ -1466,6 +1509,22 @@ GadgetronImageData::max(void* ptr) const
         float r = std::real(z);
         float ri = std::real(zi);
         if (i == 0 || ri > r)
+            z = zi;
+    }
+    complex_float_t* ptr_z = static_cast<complex_float_t*>(ptr);
+    *ptr_z = z;
+}
+
+void
+GadgetronImageData::min(void* ptr) const
+{
+    complex_float_t z = 0;
+    for (unsigned int i = 0; i < number(); i++) {
+        const ImageWrap& wi = image_wrap(i);
+        complex_float_t zi = wi.min();
+        float r = std::real(z);
+        float ri = std::real(zi);
+        if (i == 0 || ri < r)
             z = zi;
     }
     complex_float_t* ptr_z = static_cast<complex_float_t*>(ptr);

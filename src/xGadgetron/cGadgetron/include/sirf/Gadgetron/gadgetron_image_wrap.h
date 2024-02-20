@@ -557,6 +557,12 @@ namespace sirf {
 			IMAGE_PROCESSING_SWITCH_CONST(type_, max_, ptr_, &s);
 			return s;
 		}
+		complex_float_t min() const
+		{
+			complex_float_t s;
+			IMAGE_PROCESSING_SWITCH_CONST(type_, min_, ptr_, &s);
+			return s;
+		}
 		float diff(ImageWrap& iw) const
 		{
 			float s;
@@ -971,6 +977,22 @@ namespace sirf {
 				float r = std::real(*s);
 				float ri = std::real(si);
 				if (ii == 0 || ri > r)
+					*s = si;
+			}
+		}
+
+		template<typename T>
+		void min_(const ISMRMRD::Image<T>* ptr, complex_float_t* s) const
+		{
+			const T* i;
+			*s = 0;
+			size_t ii = 0;
+			size_t n = ptr->getNumberOfDataElements();
+			for (i = ptr->getDataPtr(); ii < n; i++, ii++) {
+				complex_float_t si = (complex_float_t)*i;
+				float r = std::real(*s);
+				float ri = std::real(si);
+				if (ii == 0 || ri < r)
 					*s = si;
 			}
 		}
