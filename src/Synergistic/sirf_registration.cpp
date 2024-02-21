@@ -56,7 +56,6 @@ static std::shared_ptr<const ImageData> image_as_sptr(const std::string &filenam
         std::shared_ptr<GadgetronImageData> sptr_img(new GadgetronImagesVector);
 		sptr_img->read(filename);
         return sptr_img;
-        //return std::move(sptr_img);
     }
     else
         throw std::runtime_error("sirf_registration: unknown image engine - " + engine + ".\n");
