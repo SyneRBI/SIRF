@@ -131,9 +131,9 @@ namespace sirf {
 	*/
 	class IgnoreMask {
 	public:
-		IgnoreMask(unsigned long int mask = (1 << 18)) :
+		IgnoreMask(unsigned long long int mask = (1 << 18)) :
 		    ignore_(mask), max_(8*sizeof(mask)) {}
-		void set(unsigned long int mask)
+		void set(unsigned long long int mask)
 		{
 			ignore_ = mask;
 		}
@@ -141,36 +141,36 @@ namespace sirf {
 		{
 			if (i < 1 || i > max_)
 				return;
-			unsigned long int one = 1;
+			unsigned long long int one = 1;
 			ignore_ = ignore_ | (one << (i - 1));
 		}
 		void ignore_not(unsigned int i)
 		{
 			if (i < 1 || i > max_)
 				return;
-			unsigned long int one = 1;
+			unsigned long long int one = 1;
 			ignore_ = ignore_ & ~(one << (i - 1));
 		}
 		bool bit(unsigned int i) const
 		{
 			if (i < 1 || i > max_)
 				return true;
-			unsigned long int one = 1;
+			unsigned long long int one = 1;
 			return ignore_ & (one << (i - 1));
 		}
-		unsigned long int bits() const
+		unsigned long long int bits() const
 		{
 			return ignore_;
 		}
-		bool ignored(unsigned long int bits) const
+		bool ignored(unsigned long long int bits) const
 		{
 			return bits & ignore_;
 		}
 		std::string bits_string() const
 		{
 			unsigned int size = max_;
-			unsigned long int one = 1;
-			unsigned long int bitmask = (one << (size - 1));
+			unsigned long long int one = 1;
+			unsigned long long int bitmask = (one << (size - 1));
 			std::stringstream str;
 			for (unsigned int i = 0; i < size; i++) {
 				if (ignore_ & (bitmask >> i))
@@ -184,7 +184,7 @@ namespace sirf {
 			return str.str();
 		}
 	private:
-		unsigned long int ignore_;
+		unsigned long long int ignore_;
 		unsigned int max_;
 	};
 
