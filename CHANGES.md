@@ -1,5 +1,11 @@
 # ChangeLog
 
+## vx.x.x
+
+* CMake/building:
+  - add `DISABLE_Gadgetron_TOOLBOXES` option (defaults to `OFF`) to be
+    able to cope with compilation problems with older Gadgetron versions.
+
 ## v3.6.0
 
 * PET:
