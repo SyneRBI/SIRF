@@ -23,7 +23,7 @@ Options:
   -C <cnts>, --counts=<cnts>   account for delay between injection and acquisition start by shifting interval to start when counts exceed given threshold.
   --visualisations             show visualisations
   --nifti                      save output as nifti
-  --gpu                        use gpu
+  --gpu                        use gpu (actually means: use NiftyPET projectors)
   --non-interactive            do not show plots
 '''
 
@@ -119,7 +119,6 @@ def main():
 
     # create listmode-to-sinograms converter object
     # See also the listmode_to_sinograms demo
-    # Note that we need this to be able to get randoms and scatter
     lm2sino = pet.ListmodeToSinograms()
 
     # set input, output and template files
