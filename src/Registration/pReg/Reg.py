@@ -476,9 +476,11 @@ class NiftiImageData(SIRF.ImageData):
         im_real.handle = \
             pyreg.cReg_NiftiImageData_from_complex_ImageData_real_component(
                 complex_im.handle)
+        check_status(im_real.handle)
         im_imag.handle = \
             pyreg.cReg_NiftiImageData_from_complex_ImageData_imag_component(
                 complex_im.handle)
+        check_status(im_imag.handle)
         return [im_real, im_imag]
 
     @staticmethod

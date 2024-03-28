@@ -131,9 +131,9 @@ namespace sirf {
 	*/
 	class IgnoreMask {
 	public:
-		IgnoreMask(unsigned long int mask = (1 << 18)) :
+		IgnoreMask(unsigned long long int mask = (1 << 18)) :
 		    ignore_(mask), max_(8*sizeof(mask)) {}
-		void set(unsigned long int mask)
+		void set(unsigned long long int mask)
 		{
 			ignore_ = mask;
 		}
@@ -141,36 +141,36 @@ namespace sirf {
 		{
 			if (i < 1 || i > max_)
 				return;
-			unsigned long int one = 1;
+			unsigned long long int one = 1;
 			ignore_ = ignore_ | (one << (i - 1));
 		}
 		void ignore_not(unsigned int i)
 		{
 			if (i < 1 || i > max_)
 				return;
-			unsigned long int one = 1;
+			unsigned long long int one = 1;
 			ignore_ = ignore_ & ~(one << (i - 1));
 		}
 		bool bit(unsigned int i) const
 		{
 			if (i < 1 || i > max_)
 				return true;
-			unsigned long int one = 1;
+			unsigned long long int one = 1;
 			return ignore_ & (one << (i - 1));
 		}
-		unsigned long int bits() const
+		unsigned long long int bits() const
 		{
 			return ignore_;
 		}
-		bool ignored(unsigned long int bits) const
+		bool ignored(unsigned long long int bits) const
 		{
 			return bits & ignore_;
 		}
 		std::string bits_string() const
 		{
 			unsigned int size = max_;
-			unsigned long int one = 1;
-			unsigned long int bitmask = (one << (size - 1));
+			unsigned long long int one = 1;
+			unsigned long long int bitmask = (one << (size - 1));
 			std::stringstream str;
 			for (unsigned int i = 0; i < size; i++) {
 				if (ignore_ & (bitmask >> i))
@@ -184,7 +184,7 @@ namespace sirf {
 			return str.str();
 		}
 	private:
-		unsigned long int ignore_;
+		unsigned long long int ignore_;
 		unsigned int max_;
 	};
 
@@ -309,6 +309,7 @@ namespace sirf {
 		static complex_float_t sum(const ISMRMRD::Acquisition& acq_x);
 		// the value of the element of x with the largest real part
 		static complex_float_t max(const ISMRMRD::Acquisition& acq_x);
+		static complex_float_t min(const ISMRMRD::Acquisition& acq_x);
 		// elementwise multiplication
 		// y := x .* y
 		static void multiply
@@ -601,6 +602,7 @@ namespace sirf {
 		/// below all void* are actually complex_float_t*
 		virtual void sum(void* ptr) const;
 		virtual void max(void* ptr) const;
+		virtual void min(void* ptr) const;
 		virtual void dot(const DataContainer& dc, void* ptr) const;
 		complex_float_t dot(const DataContainer& a_x)
 		{
@@ -956,6 +958,7 @@ namespace sirf {
 		/// below all void* are actually complex_float_t*
 		virtual void sum(void* ptr) const;
 		virtual void max(void* ptr) const;
+		virtual void min(void* ptr) const;
 		virtual void dot(const DataContainer& dc, void* ptr) const;
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& a_x,

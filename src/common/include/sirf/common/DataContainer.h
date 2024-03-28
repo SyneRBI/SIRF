@@ -84,6 +84,9 @@ which rely on the same features of the items.
 		/// calculates the value of this container's element with the largest real part
 		virtual void max(void* ptr) const = 0;
 
+		/// calculates the value of this container's element with the smallest real part
+		virtual void min(void* ptr) const = 0;
+
 		/// \c *this = the elementwise product \c x*y
 		virtual void multiply
 			(const DataContainer& x, const DataContainer& y) = 0;

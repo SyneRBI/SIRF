@@ -1,29 +1,35 @@
 # ChangeLog
 
+## vx.x.x
+
+* CMake/building:
+  - add `DISABLE_Gadgetron_TOOLBOXES` option (defaults to `OFF`) to be
+    able to cope with compilation problems with older Gadgetron versions.
+
 ## v3.6.0
 
 * PET:
-  - added extra members to ScatterEstimation to set behaviour of OSEM used during scatter estimation
-  - added test for scatter simulation and estimation
+  - ensured compatibility with STIR 6.0, which supports Time-of-Flight data.
+  - added extra members to ScatterEstimation to set behaviour of OSEM used during scatter estimation.
   - added missing `set`/`get` methods for OSSPS `relaxation_parameter`, `relaxation_gamma` and `upper_bound`.
-
+  - added test for scatter simulation and estimation.
+  
 * CMake/building:
   - default `DISABLE_MATLAB` to `ON` as our Matlab support is out-of-date and could
   generate conflicts with Python shared libraries.
 
 * Demo scripts:
-  - replaced importing reconstruction engines by
-```
- exec('from sirf.' + args['--engine'] + ' import *')
-```
-  with importing via `importlib.import_module` thus getting rid of Codacy complaints about undefined modules.
+  - replaced importing reconstruction engines from calling `exec` to importing via `importlib.import_module` thus enabling code completion (and getting rid of Codacy complaints about undefined modules).
 
 * Python interfaces for the reconstruction engines:
-  - Several allocate methods in STIR.py, Gadgetron.py and Reg.py are replaced with just one allocate in DataContainer class that does not copy data between Python and C++.
+  - Several allocate methods in STIR.py, Gadgetron.py and Reg.py are replaced with just one allocate in `DataContainer` class that does not copy data between Python and C++.
   - `return None` in the method `Datacontainer.shape()` replaced with more Pythonesque `return (0,)`.
 
 * MR
-  - Handling of "irregular" ISMRMRD acquisitions hit what appears to be a bug in recent Gadgetron (HEAD detached at 0670db84). A quick fix applied, Gadgetron issue to be raised.
+  - Improved handling of "irregular" ISMRMRD acquisitions by providing `IgnoreMask` object that allows the user to specify which kind of acquisitions is to be ignored. By default, no acquisition is ignored when reading from file.
+
+* Registration
+  - fixed handling of complex images in NiftiImageData.cpp.
 
 ## v3.5.0
 
