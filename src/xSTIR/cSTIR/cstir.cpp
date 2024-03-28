@@ -1,7 +1,7 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2017 - 2020 Rutherford Appleton Laboratory STFC
-Copyright 2018 - 2020 University College London.
+Copyright 2017 - 2023 Rutherford Appleton Laboratory STFC
+Copyright 2018 - 2024 University College London.
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -156,6 +156,10 @@ void* cSTIR_newObject(const char* name)
 			"PoissonLogLikelihoodWithLinearModelForMeanAndProjData"))
 			return NEW_OBJECT_HANDLE
 			(xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF);
+		if (sirf::iequals(name,
+			"PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin"))
+			return NEW_OBJECT_HANDLE
+			(xSTIR_PoissonLLhLinModMeanListDataProjMatBin3DF);
 		if (sirf::iequals(name, "AcqModUsingMatrix"))
 			return NEW_OBJECT_HANDLE(AcqModUsingMatrix3DF);
 #ifdef STIR_WITH_NiftyPET_PROJECTOR
@@ -259,6 +263,11 @@ void* cSTIR_setParameter
 			return
 			cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 			(hs, name, hv);
+        else if (sirf::iequals(obj,
+            "PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin"))
+            return
+            cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBinParameter
+            (hs, name, hv);
 		else if (sirf::iequals(obj, "Reconstruction"))
 			return cSTIR_setReconstructionParameter(hs, name, hv);
 		else if (sirf::iequals(obj, "IterativeReconstruction"))
@@ -325,11 +334,16 @@ void* cSTIR_parameter(const void* ptr, const char* obj, const char* name)
 			return cSTIR_RelativeDifferencePriorParameter(handle, name);
 		else if (sirf::iequals(obj, "GeneralisedObjectiveFunction"))
 			return cSTIR_generalisedObjectiveFunctionParameter(handle, name);
-		else if (sirf::iequals(obj,
-			"PoissonLogLikelihoodWithLinearModelForMeanAndProjData"))
-			return
-			cSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
-			(handle, name);
+        else if (sirf::iequals(obj,
+            "PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin"))
+            return
+            cSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBinParameter
+            (handle, name);
+        else if (sirf::iequals(obj,
+            "PoissonLogLikelihoodWithLinearModelForMeanAndProjData"))
+            return
+            cSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
+            (handle, name);
 		else if (sirf::iequals(obj, "IterativeReconstruction"))
 			return cSTIR_iterativeReconstructionParameter(handle, name);
 		else if (sirf::iequals(obj, "OSMAPOSL"))
@@ -378,8 +392,13 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
                 sptr.reset(new STIRAcquisitionDataInMemory(filename));
 			return newObjectHandle(sptr);
 		}
+		if (sirf::iequals(name, "ListmodeData")) {
+			std::shared_ptr<STIRListmodeData>
+				sptr(new STIRListmodeData(filename));
+			return newObjectHandle(sptr);
+		}
 		if (sirf::iequals(name, "ListmodeToSinograms")) {
-                        std::shared_ptr<ListmodeToSinograms>
+			std::shared_ptr<ListmodeToSinograms>
 				sptr(new ListmodeToSinograms(filename));
 			return newObjectHandle(sptr);
 		}
@@ -788,6 +807,17 @@ void* cSTIR_get_MatrixInfo(void* ptr)
 }
 
 extern "C"
+void* cSTIR_acquisitionDataFromListmode(void* ptr_t)
+{
+	try {
+                SPTR_FROM_HANDLE(STIRListmodeData, sptr_t, ptr_t);
+                auto sptr(sptr_t->acquisition_data_template());
+		return newObjectHandle(sptr);
+	}
+	CATCH;
+}
+
+extern "C"
 void*
 cSTIR_setAcquisitionDataStorageScheme(const char* scheme)
 { 
@@ -960,12 +990,24 @@ void* cSTIR_writeAcquisitionData(void* ptr_acq, const char* filename)
 }
 
 extern "C"
-void* cSTIR_get_ProjDataInfo(void* ptr_acq)
+void* cSTIR_get_info(void* ptr_cont)
 {
 	try {
-		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_ad, ptr_acq);
+		std::string ret;
+		SPTR_FROM_HANDLE(ContainerBase, sptr_cont, ptr_cont);
+		if (auto sptr_ad = std::dynamic_pointer_cast<STIRAcquisitionData>(sptr_cont)) {
+			ret = sptr_ad->get_info();
+		}
+		else if (auto sptr_ld = std::dynamic_pointer_cast<STIRListmodeData>(sptr_cont)) {
+			ret = sptr_ld->get_info();
+		}
+		else if (auto sptr_id = std::dynamic_pointer_cast<STIRImageData>(sptr_cont)) {
+			ret = sptr_id->get_info();
+		}
+		else
+		        ret =  "get_info() not supported for this type";
 		return charDataHandleFromCharData(
-			sptr_ad->get_proj_data_info_sptr()->parameter_info().c_str());
+			ret.c_str());
 	}
 	CATCH;
 }
