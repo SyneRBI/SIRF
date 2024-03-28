@@ -99,6 +99,9 @@ extern "C" {
         (const void* ptr_acq_matrix,
         const float collimator_sigma_0_in_mm, const float collimator_slope_in_mm, const bool full_3D);
 
+    // listmode data methods
+    void* cSTIR_acquisitionDataFromListmode(void* ptr_t);
+
 	// Acquisition data methods
 	void* cSTIR_getAcquisitionDataStorageScheme();
 	void* cSTIR_setAcquisitionDataStorageScheme(const char* scheme);

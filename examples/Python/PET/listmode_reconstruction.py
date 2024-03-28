@@ -1,14 +1,13 @@
-'''Listmode-to-sinograms conversion and reconstruction demo.
+'''Listmode reconstruction demo
 
 Usage:
-  reconstruct_from_listmode [--help | options]
+  listmode_reconstruction [--help | options]
 
 Options:
   -p <path>, --path=<path>     path to data files, defaults to data/examples/PET/mMR
                                subfolder of SIRF root folder
   -l <list>, --list=<list>     listmode file [default: list.l.hdr]
   -g <sino>, --sino=<sino>     output file prefix [default: sinograms]
-  -t <tmpl>, --tmpl=<tmpl>     raw data template [default: mMR_template_span11_small.hs]
   -a <attn>, --attn=<attn>     attenuation image file file [default: mu_map.hv]
   -n <norm>, --norm=<norm>     ECAT8 bin normalization file [default: norm.n.hdr]
   -I <int>, --interval=<int>   scanning time interval to convert as string '(a,b)'
@@ -29,7 +28,7 @@ Options:
 
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2018 - 2020 Rutherford Appleton Laboratory STFC
-## Copyright 2018 - 2021 University College London.
+## Copyright 2018 - 2021, 2024 University College London.
 ##
 ## This is software developed for the Collaborative Computational
 ## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -116,6 +115,8 @@ def main():
     # select acquisition data storage scheme
     pet.AcquisitionData.set_storage_scheme(storage)
 
+    listmode_data = pet.ListmodeData(list_file)
+
     # First step is to create AcquisitionData ("sinograms") from the
     # listmode file.
     # See the listmode_to_sinograms demo for some more information on this step.
@@ -125,9 +126,12 @@ def main():
     lm2sino = pet.ListmodeToSinograms()
 
     # set input, output and template files
-    lm2sino.set_input(list_file)
+    lm2sino.set_input(listmode_data)
     lm2sino.set_output_prefix(sino_file)
-    lm2sino.set_template(tmpl_file)
+    # need to be at maximum resolution to work in listmode reconstruction
+    acq_data_template = listmode_data.acquisition_data_template()
+    #print(acq_data_template.get_info())
+    lm2sino.set_template(acq_data_template)
 
     if count_threshold is None:
         interval = input_interval
@@ -216,8 +220,8 @@ def main():
     # define objective function to be maximized as
     # Poisson logarithmic likelihood (with linear model for mean)
     obj_fun = pet.PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin();
-    #obj_fun.set_acquisition_model(acq_model)
-    obj_fun.set_acquisition_data()
+    obj_fun.set_acquisition_model(acq_model)
+    obj_fun.set_acquisition_data(listmode_data)
 
     # select Ordered Subsets Maximum A-Posteriori One Step Late as the
     # reconstruction algorithm (since we are not using a penalty, or prior, in

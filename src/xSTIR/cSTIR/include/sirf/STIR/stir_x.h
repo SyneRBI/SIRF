@@ -1,7 +1,7 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2021 Rutherford Appleton Laboratory STFC
-Copyright 2019 - 2021 University College London
+Copyright 2019 - 2021, 2024 University College London
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -108,12 +108,18 @@ The actual algorithm is described in
 			save_interval = -1;
 			//num_events_to_store = -1;
 		}
+		void set_input(const STIRListmodeData& lm_data_v)
+		{
+			input_filename = "UNKNOWN";
+                        // call stir::LmToProjData::set_input_data
+                        this->set_input_data(lm_data_v.data());
+                        exam_info_sptr_.reset(new ExamInfo(lm_data_ptr->get_exam_info()));
+                        proj_data_info_sptr_.reset(lm_data_ptr->get_proj_data_info_sptr()->clone());
+		}
 		void set_input(std::string lm_file)
 		{
 			input_filename = lm_file;
-                        lm_data_ptr = stir::read_from_file<ListModeData>(input_filename);
-                        exam_info_sptr_.reset(new ExamInfo(lm_data_ptr->get_exam_info()));
-                        proj_data_info_sptr_.reset(lm_data_ptr->get_proj_data_info_sptr()->clone());
+                        this->set_input(STIRListmodeData(input_filename));
 		}
 		//! Specifies the prefix for the output file(s), 
 		/*! This will be appended by `_g1f1d0b0.hs`.

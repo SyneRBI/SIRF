@@ -1145,7 +1145,18 @@ class ListmodeData(ScanData):
         check_status(self.handle)
         self.read_only = True
 
+    def acquisition_data_template(self):
+        """
+        Construct an AcquisitionData object corresponding to the listmode data
+        if no additional compression (such as as mashing, or rebinning) is used.
+        """
+        if self.handle is None:
+            raise AssertionError('ListmodeData not yet set')
+        acq_data = AcquisitionData()
+        acq_data.handle = pystir.cSTIR_acquisitionDataFromListmode(self.handle)
+        return acq_data
 
+        
 ScanData.register(ListmodeData)
 
 
@@ -1503,9 +1514,12 @@ class ListmodeToSinograms(object):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
-    def set_input(self, lm_file):
-        """Sets the listmode file name."""
-        parms.set_char_par(self.handle, self.name, 'input', lm_file)
+    def set_input(self, lm_data):
+        """Sets the listmode file name, or ListmodeData object."""
+        if type(lm_data) == type('a'):
+            parms.set_char_par(self.handle, self.name, 'input_file', lm_file)
+        else:
+            parms.set_parameter(self.handle, self.name, 'input', lm_data.handle)
 
     def set_output_prefix(self, sino_file):
         """Sets the sinograms file names prefix."""

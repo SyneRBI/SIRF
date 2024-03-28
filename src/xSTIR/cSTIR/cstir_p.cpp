@@ -1,7 +1,7 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
-Copyright 2018 - 2020 UCL
+Copyright 2018 - 2020, 2024 UCL
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -132,8 +132,10 @@ void*
 sirf::cSTIR_setListmodeToSinogramsParameter(void* hp, const char* name, const void* hv)
 {
 	ListmodeToSinograms& lm2s = objectFromHandle<ListmodeToSinograms>(hp);
-	if (sirf::iequals(name, "input"))
+	if (sirf::iequals(name, "input_file"))
 		lm2s.set_input(charDataFromHandle(hv));
+	else if (sirf::iequals(name, "input"))
+		lm2s.set_input(objectFromHandle<STIRListmodeData>(hv));
 	else if (sirf::iequals(name, "output"))
 		lm2s.set_output(charDataFromHandle(hv));
 	else if (sirf::iequals(name, "template_file"))

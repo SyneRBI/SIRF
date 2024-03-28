@@ -807,6 +807,17 @@ void* cSTIR_get_MatrixInfo(void* ptr)
 }
 
 extern "C"
+void* cSTIR_acquisitionDataFromListmode(void* ptr_t)
+{
+	try {
+                SPTR_FROM_HANDLE(STIRListmodeData, sptr_t, ptr_t);
+                auto sptr(sptr_t->acquisition_data_template());
+		return newObjectHandle(sptr);
+	}
+	CATCH;
+}
+
+extern "C"
 void*
 cSTIR_setAcquisitionDataStorageScheme(const char* scheme)
 { 

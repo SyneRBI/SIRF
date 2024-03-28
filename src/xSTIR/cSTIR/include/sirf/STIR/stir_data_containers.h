@@ -1,6 +1,6 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 223 Rutherford Appleton Laboratory STFC
+Copyright 2015 - 2023 Rutherford Appleton Laboratory STFC
 Copyright 2018 - 2024 University College London
 
 This is software developed for the Collaborative Computational
@@ -230,6 +230,8 @@ namespace sirf {
 		}
 		static std::shared_ptr<STIRAcquisitionData> storage_template()
 		{
+			if (!_template)
+                          error("storage_template error. You probably need to call set_storage_scheme() first");
 			return _template;
 		}
 
@@ -909,107 +911,19 @@ namespace sirf {
 			return 0;
 		}
 #endif
-                std::string get_info() const
+                //! Construct an AcquisitionData object corresponding to the listmode data
+                /*! no additional compression (such as as mashing, or rebinning) is used.*/
+                std::shared_ptr<STIRAcquisitionData> acquisition_data_template() const
+                {
+			return std::shared_ptr < STIRAcquisitionData >
+                          (STIRAcquisitionData::storage_template()->same_acquisition_data(this->data()->get_exam_info_sptr(),
+                                                                                          this->data()->get_proj_data_info_sptr()->create_shared_clone()));
+                }
+          std::string get_info() const
                 {
                   return this->data()->get_exam_info_sptr()->parameter_info() +
                           this->data()->get_proj_data_info_sptr()->parameter_info();
                  }
-#if 0 // disabled these. They would be needed for DataContainer at the moment
-                virtual unsigned int items() const
-		{
-			return 1;
-		}
-		virtual bool is_complex() const
-		{
-			return false;
-		}
-
-		/// returns the norm of this container viewed as a vector
-		virtual float norm() const
-		{
-			THROW("ListmodeData::norm not implemented");
-		}
-
-		/// calculates the dot product of this container with another one
-		virtual void dot(const DataContainer& dc, void* ptr) const
-		{
-			THROW("ListmodeData::dot not implemented");
-		}
-
-		/// \c *this = the elementwise product \c x*y
-		virtual void multiply
-		(const DataContainer& x, const DataContainer& y)
-		{
-			THROW("ListmodeData::multiply not implemented");
-		}
-
-		/// \c *this = the elementwise ratio \c x/y
-		virtual void divide
-		(const DataContainer& x, const DataContainer& y)
-		{
-			THROW("ListmodeData::divide not implemented");
-		}
-
-		/// \c *this = the elementwise \c max(x, y)
-		virtual void maximum
-		(const DataContainer& x, const DataContainer& y)
-		{
-			THROW("ListmodeData::maximum not implemented");
-		}
-
-		/// \c *this = the elementwise \c min(x, y)
-		virtual void minimum
-		(const DataContainer& x, const DataContainer& y)
-		{
-			THROW("ListmodeData::minimum not implemented");
-		}
-
-		/// \c *this = the linear combination of \c x and \c y
-		virtual void axpby(
-			const void* ptr_a, const DataContainer& x,
-			const void* ptr_b, const DataContainer& y)
-		{
-			THROW("ListmodeData::axpby not implemented");
-		}
-		/// alternative interface to the above
-		virtual void xapyb(
-			const DataContainer& x, const void* ptr_a,
-			const DataContainer& y, const void* ptr_b)
-		{
-			THROW("ListmodeData::xapyb not implemented");
-		}
-
-		/// \c *this = elementwise sum of two elementwise products \c x*a and \c y*b
-		virtual void xapyb(
-			const DataContainer& x, const DataContainer& a,
-			const DataContainer& y, const DataContainer& b)
-		{
-			THROW("ListmodeData::xapyb not implemented");
-		}
-
-		virtual void write(const std::string& filename) const
-		{
-			THROW("ListmodeData::write not implemented");
-		}
-
-		bool is_empty() const
-		{
-			return items() < 1;
-		}
-
-		std::unique_ptr<DataContainer> clone() const
-		{
-			return std::unique_ptr<DataContainer>(this->clone_impl());
-		}
-
-		///  returns unique pointer to the complex-conjugated copy of this container
-		std::unique_ptr<DataContainer> conjugate() const
-		{
-			DataContainer* ptr = this->clone_impl();
-			ptr->conjugate();
-			return std::unique_ptr<DataContainer>(ptr);
-		}
-#endif
 	protected:
 		stir::shared_ptr<stir::ListModeData> _data;
 		virtual DataContainer* clone_impl() const
