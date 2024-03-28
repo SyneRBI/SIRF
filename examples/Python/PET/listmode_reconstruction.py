@@ -73,15 +73,12 @@ print('Finding files in %s' % data_path)
 
 list_file = args['--list']
 sino_file = args['--sino']
-tmpl_file = args['--tmpl']
 norm_file = args['--norm']
 attn_file = args['--attn']
 outp_file = args['--outp']
 # Check file exists (e.g., absolute path). Else prepend data_path
 if not os.path.isfile(list_file):
     list_file = existing_filepath(data_path, list_file)
-if not os.path.isfile(tmpl_file):
-    tmpl_file = existing_filepath(data_path, tmpl_file)
 if not os.path.isfile(norm_file):
     norm_file = existing_filepath(data_path, norm_file)
 if not os.path.isfile(attn_file):
