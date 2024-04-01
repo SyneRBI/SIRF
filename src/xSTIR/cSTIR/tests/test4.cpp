@@ -64,13 +64,16 @@ int test4()
 		converter.set_input(f_listmode);
 		converter.set_output("proj_data");
 		converter.set_template(acq_data_template);
+        std::cout << "after settemplate\n";
 		//// old way (now just an alternative option):
 		//converter.set_template(f_template);
 		converter.set_time_interval(0, 10);
 		converter.set_up();
+        std::cout <<"after setup\n";
 		converter.estimate_randoms();
+        std::cout << "after estimate random\n";
 		converter.save_randoms();
-
+std::cout << "after save random\n";
         // Check count rates - for the particular dataset,
         // we know that 73036 is exceeded at 22s. You can
         // see this with STIR's list_lm_countrates
@@ -78,6 +81,7 @@ int test4()
         const float known_time = 22.f;
         const float time_at_which_num_prompts_exceeds_threshold =
                 converter.get_time_at_which_num_prompts_exceeds_threshold(num_prompt_threshold);
+                std::cout << "after threshold\n";
         if (std::abs(time_at_which_num_prompts_exceeds_threshold-known_time) > 1e-4f)
             throw std::runtime_error("ListmodeToSinograms::get_time_at_which_num_prompts_exceeds_threshold failed");
 

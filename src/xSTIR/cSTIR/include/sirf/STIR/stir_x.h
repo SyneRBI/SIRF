@@ -41,7 +41,7 @@ limitations under the License.
 #include "sirf/STIR/stir_data_containers.h"
 #include "stir/recon_buildblock/PoissonLogLikelihoodWithLinearModelForMeanAndProjData.h"
 #include "stir/recon_buildblock/PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin.h"
-
+#include <iostream>
 #define MIN_BIN_EFFICIENCY 1.0e-20f
 //#define MIN_BIN_EFFICIENCY 1.0e-6f
 #define SIRF_DYNAMIC_CAST(T, X, Y) T& X = dynamic_cast<T&>(Y)
@@ -110,14 +110,17 @@ The actual algorithm is described in
 		}
 		void set_input(const STIRListmodeData& lm_data_v)
 		{
+			std::cout << "\nsetinput no filename\n";
 			input_filename = "UNKNOWN";
                         // call stir::LmToProjData::set_input_data
                         this->set_input_data(lm_data_v.data());
                         exam_info_sptr_.reset(new ExamInfo(lm_data_ptr->get_exam_info()));
                         proj_data_info_sptr_.reset(lm_data_ptr->get_proj_data_info_sptr()->clone());
+						std::cout << "\nDONE SETINPUT\n";
 		}
 		void set_input(std::string lm_file)
 		{
+			std::cout <<"setinput filenams "+ lm_file;
          this->set_input(STIRListmodeData(input_filename));
 					      this->input_filename = lm_file;
   }
