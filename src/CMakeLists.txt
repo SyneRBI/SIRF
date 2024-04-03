@@ -1,7 +1,7 @@
 
 #========================================================================
 # Author: Richard Brown, Kris Thielemans
-# Copyright 2016 - 2020 University College London
+# Copyright 2016 - 2024 University College London
 # Copyright 2016 - 2020 Science Technology Facilities Council
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +17,14 @@
 #  limitations under the License.
 #
 #=========================================================================
+
+# a macro to set properties of a test target to use the
+# data in the source dir, as opposed to the installed one
+# (which might not exist or be out of date)
+macro(add_SIRF_DATA_PATH test_target)
+ set_tests_properties(${test_target}
+     PROPERTIES ENVIRONMENT "SIRF_DATA_PATH=${PROJECT_SOURCE_DIR}/data")
+endmacro()
 
 ADD_SUBDIRECTORY(iUtilities)
 #ADD_SUBDIRECTORY(common)
