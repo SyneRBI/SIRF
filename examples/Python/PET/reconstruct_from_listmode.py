@@ -98,6 +98,7 @@ num_subiterations = int(args['--subiter'])
 storage = args['--storage']
 count_threshold = args['--counts']
 
+use_gpu = args['--gpu']
 if args['--visualisations']:
     visualisations = True
 else:
