@@ -54,6 +54,7 @@ import os
 
 from sirf.Utilities import error, examples_data_path, existing_filepath
 from sirf.Utilities import show_2D_array
+import sirf.Reg as reg
 import PET_plot_functions
 try:
     import pylab
@@ -179,7 +180,7 @@ def main():
         show_2D_array('Attenuation image', attn_image_as_array[z,:,:])
     # If gpu, make sure that attn. image dimensions match image
     if use_gpu:
-        resampler = sirf.Reg.NiftyResampler()
+        resampler = reg.NiftyResampler()
         resampler.set_reference_image(image)
         resampler.set_floating_image(attn_image)
         resampler.set_interpolation_type_to_linear()
@@ -269,7 +270,7 @@ def main():
     if not args['--nifti']:
         out.write(outp_file)
     else:
-        sirf.Reg.NiftiImageData(out).write(outp_file)
+        reg.NiftiImageData(out).write(outp_file)
 
     if visualisations and HAVE_PYLAB:
         # show reconstructed image
