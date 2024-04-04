@@ -1516,8 +1516,8 @@ class ListmodeToSinograms(object):
 
     def set_input(self, lm_data):
         """Sets the listmode file name, or ListmodeData object."""
-        if type(lm_data) == type('a'):
-            parms.set_char_par(self.handle, self.name, 'input_file', lm_file)
+        if isinstance(lm_data, str):
+            parms.set_char_par(self.handle, self.name, 'input_file', lm_data)
         else:
             parms.set_parameter(self.handle, self.name, 'input', lm_data.handle)
 

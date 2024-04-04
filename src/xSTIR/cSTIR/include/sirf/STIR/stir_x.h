@@ -118,8 +118,8 @@ The actual algorithm is described in
 		}
 		void set_input(std::string lm_file)
 		{
-         this->set_input(STIRListmodeData(input_filename));
-					      this->input_filename = lm_file;
+			this->set_input(STIRListmodeData(lm_file));
+			this->input_filename = lm_file;
   }
 		//! Specifies the prefix for the output file(s), 
 		/*! This will be appended by `_g1f1d0b0.hs`.
