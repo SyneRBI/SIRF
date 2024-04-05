@@ -23,7 +23,6 @@ Options:
   -C <cnts>, --counts=<cnts>   account for delay between injection and acquisition start by shifting interval to start when counts exceed given threshold.
   --visualisations             show visualisations
   --nifti                      save output as nifti
-  --gpu                        use gpu (actually means: use NiftyPET projectors)
   --non-interactive            do not show plots
 '''
 
@@ -99,7 +98,6 @@ num_subiterations = int(args['--subiter'])
 storage = args['--storage']
 count_threshold = args['--counts']
 
-use_gpu = args['--gpu']
 if args['--visualisations']:
     visualisations = True
 else:
@@ -166,34 +164,17 @@ def main():
     # create initial image estimate of dimensions and voxel sizes
     # compatible with the scanner geometry (included in the AcquisitionData
     # object acq_data) and initialize each voxel to 1.0
-    if not use_gpu:
-        image = acq_data.create_uniform_image(1.0, nxny)
-    # If using GPU, need to make sure that image is right size.
-    else:
-        image.initialise(dim=(127,320,320), vsize=(2.03125,2.08626,2.08626))
-        image.fill(1.0)
+    image = acq_data.create_uniform_image(1.0, nxny)
 
     # read attenuation image
     attn_image = pet.ImageData(attn_file)
     if visualisations:
         attn_image_as_array = attn_image.as_array()
         show_2D_array('Attenuation image', attn_image_as_array[z,:,:])
-    # If gpu, make sure that attn. image dimensions match image
-    if use_gpu:
-        resampler = reg.NiftyResampler()
-        resampler.set_reference_image(image)
-        resampler.set_floating_image(attn_image)
-        resampler.set_interpolation_type_to_linear()
-        set_padding_value(0.0)
-        resampler.forward(attn_image, image)
-
-    if not use_gpu:
-        # select acquisition model that implements the geometric
-        # forward projection by a ray tracing matrix multiplication
-        acq_model = pet.AcquisitionModelUsingRayTracingMatrix()
-        acq_model.set_num_tangential_LORs(10)
-    else:
-        acq_model = pet.AcquisitionModelUsingNiftyPET()
+    # select acquisition model that implements the geometric
+    # forward projection by a ray tracing matrix multiplication
+    acq_model = pet.AcquisitionModelUsingRayTracingMatrix()
+    acq_model.set_num_tangential_LORs(10)
 
     # create acquisition sensitivity model from ECAT8 normalisation data
     asm_norm = pet.AcquisitionSensitivityModel(norm_file)
