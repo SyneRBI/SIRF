@@ -245,6 +245,16 @@ In what follows, we mark by `PET` classes defined in `sirf.STIR` only and by `MR
 
 We remind that every derived class inherits all methods of its base class.
 
+##### ListmodeData (PET)
+
+An STIR-specitic acquisition data container class for list-mode  data objects. Inherits from `sirf.SIRF.ContainerBase`. 
+
+###### Methods:
+
+    ListmodeData        Constructor. If no arguments are present, creates an
+                        empty object, otherwise specifies the file containing raw data 
+    get_info      (PET) Returns information on the acquisition data as a string. 
+
 ##### AcquisitionData
 
 An engine-specific acquisition data container class for acquisition data objects. Inherits from `sirf.SIRF.DataContainer`. 
@@ -288,6 +298,7 @@ An engine-specific image data container class for data representing 3D objects. 
     fill                Replaces the object data with user-supplied data. 
     as_array            Returns the object data as an array. 
     read_from_file      Reads the image data from file.
+    get_info      (PET) Returns information on the data as a string. 
     get_ISMRMRD_info
                   (MR)  Returns information on the image data as an array.
     get_uniform_copy   

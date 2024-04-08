@@ -74,17 +74,7 @@ if (NIFTYREG_BUILT_WITH_OPENCL)
 endif()
 
 # Add boost library dependencies
-if((CMAKE_VERSION VERSION_LESS 3.5.0) OR (NOT _Boost_IMPORTED_TARGETS))
-  # This is harder than it should be on older CMake versions to be able to cope with
-  # spaces in filenames.
-  foreach(C SYSTEM FILESYSTEM)
-    target_link_libraries(Reg PUBLIC optimized "${Boost_${C}_LIBRARY_RELEASE}")
-    target_link_libraries(Reg PUBLIC debug  "${Boost_${C}_LIBRARY_DEBUG}")
-  endforeach()
-else()
-  # Nice and simple for recent CMake (which knows about your Boost version)
-  target_link_libraries(Reg PUBLIC Boost::system Boost::filesystem)
-endif()
+target_link_libraries(Reg PUBLIC Boost::system Boost::filesystem)
 
 # Link Matlab for SPM
 IF(SPM_FOUND)

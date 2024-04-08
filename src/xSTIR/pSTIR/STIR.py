@@ -1,7 +1,7 @@
 """Object-Oriented wrap for the cSTIR-to-Python interface pystir.py."""
 
 # SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-# Copyright 2015 - 2021 Rutherford Appleton Laboratory STFC
+# Copyright 2015 - 2022 Rutherford Appleton Laboratory STFC
 # Copyright 2015 - 2022 University College London
 # Copyright 2019 University of Hull
 #
@@ -448,6 +448,14 @@ class ImageData(SIRF.ImageData):
     def same_object(self):
         """See DataContainer method."""
         return ImageData()
+
+    def get_info(self):
+        """Returns the STIR metadata as Python str."""
+        handle = pystir.cSTIR_get_info(self.handle)
+        check_status(handle)
+        info = pyiutil.charDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return info
 
     def modality(self):
         """Returns imaging modality as Python string."""
@@ -1093,8 +1101,67 @@ class PinholeSPECTUBMatrix:
         return self
 
 
-class AcquisitionData(DataContainer):
-    """Class for PET acquisition data."""
+class ScanData(DataContainer):
+    """Abstract base class for STIR raw data."""
+
+    def get_info(self):
+        """Returns the STIR metadata as Python str."""
+        handle = pystir.cSTIR_get_info(self.handle)
+        check_status(handle)
+        info = pyiutil.charDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return info
+
+
+class ListmodeData(ScanData):
+    """Class for STIR list mode data."""
+
+    def __init__(self, filename=None):
+        self.handle = None
+        self.name = 'ListmodeData'
+        self.read_only = False
+        if filename is None:
+            return
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+        self.handle = pystir.cSTIR_objectFromFile('ListmodeData', filename)
+        check_status(self.handle)
+        self.read_only = True
+
+    def __del__(self):
+        """del."""
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+    def read_from_file(self, filename):
+        """
+        Reads data from file.
+
+        Replaces the current content of the object.
+        """
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+        self.handle = pystir.cSTIR_objectFromFile('ListmodeData', filename)
+        check_status(self.handle)
+        self.read_only = True
+
+    def acquisition_data_template(self):
+        """
+        Construct an AcquisitionData object corresponding to the listmode data
+        if no additional compression (such as as mashing, or rebinning) is used.
+        """
+        if self.handle is None:
+            raise AssertionError('ListmodeData not yet set')
+        acq_data = AcquisitionData()
+        acq_data.handle = pystir.cSTIR_acquisitionDataFromListmode(self.handle)
+        return acq_data
+
+        
+ScanData.register(ListmodeData)
+
+
+class AcquisitionData(ScanData):
+    """Class for stir sinogram (or projection) acquisition data."""
 
     def __init__(self, src=None, span=1, max_ring_diff=-1, view_mash_factor=1, tof_mash_factor=1):
         """Creates new AcquisitionData.
@@ -1372,14 +1439,6 @@ class AcquisitionData(DataContainer):
                 suptitle=title, show=(t == ns))
             f = t
 
-    def get_info(self):
-        """Returns the AcquisitionData's metadata as Python str."""
-        handle = pystir.cSTIR_get_ProjDataInfo(self.handle)
-        check_status(handle)
-        info = pyiutil.charDataFromHandle(handle)
-        pyiutil.deleteDataHandle(handle)
-        return info
-
     def get_subset(self, views):
         """Returns the subset of self data formed by specified views
 
@@ -1398,7 +1457,7 @@ class AcquisitionData(DataContainer):
         return self.dimensions()
 
 
-DataContainer.register(AcquisitionData)
+ScanData.register(AcquisitionData)
 
 
 class ListmodeToSinograms(object):
@@ -1455,9 +1514,12 @@ class ListmodeToSinograms(object):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
-    def set_input(self, lm_file):
-        """Sets the listmode file name."""
-        parms.set_char_par(self.handle, self.name, 'input', lm_file)
+    def set_input(self, lm_data):
+        """Sets the listmode file name, or ListmodeData object."""
+        if isinstance(lm_data, str):
+            parms.set_char_par(self.handle, self.name, 'input_file', lm_data)
+        else:
+            parms.set_parameter(self.handle, self.name, 'input', lm_data.handle)
 
     def set_output_prefix(self, sino_file):
         """Sets the sinograms file names prefix."""
@@ -2774,6 +2836,74 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData(
             self.handle, self.name, 'acquisition_data', ad.handle)
 
 
+class PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin(ObjectiveFunction):
+    """Class for a STIR type of Poisson loglikelihood object for listmode data.
+
+    Specifically, PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin.
+    """
+
+    def __init__(self):
+        """init."""
+        self.handle = None
+        self.name = 'PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin'
+        self.handle = pystir.cSTIR_newObject(self.name)
+        check_status(self.handle)
+
+    def __del__(self):
+        """del."""
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+    def set_cache_path(self, path):
+        parms.set_char_par(self.handle, self.name, 'cache_path', path)
+
+    def get_cache_path(self):
+        return parms.char_par(self.handle, self.name, 'cache_path')
+    
+    def set_acquisition_data(self, ad):
+        assert_validity(ad, ListmodeData)
+        parms.set_parameter(
+            self.handle, self.name, 'acquisition_data', ad.handle)
+
+    def set_acquisition_model(self, am):
+        """Sets the acquisition model to be used by this objective function."""
+        assert_validity(am, AcquisitionModel)
+        parms.set_parameter(
+            self.handle, self.name, 'acquisition_model', am.handle)
+
+    # disabled for now as this doesn't work yet in STIR
+    # def set_skip_lm_input_file(self, tf):
+    #    flag = 1 if tf else 0
+    #    parms.set_int_par(
+    #            self.handle, self.name, 'skip_lm_input_file', flag)
+
+    def set_skip_balanced_subsets(self, tf):
+        ''' if tf=True, disable the check for balanced subsets (somewhat dangerous)'''
+        flag = 1 if tf else 0
+        parms.set_int_par(
+                self.handle, self.name, 'skip_balanced_subsets', flag)
+
+    def set_max_segment_num_to_process(self, diff):
+        parms.set_int_par(
+                self.handle, self.name, 'max_segment_num_to_process', diff)
+
+    def set_recompute_cache(self, tf):
+        ''' if tf=True (and cache_size>0, recompute the listmode cache'''
+        flag = 1 if tf else 0
+        parms.set_int_par(
+                self.handle, self.name, 'recompute_cache', flag)
+
+    def set_cache_max_size(self, diff):
+        parms.set_int_par(
+                self.handle, self.name, 'cache_max_size', diff)
+
+    def get_cache_max_size(self):
+        return parms.int_par(self.handle, self.name, 'cache_max_size')
+
+    def get_subsensitivity_filenames(self):
+        return parms.char_par(self.handle, self.name, 'subsensitivity_filenames')
+
+
 class Reconstructor(object):
     """Base class for a generic PET reconstructor."""
 
@@ -2790,7 +2920,7 @@ class Reconstructor(object):
 
     def set_input(self, input_data):
         """Sets the acquisition data to use for reconstruction."""
-        assert_validity(input_data, AcquisitionData)
+        assert_validity(input_data, ScanData)
         parms.set_parameter(
             self.handle, 'Reconstruction',
             'input_data', input_data.handle)
@@ -3458,7 +3588,8 @@ class OSSPSReconstructor(IterativeReconstructor):
         return parms.double_par(self.handle, self.name, 'upper_bound')
 
 
-def make_Poisson_loglikelihood(acq_data, likelihood_type='LinearModelForMean',
+#def make_Poisson_loglikelihood(acq_data, likelihood_type='LinearModelForMean',
+def make_Poisson_loglikelihood(acq_data=None, likelihood_type=None,
                                acq_model=None):
     """Makes Poisson loglikelihood.
 
@@ -3466,13 +3597,21 @@ def make_Poisson_loglikelihood(acq_data, likelihood_type='LinearModelForMean',
     model types.
     """
     # only this objective function is implemented for now
-    if likelihood_type == 'LinearModelForMean':
+    #if likelihood_type == 'LinearModelForMean':
+    if likelihood_type is None or likelihood_type=='LinearModelForMean':
         obj_fun = PoissonLogLikelihoodWithLinearModelForMeanAndProjData()
-        obj_fun.set_acquisition_data(acq_data)
+        if acq_data is not None:
+            obj_fun.set_acquisition_data(acq_data)
+        else:
+            raise error('PoissonLogLikelihoodWithLinearModelForMeanAndProjData' + \
+            ' requires acquisition data')
+    elif likelihood_type == 'LinearModelForMeanAndListModeDataWithProjMatrixByBin':
+        obj_fun = PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin()
+        if acq_data is not None:
+            obj_fun.set_acquisition_data(acq_data)
     else:
-        raise error(
-            'only PoissonLogLikelihoodWithLinearModelForMeanAndProjData ' +
-            'is currently implemented in SIRF')
+        raise error('Poisson_loglikelihood of type ' + likelihood_type + \
+                    ' is not implemented')
     if acq_model is not None:
         obj_fun.set_acquisition_model(acq_model)
     return obj_fun

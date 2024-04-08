@@ -1,7 +1,7 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC
-Copyright 2018 - 2020 University College London
+Copyright 2015 - 2023 Rutherford Appleton Laboratory STFC
+Copyright 2018 - 2024 University College London
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -135,25 +135,43 @@ namespace sirf {
 		std::string _filename;
 	};
 
+#if 0
+        // not used yet. See also https://github.com/SyneRBI/SIRF/pull/1103
+	/*!
+	\ingroup PET
+	\brief Abstract base class for PET scanner data
+	*/
+	class STIRScanData: public virtual ContainerBase {
+	public:
+		virtual ~STIRScanData() {}
+		virtual stir::shared_ptr<stir::ExamData> data_sptr() const = 0;
+		//virtual void set_data_sptr(stir::shared_ptr<stir::ExamData> data) = 0;
+	};
+#endif
 	/*!
 	\ingroup PET
 	\brief STIR ProjData wrapper with added functionality.
 
 	This class enjoys some features of STIR ProjData and, additionally,
 	implements the linear algebra functionality specified by the
-	abstract base class aDatacontainer, and provides means for the data
+	abstract base class DataContainer, and provides means for the data
 	storage mode (file/memory) selection.
 	*/
 
-	class STIRAcquisitionData : public DataContainer {
+	class STIRAcquisitionData : /*public STIRScanData, */public DataContainer {
 	public:
-		virtual ~STIRAcquisitionData() {}
 
 		// virtual constructors
 		virtual STIRAcquisitionData* same_acquisition_data
 			(stir::shared_ptr<const stir::ExamInfo> sptr_exam_info,
 			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info) const = 0;
 		virtual std::shared_ptr<STIRAcquisitionData> new_acquisition_data() const = 0;
+
+                std::string get_info() const
+                {
+                        return this->data()->get_exam_info_sptr()->parameter_info() +
+                          this->data()->get_proj_data_info_sptr()->parameter_info();
+                 }
 
 		virtual bool is_complex() const
 		{
@@ -212,6 +230,8 @@ namespace sirf {
 		}
 		static std::shared_ptr<STIRAcquisitionData> storage_template()
 		{
+			if (!_template)
+                          error("storage_template error. You probably need to call set_storage_scheme() first");
 			return _template;
 		}
 
@@ -219,10 +239,22 @@ namespace sirf {
 		{
 			return _data;
 		}
+/*		virtual stir::shared_ptr<stir::ExamData> data_sptr()
+		{
+			return _data;
+			//return stir::shared_ptr<stir::ExamData>(_data);
+		}*/
 		const stir::shared_ptr<stir::ProjData> data() const
+		//stir::shared_ptr<const stir::ProjData> data() const // causes lots of problems
 		{
 			return _data;
 		}
+                #if 1
+		virtual stir::shared_ptr<stir::ExamData> data_sptr() const
+		{
+			return _data;
+		}
+                #endif
 		void set_data(stir::shared_ptr<stir::ProjData> data)
 		{
 			_data = data;
@@ -234,7 +266,7 @@ namespace sirf {
 		{
 			if (ad.is_empty())
 				THROW("The source of STIRAcquisitionData::fill is empty");
-			stir::shared_ptr<stir::ProjData> sptr = ad.data();
+			stir::shared_ptr<const stir::ProjData> sptr = ad.data();
 			data()->fill(*sptr);
 		}
 		virtual void fill_from(const float* d) { data()->fill_from(d); }
@@ -853,6 +885,54 @@ namespace sirf {
 		}
 	};
 
+        /*! container for STIR PET or SPECT list-mode data
+          \ingroup PET
+
+          This class contains a stir::ListModeData object and has a few methods to access it.
+        */
+	class STIRListmodeData : public ContainerBase /*STIRScanData*/ {
+	public:
+		STIRListmodeData(std::string lmdata_filename)
+		{
+			_data = stir::read_from_file<stir::ListModeData>(lmdata_filename);
+		}
+                virtual ~STIRListmodeData() {}
+
+                // TODO remove
+		virtual stir::shared_ptr<stir::ExamData> data_sptr() const {
+			return _data;
+		}
+		virtual stir::shared_ptr<stir::ListModeData> data() const {
+			return _data;
+		}
+#if 0
+		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
+		{
+			THROW("ListmodeData::new_data_container_handle not implemented");
+			return 0;
+		}
+#endif
+                //! Construct an AcquisitionData object corresponding to the listmode data
+                /*! no additional compression (such as as mashing, or rebinning) is used.*/
+                std::shared_ptr<STIRAcquisitionData> acquisition_data_template() const
+                {
+			return std::shared_ptr < STIRAcquisitionData >
+                          (STIRAcquisitionData::storage_template()->same_acquisition_data(this->data()->get_exam_info_sptr(),
+                                                                                          this->data()->get_proj_data_info_sptr()->create_shared_clone()));
+                }
+          std::string get_info() const
+                {
+                  return this->data()->get_exam_info_sptr()->parameter_info() +
+                          this->data()->get_proj_data_info_sptr()->parameter_info();
+                 }
+	protected:
+		stir::shared_ptr<stir::ListModeData> _data;
+		virtual DataContainer* clone_impl() const
+		{
+			THROW("ListmodeData::clone not implemented");
+		}
+	};
+
 #if SIRF_VERSION_MAJOR < 4
 	///
 	///  Backward compatibility - to be removed in SIRF 4
@@ -1024,6 +1104,11 @@ namespace sirf {
 			return new ObjectHandle<DataContainer>
 				(std::shared_ptr<DataContainer>(same_image_data()));
 		}
+                std::string get_info() const
+                {
+                        return this->data().get_exam_info_sptr()->parameter_info();
+                        // TODO geometric info, although that's handled separately in SIRF
+                 }
 		virtual bool is_complex() const
 		{
 			return false;

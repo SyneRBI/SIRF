@@ -6,6 +6,11 @@
   - add `DISABLE_Gadgetron_TOOLBOXES` option (defaults to `OFF`) to be
     able to cope with compilation problems with older Gadgetron versions.
 
+* PET:
+  - implemented basic-functionality listmode data class in C++ and Python
+  - added objective function type for lismode reconstruction
+  - added new demo script for the reconstruction from listmode data
+
 ## v3.6.0
 
 * PET:

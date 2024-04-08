@@ -9,3 +9,4 @@ int test3a();
 int test3b();
 int test3c();
 int test3d();
+int test6();

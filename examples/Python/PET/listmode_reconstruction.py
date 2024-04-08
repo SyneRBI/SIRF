@@ -1,18 +1,17 @@
-'''Listmode-to-sinograms conversion and reconstruction demo.
+'''Listmode reconstruction demo
 
 Usage:
-  reconstruct_from_listmode [--help | options]
+  listmode_reconstruction [--help | options]
 
 Options:
   -p <path>, --path=<path>     path to data files, defaults to data/examples/PET/mMR
                                subfolder of SIRF root folder
   -l <list>, --list=<list>     listmode file [default: list.l.hdr]
   -g <sino>, --sino=<sino>     output file prefix [default: sinograms]
-  -t <tmpl>, --tmpl=<tmpl>     raw data template [default: mMR_template_span11_small.hs]
   -a <attn>, --attn=<attn>     attenuation image file file [default: mu_map.hv]
   -n <norm>, --norm=<norm>     ECAT8 bin normalization file [default: norm.n.hdr]
   -I <int>, --interval=<int>   scanning time interval to convert as string '(a,b)'
-                               (no space after comma) [default: (0,100)]
+                               (no space after comma) [default: (0,50)]
   -d <nxny>, --nxny=<nxny>     image x and y dimensions as string '(nx,ny)'
                                (no space after comma) [default: (127,127)]
   -S <subs>, --subs=<subs>     number of subsets [default: 7]
@@ -23,12 +22,13 @@ Options:
   -C <cnts>, --counts=<cnts>   account for delay between injection and acquisition start by shifting interval to start when counts exceed given threshold.
   --visualisations             show visualisations
   --nifti                      save output as nifti
+  --gpu                        use gpu
   --non-interactive            do not show plots
 '''
 
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2018 - 2020 Rutherford Appleton Laboratory STFC
-## Copyright 2018 - 2021 University College London.
+## Copyright 2018 - 2021, 2024 University College London.
 ##
 ## This is software developed for the Collaborative Computational
 ## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -51,15 +51,10 @@ args = docopt(__doc__, version=__version__)
 from ast import literal_eval
 import os
 
+import PET_plot_functions
+
 from sirf.Utilities import error, examples_data_path, existing_filepath
 from sirf.Utilities import show_2D_array
-import sirf.Reg as reg
-import PET_plot_functions
-try:
-    import pylab
-    HAVE_PYLAB = True
-except RuntimeWarning:
-    HAVE_PYLAB = False
 
 # import engine module
 import importlib
@@ -78,15 +73,12 @@ print('Finding files in %s' % data_path)
 
 list_file = args['--list']
 sino_file = args['--sino']
-tmpl_file = args['--tmpl']
 norm_file = args['--norm']
 attn_file = args['--attn']
 outp_file = args['--outp']
 # Check file exists (e.g., absolute path). Else prepend data_path
 if not os.path.isfile(list_file):
     list_file = existing_filepath(data_path, list_file)
-if not os.path.isfile(tmpl_file):
-    tmpl_file = existing_filepath(data_path, tmpl_file)
 if not os.path.isfile(norm_file):
     norm_file = existing_filepath(data_path, norm_file)
 if not os.path.isfile(attn_file):
@@ -105,6 +97,13 @@ else:
 if args['--non-interactive']:
     visualisations = False
 
+if args['--gpu']:
+    use_gpu = True
+#    import sirf.Reg
+else:
+    use_gpu = False
+
+
 def main():
 
     # engine's messages go to files, except error messages, which go to stdout
@@ -112,6 +111,8 @@ def main():
 
     # select acquisition data storage scheme
     pet.AcquisitionData.set_storage_scheme(storage)
+
+    listmode_data = pet.ListmodeData(list_file)
 
     # First step is to create AcquisitionData ("sinograms") from the
     # listmode file.
@@ -122,9 +123,12 @@ def main():
     lm2sino = pet.ListmodeToSinograms()
 
     # set input, output and template files
-    lm2sino.set_input(list_file)
+    lm2sino.set_input(listmode_data)
     lm2sino.set_output_prefix(sino_file)
-    lm2sino.set_template(tmpl_file)
+    # need to be at maximum resolution to work in listmode reconstruction
+    acq_data_template = listmode_data.acquisition_data_template()
+    #print(acq_data_template.get_info())
+    lm2sino.set_template(acq_data_template)
 
     if count_threshold is None:
         interval = input_interval
@@ -143,23 +147,13 @@ def main():
     # set up the converter
     lm2sino.set_up()
 
-    # convert
+    # convert (need it for the scatter estimate)
     lm2sino.process()
+
+    acq_data = lm2sino.get_output()
 
     # Get the randoms
     randoms = lm2sino.estimate_randoms()
-
-    # get access to the sinograms
-    acq_data = lm2sino.get_output()
-    # copy the acquisition data into a Python array
-    acq_array = acq_data.as_array()
-    acq_dim = acq_array.shape
-    print('acquisition data dimensions: %dx%dx%dx%d' % acq_dim)
-    if visualisations:
-        # select a slice appropriate for the NEMA acquisition data
-        z = 71
-        #z = acq_dim[0]//2
-        show_2D_array('Acquisition data', acq_array[0,z,:,:])
 
     # create initial image estimate of dimensions and voxel sizes
     # compatible with the scanner geometry (included in the AcquisitionData
@@ -169,14 +163,16 @@ def main():
     # read attenuation image
     attn_image = pet.ImageData(attn_file)
     if visualisations:
+        z = attn_image.shape[0]//2
         attn_image_as_array = attn_image.as_array()
         show_2D_array('Attenuation image', attn_image_as_array[z,:,:])
+
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
     acq_model = pet.AcquisitionModelUsingRayTracingMatrix()
     acq_model.set_num_tangential_LORs(10)
 
-    # create acquisition sensitivity model from ECAT8 normalisation data
+    # create acquisition sensitivity model from normalisation data
     asm_norm = pet.AcquisitionSensitivityModel(norm_file)
 
     # create attenuation factors
@@ -220,8 +216,9 @@ def main():
 
     # define objective function to be maximized as
     # Poisson logarithmic likelihood (with linear model for mean)
-    obj_fun = pet.make_Poisson_loglikelihood(acq_data)
+    obj_fun = pet.PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin();
     obj_fun.set_acquisition_model(acq_model)
+    obj_fun.set_acquisition_data(listmode_data)
 
     # select Ordered Subsets Maximum A-Posteriori One Step Late as the
     # reconstruction algorithm (since we are not using a penalty, or prior, in
@@ -251,13 +248,15 @@ def main():
     if not args['--nifti']:
         out.write(outp_file)
     else:
+        import sirf.Reg as reg
         reg.NiftiImageData(out).write(outp_file)
 
-    if visualisations and HAVE_PYLAB:
+    if visualisations:
         # show reconstructed image
+        z = out.shape[0]//2
         image_array = out.as_array()
         show_2D_array('Reconstructed image', image_array[z,:,:])
-        pylab.show()
+#        pylab.show()
 
 
 try:

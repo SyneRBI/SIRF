@@ -1,7 +1,7 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2021 Rutherford Appleton Laboratory STFC
-Copyright 2019 - 2021 University College London
+Copyright 2019 - 2021, 2024 University College London
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -40,6 +40,7 @@ limitations under the License.
 #include "sirf/common/JacobiCG.h"
 #include "sirf/STIR/stir_data_containers.h"
 #include "stir/recon_buildblock/PoissonLogLikelihoodWithLinearModelForMeanAndProjData.h"
+#include "stir/recon_buildblock/PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin.h"
 
 #define MIN_BIN_EFFICIENCY 1.0e-20f
 //#define MIN_BIN_EFFICIENCY 1.0e-6f
@@ -107,13 +108,19 @@ The actual algorithm is described in
 			save_interval = -1;
 			//num_events_to_store = -1;
 		}
-		void set_input(std::string lm_file)
+		void set_input(const STIRListmodeData& lm_data_v)
 		{
-			input_filename = lm_file;
-                        lm_data_ptr = stir::read_from_file<ListModeData>(input_filename);
+			input_filename = "UNKNOWN";
+                        // call stir::LmToProjData::set_input_data
+                        this->set_input_data(lm_data_v.data());
                         exam_info_sptr_.reset(new ExamInfo(lm_data_ptr->get_exam_info()));
                         proj_data_info_sptr_.reset(lm_data_ptr->get_proj_data_info_sptr()->clone());
 		}
+		void set_input(std::string lm_file)
+		{
+			this->set_input(STIRListmodeData(lm_file));
+			this->input_filename = lm_file;
+  }
 		//! Specifies the prefix for the output file(s), 
 		/*! This will be appended by `_g1f1d0b0.hs`.
 		*/
@@ -1078,36 +1085,8 @@ The actual algorithm is described in
 			sptr_ad_ = sptr;
 			set_proj_data_sptr(sptr->data());
 		}
-		void set_acquisition_model(std::shared_ptr<AcqMod3DF> sptr_am)
-		{
-			sptr_am_ = sptr_am;
-			AcqMod3DF& am = *sptr_am;
-			auto sptr_asm = am.asm_sptr();
-			set_projector_pair_sptr(am.projectors_sptr());
-			bool have_a = am.additive_term_sptr().get();
-			bool have_b = am.background_term_sptr().get();
-			bool have_asm = sptr_asm.get();
-			if (!have_b) {
-				if (have_a)
-					set_additive_proj_data_sptr(am.additive_term_sptr()->data());
-			}
-			else {
-				auto sptr_b = am.background_term_sptr();
-				stir::shared_ptr<STIRAcquisitionData> sptr;
-				if (have_asm)
-					sptr = sptr_asm->invert(*sptr_b);
-				else
-					sptr = sptr_b->clone();
-				if (have_a) {
-					auto sptr_a = am.additive_term_sptr();
-					float a = 1.0f;
-					sptr->axpby(&a, *sptr, &a, *sptr_a);
-				}
-				set_additive_proj_data_sptr(sptr->data());
-			}
-			if (am.normalisation_sptr().get())
-				set_normalisation_sptr(am.normalisation_sptr());
-		}
+		void set_acquisition_model(std::shared_ptr<AcqMod3DF> sptr_am);
+
 		std::shared_ptr<AcqMod3DF> acquisition_model_sptr()
 		{
 			return sptr_am_;
@@ -1119,6 +1098,32 @@ The actual algorithm is described in
 
 	typedef xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF
 		PoissonLogLhLinModMeanProjData3DF;
+
+	class xSTIR_PoissonLLhLinModMeanListDataProjMatBin3DF :
+		public stir::PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin<Image3DF> {
+    public:
+#if 0
+          // this functionality was for skip_lm_input_file, but this is disabled for now
+        void set_acquisition_data(std::shared_ptr<PETAcquisitionData> sptr)
+        {
+            sptr_ad_ = sptr;
+            set_proj_data_info(*sptr->data());
+        }
+#endif
+        void set_acquisition_model(std::shared_ptr<AcqMod3DF> sptr_am);
+
+        void set_cache_path(const std::string filepath)
+        {
+            stir::PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin<Image3DF>::
+                 set_cache_path(filepath);
+        }
+
+    private:
+        //std::shared_ptr<PETAcquisitionData> sptr_ad_;
+        std::shared_ptr<PETAcquisitionModelUsingMatrix> sptr_am_;
+        };
+
+        typedef xSTIR_PoissonLLhLinModMeanListDataProjMatBin3DF PoissonLLhLinModMeanListDataProjMatBin3DF;
 
 	class xSTIR_IterativeReconstruction3DF :
 		public stir::IterativeReconstruction < Image3DF > {
@@ -1256,7 +1261,7 @@ The actual algorithm is described in
 		std::shared_ptr<STIRImageData> _sptr_image_data;
 	};
 
-	class xSTIR_SeparableGaussianImageFilter : 
+	class xSTIR_SeparableGaussianImageFilter :
 		public stir::SeparableGaussianImageFilter<float> {
 	public:
 		//stir::Succeeded set_up(const STIRImageData& id)
