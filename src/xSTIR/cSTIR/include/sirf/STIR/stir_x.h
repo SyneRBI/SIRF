@@ -205,7 +205,7 @@ The actual algorithm is described in
 		int estimate_randoms();
 		void save_randoms()
 		{
-			std::string filename = output_filename_prefix + "_randoms" + "_f1g1d0b0.hs";
+			std::string filename = "randoms_f1g1d0b0.hs";
 			randoms_sptr->write(filename.c_str());
 		}
 		std::shared_ptr<STIRAcquisitionData> get_output()
@@ -221,6 +221,24 @@ The actual algorithm is described in
         /// Get the time at which the number of prompts exceeds a certain threshold.
         /// Returns -1 if not found.
         float get_time_at_which_num_prompts_exceeds_threshold(const unsigned long threshold) const;
+
+		void sinograms_and_randoms_from_listmode(
+			STIRListmodeData& lm_data, double start, double stop,
+			STIRAcquisitionData& acq_data_template,
+			std::shared_ptr<STIRAcquisitionData>& sinograms_sptr,
+			std::shared_ptr<STIRAcquisitionData>& randoms_sptr)
+		{
+			ListmodeToSinograms converter;
+			converter.set_input(lm_data);
+			converter.set_output("sinograms");
+			converter.set_template(acq_data_template);
+			converter.set_time_interval(start, stop);
+			converter.set_up();
+			converter.process_data();
+			sinograms_sptr = converter.get_output();
+			converter.estimate_randoms();
+			randoms_sptr = converter.get_randoms_sptr();
+		}
 
 	protected:
 		// variables for ML estimation of singles/randoms
