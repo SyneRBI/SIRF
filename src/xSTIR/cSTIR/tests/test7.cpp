@@ -39,6 +39,8 @@ limitations under the License.
 #include "sirf/common/iequals.h"
 #include "sirf/common/utilities.h"
 
+#include "object.h"
+
 using namespace stir;
 using namespace ecat;
 using namespace sirf;
@@ -53,13 +55,20 @@ int main()
 			return 1;
 		}
 		std::string path = append_path(SIRF_data_path, "mMR");
+		std::cout << path << '\n';
 		std::string f_listmode = append_path(path, "list.l.hdr");
 		std::string f_template = append_path(path, "mMR_template_span11_small.hs");
+		std::string f_mu_map = append_path(path, "mu_map.hv");
 		
 		STIRAcquisitionDataInMemory::set_as_template();
 
-		STIRAcquisitionDataInFile acq_data_template(f_template.c_str());
+		//STIRAcquisitionDataInFile acq_data_template(f_template.c_str());
+		CREATE_OBJECT(STIRAcquisitionData, STIRAcquisitionDataInFile,
+			acq_data_template, templ_sptr, f_template.c_str());
 		STIRListmodeData lm_data(f_listmode);
+		//STIRImageData mu_map(f_mu_map);
+		CREATE_OBJ(STIRImageData, mu_map, mu_map_sptr, f_mu_map);
+		std::shared_ptr<STIRAcquisitionData> acq_sens_sptr;
 		ListmodeToSinograms converter;
 
 		std::shared_ptr<STIRAcquisitionData> sinograms_sptr;
@@ -69,6 +78,9 @@ int main()
 		
 		std::cout << sinograms_sptr->norm() << '\n';
 		std::cout << randoms_sptr->norm() << '\n';
+		
+		converter.acquisition_sensitivity_from_attenuation(templ_sptr, mu_map_sptr, acq_sens_sptr);
+		std::cout << acq_sens_sptr->norm() << '\n';
 
 		std::cout << "done with test7.cpp...\n";
 		return 0;
