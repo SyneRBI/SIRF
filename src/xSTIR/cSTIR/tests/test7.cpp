@@ -79,8 +79,11 @@ int main()
 		std::cout << sinograms_sptr->norm() << '\n';
 		std::cout << randoms_sptr->norm() << '\n';
 		
-		converter.acquisition_sensitivity_from_attenuation(templ_sptr, mu_map_sptr, acq_sens_sptr);
-		std::cout << acq_sens_sptr->norm() << '\n';
+		std::shared_ptr<STIRAcquisitionData> acf_sptr; // attenuation correction factor
+		std::shared_ptr<STIRAcquisitionData> iacf_sptr; // the inverse of the above
+		PETAttenuationModel::compute_ac_factors(templ_sptr, mu_map_sptr, acf_sptr, iacf_sptr);
+		std::cout << acf_sptr->norm() << '\n';
+		std::cout << iacf_sptr->norm() << '\n';
 
 		std::cout << "done with test7.cpp...\n";
 		return 0;

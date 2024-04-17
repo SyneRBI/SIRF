@@ -547,6 +547,26 @@ The actual algorithm is described in
 		virtual void unnormalise(STIRAcquisitionData& ad) const;
 		// divide by bin efficiencies
 		virtual void normalise(STIRAcquisitionData& ad) const;
+		static void compute_ac_factors(
+			std::shared_ptr<STIRAcquisitionData> acq_templ_sptr,
+			std::shared_ptr<STIRImageData> mu_map_sptr,
+			std::shared_ptr<STIRAcquisitionData>& acf_sptr,
+			std::shared_ptr<STIRAcquisitionData>& iacf_sptr)
+		{
+			PETAcquisitionModelUsingRayTracingMatrix acq_mod;
+			acq_mod.set_up(acq_templ_sptr, mu_map_sptr);
+			std::shared_ptr<PETAttenuationModel>
+				asm_sptr(new PETAttenuationModel(*mu_map_sptr, acq_mod));
+			PETAttenuationModel& acq_sens_mod = *asm_sptr;
+			acq_sens_mod.set_up(acq_templ_sptr->get_exam_info_sptr(),
+				acq_templ_sptr->get_proj_data_info_sptr()->create_shared_clone());
+			acf_sptr = acq_templ_sptr->clone();
+			acf_sptr->fill(1.0);
+			iacf_sptr = acf_sptr->clone();
+			acq_sens_mod.unnormalise(*acf_sptr);
+			acq_sens_mod.normalise(*iacf_sptr);
+		}
+
 	protected:
 		stir::shared_ptr<stir::ForwardProjectorByBin> sptr_forw_projector_;
 	};
@@ -699,17 +719,17 @@ The actual algorithm is described in
 			std::shared_ptr<STIRAcquisitionData>& sinograms_sptr,
 			std::shared_ptr<STIRAcquisitionData>& randoms_sptr)
 		{
-			ListmodeToSinograms converter;
-			converter.set_input(lm_data);
-			converter.set_output("sinograms");
-			converter.set_template(acq_data_template);
-			converter.set_time_interval(start, stop);
-			converter.set_up();
-			converter.process_data();
-			sinograms_sptr = converter.get_output();
-			converter.estimate_randoms();
-			randoms_sptr = converter.get_randoms_sptr();
+			set_input(lm_data);
+			set_output("sinograms");
+			set_template(acq_data_template);
+			set_time_interval(start, stop);
+			set_up();
+			process_data();
+			sinograms_sptr = get_output();
+			estimate_randoms();
+			randoms_sptr = get_randoms_sptr();
 		}
+/*
 		void acquisition_sensitivity_from_attenuation(
 			std::shared_ptr<STIRAcquisitionData> acq_templ_sptr,
 			std::shared_ptr<STIRImageData> attn_image_sptr,
@@ -728,7 +748,7 @@ The actual algorithm is described in
 			acq_sens_sptr->fill(1.0);
 			acq_sens_mod.unnormalise(*acq_sens_sptr);
 		}
-
+*/
 	protected:
 		// variables for ML estimation of singles/randoms
 		int fan_size;
