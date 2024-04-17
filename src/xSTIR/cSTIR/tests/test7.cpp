@@ -59,6 +59,7 @@ int main()
 		std::string f_listmode = append_path(path, "list.l.hdr");
 		std::string f_template = append_path(path, "mMR_template_span11_small.hs");
 		std::string f_mu_map = append_path(path, "mu_map.hv");
+		std::string f_norm = append_path(path, "norm.n.hdr");
 		
 		STIRAcquisitionDataInMemory::set_as_template();
 
@@ -84,6 +85,22 @@ int main()
 		PETAttenuationModel::compute_ac_factors(templ_sptr, mu_map_sptr, acf_sptr, iacf_sptr);
 		std::cout << acf_sptr->norm() << '\n';
 		std::cout << iacf_sptr->norm() << '\n';
+
+		PETScatterEstimator se;
+		se.set_input_sptr(sinograms_sptr);
+		se.set_attenuation_image_sptr(mu_map_sptr);
+		se.set_background_sptr(randoms_sptr);
+		CREATE_OBJ(PETAcquisitionSensitivityModel, acq_sm, acq_sm_sptr, f_norm);
+		se.set_asm(acq_sm_sptr);
+		se.set_attenuation_correction_factors_sptr(iacf_sptr);
+		se.set_num_iterations(4);
+		std::cout << "number of scatter iterations that will be used: " << se.get_num_iterations() << '\n';
+		se.set_OSEM_num_subsets(7);
+		se.set_output_prefix("scatter");
+		se.set_up();
+		se.process();
+		std::shared_ptr<STIRAcquisitionData> scatter_estimate = se.get_output();
+		//scatter_estimate.write(scatter_file + '.hs');
 
 		std::cout << "done with test7.cpp...\n";
 		return 0;
