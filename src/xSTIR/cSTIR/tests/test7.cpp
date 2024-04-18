@@ -37,6 +37,7 @@ limitations under the License.
 #include "sirf/STIR/stir_x.h"
 #include "sirf/common/getenv.h"
 #include "sirf/common/iequals.h"
+#include "sirf/common/csirf.h"
 #include "sirf/common/utilities.h"
 
 #include "object.h"
@@ -47,6 +48,10 @@ using namespace sirf;
 
 int main()
 {
+	TextWriter w; // create writer with no output
+	TextWriterHandle h;
+	h.set_information_channel(&w); // suppress STIR info output
+
 	std::cout << "running test7.cpp...\n";
 	try {
 		std::string SIRF_data_path = examples_data_path("PET");
@@ -77,8 +82,8 @@ int main()
 		converter.sinograms_and_randoms_from_listmode
 			(lm_data, 0, 10, acq_data_template, sinograms_sptr, randoms_sptr);
 		
-		std::cout << sinograms_sptr->norm() << '\n';
-		std::cout << randoms_sptr->norm() << '\n';
+		std::cout << "===== sinograms norm: " << sinograms_sptr->norm() << '\n';
+		std::cout << "===== randoms norm: " << randoms_sptr->norm() << '\n';
 		
 		std::shared_ptr<STIRAcquisitionData> acf_sptr; // attenuation correction factor
 		std::shared_ptr<STIRAcquisitionData> iacf_sptr; // the inverse of the above
@@ -86,11 +91,12 @@ int main()
 		std::cout << acf_sptr->norm() << '\n';
 		std::cout << iacf_sptr->norm() << '\n';
 
+		CREATE_OBJ(PETAcquisitionSensitivityModel, acq_sm, acq_sm_sptr, f_norm);
+
 		PETScatterEstimator se;
 		se.set_input_sptr(sinograms_sptr);
 		se.set_attenuation_image_sptr(mu_map_sptr);
 		se.set_background_sptr(randoms_sptr);
-		CREATE_OBJ(PETAcquisitionSensitivityModel, acq_sm, acq_sm_sptr, f_norm);
 		se.set_asm(acq_sm_sptr);
 		se.set_attenuation_correction_factors_sptr(iacf_sptr);
 		se.set_num_iterations(4);
@@ -99,8 +105,28 @@ int main()
 		se.set_output_prefix("scatter");
 		se.set_up();
 		se.process();
-		std::shared_ptr<STIRAcquisitionData> scatter_estimate = se.get_output();
+		std::shared_ptr<STIRAcquisitionData> scatter_sptr = se.get_output();
 		//scatter_estimate.write(scatter_file + '.hs');
+		std::cout << "===== scatter estimate norm: " << scatter_sptr->norm() << '\n';
+
+		acq_sm.set_up(acf_sptr->get_exam_info_sptr(),
+			acf_sptr->get_proj_data_info_sptr()->create_shared_clone());
+		std::shared_ptr<STIRAcquisitionData> mf_sptr = acf_sptr->clone();
+		acq_sm.unnormalise(*mf_sptr);
+		std::cout << "===== multfactors norm: " << mf_sptr->norm() << '\n';
+
+		//shared_ptr<STIRAcquisitionData> background_sptr(randoms_sptr->new_acquisition_data());
+		//shared_ptr<STIRAcquisitionData> background_sptr(templ_sptr->new_acquisition_data());
+		shared_ptr<STIRAcquisitionData> background_sptr(scatter_sptr->new_acquisition_data());
+		float alpha = 1.0;
+		background_sptr->axpby(&alpha, *randoms_sptr, &alpha, *scatter_sptr);
+		std::cout << "===== background norm: " << background_sptr->norm() << '\n';
+
+		CREATE_OBJ(PETAcquisitionSensitivityModel, asm_, asm_sptr, *mf_sptr);
+		asm_.set_up(background_sptr->get_exam_info_sptr(),
+			background_sptr->get_proj_data_info_sptr()->create_shared_clone());
+		asm_.normalise(*background_sptr);
+		std::cout << "===== additive term norm: " << background_sptr->norm() << '\n';
 
 		std::cout << "done with test7.cpp...\n";
 		return 0;
