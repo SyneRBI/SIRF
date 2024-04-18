@@ -87,7 +87,7 @@ int main()
 		
 		std::shared_ptr<STIRAcquisitionData> acf_sptr; // attenuation correction factor
 		std::shared_ptr<STIRAcquisitionData> iacf_sptr; // the inverse of the above
-		PETAttenuationModel::compute_ac_factors(templ_sptr, mu_map_sptr, acf_sptr, iacf_sptr);
+		PETAttenuationModel::compute_ac_factors(sinograms_sptr, mu_map_sptr, acf_sptr, iacf_sptr);
 		std::cout << acf_sptr->norm() << '\n';
 		std::cout << iacf_sptr->norm() << '\n';
 
@@ -115,9 +115,7 @@ int main()
 		acq_sm.unnormalise(*mf_sptr);
 		std::cout << "===== multfactors norm: " << mf_sptr->norm() << '\n';
 
-		//shared_ptr<STIRAcquisitionData> background_sptr(randoms_sptr->new_acquisition_data());
-		//shared_ptr<STIRAcquisitionData> background_sptr(templ_sptr->new_acquisition_data());
-		shared_ptr<STIRAcquisitionData> background_sptr(scatter_sptr->new_acquisition_data());
+		shared_ptr<STIRAcquisitionData> background_sptr(randoms_sptr->new_acquisition_data());
 		float alpha = 1.0;
 		background_sptr->axpby(&alpha, *randoms_sptr, &alpha, *scatter_sptr);
 		std::cout << "===== background norm: " << background_sptr->norm() << '\n';
