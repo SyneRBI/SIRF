@@ -103,6 +103,11 @@ The actual algorithm is described in
 		void set_up(const stir::shared_ptr<const stir::ExamInfo>& exam_info_sptr,
 			const stir::shared_ptr<stir::ProjDataInfo>&);
 
+		void set_up(const STIRAcquisitionData& ad)
+		{
+			set_up(ad.get_exam_info_sptr(), ad.get_proj_data_info_sptr()->create_shared_clone());
+		}
+
 		// multiply by bin efficiencies
 		virtual void unnormalise(STIRAcquisitionData& ad) const;
 		// divide by bin efficiencies

@@ -109,8 +109,7 @@ int main()
 		//scatter_estimate.write(scatter_file + '.hs');
 		std::cout << "===== scatter estimate norm: " << scatter_sptr->norm() << '\n';
 
-		acq_sm.set_up(acf_sptr->get_exam_info_sptr(),
-			acf_sptr->get_proj_data_info_sptr()->create_shared_clone());
+		acq_sm.set_up(*acf_sptr);
 		std::shared_ptr<STIRAcquisitionData> mf_sptr = acf_sptr->clone();
 		acq_sm.unnormalise(*mf_sptr);
 		std::cout << "===== multfactors norm: " << mf_sptr->norm() << '\n';
@@ -121,8 +120,7 @@ int main()
 		std::cout << "===== background norm: " << background_sptr->norm() << '\n';
 
 		CREATE_OBJ(PETAcquisitionSensitivityModel, asm_, asm_sptr, *mf_sptr);
-		asm_.set_up(background_sptr->get_exam_info_sptr(),
-			background_sptr->get_proj_data_info_sptr()->create_shared_clone());
+		asm_.set_up(*background_sptr);
 		asm_.normalise(*background_sptr);
 		std::cout << "===== additive term norm: " << background_sptr->norm() << '\n';
 
