@@ -650,6 +650,22 @@ void* cSTIR_createPETAttenuationModel(const void* ptr_img, const void* ptr_am)
 }
 
 extern "C"
+void* cSTIR_computeACF(const void* ptr_sino, const void* ptr_mumap, void* ptr_acf, void* ptr_iacf)
+{
+	try {
+		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_sino, ptr_sino);
+		SPTR_FROM_HANDLE(STIRImageData, sptr_mumap, ptr_mumap);
+		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_acf, ptr_acf);
+		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_iacf, ptr_iacf);
+		PETAttenuationModel::compute_ac_factors(sptr_sino, sptr_mumap, sptr_acf, sptr_iacf);
+		HANDLE_FROM_SPTR(STIRAcquisitionData, sptr_acf, ptr_acf);
+		HANDLE_FROM_SPTR(STIRAcquisitionData, sptr_iacf, ptr_iacf);
+		return (void*) new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
 void* cSTIR_chainPETAcquisitionSensitivityModels
 (const void* ptr_first, const void* ptr_second)
 {
