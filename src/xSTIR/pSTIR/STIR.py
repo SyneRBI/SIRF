@@ -1737,8 +1737,8 @@ class AcquisitionSensitivityModel(object):
 
     @staticmethod
     def compute_attenuation_correction_factors(sinograms, mu_map):
-        ''''Returns attenuation correction factor and its inverse
-        ''''
+        '''Returns attenuation correction factor and its inverse
+        '''
         acf = AcquisitionData(sinograms)
         iacf = AcquisitionData(sinograms)
         try_calling(pystir.cSTIR_computeACF(sinograms.handle, mu_map.handle, acf.handle, iacf.handle))
