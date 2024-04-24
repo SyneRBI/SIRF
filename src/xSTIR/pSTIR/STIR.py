@@ -1599,6 +1599,18 @@ class ListmodeToSinograms(object):
         pyiutil.deleteDataHandle(h)
         return v
 
+    def sinograms_and_randoms_from_listmode(self, lm_data, start, stop, templ):
+        '''Returns sinograms and randoms computed from listmode raw data
+
+        '''
+        assert_validity(lm_data, ListmodeData)
+        assert_validity(templ, AcquisitionData)
+        sino = AcquisitionData(templ)
+        rand = AcquisitionData(templ)
+        try_calling(pystir.cSTIR_sinogramsAndRandomsFromListmode(self.handle, lm_data.handle, \
+            start, stop, templ.handle, sino.handle, rand.handle))
+        return sino, rand
+
 
 class AcquisitionSensitivityModel(object):
     """

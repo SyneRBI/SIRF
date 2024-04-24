@@ -77,6 +77,15 @@ def main():
 
     # create listmode-to-sinograms converter object
     lm2sino = pet.ListmodeToSinograms()
+    lm_data = pet.ListmodeData(list_file)
+    sino = pet.AcquisitionData(acq_data_template)
+    rand = pet.AcquisitionData(acq_data_template)
+    sino, rand = lm2sino.sinograms_and_randoms_from_listmode(lm_data, 0, 10, acq_data_template)
+    print(sino.shape)
+    print(sino.norm())
+    print(rand.shape)
+    print(rand.norm())
+    return
 
     # set input, output and template files
     lm2sino.set_input(list_file)

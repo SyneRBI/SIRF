@@ -39,6 +39,8 @@ using namespace sirf;
 #define NEW_OBJECT_HANDLE(T) new ObjectHandle<T >(std::shared_ptr<T >(new T))
 #define SPTR_FROM_HANDLE(Object, X, H) \
   std::shared_ptr<Object> X; getObjectSptrFromHandle<Object>(H, X);
+#define HANDLE_FROM_SPTR(Object, X, H) \
+  setHandleObjectSptr<Object>(H, X);
 
 static void*
 unknownObject(const char* obj, const char* name, const char* file, int line)
@@ -474,6 +476,25 @@ void* cSTIR_convertListmodeToSinograms(void* ptr)
 		ListmodeToSinograms& lm2s = objectFromHandle<ListmodeToSinograms>(ptr);
 		lm2s.process_data();
 		return newObjectHandle(lm2s.get_output());
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_sinogramsAndRandomsFromListmode(void* ptr_lm2s, void* ptr_lmdata,
+	const float start, const float stop,
+	void* ptr_templ, void* ptr_sino, void* ptr_rand)
+{
+	try {
+		ListmodeToSinograms& lm2s = objectFromHandle<ListmodeToSinograms>(ptr_lm2s);
+		STIRListmodeData& lm_data = objectFromHandle<STIRListmodeData>(ptr_lmdata);
+		STIRAcquisitionData& templ = objectFromHandle<STIRAcquisitionData>(ptr_templ);
+		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_sino, ptr_sino);
+		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_rand, ptr_rand);
+		lm2s.sinograms_and_randoms_from_listmode(lm_data, start, stop, templ, sptr_sino, sptr_rand);
+		HANDLE_FROM_SPTR(STIRAcquisitionData, sptr_sino, ptr_sino);
+		HANDLE_FROM_SPTR(STIRAcquisitionData, sptr_rand, ptr_rand);
+		return new DataHandle;
 	}
 	CATCH;
 }

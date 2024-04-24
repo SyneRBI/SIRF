@@ -63,6 +63,9 @@ extern "C" {
 		(void* ptr_lm2s, const char* flag, int v);
 	void* cSTIR_setupListmodeToSinogramsConverter(void* ptr);
 	void* cSTIR_convertListmodeToSinograms(void* ptr);
+	void* cSTIR_sinogramsAndRandomsFromListmode(void* ptr_lm2s, void* ptr_lmdata,
+		const float start, const float stop,
+		void* ptr_templ, void* ptr_sino, void* ptr_rand);
 	void* cSTIR_computeRandoms(void* ptr);
     void* cSTIR_lm_num_prompts_exceeds_threshold(void* ptr, const float threshold);
 
