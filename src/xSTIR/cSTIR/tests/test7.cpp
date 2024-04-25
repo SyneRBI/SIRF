@@ -1,7 +1,7 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2018 - 2020 Rutherford Appleton Laboratory STFC
-Copyright 2018 - 2020 University College London
+Copyright 2020 - 2024 Rutherford Appleton Laboratory STFC
+Copyright 2020 - 2024 University College London
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -23,10 +23,11 @@ limitations under the License.
 \file
 \ingroup PET
 
+\author Kris Thielemans
 \author Evgueni Ovtchinnikov
-\author Richard Brown
 \author SyneRBI
 */
+
 #include <iostream>
 #include <cstdlib>
 

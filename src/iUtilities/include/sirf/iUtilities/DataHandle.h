@@ -282,7 +282,8 @@ getObjectSptrFromHandle(const void* h, std::shared_ptr<Object>& sptr) {
 template<class Object>
 void
 setHandleObjectSptr(void* h, std::shared_ptr<Object>& sptr) {
-	ObjectHandle<Object>* handle = (ObjectHandle<Object>*)h;
+	auto handle = reinterpret_cast<ObjectHandle<Object>*>(h);
+	//ObjectHandle<Object>* handle = (ObjectHandle<Object>*)h;
 #if defined(USE_BOOST)
 	if (handle->uses_boost_sptr())
 		THROW("cannot cast boost::shared_ptr to std::shared_ptr");
