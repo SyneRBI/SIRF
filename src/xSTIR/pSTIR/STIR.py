@@ -1739,10 +1739,12 @@ class AcquisitionSensitivityModel(object):
     def compute_attenuation_correction_factors(sinograms, mu_map):
         '''Returns attenuation correction factor and its inverse
         '''
+        asm = AcquisitionModelUsingRayTracingMatrix()
+        attn = AcquisitionSensitivityModel(mu_map, asm)
         acf = AcquisitionData(sinograms)
         iacf = AcquisitionData(sinograms)
-        try_calling(pystir.cSTIR_computeACF(sinograms.handle, mu_map.handle, acf.handle, iacf.handle))
-        return acf, iacf
+        try_calling(pystir.cSTIR_computeACF(sinograms.handle, mu_map.handle, attn.handle, acf.handle, iacf.handle))
+        return attn, acf, iacf
 
     def __del__(self):
         """del."""

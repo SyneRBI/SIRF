@@ -85,9 +85,10 @@ int main()
 		std::cout << "===== sinograms norm: " << sinograms_sptr->norm() << '\n';
 		std::cout << "===== randoms norm: " << randoms_sptr->norm() << '\n';
 		
+		std::shared_ptr<PETAttenuationModel> att_sptr;
 		std::shared_ptr<STIRAcquisitionData> acf_sptr; // attenuation correction factor
 		std::shared_ptr<STIRAcquisitionData> iacf_sptr; // the inverse of the above
-		PETAttenuationModel::compute_ac_factors(sinograms_sptr, mu_map_sptr, acf_sptr, iacf_sptr);
+		PETAttenuationModel::compute_ac_factors(sinograms_sptr, mu_map_sptr, att_sptr, acf_sptr, iacf_sptr);
 		std::cout << acf_sptr->norm() << '\n';
 		std::cout << iacf_sptr->norm() << '\n';
 
