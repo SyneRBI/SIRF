@@ -1599,16 +1599,16 @@ class ListmodeToSinograms(object):
         pyiutil.deleteDataHandle(h)
         return v
 
-    def prompts_and_randoms_from_listmode(self, lm_data, start, stop, templ):
-        """Returns sinograms and randoms' estimates computed from listmode raw data
+    def prompts_and_randoms_from_listmode(self, lm_data, start, stop, templ, prefix="prompts"):
+        """Returns proampts and randoms' estimates computed from listmode raw data
 
         """
         assert_validity(lm_data, ListmodeData)
         assert_validity(templ, AcquisitionData)
         sino = AcquisitionData(templ)
         rand = AcquisitionData(templ)
-        try_calling(pystir.cSTIR_sinogramsAndRandomsFromListmode(self.handle, lm_data.handle, \
-            start, stop, templ.handle, sino.handle, rand.handle))
+        try_calling(pystir.cSTIR_promptsAndRandomsFromListmode(self.handle, lm_data.handle, \
+            start, stop, templ.handle, sino.handle, rand.handle, prefix))
         return sino, rand
 
 
