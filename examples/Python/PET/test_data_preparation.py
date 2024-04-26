@@ -1,8 +1,5 @@
-import numpy
 import os
-import sirf
-from sirf.Utilities import error, examples_data_path, existing_filepath
-from sirf.Utilities import show_2D_array
+from sirf.Utilities import examples_data_path, existing_filepath
 
 import importlib
 pet = importlib.import_module('sirf.STIR')
@@ -32,15 +29,15 @@ listmode_data = pet.ListmodeData(f_listmode)
 # create listmode-to-sinograms converter object
 lm2sino = pet.ListmodeToSinograms()
 lm_data = pet.ListmodeData(f_listmode)
-sino, rand = lm2sino.sinograms_and_randoms_from_listmode(lm_data, 0, 10, acq_data_template)
-print('data shape: %s' % repr(sino.shape))
-print('sinograms norm: %f' % sino.norm())
-print('randoms norm: %f' % rand.norm())
-#sino.write(os.path.join(save_path, 'sinograms.hs'))
-#rand.write(os.path.join(save_path, 'randoms.hs'))
+prompts, randoms = lm2sino.prompts_and_randoms_from_listmode(lm_data, 0, 10, acq_data_template)
+print('data shape: %s' % repr(prompts.shape))
+print('prompts norm: %f' % prompts.norm())
+print('randoms norm: %f' % randoms.norm())
+#prompts.write(os.path.join(save_path, 'prompts.hs'))
+#randoms.write(os.path.join(save_path, 'randoms.hs'))
 
 attn_image = pet.ImageData(f_attn)
-attn, acf, iacf = pet.AcquisitionSensitivityModel.compute_attenuation_correction_factors(sino, attn_image)
+attn, acf, iacf = pet.AcquisitionSensitivityModel.compute_attenuation_correction_factors(prompts, attn_image)
 print('norm of the attenuation correction factor: %f' % acf.norm())
 print('norm of the inverse of the attenuation correction factor: %f' % iacf.norm())
 #acf.write(os.path.join(save_path, 'acf.hs'))
@@ -49,9 +46,9 @@ print('norm of the inverse of the attenuation correction factor: %f' % iacf.norm
 
 asm = pet.AcquisitionSensitivityModel(f_norm)
 se = pet.ScatterEstimator()
-se.set_input(sino)
+se.set_input(prompts)
 se.set_attenuation_image(attn_image)
-se.set_randoms(rand)
+se.set_randoms(randoms)
 se.set_asm(asm)
 se.set_attenuation_correction_factors(iacf)
 se.set_num_iterations(4)
@@ -67,7 +64,7 @@ asm.set_up(acf)
 asm.unnormalise(multfact)
 print(multfact.norm())
 
-background = rand + scatter
+background = randoms + scatter
 print('norm of the backgrount term: %f' % background.norm())
 
 asm_mf = pet.AcquisitionSensitivityModel(multfact)

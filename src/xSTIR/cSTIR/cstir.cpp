@@ -491,7 +491,7 @@ void* cSTIR_sinogramsAndRandomsFromListmode(void* ptr_lm2s, void* ptr_lmdata,
 		STIRAcquisitionData& templ = objectFromHandle<STIRAcquisitionData>(ptr_templ);
 		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_sino, ptr_sino);
 		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_rand, ptr_rand);
-		lm2s.sinograms_and_randoms_from_listmode(lm_data, start, stop, templ, sptr_sino, sptr_rand);
+		lm2s.prompts_and_randoms_from_listmode(lm_data, start, stop, templ, sptr_sino, sptr_rand);
 		HANDLE_FROM_SPTR(STIRAcquisitionData, sptr_sino, ptr_sino);
 		HANDLE_FROM_SPTR(STIRAcquisitionData, sptr_rand, ptr_rand);
 		return new DataHandle;

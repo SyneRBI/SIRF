@@ -1599,10 +1599,10 @@ class ListmodeToSinograms(object):
         pyiutil.deleteDataHandle(h)
         return v
 
-    def sinograms_and_randoms_from_listmode(self, lm_data, start, stop, templ):
-        '''Returns sinograms and randoms computed from listmode raw data
+    def prompts_and_randoms_from_listmode(self, lm_data, start, stop, templ):
+        """Returns sinograms and randoms' estimates computed from listmode raw data
 
-        '''
+        """
         assert_validity(lm_data, ListmodeData)
         assert_validity(templ, AcquisitionData)
         sino = AcquisitionData(templ)

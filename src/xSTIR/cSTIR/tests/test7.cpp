@@ -80,7 +80,7 @@ int main()
 
 		std::shared_ptr<STIRAcquisitionData> sinograms_sptr;
 		std::shared_ptr<STIRAcquisitionData> randoms_sptr;
-		converter.sinograms_and_randoms_from_listmode
+		converter.prompts_and_randoms_from_listmode
 			(lm_data, 0, 10, acq_data_template, sinograms_sptr, randoms_sptr);
 		
 		std::cout << "===== sinograms norm: " << sinograms_sptr->norm() << '\n';
