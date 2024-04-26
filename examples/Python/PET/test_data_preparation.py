@@ -1,5 +1,5 @@
 import os
-from sirf.Utilities import examples_data_path, existing_filepath
+from sirf.Utilities import examples_data_path
 
 import importlib
 pet = importlib.import_module('sirf.STIR')
