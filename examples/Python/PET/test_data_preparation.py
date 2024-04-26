@@ -37,7 +37,7 @@ print('randoms norm: %f' % randoms.norm())
 #randoms.write(os.path.join(save_path, 'randoms.hs'))
 
 attn_image = pet.ImageData(f_attn)
-attn, acf, iacf = pet.AcquisitionSensitivityModel.compute_attenuation_correction_factors(prompts, attn_image)
+attn, acf, iacf = pet.AcquisitionSensitivityModel.compute_attenuation_factors(prompts, attn_image)
 print('norm of the attenuation correction factor: %f' % acf.norm())
 print('norm of the inverse of the attenuation correction factor: %f' % iacf.norm())
 #acf.write(os.path.join(save_path, 'acf.hs'))
