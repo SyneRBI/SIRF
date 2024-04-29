@@ -2307,7 +2307,7 @@ class Prior(object):
         """Returns the value of the prior (alias of get_value())."""
         return self.get_value(image)
 
-    def get_gradient(self, image):
+    def get_gradient(self, image, out=None):
         """Returns gradient of the prior.
 
         Returns the value of the gradient of the prior for the specified image.
@@ -2317,12 +2317,14 @@ class Prior(object):
         grad = ImageData()
         grad.handle = pystir.cSTIR_priorGradient(self.handle, image.handle)
         check_status(grad.handle)
+        if out is not None:
+            out.fill(grad)
         return grad
 
-    def gradient(self, image):
+    def gradient(self, image, out=None):
         """Returns the gradient of the prior (alias of get_gradient())."""
 
-        return self.get_gradient(image)
+        return self.get_gradient(image, out)
 
     def set_up(self, image):
         """Sets up."""
@@ -2566,11 +2568,13 @@ class PLSPrior(Prior):
         check_status(image.handle)
         return image
 
-    def get_anatomical_grad(self, direction):
+    def get_anatomical_grad(self, direction, out=None):
         """Returns anatomical gradient."""
         image = ImageData()
         image.handle = pystir.cSTIR_PLSPriorGradient(self.handle, direction)
         check_status(image.handle)
+        if out is not None:
+            out.fill(image)
         return image
 
     def set_anatomical_filename(self, filename):
@@ -2686,7 +2690,7 @@ class ObjectiveFunction(object):
         """
         return self.value(image)
 
-    def gradient(self, image, subset=-1):
+    def gradient(self, image, subset=-1, out=None):
         """Returns the value of the additive component of the gradient
 
         of this objective function on the specified image corresponding to the
@@ -2701,16 +2705,18 @@ class ObjectiveFunction(object):
         grad.handle = pystir.cSTIR_objectiveFunctionGradient(
             self.handle, image.handle, subset)
         check_status(grad.handle)
+        if out is not None:
+            out.fill(grad)
         return grad
 
-    def get_gradient(self, image):
+    def get_gradient(self, image, out=None):
         """Returns the gradient of the objective function on specified image.
 
         image: ImageData object
         """
-        return self.gradient(image)
+        return self.gradient(image, out)
 
-    def get_subset_gradient(self, image, subset):
+    def get_subset_gradient(self, image, subset, out=None):
         """Returns the value of the additive component of the gradient
 
         of this objective function on <image> corresponding to the specified
@@ -2718,7 +2724,7 @@ class ObjectiveFunction(object):
         image: ImageData object
         subset: Python integer scalar
         """
-        return self.gradient(image, subset)
+        return self.gradient(image, subset, out)
 
     @abc.abstractmethod
     def get_subset_sensitivity(self, subset):
@@ -2767,7 +2773,7 @@ class PoissonLogLikelihoodWithLinearModelForMean(ObjectiveFunction):
         check_status(ss.handle)
         return ss
 
-    def get_backprojection_of_acquisition_ratio(self, image, subset):
+    def get_backprojection_of_acquisition_ratio(self, image, subset, out=None):
         """Returns backprojection of measured to estimated acquisition ratio.
 
         Returns the back-projection of the ratio of the measured and estimated
@@ -2778,6 +2784,8 @@ class PoissonLogLikelihoodWithLinearModelForMean(ObjectiveFunction):
         grad.handle = pystir.cSTIR_objectiveFunctionGradientNotDivided(
             self.handle, image.handle, subset)
         check_status(grad.handle)
+        if out is not None:
+            out.fill(grad)
         return grad
 
 
