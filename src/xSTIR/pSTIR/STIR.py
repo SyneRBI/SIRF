@@ -2314,11 +2314,12 @@ class Prior(object):
         image: ImageData object
         """
         assert_validity(image, ImageData)
-        grad = ImageData()
+        if out is None:
+            grad = ImageData()
+        else:
+            grad = out
         grad.handle = pystir.cSTIR_priorGradient(self.handle, image.handle)
         check_status(grad.handle)
-        if out is not None:
-            out.fill(grad)
         return grad
 
     def gradient(self, image, out=None):
@@ -2570,11 +2571,12 @@ class PLSPrior(Prior):
 
     def get_anatomical_grad(self, direction, out=None):
         """Returns anatomical gradient."""
-        image = ImageData()
+        if out is None:
+            image = ImageData()
+        else:
+            image = out
         image.handle = pystir.cSTIR_PLSPriorGradient(self.handle, direction)
         check_status(image.handle)
-        if out is not None:
-            out.fill(image)
         return image
 
     def set_anatomical_filename(self, filename):
@@ -2701,12 +2703,13 @@ class ObjectiveFunction(object):
         subset: Python integer scalar
         """
         assert_validity(image, ImageData)
-        grad = ImageData()
+        if out is None:
+            grad = ImageData()
+        else:
+            grad = out
         grad.handle = pystir.cSTIR_objectiveFunctionGradient(
             self.handle, image.handle, subset)
         check_status(grad.handle)
-        if out is not None:
-            out.fill(grad)
         return grad
 
     def get_gradient(self, image, out=None):
@@ -2714,7 +2717,7 @@ class ObjectiveFunction(object):
 
         image: ImageData object
         """
-        return self.gradient(image, out)
+        return self.gradient(image, -1, out)
 
     def get_subset_gradient(self, image, subset, out=None):
         """Returns the value of the additive component of the gradient
@@ -2780,12 +2783,13 @@ class PoissonLogLikelihoodWithLinearModelForMean(ObjectiveFunction):
         acquisition data.
         """
         assert_validity(image, ImageData)
-        grad = ImageData()
+        if out is None:
+            grad = ImageData()
+        else:
+            grad = out
         grad.handle = pystir.cSTIR_objectiveFunctionGradientNotDivided(
             self.handle, image.handle, subset)
         check_status(grad.handle)
-        if out is not None:
-            out.fill(grad)
         return grad
 
 
