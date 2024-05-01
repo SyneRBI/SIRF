@@ -143,17 +143,22 @@ extern "C" {
 
 	// Objective function methods
 	void* cSTIR_setupObjectiveFunction(void* ptr_r, void* ptr_i);
-	void*	cSTIR_subsetSensitivity(void* ptr_f, int subset);
+	void* cSTIR_subsetSensitivity(void* ptr_f, int subset);
 	void* cSTIR_objectiveFunctionValue(void* ptr_f, void* ptr_i);
 	void* cSTIR_objectiveFunctionGradient
 		(void* ptr_f, void* ptr_i, int subset);
+    void* cSTIR_computeObjectiveFunctionGradient
+        (void* ptr_f, void* ptr_i, int subset, void* ptr_g);
 	void* cSTIR_objectiveFunctionGradientNotDivided
 		(void* ptr_f, void* ptr_i, int subset);
+    void* cSTIR_computeObjectiveFunctionGradientNotDivided
+        (void* ptr_f, void* ptr_i, int subset, void* ptr_g);
 
 	// Prior methods
 	void* cSTIR_setupPrior(void* ptr_p, void* ptr_i);
 	void* cSTIR_priorValue(void* ptr_p, void* ptr_i);
 	void* cSTIR_priorGradient(void* ptr_p, void* ptr_i);
+    void* cSTIR_computePriorGradient(void* ptr_p, void* ptr_i, void* ptr_g);
 	void* cSTIR_PLSPriorGradient(void* ptr_p, int dir);
 
 	// Image methods

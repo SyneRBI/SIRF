@@ -33,7 +33,7 @@ from numbers import Integral, Number
 from deprecation import deprecated
 
 from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
-     try_calling, assert_validity, \
+     try_calling, assert_validity, assert_validities, \
      cpp_int_dtype, cpp_int_array, \
      examples_data_path, existing_filepath, pTest
 from sirf import SIRF
@@ -2315,12 +2315,14 @@ class Prior(object):
         """
         assert_validity(image, ImageData)
         if out is None:
-            grad = ImageData()
+            out = ImageData()
+        if out.handle is None:
+            out.handle = pystir.cSTIR_priorGradient(self.handle, image.handle)
         else:
-            grad = out
-        grad.handle = pystir.cSTIR_priorGradient(self.handle, image.handle)
-        check_status(grad.handle)
-        return grad
+            assert_validities(image, out)
+            pystir.cSTIR_computePriorGradient(self.handle, image.handle, out.handle)
+        check_status(out.handle)
+        return out
 
     def gradient(self, image, out=None):
         """Returns the gradient of the prior (alias of get_gradient())."""
@@ -2704,13 +2706,14 @@ class ObjectiveFunction(object):
         """
         assert_validity(image, ImageData)
         if out is None:
-            grad = ImageData()
+            out = ImageData()
+        if out.handle is None:
+            out.handle = pystir.cSTIR_objectiveFunctionGradient(self.handle, image.handle, subset)
         else:
-            grad = out
-        grad.handle = pystir.cSTIR_objectiveFunctionGradient(
-            self.handle, image.handle, subset)
-        check_status(grad.handle)
-        return grad
+            assert_validities(image, out)
+            pystir.cSTIR_computeObjectiveFunctionGradient(self.handle, image.handle, subset, out.handle)
+        check_status(out.handle)
+        return out
 
     def get_gradient(self, image, out=None):
         """Returns the gradient of the objective function on specified image.
@@ -2784,13 +2787,16 @@ class PoissonLogLikelihoodWithLinearModelForMean(ObjectiveFunction):
         """
         assert_validity(image, ImageData)
         if out is None:
-            grad = ImageData()
+            out = ImageData()
+        if out.handle is None:
+            out.handle = pystir.cSTIR_objectiveFunctionGradientNotDivided(
+                self.handle, image.handle, subset)
         else:
-            grad = out
-        grad.handle = pystir.cSTIR_objectiveFunctionGradientNotDivided(
-            self.handle, image.handle, subset)
-        check_status(grad.handle)
-        return grad
+            assert_validities(image, out)
+            pystir.cSTIR_computeObjectiveFunctionGradientNotDivided(
+                self.handle, image.handle, subset, out.handle)
+        check_status(out.handle)
+        return out
 
 
 class PoissonLogLikelihoodWithLinearModelForMeanAndProjData(
