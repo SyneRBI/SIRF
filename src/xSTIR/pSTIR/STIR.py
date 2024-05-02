@@ -2328,6 +2328,12 @@ class Prior(object):
         """Sets up."""
         try_calling(pystir.cSTIR_setupPrior(self.handle, image.handle))
 
+    def accumulate_Hessian_times_input(output, current_estimate, input_):
+        """Computes the multiplication of the Hessian with a vector and adds it to output.
+        """
+        try_calling(pystir.cSTIR_priorAccumulateHessianTimesInput
+            (output.handle, current_estimate.handle, input_.handle))
+
 
 class QuadraticPrior(Prior):
     r"""Class for the prior that is a quadratic function of the image values.

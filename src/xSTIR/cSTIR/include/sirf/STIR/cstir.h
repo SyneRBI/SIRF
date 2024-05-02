@@ -154,6 +154,8 @@ extern "C" {
 	void* cSTIR_setupPrior(void* ptr_p, void* ptr_i);
 	void* cSTIR_priorValue(void* ptr_p, void* ptr_i);
 	void* cSTIR_priorGradient(void* ptr_p, void* ptr_i);
+    void* cSTIR_priorAccumulateHessianTimesInput
+        (void* ptr_prior, void* ptr_out, void* ptr_curr, void* ptr_inp);
 	void* cSTIR_PLSPriorGradient(void* ptr_p, int dir);
 
 	// Image methods

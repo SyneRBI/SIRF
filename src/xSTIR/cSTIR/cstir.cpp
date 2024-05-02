@@ -1243,13 +1243,31 @@ void*
 cSTIR_priorGradient(void* ptr_p, void* ptr_i)
 {
 	try {
-		Prior3DF& prior = objectFromHandle<Prior3DF>(ptr_p);
+		Prior3DF& prior = objectFromHandle<stir::GeneralisedPrior <Image3DF> >(ptr_p);
 		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_i);
 		Image3DF& image = id.data();
 		shared_ptr<STIRImageData> sptr(new STIRImageData(image));
 		Image3DF& grad = sptr->data();
 		prior.compute_gradient(grad, image);
 		return newObjectHandle(sptr);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSTIR_priorAccumulateHessianTimesInput(void* ptr_prior, void* ptr_out, void* ptr_cur, void* ptr_inp)
+{
+	try {
+		Prior3DF& prior = objectFromHandle<stir::GeneralisedPrior <Image3DF> >(ptr_prior);
+		STIRImageData& out = objectFromHandle<STIRImageData>(ptr_out);
+		STIRImageData& cur = objectFromHandle<STIRImageData>(ptr_cur);
+		STIRImageData& inp = objectFromHandle<STIRImageData>(ptr_inp);
+		Image3DF& output  = out.data();
+		Image3DF& current = cur.data();
+		Image3DF& input   = inp.data();
+		prior.accumulate_Hessian_times_input(output, current, input);
+		return (void*) new DataHandle;
 	}
 	CATCH;
 }
