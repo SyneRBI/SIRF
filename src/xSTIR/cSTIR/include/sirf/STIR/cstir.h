@@ -158,8 +158,8 @@ extern "C" {
 	void* cSTIR_setupPrior(void* ptr_p, void* ptr_i);
 	void* cSTIR_priorValue(void* ptr_p, void* ptr_i);
 	void* cSTIR_priorGradient(void* ptr_p, void* ptr_i);
-    void* cSTIR_computePriorGradient(void* ptr_p, void* ptr_i, void* ptr_g);
-	void* cSTIR_PLSPriorGradient(void* ptr_p, int dir);
+	void* cSTIR_computePriorGradient(void* ptr_p, void* ptr_i, void* ptr_g);
+	void* cSTIR_PLSPriorAnatomicalGradient(void* ptr_p, int dir);
 
 	// Image methods
 	void* cSTIR_getImageDimensions(const void* ptr, PTR_INT ptr_data);

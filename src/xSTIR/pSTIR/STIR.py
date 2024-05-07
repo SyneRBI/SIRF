@@ -2307,7 +2307,7 @@ class Prior(object):
         """Returns the value of the prior (alias of get_value())."""
         return self.get_value(image)
 
-    def get_gradient(self, image, out=None):
+    def get_gradient(self, image, out=None, **kwargs):
         """Returns gradient of the prior.
 
         Returns the value of the gradient of the prior for the specified image.
@@ -2324,7 +2324,7 @@ class Prior(object):
         check_status(out.handle)
         return out
 
-    def gradient(self, image, out=None):
+    def gradient(self, image, out=None, **kwargs):
         """Returns the gradient of the prior (alias of get_gradient())."""
 
         return self.get_gradient(image, out)
@@ -2577,7 +2577,7 @@ class PLSPrior(Prior):
             image = ImageData()
         else:
             image = out
-        image.handle = pystir.cSTIR_PLSPriorGradient(self.handle, direction)
+        image.handle = pystir.cSTIR_PLSPriorAnatomicalGradient(self.handle, direction)
         check_status(image.handle)
         return image
 

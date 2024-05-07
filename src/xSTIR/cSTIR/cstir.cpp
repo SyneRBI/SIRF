@@ -1317,12 +1317,12 @@ cSTIR_computePriorGradient(void* ptr_p, void* ptr_i, void* ptr_g)
 
 extern "C"
 void*
-cSTIR_PLSPriorGradient(void* ptr_p, int dir)
+cSTIR_PLSPriorAnatomicalGradient(void* ptr_p, int dir)
 {
 	try {
 		PLSPrior<float>& prior = objectFromHandle<PLSPrior<float> >(ptr_p);
 		auto sptr_im = prior.get_anatomical_grad_sptr(dir);
-        auto sptr_id = std::make_shared<STIRImageData>(*sptr_im);
+		auto sptr_id = std::make_shared<STIRImageData>(*sptr_im);
 		return newObjectHandle(sptr_id);
 	}
 	CATCH;
