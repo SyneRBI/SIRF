@@ -1188,6 +1188,33 @@ cSTIR_objectiveFunctionGradient(void* ptr_f, void* ptr_i, int subset)
 
 extern "C"
 void*
+cSTIR_computeObjectiveFunctionGradient(void* ptr_f, void* ptr_i, int subset, void* ptr_g)
+{
+	try {
+		ObjectiveFunction3DF& fun = objectFromHandle< ObjectiveFunction3DF>(ptr_f);
+		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_i);
+		STIRImageData& gd = objectFromHandle<STIRImageData>(ptr_g);
+		Image3DF& image = id.data();
+		Image3DF& grad = gd.data();
+		if (subset >= 0)
+			fun.compute_sub_gradient(grad, image, subset);
+		else {
+			int nsub = fun.get_num_subsets();
+			grad.fill(0.0);
+			shared_ptr<STIRImageData> sptr_sub(new STIRImageData(image));
+			Image3DF& subgrad = sptr_sub->data();
+			for (int sub = 0; sub < nsub; sub++) {
+				fun.compute_sub_gradient(subgrad, image, sub);
+				grad += subgrad;
+			}
+		}
+		return (void*) new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cSTIR_objectiveFunctionGradientNotDivided(void* ptr_f, void* ptr_i, int subset)
 {
 	try {
@@ -1200,6 +1227,24 @@ cSTIR_objectiveFunctionGradientNotDivided(void* ptr_f, void* ptr_i, int subset)
 		fun.compute_sub_gradient_without_penalty_plus_sensitivity
 			(grad, image, subset);
 		return newObjectHandle(sptr);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSTIR_computeObjectiveFunctionGradientNotDivided(void* ptr_f, void* ptr_i, int subset, void* ptr_g)
+{
+	try {
+		PoissonLogLhLinModMean3DF& fun =
+			objectFromHandle<PoissonLogLhLinModMean3DF>(ptr_f);
+		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_i);
+		STIRImageData& gd = objectFromHandle<STIRImageData>(ptr_g);
+		Image3DF& image = id.data();
+		Image3DF& grad = gd.data();
+		fun.compute_sub_gradient_without_penalty_plus_sensitivity
+			(grad, image, subset);
+		return (void*) new DataHandle;
 	}
 	CATCH;
 }
@@ -1256,12 +1301,28 @@ cSTIR_priorGradient(void* ptr_p, void* ptr_i)
 
 extern "C"
 void*
-cSTIR_PLSPriorGradient(void* ptr_p, int dir)
+cSTIR_computePriorGradient(void* ptr_p, void* ptr_i, void* ptr_g)
+{
+	try {
+		Prior3DF& prior = objectFromHandle<Prior3DF>(ptr_p);
+		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_i);
+		STIRImageData& gd = objectFromHandle<STIRImageData>(ptr_g);
+		Image3DF& image = id.data();
+		Image3DF& grad = gd.data();
+		prior.compute_gradient(grad, image);
+		return (void*) new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSTIR_PLSPriorAnatomicalGradient(void* ptr_p, int dir)
 {
 	try {
 		PLSPrior<float>& prior = objectFromHandle<PLSPrior<float> >(ptr_p);
 		auto sptr_im = prior.get_anatomical_grad_sptr(dir);
-        auto sptr_id = std::make_shared<STIRImageData>(*sptr_im);
+		auto sptr_id = std::make_shared<STIRImageData>(*sptr_im);
 		return newObjectHandle(sptr_id);
 	}
 	CATCH;
