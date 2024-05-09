@@ -2741,6 +2741,15 @@ class ObjectiveFunction(object):
         """
         return self.gradient(image, subset, out)
 
+    def accumulate_Hessian_times_input(self, current_estimate, input_, subset=-1, out=None):
+        """Computes the multiplication of the Hessian with a vector and adds it to output.
+        """
+        if out is None or out.handle is None:
+            out = input_.clone()
+        try_calling(pystir.cSTIR_objectiveFunctionAccumulateHessianTimesInput
+            (self.handle, current_estimate.handle, input_.handle, subset, out.handle))
+        return out
+
     @abc.abstractmethod
     def get_subset_sensitivity(self, subset):
         #print('in base class ObjectiveFunction')
