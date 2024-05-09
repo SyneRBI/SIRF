@@ -143,12 +143,18 @@ extern "C" {
 
 	// Objective function methods
 	void* cSTIR_setupObjectiveFunction(void* ptr_r, void* ptr_i);
-	void*	cSTIR_subsetSensitivity(void* ptr_f, int subset);
+	void* cSTIR_subsetSensitivity(void* ptr_f, int subset);
 	void* cSTIR_objectiveFunctionValue(void* ptr_f, void* ptr_i);
 	void* cSTIR_objectiveFunctionGradient
 		(void* ptr_f, void* ptr_i, int subset);
+    void* cSTIR_computeObjectiveFunctionGradient
+        (void* ptr_f, void* ptr_i, int subset, void* ptr_g);
 	void* cSTIR_objectiveFunctionGradientNotDivided
 		(void* ptr_f, void* ptr_i, int subset);
+    void* cSTIR_computeObjectiveFunctionGradientNotDivided
+        (void* ptr_f, void* ptr_i, int subset, void* ptr_g);
+    void* cSTIR_objectiveFunctionAccumulateHessianTimesInput
+        (void* ptr_fun, void* ptr_est, void* ptr_inp, int subset, void* ptr_out);
 
 	// Prior methods
 	void* cSTIR_setupPrior(void* ptr_p, void* ptr_i);
@@ -156,7 +162,8 @@ extern "C" {
 	void* cSTIR_priorGradient(void* ptr_p, void* ptr_i);
     void* cSTIR_priorAccumulateHessianTimesInput
         (void* ptr_prior, void* ptr_out, void* ptr_curr, void* ptr_inp);
-	void* cSTIR_PLSPriorGradient(void* ptr_p, int dir);
+	void* cSTIR_computePriorGradient(void* ptr_p, void* ptr_i, void* ptr_g);
+	void* cSTIR_PLSPriorAnatomicalGradient(void* ptr_p, int dir);
 
 	// Image methods
 	void* cSTIR_getImageDimensions(const void* ptr, PTR_INT ptr_data);
