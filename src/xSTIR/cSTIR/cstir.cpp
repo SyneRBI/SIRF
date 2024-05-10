@@ -417,6 +417,23 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
 	CATCH;
 }
 
+typedef xSTIR_PoissonLLhLinModMeanListDataProjMatBin3DF LMObjFun;
+
+extern "C"
+void* cSTIR_objFunListModeSetInterval(void* ptr_f, size_t ptr_data)
+{
+	try {
+		LMObjFun& objFun = objectFromHandle<LMObjFun>(ptr_f);
+		// Does not compile!!!
+	    //xSTIR_PoissonLLhLinModMeanListDataProjMatBin3DF& objFun =
+		//	objectFromHandle<xSTIR_PoissonLLhLinModMeanListDataProjMatBin3D>(ptr_f);
+		float* data = (float*)ptr_data;
+		objFun.set_time_interval((double)data[0], (double)data[1]);
+		return (void*)new DataHandle;
+	}
+	CATCH;
+}
+
 extern "C"
 void* cSTIR_setListmodeToSinogramsInterval(void* ptr_lm2s, size_t ptr_data)
 {

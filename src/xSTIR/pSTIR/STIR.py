@@ -2896,6 +2896,17 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByB
     def get_cache_path(self):
         return parms.char_par(self.handle, self.name, 'cache_path')
     
+    def set_time_interval(self, start, stop):
+        """Sets the time interval.
+
+        Only data scanned during this time interval will be converted.
+        """
+        interval = numpy.ndarray((2,), dtype=numpy.float32)
+        interval[0] = start
+        interval[1] = stop
+        try_calling(pystir.cSTIR_objFunListModeSetInterval(
+            self.handle, interval.ctypes.data))
+
     def set_acquisition_data(self, ad):
         assert_validity(ad, ListmodeData)
         parms.set_parameter(

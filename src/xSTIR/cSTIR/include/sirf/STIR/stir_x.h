@@ -1118,6 +1118,15 @@ The actual algorithm is described in
                  set_cache_path(filepath);
         }
 
+        void set_time_interval(double start, double stop)
+        {
+	        std::pair<double, double> interval(start, stop);
+	        std::vector < std::pair<double, double> > intervals;
+	        intervals.push_back(interval);
+	        frame_defs = stir::TimeFrameDefinitions(intervals);
+	        do_time_frame = true;
+        }
+
     private:
         //std::shared_ptr<PETAcquisitionData> sptr_ad_;
         std::shared_ptr<PETAcquisitionModelUsingMatrix> sptr_am_;
