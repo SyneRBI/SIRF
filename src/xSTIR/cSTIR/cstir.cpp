@@ -423,7 +423,7 @@ extern "C"
 void* cSTIR_objFunListModeSetInterval(void* ptr_f, size_t ptr_data)
 {
 	try {
-		LMObjFun& objFun = objectFromHandle<LMObjFun>(ptr_f);
+		auto objFun = objectFromHandle<LMObjFun>(ptr_f);
 		// Does not compile!!!
 	    //xSTIR_PoissonLLhLinModMeanListDataProjMatBin3DF& objFun =
 		//	objectFromHandle<xSTIR_PoissonLLhLinModMeanListDataProjMatBin3D>(ptr_f);
@@ -438,8 +438,7 @@ extern "C"
 void* cSTIR_setListmodeToSinogramsInterval(void* ptr_lm2s, size_t ptr_data)
 {
 	try {
-		ListmodeToSinograms& lm2s = 
-			objectFromHandle<ListmodeToSinograms>(ptr_lm2s);
+		auto lm2s = objectFromHandle<ListmodeToSinograms>(ptr_lm2s);
 		float *data = (float *)ptr_data;
 		lm2s.set_time_interval((double)data[0], (double)data[1]);
 		return (void*)new DataHandle;
@@ -1273,12 +1272,13 @@ cSTIR_objectiveFunctionAccumulateHessianTimesInput
 {
 	try {
 		ObjectiveFunction3DF& fun = objectFromHandle<ObjectiveFunction3DF>(ptr_fun);
-		STIRImageData& est = objectFromHandle<STIRImageData>(ptr_est);
-		STIRImageData& inp = objectFromHandle<STIRImageData>(ptr_inp);
-		STIRImageData& out = objectFromHandle<STIRImageData>(ptr_out);
+		auto est = objectFromHandle<STIRImageData>(ptr_est);
+		auto inp = objectFromHandle<STIRImageData>(ptr_inp);
+		auto out = objectFromHandle<STIRImageData>(ptr_out);
 		Image3DF& curr_est = est.data();
 		Image3DF& input    = inp.data();
 		Image3DF& output   = out.data();
+		output.fill(0.0);
 		if (subset >= 0)
 			fun.accumulate_sub_Hessian_times_input(output, curr_est, input, subset);
 		else {
@@ -1287,8 +1287,7 @@ cSTIR_objectiveFunctionAccumulateHessianTimesInput
 			shared_ptr<STIRImageData> sptr_sub(new STIRImageData(input));
 			Image3DF& sub = sptr_sub->data();
 			for (int s = 0; s < nsub; s++) {
-				fun.accumulate_sub_Hessian_times_input(sub, curr_est, input, subset);
-				output += sub;
+				fun.accumulate_sub_Hessian_times_input(output, curr_est, input, subset);
 			}
 		}
 		return (void*) new DataHandle;
