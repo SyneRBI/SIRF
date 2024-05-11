@@ -2872,8 +2872,7 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData(
             self.handle, self.name, 'acquisition_data', ad.handle)
 
 
-class PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin
-(PoissonLogLikelihoodWithLinearModelForMean):
+class PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin(PoissonLogLikelihoodWithLinearModelForMean):
 #(ObjectiveFunction):
     """Class for a STIR type of Poisson loglikelihood object for listmode data.
 
