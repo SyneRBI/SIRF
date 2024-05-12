@@ -1,6 +1,6 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2017 - 2023 Rutherford Appleton Laboratory STFC
+Copyright 2017 - 2024 Rutherford Appleton Laboratory STFC
 Copyright 2018 - 2024 University College London.
 
 This is software developed for the Collaborative Computational
@@ -1271,23 +1271,19 @@ cSTIR_objectiveFunctionAccumulateHessianTimesInput
     (void* ptr_fun, void* ptr_est, void* ptr_inp, int subset, void* ptr_out)
 {
 	try {
-		ObjectiveFunction3DF& fun = objectFromHandle<ObjectiveFunction3DF>(ptr_fun);
-		auto est = objectFromHandle<STIRImageData>(ptr_est);
-		auto inp = objectFromHandle<STIRImageData>(ptr_inp);
-		auto out = objectFromHandle<STIRImageData>(ptr_out);
-		Image3DF& curr_est = est.data();
-		Image3DF& input    = inp.data();
-		Image3DF& output   = out.data();
+		auto& fun = objectFromHandle<ObjectiveFunction3DF>(ptr_fun);
+		auto& est = objectFromHandle<STIRImageData>(ptr_est);
+		auto& inp = objectFromHandle<STIRImageData>(ptr_inp);
+		auto& out = objectFromHandle<STIRImageData>(ptr_out);
+		auto& curr_est = est.data();
+		auto& input    = inp.data();
+		auto& output   = out.data();
 		output.fill(0.0);
 		if (subset >= 0)
 			fun.accumulate_sub_Hessian_times_input(output, curr_est, input, subset);
 		else {
-			int nsub = fun.get_num_subsets();
-			output.fill(0.0);
-			shared_ptr<STIRImageData> sptr_sub(new STIRImageData(input));
-			Image3DF& sub = sptr_sub->data();
-			for (int s = 0; s < nsub; s++) {
-				fun.accumulate_sub_Hessian_times_input(output, curr_est, input, subset);
+			for (int s = 0; s < fun.get_num_subsets(); s++) {
+				fun.accumulate_sub_Hessian_times_input(output, curr_est, input, s);
 			}
 		}
 		return (void*) new DataHandle;
@@ -1350,13 +1346,13 @@ void*
 cSTIR_priorAccumulateHessianTimesInput(void* ptr_prior, void* ptr_out, void* ptr_cur, void* ptr_inp)
 {
 	try {
-		Prior3DF& prior = objectFromHandle<stir::GeneralisedPrior <Image3DF> >(ptr_prior);
-		STIRImageData& out = objectFromHandle<STIRImageData>(ptr_out);
-		STIRImageData& cur = objectFromHandle<STIRImageData>(ptr_cur);
-		STIRImageData& inp = objectFromHandle<STIRImageData>(ptr_inp);
-		Image3DF& output  = out.data();
-		Image3DF& current = cur.data();
-		Image3DF& input   = inp.data();
+		auto& prior = objectFromHandle<stir::GeneralisedPrior <Image3DF> >(ptr_prior);
+		auto& out = objectFromHandle<STIRImageData>(ptr_out);
+		auto& cur = objectFromHandle<STIRImageData>(ptr_cur);
+		auto& inp = objectFromHandle<STIRImageData>(ptr_inp);
+		auto& output  = out.data();
+		auto& current = cur.data();
+		auto& input   = inp.data();
 		prior.accumulate_Hessian_times_input(output, current, input);
 		return (void*) new DataHandle;
 	}
