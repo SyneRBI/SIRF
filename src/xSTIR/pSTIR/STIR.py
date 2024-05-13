@@ -2948,6 +2948,9 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByB
     def get_cache_max_size(self):
         return parms.int_par(self.handle, self.name, 'cache_max_size')
 
+    def set_subsensitivity_filenames(self, names):
+        return parms.set_char_par(self.handle, self.name, 'subsensitivity_filenames', names)
+
     def get_subsensitivity_filenames(self):
         return parms.char_par(self.handle, self.name, 'subsensitivity_filenames')
 
