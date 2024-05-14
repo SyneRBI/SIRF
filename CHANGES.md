@@ -3,6 +3,7 @@
 ## vx.x.x
 
 * CMake/building:
+  - Python `sapyb` returns the output even if it is pre-allocated 
   - add `DISABLE_Gadgetron_TOOLBOXES` option (defaults to `OFF`) to be
     able to cope with compilation problems with older Gadgetron versions.
 
