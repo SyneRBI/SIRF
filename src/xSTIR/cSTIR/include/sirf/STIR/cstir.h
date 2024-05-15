@@ -156,6 +156,8 @@ extern "C" {
         (void* ptr_f, void* ptr_i, int subset, void* ptr_g);
     void* cSTIR_objectiveFunctionAccumulateHessianTimesInput
         (void* ptr_fun, void* ptr_est, void* ptr_inp, int subset, void* ptr_out);
+    void* cSTIR_objectiveFunctionComputeHessianTimesInput
+        (void* ptr_fun, void* ptr_est, void* ptr_inp, int subset, void* ptr_out);
 
 	// Prior methods
 	void* cSTIR_setupPrior(void* ptr_p, void* ptr_i);

@@ -1293,6 +1293,25 @@ cSTIR_objectiveFunctionAccumulateHessianTimesInput
 
 extern "C"
 void*
+cSTIR_objectiveFunctionComputeHessianTimesInput
+    (void* ptr_fun, void* ptr_est, void* ptr_inp, int subset, void* ptr_out)
+{
+	try {
+		auto& fun = objectFromHandle<xSTIR_GeneralisedObjectiveFunction3DF>(ptr_fun);
+		auto& est = objectFromHandle<STIRImageData>(ptr_est);
+		auto& inp = objectFromHandle<STIRImageData>(ptr_inp);
+		auto& out = objectFromHandle<STIRImageData>(ptr_out);
+		auto& curr_est = est.data();
+		auto& input    = inp.data();
+		auto& output   = out.data();
+		fun.multiply_with_Hessian(output, curr_est, input, subset);
+		return (void*) new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cSTIR_setupPrior(void* ptr_p, void* ptr_i)
 {
 	try {

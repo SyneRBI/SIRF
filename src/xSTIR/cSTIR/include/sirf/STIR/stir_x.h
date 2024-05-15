@@ -1067,6 +1067,19 @@ The actual algorithm is described in
 	class xSTIR_GeneralisedObjectiveFunction3DF :
 		public stir::GeneralisedObjectiveFunction < Image3DF > {
 	public:
+		void multiply_with_Hessian(Image3DF& output, const Image3DF& curr_image_est,
+            const Image3DF& input, const int subset) const
+		{
+			output.fill(0.0);
+			if (subset >= 0)
+				accumulate_sub_Hessian_times_input(output, curr_image_est, input, subset);
+			else {
+				for (int s = 0; s < get_num_subsets(); s++) {
+					accumulate_sub_Hessian_times_input(output, curr_image_est, input, s);
+				}
+			}
+		}
+
 //		bool post_process() {
 //			return post_processing();
 //		}
