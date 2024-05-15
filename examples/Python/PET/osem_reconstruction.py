@@ -132,7 +132,8 @@ def main():
     x = output.norm()
     output = obj_fun.multiply_with_Hessian(image, image, 0)
     y = output.norm()
-    print('Hessian multiplication ok') if x == y else print('Hessian multiplication wrong')
+    msg = 'Hessian multiplication ok' if x == y else 'Hessian multiplication wrong'
+    print(msg)
 
     # set the initial image estimate
     recon.set_current_estimate(image)
