@@ -128,7 +128,7 @@ def main():
     print('setting up, please wait...')
     recon.set_up(image)
 
-    q = obj_fun.test_Hessian(image, subset=0)
+    obj_fun.test_Hessian(image, subset=0)
 
     # set the initial image estimate
     recon.set_current_estimate(image)
