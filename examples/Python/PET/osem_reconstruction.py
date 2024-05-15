@@ -128,12 +128,7 @@ def main():
     print('setting up, please wait...')
     recon.set_up(image)
 
-    output = obj_fun.accumulate_Hessian_times_input(image, image, 0)
-    x = output.norm()
-    output = obj_fun.multiply_with_Hessian(image, image, 0)
-    y = output.norm()
-    msg = 'Hessian multiplication ok' if x == y else 'Hessian multiplication wrong'
-    print(msg)
+    q = obj_fun.test_Hessian(image, subset=0)
 
     # set the initial image estimate
     recon.set_current_estimate(image)
