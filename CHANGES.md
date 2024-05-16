@@ -1,21 +1,24 @@
 # ChangeLog
 
-## vx.x.x
+## v3.7.0
 
-* CMake/building:
-  - Python `sapyb` returns the output even if it is pre-allocated 
-  - add `DISABLE_Gadgetron_TOOLBOXES` option (defaults to `OFF`) to be
-    able to cope with compilation problems with older Gadgetron versions.
+* SIRF/common
+  - Python `sapyb` returns the output even if it is pre-allocated
+  - Python add `min()` to `DataContainer`
 
 * PET:
-  - implemented basic-functionality listmode data class in C++ and Python
-  - added objective function type for lismode reconstruction
-  - added new demo script for the reconstruction from listmode data
+  - implemented basic-functionality list-mode data class in C++ and Python
+  - added objective function type for list-mode reconstruction
+  - added new demo script for the reconstruction from list-mode data
   - provided gradient-computing methods with return via optional argument out
-    in addition to the standard return, ensuring that no temorary copies of the
-    gradient data are created
+    in addition to the standard return, ensuring that no temporary copies of the
+    gradient data are created.
   - provided prior and objective function objects with methods for computing
-    the product of the Hessian and a vector
+    the product of the Hessian and a vector.
+
+* CMake/building:
+  - add `DISABLE_Gadgetron_TOOLBOXES` option (defaults to `OFF`) to be
+    able to cope with compilation problems with older Gadgetron versions.
 
 ## v3.6.0
 
