@@ -2333,6 +2333,23 @@ class Prior(object):
         """Sets up."""
         try_calling(pystir.cSTIR_setupPrior(self.handle, image.handle))
 
+    def accumulate_Hessian_times_input(self, current_estimate, input_, out=None):
+        """Computes the multiplication of the Hessian with a vector and adds it to output.
+        """
+        if out is None or out.handle is None:
+            out = input_.get_uniform_copy(0.0)
+        try_calling(pystir.cSTIR_priorAccumulateHessianTimesInput
+            (self.handle, out.handle, current_estimate.handle, input_.handle))
+        return out
+
+    def multiply_with_Hessian(self, current_estimate, input_, out=None):
+        """Computes the multiplication of the Hessian at current_estimate with a vector.
+        """
+        if out is None or out.handle is None:
+            out = input_.get_uniform_copy(0.0)
+        try_calling(pystir.cSTIR_priorComputeHessianTimesInput
+            (self.handle, current_estimate.handle, input_.handle, out.handle))
+        return out
 
 class QuadraticPrior(Prior):
     r"""Class for the prior that is a quadratic function of the image values.
@@ -2732,6 +2749,24 @@ class ObjectiveFunction(object):
         """
         return self.gradient(image, subset, out)
 
+    def accumulate_Hessian_times_input(self, current_estimate, input_, subset=-1, out=None):
+        """Computes the multiplication of the Hessian at current_estimate with a vector and adds it to output.
+        """
+        if out is None or out.handle is None:
+            out = input_.clone()
+        try_calling(pystir.cSTIR_objectiveFunctionAccumulateHessianTimesInput
+            (self.handle, current_estimate.handle, input_.handle, subset, out.handle))
+        return out
+
+    def multiply_with_Hessian(self, current_estimate, input_, subset=-1, out=None):
+        """Computes the multiplication of the Hessian at current_estimate with a vector.
+        """
+        if out is None or out.handle is None:
+            out = input_.get_uniform_copy(0.0)
+        try_calling(pystir.cSTIR_objectiveFunctionComputeHessianTimesInput
+            (self.handle, current_estimate.handle, input_.handle, subset, out.handle))
+        return out
+
     @abc.abstractmethod
     def get_subset_sensitivity(self, subset):
         #print('in base class ObjectiveFunction')
@@ -2854,7 +2889,8 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData(
             self.handle, self.name, 'acquisition_data', ad.handle)
 
 
-class PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin(ObjectiveFunction):
+class PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin(PoissonLogLikelihoodWithLinearModelForMean):
+#(ObjectiveFunction):
     """Class for a STIR type of Poisson loglikelihood object for listmode data.
 
     Specifically, PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin.
@@ -2878,6 +2914,17 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByB
     def get_cache_path(self):
         return parms.char_par(self.handle, self.name, 'cache_path')
     
+    def set_time_interval(self, start, stop):
+        """Sets the time interval.
+
+        Only data scanned during this time interval will be converted.
+        """
+        interval = numpy.ndarray((2,), dtype=numpy.float32)
+        interval[0] = start
+        interval[1] = stop
+        try_calling(pystir.cSTIR_objFunListModeSetInterval(
+            self.handle, interval.ctypes.data))
+
     def set_acquisition_data(self, ad):
         assert_validity(ad, ListmodeData)
         parms.set_parameter(
@@ -2917,6 +2964,9 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByB
 
     def get_cache_max_size(self):
         return parms.int_par(self.handle, self.name, 'cache_max_size')
+
+    def set_subsensitivity_filenames(self, names):
+        return parms.set_char_par(self.handle, self.name, 'subsensitivity_filenames', names)
 
     def get_subsensitivity_filenames(self):
         return parms.char_par(self.handle, self.name, 'subsensitivity_filenames')

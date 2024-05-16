@@ -11,6 +11,11 @@
   - implemented basic-functionality listmode data class in C++ and Python
   - added objective function type for lismode reconstruction
   - added new demo script for the reconstruction from listmode data
+  - provided gradient-computing methods with return via optional argument out
+    in addition to the standard return, ensuring that no temorary copies of the
+    gradient data are created
+  - provided prior and objective function objects with methods for computing
+    the product of the Hessian and a vector
 
 ## v3.6.0
 

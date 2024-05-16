@@ -65,6 +65,7 @@ extern "C" {
 	void* cSTIR_convertListmodeToSinograms(void* ptr);
 	void* cSTIR_computeRandoms(void* ptr);
     void* cSTIR_lm_num_prompts_exceeds_threshold(void* ptr, const float threshold);
+    void* cSTIR_objFunListModeSetInterval(void* ptr_f, size_t ptr_data);
 
 	// Data processor methods
 	void* cSTIR_setupImageDataProcessor(const void* ptr_p, void* ptr_i);
@@ -153,11 +154,19 @@ extern "C" {
 		(void* ptr_f, void* ptr_i, int subset);
     void* cSTIR_computeObjectiveFunctionGradientNotDivided
         (void* ptr_f, void* ptr_i, int subset, void* ptr_g);
+    void* cSTIR_objectiveFunctionAccumulateHessianTimesInput
+        (void* ptr_fun, void* ptr_est, void* ptr_inp, int subset, void* ptr_out);
+    void* cSTIR_objectiveFunctionComputeHessianTimesInput
+        (void* ptr_fun, void* ptr_est, void* ptr_inp, int subset, void* ptr_out);
 
 	// Prior methods
 	void* cSTIR_setupPrior(void* ptr_p, void* ptr_i);
 	void* cSTIR_priorValue(void* ptr_p, void* ptr_i);
 	void* cSTIR_priorGradient(void* ptr_p, void* ptr_i);
+    void* cSTIR_priorAccumulateHessianTimesInput
+        (void* ptr_prior, void* ptr_out, void* ptr_curr, void* ptr_inp);
+    void* cSTIR_priorComputeHessianTimesInput
+        (void* ptr_prior, void* ptr_out, void* ptr_cur, void* ptr_inp);
 	void* cSTIR_computePriorGradient(void* ptr_p, void* ptr_i, void* ptr_g);
 	void* cSTIR_PLSPriorAnatomicalGradient(void* ptr_p, int dir);
 

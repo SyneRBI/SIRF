@@ -1012,6 +1012,11 @@ sirf::cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProj
     else if (sirf::iequals(name, "cache_max_size")) {
         obj_fun.set_cache_max_size(dataFromHandle<int>(hv));
     }
+    else if (sirf::iequals(name, "subsensitivity_filenames"))
+    {
+        std::string s(charDataFromDataHandle(hv));
+        obj_fun.set_subsensitivity_filenames(s.c_str());
+    }
     else
         return parameterNotFound(name, __FILE__, __LINE__);
     return new DataHandle;

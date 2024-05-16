@@ -1,6 +1,6 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2017 - 2023 Rutherford Appleton Laboratory STFC
+Copyright 2017 - 2024 Rutherford Appleton Laboratory STFC
 Copyright 2018 - 2024 University College London.
 
 This is software developed for the Collaborative Computational
@@ -417,12 +417,25 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
 	CATCH;
 }
 
+typedef xSTIR_PoissonLLhLinModMeanListDataProjMatBin3DF LMObjFun;
+
+extern "C"
+void* cSTIR_objFunListModeSetInterval(void* ptr_f, size_t ptr_data)
+{
+	try {
+		auto& objFun = objectFromHandle<LMObjFun>(ptr_f);
+		float* data = (float*)ptr_data;
+		objFun.set_time_interval((double)data[0], (double)data[1]);
+		return (void*)new DataHandle;
+	}
+	CATCH;
+}
+
 extern "C"
 void* cSTIR_setListmodeToSinogramsInterval(void* ptr_lm2s, size_t ptr_data)
 {
 	try {
-		ListmodeToSinograms& lm2s = 
-			objectFromHandle<ListmodeToSinograms>(ptr_lm2s);
+		auto& lm2s = objectFromHandle<ListmodeToSinograms>(ptr_lm2s);
 		float *data = (float *)ptr_data;
 		lm2s.set_time_interval((double)data[0], (double)data[1]);
 		return (void*)new DataHandle;
@@ -1251,6 +1264,50 @@ cSTIR_computeObjectiveFunctionGradientNotDivided(void* ptr_f, void* ptr_i, int s
 
 extern "C"
 void*
+cSTIR_objectiveFunctionAccumulateHessianTimesInput
+    (void* ptr_fun, void* ptr_est, void* ptr_inp, int subset, void* ptr_out)
+{
+	try {
+		auto& fun = objectFromHandle<ObjectiveFunction3DF>(ptr_fun);
+		auto& est = objectFromHandle<STIRImageData>(ptr_est);
+		auto& inp = objectFromHandle<STIRImageData>(ptr_inp);
+		auto& out = objectFromHandle<STIRImageData>(ptr_out);
+		auto& curr_est = est.data();
+		auto& input    = inp.data();
+		auto& output   = out.data();
+		if (subset >= 0)
+			fun.accumulate_sub_Hessian_times_input(output, curr_est, input, subset);
+		else {
+			for (int s = 0; s < fun.get_num_subsets(); s++) {
+				fun.accumulate_sub_Hessian_times_input(output, curr_est, input, s);
+			}
+		}
+		return (void*) new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSTIR_objectiveFunctionComputeHessianTimesInput
+    (void* ptr_fun, void* ptr_est, void* ptr_inp, int subset, void* ptr_out)
+{
+	try {
+		auto& fun = objectFromHandle<xSTIR_GeneralisedObjectiveFunction3DF>(ptr_fun);
+		auto& est = objectFromHandle<STIRImageData>(ptr_est);
+		auto& inp = objectFromHandle<STIRImageData>(ptr_inp);
+		auto& out = objectFromHandle<STIRImageData>(ptr_out);
+		auto& curr_est = est.data();
+		auto& input    = inp.data();
+		auto& output   = out.data();
+		fun.multiply_with_Hessian(output, curr_est, input, subset);
+		return (void*) new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cSTIR_setupPrior(void* ptr_p, void* ptr_i)
 {
 	try {
@@ -1288,13 +1345,49 @@ void*
 cSTIR_priorGradient(void* ptr_p, void* ptr_i)
 {
 	try {
-		Prior3DF& prior = objectFromHandle<Prior3DF>(ptr_p);
+		Prior3DF& prior = objectFromHandle<stir::GeneralisedPrior <Image3DF> >(ptr_p);
 		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_i);
 		Image3DF& image = id.data();
 		shared_ptr<STIRImageData> sptr(new STIRImageData(image));
 		Image3DF& grad = sptr->data();
 		prior.compute_gradient(grad, image);
 		return newObjectHandle(sptr);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSTIR_priorAccumulateHessianTimesInput(void* ptr_prior, void* ptr_out, void* ptr_cur, void* ptr_inp)
+{
+	try {
+		auto& prior = objectFromHandle<stir::GeneralisedPrior <Image3DF> >(ptr_prior);
+		auto& out = objectFromHandle<STIRImageData>(ptr_out);
+		auto& cur = objectFromHandle<STIRImageData>(ptr_cur);
+		auto& inp = objectFromHandle<STIRImageData>(ptr_inp);
+		auto& output  = out.data();
+		auto& current = cur.data();
+		auto& input   = inp.data();
+		prior.accumulate_Hessian_times_input(output, current, input);
+		return (void*) new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSTIR_priorComputeHessianTimesInput(void* ptr_prior, void* ptr_out, void* ptr_cur, void* ptr_inp)
+{
+	try {
+		auto& prior = objectFromHandle<xSTIR_GeneralisedPrior3DF>(ptr_prior);
+		auto& out = objectFromHandle<STIRImageData>(ptr_out);
+		auto& cur = objectFromHandle<STIRImageData>(ptr_cur);
+		auto& inp = objectFromHandle<STIRImageData>(ptr_inp);
+		auto& output  = out.data();
+		auto& current = cur.data();
+		auto& input   = inp.data();
+		prior.multiply_with_Hessian(output, current, input);
+		return (void*) new DataHandle;
 	}
 	CATCH;
 }

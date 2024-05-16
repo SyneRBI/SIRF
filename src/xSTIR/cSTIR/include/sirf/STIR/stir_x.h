@@ -1031,6 +1031,12 @@ The actual algorithm is described in
 
 	class xSTIR_GeneralisedPrior3DF : public stir::GeneralisedPrior < Image3DF > {
 	public:
+		void multiply_with_Hessian(Image3DF& output, const Image3DF& curr_image_est,
+            const Image3DF& input) const
+		{
+			output.fill(0.0);
+			accumulate_Hessian_times_input(output, curr_image_est, input);
+		}
 //		bool post_process() {
 //			return post_processing();
 //		}
@@ -1067,6 +1073,19 @@ The actual algorithm is described in
 	class xSTIR_GeneralisedObjectiveFunction3DF :
 		public stir::GeneralisedObjectiveFunction < Image3DF > {
 	public:
+		void multiply_with_Hessian(Image3DF& output, const Image3DF& curr_image_est,
+            const Image3DF& input, const int subset) const
+		{
+			output.fill(0.0);
+			if (subset >= 0)
+				accumulate_sub_Hessian_times_input(output, curr_image_est, input, subset);
+			else {
+				for (int s = 0; s < get_num_subsets(); s++) {
+					accumulate_sub_Hessian_times_input(output, curr_image_est, input, s);
+				}
+			}
+		}
+
 //		bool post_process() {
 //			return post_processing();
 //		}
@@ -1116,6 +1135,15 @@ The actual algorithm is described in
         {
             stir::PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin<Image3DF>::
                  set_cache_path(filepath);
+        }
+
+        void set_time_interval(double start, double stop)
+        {
+	        std::pair<double, double> interval(start, stop);
+	        std::vector < std::pair<double, double> > intervals;
+	        intervals.push_back(interval);
+	        frame_defs = stir::TimeFrameDefinitions(intervals);
+	        do_time_frame = true;
         }
 
     private:
