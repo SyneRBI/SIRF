@@ -50,7 +50,7 @@ def test_main(rec=False, verb=False, throw=True):
     test = pTest(datafile, rec, throw=throw)
     test.verbose = verb
 
-    msg_red = sirf.STIR.MessageRedirector(warn=None)
+    _ = sirf.STIR.MessageRedirector(warn=None)
 
     im_thorax = sirf.STIR.ImageData(examples_data_path('PET') + '/thorax_single_slice/emission.hv')
     im_1 = im_thorax.get_uniform_copy(1)
