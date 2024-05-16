@@ -1031,6 +1031,12 @@ The actual algorithm is described in
 
 	class xSTIR_GeneralisedPrior3DF : public stir::GeneralisedPrior < Image3DF > {
 	public:
+		void multiply_with_Hessian(Image3DF& output, const Image3DF& curr_image_est,
+            const Image3DF& input) const
+		{
+			output.fill(0.0);
+			accumulate_Hessian_times_input(output, curr_image_est, input);
+		}
 //		bool post_process() {
 //			return post_processing();
 //		}

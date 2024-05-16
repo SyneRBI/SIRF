@@ -2342,6 +2342,15 @@ class Prior(object):
             (self.handle, out.handle, current_estimate.handle, input_.handle))
         return out
 
+    def multiply_with_Hessian(self, current_estimate, input_, out=None):
+        """Computes the multiplication of the Hessian with a vector.
+        """
+        if out is None or out.handle is None:
+            out = input_.get_uniform_copy(0.0)
+        try_calling(pystir.cSTIR_priorComputeHessianTimesInput
+            (self.handle, current_estimate.handle, input_.handle, subset, out.handle))
+        return out
+
 
 class QuadraticPrior(Prior):
     r"""Class for the prior that is a quadratic function of the image values.

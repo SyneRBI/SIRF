@@ -165,6 +165,8 @@ extern "C" {
 	void* cSTIR_priorGradient(void* ptr_p, void* ptr_i);
     void* cSTIR_priorAccumulateHessianTimesInput
         (void* ptr_prior, void* ptr_out, void* ptr_curr, void* ptr_inp);
+    void* cSTIR_priorComputeHessianTimesInput
+        (void* ptr_prior, void* ptr_out, void* ptr_cur, void* ptr_inp);
 	void* cSTIR_computePriorGradient(void* ptr_p, void* ptr_i, void* ptr_g);
 	void* cSTIR_PLSPriorAnatomicalGradient(void* ptr_p, int dir);
 

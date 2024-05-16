@@ -1376,6 +1376,24 @@ cSTIR_priorAccumulateHessianTimesInput(void* ptr_prior, void* ptr_out, void* ptr
 
 extern "C"
 void*
+cSTIR_priorComputeHessianTimesInput(void* ptr_prior, void* ptr_out, void* ptr_cur, void* ptr_inp)
+{
+	try {
+		auto& prior = objectFromHandle<xSTIR_GeneralisedPrior3DF>(ptr_prior);
+		auto& out = objectFromHandle<STIRImageData>(ptr_out);
+		auto& cur = objectFromHandle<STIRImageData>(ptr_cur);
+		auto& inp = objectFromHandle<STIRImageData>(ptr_inp);
+		auto& output  = out.data();
+		auto& current = cur.data();
+		auto& input   = inp.data();
+		prior.multiply_with_Hessian(output, current, input);
+		return (void*) new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cSTIR_computePriorGradient(void* ptr_p, void* ptr_i, void* ptr_g)
 {
 	try {
