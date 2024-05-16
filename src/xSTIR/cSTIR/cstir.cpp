@@ -423,10 +423,7 @@ extern "C"
 void* cSTIR_objFunListModeSetInterval(void* ptr_f, size_t ptr_data)
 {
 	try {
-		auto objFun = objectFromHandle<LMObjFun>(ptr_f);
-		// Does not compile!!!
-	    //xSTIR_PoissonLLhLinModMeanListDataProjMatBin3DF& objFun =
-		//	objectFromHandle<xSTIR_PoissonLLhLinModMeanListDataProjMatBin3D>(ptr_f);
+		auto& objFun = objectFromHandle<LMObjFun>(ptr_f);
 		float* data = (float*)ptr_data;
 		objFun.set_time_interval((double)data[0], (double)data[1]);
 		return (void*)new DataHandle;
@@ -438,7 +435,7 @@ extern "C"
 void* cSTIR_setListmodeToSinogramsInterval(void* ptr_lm2s, size_t ptr_data)
 {
 	try {
-		auto lm2s = objectFromHandle<ListmodeToSinograms>(ptr_lm2s);
+		auto& lm2s = objectFromHandle<ListmodeToSinograms>(ptr_lm2s);
 		float *data = (float *)ptr_data;
 		lm2s.set_time_interval((double)data[0], (double)data[1]);
 		return (void*)new DataHandle;
@@ -1278,7 +1275,6 @@ cSTIR_objectiveFunctionAccumulateHessianTimesInput
 		auto& curr_est = est.data();
 		auto& input    = inp.data();
 		auto& output   = out.data();
-		output.fill(0.0);
 		if (subset >= 0)
 			fun.accumulate_sub_Hessian_times_input(output, curr_est, input, subset);
 		else {

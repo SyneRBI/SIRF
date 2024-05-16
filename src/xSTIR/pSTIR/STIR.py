@@ -2337,7 +2337,7 @@ class Prior(object):
         """Computes the multiplication of the Hessian with a vector and adds it to output.
         """
         if out is None or out.handle is None:
-            out = input_.clone()
+            out = input_.get_uniform_copy(0.0)
         try_calling(pystir.cSTIR_priorAccumulateHessianTimesInput
             (self.handle, out.handle, current_estimate.handle, input_.handle))
         return out
@@ -2754,7 +2754,7 @@ class ObjectiveFunction(object):
         """Computes the multiplication of the Hessian with a vector.
         """
         if out is None or out.handle is None:
-            out = input_.clone()
+            out = input_.get_uniform_copy(0.0)
         try_calling(pystir.cSTIR_objectiveFunctionComputeHessianTimesInput
             (self.handle, current_estimate.handle, input_.handle, subset, out.handle))
         return out
