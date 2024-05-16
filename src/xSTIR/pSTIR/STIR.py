@@ -2343,14 +2343,13 @@ class Prior(object):
         return out
 
     def multiply_with_Hessian(self, current_estimate, input_, out=None):
-        """Computes the multiplication of the Hessian with a vector.
+        """Computes the multiplication of the Hessian at current_estimate with a vector.
         """
         if out is None or out.handle is None:
             out = input_.get_uniform_copy(0.0)
         try_calling(pystir.cSTIR_priorComputeHessianTimesInput
             (self.handle, current_estimate.handle, input_.handle, out.handle))
         return out
-
 
 class QuadraticPrior(Prior):
     r"""Class for the prior that is a quadratic function of the image values.
@@ -2751,7 +2750,7 @@ class ObjectiveFunction(object):
         return self.gradient(image, subset, out)
 
     def accumulate_Hessian_times_input(self, current_estimate, input_, subset=-1, out=None):
-        """Computes the multiplication of the Hessian with a vector and adds it to output.
+        """Computes the multiplication of the Hessian at current_estimate with a vector and adds it to output.
         """
         if out is None or out.handle is None:
             out = input_.clone()
@@ -2760,30 +2759,13 @@ class ObjectiveFunction(object):
         return out
 
     def multiply_with_Hessian(self, current_estimate, input_, subset=-1, out=None):
-        """Computes the multiplication of the Hessian with a vector.
+        """Computes the multiplication of the Hessian at current_estimate with a vector.
         """
         if out is None or out.handle is None:
             out = input_.get_uniform_copy(0.0)
         try_calling(pystir.cSTIR_objectiveFunctionComputeHessianTimesInput
             (self.handle, current_estimate.handle, input_.handle, subset, out.handle))
         return out
-
-    def test_Hessian(self, x, subset=-1, eps=1e-3):
-        """Checks that grad(x + dx) - grad(x) is close to H(x)*dx
-        """
-        dx = x.clone()
-        dx *= eps/dx.norm()
-        dx += eps/2
-        y = x + dx
-        gx = self.gradient(x, subset)
-        gy = self.gradient(y, subset)
-        dg = gy - gx
-        Hdx = self.multiply_with_Hessian(x, dx, subset)
-        q = 1 - dg.norm()/Hdx.norm()
-        print('norm of grad(x + dx) - grad(x): %f' % dg.norm())
-        print('norm of H(x)*dx: %f' % Hdx.norm())
-        print('relative difference: %f' % q)
-        return q
 
     @abc.abstractmethod
     def get_subset_sensitivity(self, subset):
