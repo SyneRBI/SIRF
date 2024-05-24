@@ -665,8 +665,8 @@ class CoilSensitivityData(ImageData):
             raise AssertionError("The handle for data is None. Please pass valid acquisition data.")
 
         dcw = compute_kspace_density(data)
-
         data = data * dcw
+
         if method_name == 'Inati':
 
             try:
@@ -686,7 +686,11 @@ class CoilSensitivityData(ImageData):
             self.fill(csm.astype(numpy.complex64))
         
         elif method_name == 'SRSS':
+
             try_calling(pygadgetron.cGT_computeCoilSensitivities(self.handle, data.handle))
+
+        else:
+            raise error('Unknown method %s' % method_name)
 
     def __calc_from_images(self, data, method_name):
 
@@ -1708,7 +1712,7 @@ def preprocess_acquisition_data(input_data):
         ['NoiseAdjustGadget', \
          'AsymmetricEchoAdjustROGadget', \
          'RemoveROOversamplingGadget'])
-    
+
 def set_grpe_trajectory(ad, traj=None):
     '''
     Function that fills the trajectory of AcquisitionData with golden angle radial
