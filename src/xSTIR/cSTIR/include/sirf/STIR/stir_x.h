@@ -740,26 +740,7 @@ The actual algorithm is described in
 			estimate_randoms();
 			randoms_sptr = get_randoms_sptr();
 		}
-/*
-		void acquisition_sensitivity_from_attenuation(
-			std::shared_ptr<STIRAcquisitionData> acq_templ_sptr,
-			std::shared_ptr<STIRImageData> attn_image_sptr,
-			std::shared_ptr<STIRAcquisitionData>& acq_sens_sptr)
-		{
-			PETAcquisitionModelUsingRayTracingMatrix acq_mod;
-			acq_mod.set_up(acq_templ_sptr, attn_image_sptr);
-			std::shared_ptr<PETAttenuationModel> 
-				asm_sptr(new PETAttenuationModel(*attn_image_sptr, acq_mod));
-			PETAttenuationModel acq_sens_mod = *asm_sptr;
-			acq_sens_mod.set_up(acq_templ_sptr->get_exam_info_sptr(),
-				acq_templ_sptr->get_proj_data_info_sptr()->create_shared_clone());
-			acq_mod.set_asm(asm_sptr);
-			std::cout << "applying attenuation (please wait, may take a while)...\n";
-			acq_sens_sptr = acq_templ_sptr->clone();
-			acq_sens_sptr->fill(1.0);
-			acq_sens_mod.unnormalise(*acq_sens_sptr);
-		}
-*/
+
 	protected:
 		// variables for ML estimation of singles/randoms
 		int fan_size;
