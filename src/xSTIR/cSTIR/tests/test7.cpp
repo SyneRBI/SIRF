@@ -69,6 +69,8 @@ int main()
 		
 		STIRAcquisitionDataInMemory::set_as_template();
 
+		//PETAcquisitionModelUsingRayTracingMatrix acq_mod;
+		CREATE_OBJECT(PETAcquisitionModel, PETAcquisitionModelUsingRayTracingMatrix, am, am_sptr,);
 		//STIRAcquisitionDataInFile acq_data_template(f_template.c_str());
 		CREATE_OBJECT(STIRAcquisitionData, STIRAcquisitionDataInFile,
 			acq_data_template, templ_sptr, f_template.c_str());
@@ -89,7 +91,7 @@ int main()
 		std::shared_ptr<PETAttenuationModel> att_sptr;
 		std::shared_ptr<STIRAcquisitionData> acf_sptr; // attenuation correction factor
 		std::shared_ptr<STIRAcquisitionData> iacf_sptr; // the inverse of the above
-		PETAttenuationModel::compute_ac_factors(sinograms_sptr, mu_map_sptr, att_sptr, acf_sptr, iacf_sptr);
+		PETAttenuationModel::compute_ac_factors(sinograms_sptr, mu_map_sptr, am_sptr, att_sptr, acf_sptr, iacf_sptr);
 		std::cout << acf_sptr->norm() << '\n';
 		std::cout << iacf_sptr->norm() << '\n';
 

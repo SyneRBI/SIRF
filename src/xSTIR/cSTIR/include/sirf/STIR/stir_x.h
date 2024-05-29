@@ -548,18 +548,20 @@ The actual algorithm is described in
 	class PETAttenuationModel : public PETAcquisitionSensitivityModel {
 	public:
 		PETAttenuationModel(STIRImageData& id, PETAcquisitionModel& am);
-		// multiply by bin efficiencies
+		//! multiply by bin efficiencies (here attenuation factors), i.e. attenuate data in \a ad
 		virtual void unnormalise(STIRAcquisitionData& ad) const;
-		// divide by bin efficiencies
+		// divide by bin efficiencies (here attenuation factors), i.e. correct data in \a ad for attenuatio
 		virtual void normalise(STIRAcquisitionData& ad) const;
 		static void compute_ac_factors(
 			std::shared_ptr<STIRAcquisitionData> acq_templ_sptr,
 			std::shared_ptr<STIRImageData> mu_map_sptr,
+			std::shared_ptr<PETAcquisitionModel>& am_sptr,
 			std::shared_ptr<PETAttenuationModel>& asm_sptr,
 			std::shared_ptr<STIRAcquisitionData>& acf_sptr,
 			std::shared_ptr<STIRAcquisitionData>& iacf_sptr)
 		{
-			PETAcquisitionModelUsingRayTracingMatrix acq_mod;
+			//PETAcquisitionModelUsingRayTracingMatrix acq_mod;
+			PETAcquisitionModel& acq_mod = *am_sptr;
 			acq_mod.set_up(acq_templ_sptr, mu_map_sptr);
 			asm_sptr = std::shared_ptr<PETAttenuationModel>(new PETAttenuationModel(*mu_map_sptr, acq_mod));
 //			std::shared_ptr<PETAttenuationModel>

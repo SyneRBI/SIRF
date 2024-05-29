@@ -79,7 +79,7 @@ extern "C" {
 	void* cSTIR_createPETAttenuationModel
 		(const void* ptr_img, const void* ptr_am);
 	void* cSTIR_computeACF
-		(const void* ptr_sino, const void* ptr_mumap, void* ptr_att, void* ptr_acf, void* ptr_iacf);
+		(const void* ptr_sino, const void* ptr_mumap, const void* ptr_am, void* ptr_att, void* ptr_acf, void* ptr_iacf);
 	void* cSTIR_chainPETAcquisitionSensitivityModels
 		(const void* ptr_first, const void* ptr_second);
 	void* cSTIR_setupAcquisitionSensitivityModel(void* ptr_sm, void* ptr_ad);
