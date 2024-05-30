@@ -88,12 +88,12 @@ int main()
 		std::cout << "===== sinograms norm: " << sinograms_sptr->norm() << '\n';
 		std::cout << "===== randoms norm: " << randoms_sptr->norm() << '\n';
 		
-		std::shared_ptr<PETAttenuationModel> att_sptr;
-		std::shared_ptr<STIRAcquisitionData> acf_sptr; // attenuation correction factor
-		std::shared_ptr<STIRAcquisitionData> iacf_sptr; // the inverse of the above
-		PETAttenuationModel::compute_ac_factors(sinograms_sptr, mu_map_sptr, am_sptr, att_sptr, acf_sptr, iacf_sptr);
-		std::cout << acf_sptr->norm() << '\n';
-		std::cout << iacf_sptr->norm() << '\n';
+		std::shared_ptr<PETAttenuationModel> att_sptr = std::shared_ptr<PETAttenuationModel>(new PETAttenuationModel(mu_map, am));
+		std::shared_ptr<STIRAcquisitionData> af_sptr; // attenuation factor
+		std::shared_ptr<STIRAcquisitionData> acf_sptr; // the inverse of the above
+		PETAttenuationModel::compute_ac_factors(sinograms_sptr, mu_map_sptr, am_sptr, att_sptr, af_sptr, acf_sptr);
+		std::cout << "===== norm of the attenuation factor: " << af_sptr->norm() << '\n';
+		std::cout << "===== norm of the attenuation correction factor: " << acf_sptr->norm() << '\n';
 
 		CREATE_OBJ(PETAcquisitionSensitivityModel, acq_sm, acq_sm_sptr, f_norm);
 
@@ -102,9 +102,9 @@ int main()
 		se.set_attenuation_image_sptr(mu_map_sptr);
 		se.set_background_sptr(randoms_sptr);
 		se.set_asm(acq_sm_sptr);
-		se.set_attenuation_correction_factors_sptr(iacf_sptr);
+		se.set_attenuation_correction_factors_sptr(acf_sptr);
 		se.set_num_iterations(4);
-		std::cout << "number of scatter iterations that will be used: " << se.get_num_iterations() << '\n';
+		std::cout << "===== number of scatter iterations that will be used: " << se.get_num_iterations() << '\n';
 		se.set_OSEM_num_subsets(7);
 		se.set_output_prefix("scatter");
 		se.set_up();
@@ -114,7 +114,7 @@ int main()
 		std::cout << "===== scatter estimate norm: " << scatter_sptr->norm() << '\n';
 
 		acq_sm.set_up(*acf_sptr);
-		std::shared_ptr<STIRAcquisitionData> mf_sptr = acf_sptr->clone();
+		std::shared_ptr<STIRAcquisitionData> mf_sptr = af_sptr->clone();
 		acq_sm.unnormalise(*mf_sptr);
 		std::cout << "===== multfactors norm: " << mf_sptr->norm() << '\n';
 

@@ -1740,12 +1740,12 @@ class AcquisitionSensitivityModel(object):
         '''Creates attenuation model and returns it as an AcquisitionSensitivityModel object
            together with the attenuation factor and its inverse as AcquisitionData objects
         '''
-        asm = AcquisitionModelUsingRayTracingMatrix()
-        attn = AcquisitionSensitivityModel(mu_map, asm)
+        am = AcquisitionModelUsingRayTracingMatrix()
+        attn = AcquisitionSensitivityModel(mu_map, am)
+        af = AcquisitionData(sinograms)
         acf = AcquisitionData(sinograms)
-        iacf = AcquisitionData(sinograms)
-        try_calling(pystir.cSTIR_computeACF(sinograms.handle, mu_map.handle, asm.handle, attn.handle, acf.handle, iacf.handle))
-        return attn, acf, iacf
+        try_calling(pystir.cSTIR_computeACF(sinograms.handle, mu_map.handle, am.handle, attn.handle, af.handle, acf.handle))
+        return af, acf
 
     def __del__(self):
         """del."""

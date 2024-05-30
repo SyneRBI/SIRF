@@ -552,28 +552,31 @@ The actual algorithm is described in
 		virtual void unnormalise(STIRAcquisitionData& ad) const;
 		// divide by bin efficiencies (here attenuation factors), i.e. correct data in \a ad for attenuatio
 		virtual void normalise(STIRAcquisitionData& ad) const;
+		/*! Convenience function computing attenuation factor using unnormalise
+		    and its inverse (attenuation correction factor) using STIRImageData::inv
+		*/
 		static void compute_ac_factors(
+			// input arguments
 			std::shared_ptr<STIRAcquisitionData> acq_templ_sptr,
 			std::shared_ptr<STIRImageData> mu_map_sptr,
 			std::shared_ptr<PETAcquisitionModel>& am_sptr,
 			std::shared_ptr<PETAttenuationModel>& asm_sptr,
-			std::shared_ptr<STIRAcquisitionData>& acf_sptr,
-			std::shared_ptr<STIRAcquisitionData>& iacf_sptr)
+			// output arguments
+			std::shared_ptr<STIRAcquisitionData>& af_sptr,
+			std::shared_ptr<STIRAcquisitionData>& acf_sptr)
 		{
 			//PETAcquisitionModelUsingRayTracingMatrix acq_mod;
 			PETAcquisitionModel& acq_mod = *am_sptr;
 			acq_mod.set_up(acq_templ_sptr, mu_map_sptr);
-			asm_sptr = std::shared_ptr<PETAttenuationModel>(new PETAttenuationModel(*mu_map_sptr, acq_mod));
-//			std::shared_ptr<PETAttenuationModel>
-//				asm_sptr(new PETAttenuationModel(*mu_map_sptr, acq_mod));
 			PETAttenuationModel& acq_sens_mod = *asm_sptr;
 			acq_sens_mod.set_up(acq_templ_sptr->get_exam_info_sptr(),
 				acq_templ_sptr->get_proj_data_info_sptr()->create_shared_clone());
-			acf_sptr = acq_templ_sptr->clone();
-			acf_sptr->fill(1.0);
-			iacf_sptr = acf_sptr->clone();
-			acq_sens_mod.unnormalise(*acf_sptr);
-			acq_sens_mod.normalise(*iacf_sptr);
+			af_sptr = acq_templ_sptr->clone();
+			af_sptr->fill(1.0);
+			acf_sptr = af_sptr->clone();
+			acq_sens_mod.unnormalise(*af_sptr);
+			//acq_sens_mod.normalise(*acf_sptr);
+			acf_sptr->inv(0, *af_sptr);
 		}
 
 	protected:
