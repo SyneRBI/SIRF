@@ -557,25 +557,16 @@ The actual algorithm is described in
 		*/
 		static void compute_ac_factors(
 			// input arguments
-			std::shared_ptr<STIRAcquisitionData> acq_templ_sptr,
-			std::shared_ptr<STIRImageData> mu_map_sptr,
-			std::shared_ptr<PETAcquisitionModel>& am_sptr,
-			std::shared_ptr<PETAttenuationModel>& asm_sptr,
+			STIRAcquisitionData& acq_templ,
+			PETAttenuationModel& acq_sens_mod,
 			// output arguments
 			std::shared_ptr<STIRAcquisitionData>& af_sptr,
 			std::shared_ptr<STIRAcquisitionData>& acf_sptr)
 		{
-			//PETAcquisitionModelUsingRayTracingMatrix acq_mod;
-			PETAcquisitionModel& acq_mod = *am_sptr;
-			acq_mod.set_up(acq_templ_sptr, mu_map_sptr);
-			PETAttenuationModel& acq_sens_mod = *asm_sptr;
-			acq_sens_mod.set_up(acq_templ_sptr->get_exam_info_sptr(),
-				acq_templ_sptr->get_proj_data_info_sptr()->create_shared_clone());
-			af_sptr = acq_templ_sptr->clone();
+			af_sptr = acq_templ.clone();
 			af_sptr->fill(1.0);
 			acf_sptr = af_sptr->clone();
 			acq_sens_mod.unnormalise(*af_sptr);
-			//acq_sens_mod.normalise(*acf_sptr);
 			acf_sptr->inv(0, *af_sptr);
 		}
 

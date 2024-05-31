@@ -88,10 +88,14 @@ int main()
 		std::cout << "===== sinograms norm: " << sinograms_sptr->norm() << '\n';
 		std::cout << "===== randoms norm: " << randoms_sptr->norm() << '\n';
 		
-		std::shared_ptr<PETAttenuationModel> att_sptr = std::shared_ptr<PETAttenuationModel>(new PETAttenuationModel(mu_map, am));
+		am.set_up(sinograms_sptr, mu_map_sptr);
+		STIRAcquisitionData& sinograms = *sinograms_sptr;
+		PETAttenuationModel att(mu_map, am);
+		att.set_up(sinograms.get_exam_info_sptr(),
+			sinograms.get_proj_data_info_sptr()->create_shared_clone());
 		std::shared_ptr<STIRAcquisitionData> af_sptr; // attenuation factor
 		std::shared_ptr<STIRAcquisitionData> acf_sptr; // the inverse of the above
-		PETAttenuationModel::compute_ac_factors(sinograms_sptr, mu_map_sptr, am_sptr, att_sptr, af_sptr, acf_sptr);
+		PETAttenuationModel::compute_ac_factors(sinograms, att, af_sptr, acf_sptr);
 		std::cout << "===== norm of the attenuation factor: " << af_sptr->norm() << '\n';
 		std::cout << "===== norm of the attenuation correction factor: " << acf_sptr->norm() << '\n';
 

@@ -1744,7 +1744,9 @@ class AcquisitionSensitivityModel(object):
         attn = AcquisitionSensitivityModel(mu_map, am)
         af = AcquisitionData(sinograms)
         acf = AcquisitionData(sinograms)
-        try_calling(pystir.cSTIR_computeACF(sinograms.handle, mu_map.handle, am.handle, attn.handle, af.handle, acf.handle))
+        am.set_up(sinograms, mu_map)
+        attn.set_up(sinograms)
+        try_calling(pystir.cSTIR_computeACF(sinograms.handle, attn.handle, af.handle, acf.handle))
         return af, acf
 
     def __del__(self):

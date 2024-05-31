@@ -650,21 +650,17 @@ void* cSTIR_createPETAttenuationModel(const void* ptr_img, const void* ptr_am)
 }
 
 extern "C"
-void* cSTIR_computeACF(const void* ptr_sino, const void* ptr_mumap, const void* ptr_am,
+void* cSTIR_computeACF(const void* ptr_sino,
     const void* ptr_att, void* ptr_af, void* ptr_acf)
 {
 	try {
-		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_sino, ptr_sino);
-		SPTR_FROM_HANDLE(STIRImageData, sptr_mumap, ptr_mumap);
+		STIRAcquisitionData& sino = objectFromHandle<STIRAcquisitionData>(ptr_sino);
+		PETAttenuationModel& att = objectFromHandle<PETAttenuationModel>(ptr_att);
 		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_af, ptr_af);
 		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_acf, ptr_acf);
-		SPTR_FROM_HANDLE(AcqMod3DF, sptr_am, ptr_am);
-		SPTR_FROM_HANDLE(PETAttenuationModel, sptr_att, ptr_att);
-		PETAttenuationModel::compute_ac_factors(sptr_sino, sptr_mumap,
-			sptr_am, sptr_att, sptr_af, sptr_acf);
+		PETAttenuationModel::compute_ac_factors(sino, att, sptr_af, sptr_acf);
 		HANDLE_FROM_SPTR(STIRAcquisitionData, sptr_af, ptr_af);
 		HANDLE_FROM_SPTR(STIRAcquisitionData, sptr_acf, ptr_acf);
-		//HANDLE_FROM_SPTR(PETAttenuationModel, sptr_att, ptr_att);
 		return (void*) new DataHandle;
 	}
 	CATCH;
