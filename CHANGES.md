@@ -1,5 +1,10 @@
 # ChangeLog
 
+## v3.8.0
+
+* CMake/building:
+- set CMP0074 policy to NEW, i.e. honour <packagename>_ROOT env variables
+
 ## v3.7.0
 
 * SIRF/common
