@@ -557,8 +557,8 @@ The actual algorithm is described in
 		*/
 		static void compute_ac_factors(
 			// input arguments
-			STIRAcquisitionData& acq_templ,
-			PETAttenuationModel& acq_sens_mod,
+			const STIRAcquisitionData& acq_templ,
+			const PETAttenuationModel& acq_sens_mod,
 			// output arguments
 			std::shared_ptr<STIRAcquisitionData>& af_sptr,
 			std::shared_ptr<STIRAcquisitionData>& acf_sptr)

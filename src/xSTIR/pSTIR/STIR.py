@@ -1737,8 +1737,8 @@ class AcquisitionSensitivityModel(object):
 
     @staticmethod
     def compute_attenuation_factors(sinograms, mu_map):
-        '''Creates attenuation model and returns it as an AcquisitionSensitivityModel object
-           together with the attenuation factor and its inverse as AcquisitionData objects
+        '''Creates attenuation model and returns the attenuation factor (af)
+        and the attenuation correction factor (acf) as AcquisitionData objects
         '''
         am = AcquisitionModelUsingRayTracingMatrix()
         attn = AcquisitionSensitivityModel(mu_map, am)
