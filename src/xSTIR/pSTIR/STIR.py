@@ -1608,7 +1608,7 @@ class ListmodeToSinograms(object):
         sino = AcquisitionData(templ)
         try_calling(pystir.cSTIR_promptsFromListmode(self.handle, lm_data.handle, \
             start, stop, templ.handle, sino.handle, prefix))
-        return sino, rand
+        return sino
 
     def prompts_and_randoms_from_listmode(self, lm_data, start, stop, templ, prefix="prompts"):
         """Returns proampts and randoms' estimates computed from listmode raw data
