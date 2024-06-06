@@ -1599,29 +1599,6 @@ class ListmodeToSinograms(object):
         pyiutil.deleteDataHandle(h)
         return v
 
-    def prompts_from_listmode(self, lm_data, start, stop, templ, prefix="prompts"):
-        """Returns proampts computed from listmode raw data
-
-        """
-        assert_validity(lm_data, ListmodeData)
-        assert_validity(templ, AcquisitionData)
-        sino = AcquisitionData(templ)
-        try_calling(pystir.cSTIR_promptsFromListmode(self.handle, lm_data.handle, \
-            start, stop, templ.handle, sino.handle, prefix))
-        return sino
-
-    def prompts_and_randoms_from_listmode(self, lm_data, start, stop, templ, prefix="prompts"):
-        """Returns proampts and randoms' estimates computed from listmode raw data
-
-        """
-        assert_validity(lm_data, ListmodeData)
-        assert_validity(templ, AcquisitionData)
-        sino = AcquisitionData(templ)
-        rand = AcquisitionData(templ)
-        try_calling(pystir.cSTIR_promptsAndRandomsFromListmode(self.handle, lm_data.handle, \
-            start, stop, templ.handle, sino.handle, rand.handle, prefix))
-        return sino, rand
-
 
 class AcquisitionSensitivityModel(object):
     """
@@ -1745,20 +1722,6 @@ class AcquisitionSensitivityModel(object):
             self.handle, ad.handle, 'inv')
         check_status(fd.handle)
         return fd
-
-    @staticmethod
-    def compute_attenuation_factors(sinograms, mu_map):
-        '''Creates attenuation model and returns the attenuation factor (af)
-        and the attenuation correction factor (acf) as AcquisitionData objects
-        '''
-        am = AcquisitionModelUsingRayTracingMatrix()
-        attn = AcquisitionSensitivityModel(mu_map, am)
-        af = AcquisitionData(sinograms)
-        acf = AcquisitionData(sinograms)
-        am.set_up(sinograms, mu_map)
-        attn.set_up(sinograms)
-        try_calling(pystir.cSTIR_computeACF(sinograms.handle, attn.handle, af.handle, acf.handle))
-        return af, acf
 
     def __del__(self):
         """del."""
