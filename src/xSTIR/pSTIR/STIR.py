@@ -33,7 +33,7 @@ from numbers import Integral, Number
 from deprecation import deprecated
 
 from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
-     try_calling, assert_validity, \
+     try_calling, assert_validity, assert_validities, \
      cpp_int_dtype, cpp_int_array, \
      examples_data_path, existing_filepath, pTest
 from sirf import SIRF
@@ -2333,27 +2333,49 @@ class Prior(object):
         """Returns the value of the prior (alias of get_value())."""
         return self.get_value(image)
 
-    def get_gradient(self, image):
+    def get_gradient(self, image, out=None, **kwargs):
         """Returns gradient of the prior.
 
         Returns the value of the gradient of the prior for the specified image.
         image: ImageData object
         """
         assert_validity(image, ImageData)
-        grad = ImageData()
-        grad.handle = pystir.cSTIR_priorGradient(self.handle, image.handle)
-        check_status(grad.handle)
-        return grad
+        if out is None:
+            out = ImageData()
+        if out.handle is None:
+            out.handle = pystir.cSTIR_priorGradient(self.handle, image.handle)
+        else:
+            assert_validities(image, out)
+            pystir.cSTIR_computePriorGradient(self.handle, image.handle, out.handle)
+        check_status(out.handle)
+        return out
 
-    def gradient(self, image):
+    def gradient(self, image, out=None, **kwargs):
         """Returns the gradient of the prior (alias of get_gradient())."""
 
-        return self.get_gradient(image)
+        return self.get_gradient(image, out)
 
     def set_up(self, image):
         """Sets up."""
         try_calling(pystir.cSTIR_setupPrior(self.handle, image.handle))
 
+    def accumulate_Hessian_times_input(self, current_estimate, input_, out=None):
+        """Computes the multiplication of the Hessian with a vector and adds it to output.
+        """
+        if out is None or out.handle is None:
+            out = input_.get_uniform_copy(0.0)
+        try_calling(pystir.cSTIR_priorAccumulateHessianTimesInput
+            (self.handle, out.handle, current_estimate.handle, input_.handle))
+        return out
+
+    def multiply_with_Hessian(self, current_estimate, input_, out=None):
+        """Computes the multiplication of the Hessian at current_estimate with a vector.
+        """
+        if out is None or out.handle is None:
+            out = input_.get_uniform_copy(0.0)
+        try_calling(pystir.cSTIR_priorComputeHessianTimesInput
+            (self.handle, current_estimate.handle, input_.handle, out.handle))
+        return out
 
 class QuadraticPrior(Prior):
     r"""Class for the prior that is a quadratic function of the image values.
@@ -2592,10 +2614,13 @@ class PLSPrior(Prior):
         check_status(image.handle)
         return image
 
-    def get_anatomical_grad(self, direction):
+    def get_anatomical_grad(self, direction, out=None):
         """Returns anatomical gradient."""
-        image = ImageData()
-        image.handle = pystir.cSTIR_PLSPriorGradient(self.handle, direction)
+        if out is None:
+            image = ImageData()
+        else:
+            image = out
+        image.handle = pystir.cSTIR_PLSPriorAnatomicalGradient(self.handle, direction)
         check_status(image.handle)
         return image
 
@@ -2712,7 +2737,7 @@ class ObjectiveFunction(object):
         """
         return self.value(image)
 
-    def gradient(self, image, subset=-1):
+    def gradient(self, image, subset=-1, out=None):
         """Returns the value of the additive component of the gradient
 
         of this objective function on the specified image corresponding to the
@@ -2723,20 +2748,24 @@ class ObjectiveFunction(object):
         subset: Python integer scalar
         """
         assert_validity(image, ImageData)
-        grad = ImageData()
-        grad.handle = pystir.cSTIR_objectiveFunctionGradient(
-            self.handle, image.handle, subset)
-        check_status(grad.handle)
-        return grad
+        if out is None:
+            out = ImageData()
+        if out.handle is None:
+            out.handle = pystir.cSTIR_objectiveFunctionGradient(self.handle, image.handle, subset)
+        else:
+            assert_validities(image, out)
+            pystir.cSTIR_computeObjectiveFunctionGradient(self.handle, image.handle, subset, out.handle)
+        check_status(out.handle)
+        return out
 
-    def get_gradient(self, image):
+    def get_gradient(self, image, out=None):
         """Returns the gradient of the objective function on specified image.
 
         image: ImageData object
         """
-        return self.gradient(image)
+        return self.gradient(image, -1, out)
 
-    def get_subset_gradient(self, image, subset):
+    def get_subset_gradient(self, image, subset, out=None):
         """Returns the value of the additive component of the gradient
 
         of this objective function on <image> corresponding to the specified
@@ -2744,7 +2773,25 @@ class ObjectiveFunction(object):
         image: ImageData object
         subset: Python integer scalar
         """
-        return self.gradient(image, subset)
+        return self.gradient(image, subset, out)
+
+    def accumulate_Hessian_times_input(self, current_estimate, input_, subset=-1, out=None):
+        """Computes the multiplication of the Hessian at current_estimate with a vector and adds it to output.
+        """
+        if out is None or out.handle is None:
+            out = input_.clone()
+        try_calling(pystir.cSTIR_objectiveFunctionAccumulateHessianTimesInput
+            (self.handle, current_estimate.handle, input_.handle, subset, out.handle))
+        return out
+
+    def multiply_with_Hessian(self, current_estimate, input_, subset=-1, out=None):
+        """Computes the multiplication of the Hessian at current_estimate with a vector.
+        """
+        if out is None or out.handle is None:
+            out = input_.get_uniform_copy(0.0)
+        try_calling(pystir.cSTIR_objectiveFunctionComputeHessianTimesInput
+            (self.handle, current_estimate.handle, input_.handle, subset, out.handle))
+        return out
 
     @abc.abstractmethod
     def get_subset_sensitivity(self, subset):
@@ -2793,18 +2840,24 @@ class PoissonLogLikelihoodWithLinearModelForMean(ObjectiveFunction):
         check_status(ss.handle)
         return ss
 
-    def get_backprojection_of_acquisition_ratio(self, image, subset):
+    def get_backprojection_of_acquisition_ratio(self, image, subset, out=None):
         """Returns backprojection of measured to estimated acquisition ratio.
 
         Returns the back-projection of the ratio of the measured and estimated
         acquisition data.
         """
         assert_validity(image, ImageData)
-        grad = ImageData()
-        grad.handle = pystir.cSTIR_objectiveFunctionGradientNotDivided(
-            self.handle, image.handle, subset)
-        check_status(grad.handle)
-        return grad
+        if out is None:
+            out = ImageData()
+        if out.handle is None:
+            out.handle = pystir.cSTIR_objectiveFunctionGradientNotDivided(
+                self.handle, image.handle, subset)
+        else:
+            assert_validities(image, out)
+            pystir.cSTIR_computeObjectiveFunctionGradientNotDivided(
+                self.handle, image.handle, subset, out.handle)
+        check_status(out.handle)
+        return out
 
 
 class PoissonLogLikelihoodWithLinearModelForMeanAndProjData(
@@ -2862,7 +2915,8 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData(
             self.handle, self.name, 'acquisition_data', ad.handle)
 
 
-class PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin(ObjectiveFunction):
+class PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin(PoissonLogLikelihoodWithLinearModelForMean):
+#(ObjectiveFunction):
     """Class for a STIR type of Poisson loglikelihood object for listmode data.
 
     Specifically, PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin.
@@ -2886,6 +2940,17 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByB
     def get_cache_path(self):
         return parms.char_par(self.handle, self.name, 'cache_path')
     
+    def set_time_interval(self, start, stop):
+        """Sets the time interval.
+
+        Only data scanned during this time interval will be converted.
+        """
+        interval = numpy.ndarray((2,), dtype=numpy.float32)
+        interval[0] = start
+        interval[1] = stop
+        try_calling(pystir.cSTIR_objFunListModeSetInterval(
+            self.handle, interval.ctypes.data))
+
     def set_acquisition_data(self, ad):
         assert_validity(ad, ListmodeData)
         parms.set_parameter(
@@ -2925,6 +2990,9 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByB
 
     def get_cache_max_size(self):
         return parms.int_par(self.handle, self.name, 'cache_max_size')
+
+    def set_subsensitivity_filenames(self, names):
+        return parms.set_char_par(self.handle, self.name, 'subsensitivity_filenames', names)
 
     def get_subsensitivity_filenames(self):
         return parms.char_par(self.handle, self.name, 'subsensitivity_filenames')

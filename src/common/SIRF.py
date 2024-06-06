@@ -480,7 +480,7 @@ class DataContainer(ABC):
 
         if out is None:
             check_status(z.handle)
-            return z
+        return z
 
     def power(self, other, out=None):
         '''Power function for DataContainers

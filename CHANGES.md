@@ -1,15 +1,29 @@
 # ChangeLog
 
-## vx.x.x
+## v3.8.0
+
+* CMake/building:
+- set CMP0074 policy to NEW, i.e. honour <packagename>_ROOT env variables
+
+## v3.7.0
+
+* SIRF/common
+  - Python `sapyb` returns the output even if it is pre-allocated
+  - Python add `min()` to `DataContainer`
+
+* PET:
+  - implemented basic-functionality list-mode data class in C++ and Python
+  - added objective function type for list-mode reconstruction
+  - added new demo script for the reconstruction from list-mode data
+  - provided gradient-computing methods with return via optional argument out
+    in addition to the standard return, ensuring that no temporary copies of the
+    gradient data are created.
+  - provided prior and objective function objects with methods for computing
+    the product of the Hessian and a vector.
 
 * CMake/building:
   - add `DISABLE_Gadgetron_TOOLBOXES` option (defaults to `OFF`) to be
     able to cope with compilation problems with older Gadgetron versions.
-
-* PET:
-  - implemented basic-functionality listmode data class in C++ and Python
-  - added objective function type for lismode reconstruction
-  - added new demo script for the reconstruction from listmode data
 
 ## v3.6.0
 
