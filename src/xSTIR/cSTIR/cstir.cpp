@@ -39,6 +39,8 @@ using namespace sirf;
 #define NEW_OBJECT_HANDLE(T) new ObjectHandle<T >(std::shared_ptr<T >(new T))
 #define SPTR_FROM_HANDLE(Object, X, H) \
   std::shared_ptr<Object> X; getObjectSptrFromHandle<Object>(H, X);
+#define HANDLE_FROM_SPTR(Object, X, H) \
+  setHandleObjectSptr<Object>(H, X);
 
 static void*
 unknownObject(const char* obj, const char* name, const char* file, int line)
@@ -492,6 +494,25 @@ void* cSTIR_convertListmodeToSinograms(void* ptr)
 }
 
 extern "C"
+void* cSTIR_promptsAndRandomsFromListmode(void* ptr_lm2s, void* ptr_lmdata,
+	const float start, const float stop,
+	void* ptr_templ, void* ptr_sino, void* ptr_rand, const char* prefix)
+{
+	try {
+		ListmodeToSinograms& lm2s = objectFromHandle<ListmodeToSinograms>(ptr_lm2s);
+		STIRListmodeData& lm_data = objectFromHandle<STIRListmodeData>(ptr_lmdata);
+		STIRAcquisitionData& templ = objectFromHandle<STIRAcquisitionData>(ptr_templ);
+		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_sino, ptr_sino);
+		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_rand, ptr_rand);
+		lm2s.prompts_and_randoms_from_listmode(lm_data, start, stop, templ, sptr_sino, sptr_rand, prefix);
+		HANDLE_FROM_SPTR(STIRAcquisitionData, sptr_sino, ptr_sino);
+		HANDLE_FROM_SPTR(STIRAcquisitionData, sptr_rand, ptr_rand);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
 void* cSTIR_scatterSimulatorFwd
 (void* ptr_am, void* ptr_im)
 {
@@ -637,6 +658,23 @@ void* cSTIR_createPETAttenuationModel(const void* ptr_img, const void* ptr_am)
 		shared_ptr<PETAcquisitionSensitivityModel> 
 			sptr(new PETAttenuationModel(id, am));
 		return newObjectHandle(sptr);
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_computeACF(const void* ptr_sino,
+    const void* ptr_att, void* ptr_af, void* ptr_acf)
+{
+	try {
+		STIRAcquisitionData& sino = objectFromHandle<STIRAcquisitionData>(ptr_sino);
+		PETAttenuationModel& att = objectFromHandle<PETAttenuationModel>(ptr_att);
+		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_af, ptr_af);
+		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_acf, ptr_acf);
+		PETAttenuationModel::compute_ac_factors(sino, att, sptr_af, sptr_acf);
+		HANDLE_FROM_SPTR(STIRAcquisitionData, sptr_af, ptr_af);
+		HANDLE_FROM_SPTR(STIRAcquisitionData, sptr_acf, ptr_acf);
+		return (void*) new DataHandle;
 	}
 	CATCH;
 }

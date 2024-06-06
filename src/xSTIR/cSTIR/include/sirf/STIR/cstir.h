@@ -63,6 +63,9 @@ extern "C" {
 		(void* ptr_lm2s, const char* flag, int v);
 	void* cSTIR_setupListmodeToSinogramsConverter(void* ptr);
 	void* cSTIR_convertListmodeToSinograms(void* ptr);
+	void* cSTIR_promptsAndRandomsFromListmode(void* ptr_lm2s, void* ptr_lmdata,
+		const float start, const float stop,
+		void* ptr_templ, void* ptr_sino, void* ptr_rand, const char* prefix);
 	void* cSTIR_computeRandoms(void* ptr);
     void* cSTIR_lm_num_prompts_exceeds_threshold(void* ptr, const float threshold);
     void* cSTIR_objFunListModeSetInterval(void* ptr_f, size_t ptr_data);
@@ -76,6 +79,8 @@ extern "C" {
 		(const void* ptr_src, const char* src);
 	void* cSTIR_createPETAttenuationModel
 		(const void* ptr_img, const void* ptr_am);
+	void* cSTIR_computeACF
+		(const void* ptr_sino, const void* ptr_att, void* ptr_acf, void* ptr_iacf);
 	void* cSTIR_chainPETAcquisitionSensitivityModels
 		(const void* ptr_first, const void* ptr_second);
 	void* cSTIR_setupAcquisitionSensitivityModel(void* ptr_sm, void* ptr_ad);
@@ -92,7 +97,7 @@ extern "C" {
 		int subset_num, int num_subsets);
 	void* cSTIR_acquisitionModelBwdReplace(void* ptr_am, void* ptr_ad,
 		int subset_num, int num_subsets, void* ptr_im);
-        void* cSTIR_get_MatrixInfo(void* ptr);
+	void* cSTIR_get_MatrixInfo(void* ptr);
 
     // Acquisition Model Matrix
     void* cSTIR_setupSPECTUBMatrix(const void* h_smx, const void* h_acq, const void* h_img);
