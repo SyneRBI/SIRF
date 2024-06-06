@@ -21,11 +21,6 @@
   - provided prior and objective function objects with methods for computing
     the product of the Hessian and a vector.
 
-* PET:
-  - incorporated into SIRF data processing utilities from SyneRBI-Challenge.
-
-## v3.7.0
-
 * CMake/building:
   - add `DISABLE_Gadgetron_TOOLBOXES` option (defaults to `OFF`) to be
     able to cope with compilation problems with older Gadgetron versions.
