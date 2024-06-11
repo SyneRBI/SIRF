@@ -103,6 +103,8 @@ sirf::cSTIR_AcquisitionDataParameter(void* hp, const char* name)
 	STIRAcquisitionData& ad = objectFromHandle<STIRAcquisitionData>(hp);
 	if (sirf::iequals(name, "tof_mash_factor"))
 		return dataHandle<int>(ad.get_tof_mash_factor());
+	if (sirf::iequals(name, "modality"))
+		return charDataHandleFromCharData(ad.modality().c_str());
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 }

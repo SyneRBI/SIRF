@@ -169,6 +169,7 @@ def main():
 #    simulated_data = acq_model.forward(image, 0, num_subsets)
     if output_file is not None:
         simulated_data.write(output_file)
+    print('simulated data modality: %s' % simulated_data.modality)
 
     if show_plot:
         # show simulated acquisition data

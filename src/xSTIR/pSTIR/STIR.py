@@ -457,6 +457,7 @@ class ImageData(SIRF.ImageData):
         pyiutil.deleteDataHandle(handle)
         return info
 
+    @property
     def modality(self):
         """Returns imaging modality as Python string."""
         return parms.char_par(self.handle, 'ImageData', 'modality')
@@ -1296,6 +1297,11 @@ class AcquisitionData(ScanData):
         '''Returns TOF mashing factor.'''
         return parms.int_par(self.handle, 'AcquisitionData', 'tof_mash_factor')
 
+    @property
+    def modality(self):
+        """Returns imaging modality as Python string."""
+        return parms.char_par(self.handle, 'AcquisitionData', 'modality')
+
     def as_array(self):
         """Returns bin values as ndarray.
 
@@ -1722,6 +1728,20 @@ class AcquisitionSensitivityModel(object):
             self.handle, ad.handle, 'inv')
         check_status(fd.handle)
         return fd
+
+    @staticmethod
+    def compute_attenuation_factors(sinograms, mu_map):
+        '''Creates attenuation model and returns the attenuation factor (af)
+        and the attenuation correction factor (acf) as AcquisitionData objects
+        '''
+        am = AcquisitionModelUsingRayTracingMatrix()
+        attn = AcquisitionSensitivityModel(mu_map, am)
+        af = AcquisitionData(sinograms)
+        acf = AcquisitionData(sinograms)
+        am.set_up(sinograms, mu_map)
+        attn.set_up(sinograms)
+        try_calling(pystir.cSTIR_computeACF(sinograms.handle, attn.handle, af.handle, acf.handle))
+        return af, acf
 
     def __del__(self):
         """del."""
