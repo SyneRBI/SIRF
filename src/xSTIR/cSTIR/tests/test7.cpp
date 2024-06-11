@@ -82,8 +82,17 @@ int main()
 
 		std::shared_ptr<STIRAcquisitionData> sinograms_sptr;
 		std::shared_ptr<STIRAcquisitionData> randoms_sptr;
-		converter.prompts_and_randoms_from_listmode
-			(lm_data, 0, 10, acq_data_template, sinograms_sptr, randoms_sptr);
+		converter.set_input(lm_data);
+		converter.set_output("prompts");
+		converter.set_template(acq_data_template);
+		converter.set_time_interval(0, 10);
+		converter.set_up();
+		converter.process_data();
+		sinograms_sptr = converter.get_output();
+		converter.estimate_randoms();
+		randoms_sptr = converter.get_randoms_sptr();
+//		converter.prompts_and_randoms_from_listmode
+//			(lm_data, 0, 10, acq_data_template, sinograms_sptr, randoms_sptr);
 		
 		std::cout << "===== sinograms norm: " << sinograms_sptr->norm() << '\n';
 		std::cout << "===== randoms norm: " << randoms_sptr->norm() << '\n';

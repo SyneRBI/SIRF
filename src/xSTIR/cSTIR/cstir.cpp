@@ -479,7 +479,7 @@ void* cSTIR_convertListmodeToSinograms(void* ptr)
 	}
 	CATCH;
 }
-
+/*
 extern "C"
 void* cSTIR_promptsFromListmode(void* ptr_lm2s, void* ptr_lmdata,
 	const float start, const float stop,
@@ -515,7 +515,7 @@ void* cSTIR_promptsAndRandomsFromListmode(void* ptr_lm2s, void* ptr_lmdata,
 	}
 	CATCH;
 }
-
+*/
 extern "C"
 void* cSTIR_scatterSimulatorFwd
 (void* ptr_am, void* ptr_im)

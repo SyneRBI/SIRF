@@ -1604,7 +1604,7 @@ class ListmodeToSinograms(object):
         v = pyiutil.floatDataFromHandle(h)
         pyiutil.deleteDataHandle(h)
         return v
-
+    '''
     def prompts_from_listmode(self, lm_data, start, stop, templ, prefix="prompts"):
         """Returns proampts computed from listmode raw data
 
@@ -1627,6 +1627,7 @@ class ListmodeToSinograms(object):
         try_calling(pystir.cSTIR_promptsAndRandomsFromListmode(self.handle, lm_data.handle, \
             start, stop, templ.handle, sino.handle, rand.handle, prefix))
         return sino, rand
+    '''
 
 
 class AcquisitionSensitivityModel(object):
