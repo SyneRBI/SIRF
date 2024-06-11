@@ -715,7 +715,7 @@ The actual algorithm is described in
         /// Get the time at which the number of prompts exceeds a certain threshold.
         /// Returns -1 if not found.
         float get_time_at_which_num_prompts_exceeds_threshold(const unsigned long threshold) const;
-
+/*
 		void prompts_from_listmode(
 			const STIRListmodeData& lm_data,
 			double start, double stop,
@@ -750,7 +750,7 @@ The actual algorithm is described in
 			estimate_randoms();
 			randoms_sptr = get_randoms_sptr();
 		}
-
+*/
 	protected:
 		// variables for ML estimation of singles/randoms
 		int fan_size;
