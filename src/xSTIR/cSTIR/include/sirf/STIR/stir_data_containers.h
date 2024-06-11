@@ -480,6 +480,11 @@ namespace sirf {
 		{
 			return data()->get_proj_data_info_sptr();
 		}
+		std::string modality() const
+		{
+			const ExamInfo& ex_info = *get_exam_info_sptr();
+			return ex_info.imaging_modality.get_name();
+		}
 
 		// ProjData casts
 		operator stir::ProjData&() { return *data(); }

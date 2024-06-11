@@ -457,6 +457,7 @@ class ImageData(SIRF.ImageData):
         pyiutil.deleteDataHandle(handle)
         return info
 
+    @property
     def modality(self):
         """Returns imaging modality as Python string."""
         return parms.char_par(self.handle, 'ImageData', 'modality')
@@ -1295,6 +1296,11 @@ class AcquisitionData(ScanData):
     def get_tof_mash_factor(self):
         '''Returns TOF mashing factor.'''
         return parms.int_par(self.handle, 'AcquisitionData', 'tof_mash_factor')
+
+    @property
+    def modality(self):
+        """Returns imaging modality as Python string."""
+        return parms.char_par(self.handle, 'AcquisitionData', 'modality')
 
     def as_array(self):
         """Returns bin values as ndarray.
