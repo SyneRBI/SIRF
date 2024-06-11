@@ -4,6 +4,7 @@
 
 * PET:
   - incorporated into SIRF data processing utilities from SyneRBI-Challenge.
+  - Added method modality() to AcquisitionData classes.
 
 ## v3.7.0
 
