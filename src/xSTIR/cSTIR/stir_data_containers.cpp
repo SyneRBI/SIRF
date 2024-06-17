@@ -45,6 +45,9 @@ std::shared_ptr<STIRAcquisitionData> STIRAcquisitionData::_template;
 float
 STIRAcquisitionData::norm() const
 {
+#if STIR_VERSION >= 060200
+        return data()->norm();
+#else
 	double t = 0.0;
         TOF_LOOP
           for (int s = data()->get_min_segment_num(); s <= data()->get_max_segment_num(); ++s)
@@ -53,11 +56,16 @@ STIRAcquisitionData::norm() const
 		t += stir::norm_squared(seg.begin_all(), seg.end_all());
 	}
 	return static_cast<float>(std::sqrt(t));
+#endif
 }
 
 void
 STIRAcquisitionData::sum(void* ptr) const
 {
+	float* ptr_t = static_cast<float*>(ptr);
+#if STIR_VERSION >= 060200
+        *ptr_t = data()->sum();
+#else
 	int n = get_max_segment_num();
 	double t = 0;
         TOF_LOOP
@@ -73,13 +81,17 @@ STIRAcquisitionData::sum(void* ptr) const
 				t += *seg_iter++;
 		}
 	}
-	float* ptr_t = static_cast<float*>(ptr);
 	*ptr_t = (float)t;
+#endif
 }
 
 void
 STIRAcquisitionData::max(void* ptr) const
 {
+	float* ptr_t = static_cast<float*>(ptr);
+#if STIR_VERSION >= 060200
+        *ptr_t = data()->find_max();
+#else
 	int n = get_max_segment_num();
 	float t = 0;
 	bool init = true;
@@ -101,36 +113,33 @@ STIRAcquisitionData::max(void* ptr) const
 				t = std::max(t, *seg_iter++);
 		}
 	}
-	float* ptr_t = static_cast<float*>(ptr);
 	*ptr_t = (float)t;
+#endif
 }
 
 void
 STIRAcquisitionData::min(void* ptr) const
 {
-	int n = get_max_segment_num();
+	float* ptr_t = static_cast<float*>(ptr);
+#if STIR_VERSION >= 060200
+        *ptr_t = data()->find_min();
+#else
 	float t = 0;
 	bool init = true;
         TOF_LOOP
-	for (int s = 0; s <= n; ++s)
+        for (int s = data()->get_min_segment_num(); s <= get_max_segment_num(); ++s)
 	{
-		SegmentBySinogram<float> seg = get_segment_by_sinogram(s TOF_ARG);
-		SegmentBySinogram<float>::full_iterator seg_iter;
-		for (seg_iter = seg.begin_all(); seg_iter != seg.end_all();)
-			if (init) {
-				t = *seg_iter++;
-				init = false;
-			}
-			else
-				t = std::min(t, *seg_iter++);
-		if (s != 0) {
-			seg = get_segment_by_sinogram(-s TOF_ARG);
-			for (seg_iter = seg.begin_all(); seg_iter != seg.end_all();)
-				t = std::min(t, *seg_iter++);
+                const auto t_seg = get_segment_by_sinogram(s TOF_ARG).find_min();
+                if (init) {
+                        init = false;
+                        t = t_seg;
+                }
+                else {
+                        t = std::min(t, t_seg);
 		}
 	}
-	float* ptr_t = static_cast<float*>(ptr);
 	*ptr_t = (float)t;
+#endif
 }
 
 void
@@ -495,49 +504,22 @@ STIRImageData::write(const std::string &filename, const std::string &format_file
 void
 STIRImageData::sum(void* ptr) const
 {
-#if defined(_MSC_VER) && _MSC_VER < 1900
-	Image3DF::const_full_iterator iter;
-#else
-	typename Array<3, float>::const_full_iterator iter;
-#endif
-
-	double s = 0.0;
-	for (iter = data().begin_all(); iter != data().end_all(); iter++)
-		s += *iter;
 	float* ptr_s = static_cast<float*>(ptr);
-	*ptr_s = (float)s;
+        *ptr_s = (float)data().sum();
 }
 
 void
 STIRImageData::max(void* ptr) const
 {
-#if defined(_MSC_VER) && _MSC_VER < 1900
-	Image3DF::const_full_iterator iter;
-#else
-	typename Array<3, float>::const_full_iterator iter;
-#endif
-	iter = data().begin_all();
-	float s = *iter++;
-	for (; iter != data().end_all(); iter++)
-		s = std::max(s, *iter);
 	float* ptr_s = static_cast<float*>(ptr);
-	*ptr_s = (float)s;
+        *ptr_s = (float)data().find_max();
 }
 
 void
 STIRImageData::min(void* ptr) const
 {
-#if defined(_MSC_VER) && _MSC_VER < 1900
-	Image3DF::const_full_iterator iter;
-#else
-	typename Array<3, float>::const_full_iterator iter;
-#endif
-	iter = data().begin_all();
-	float s = *iter++;
-	for (; iter != data().end_all(); iter++)
-		s = std::min(s, *iter);
 	float* ptr_s = static_cast<float*>(ptr);
-	*ptr_s = (float)s;
+        *ptr_s = (float)data().find_min();
 }
 
 void
@@ -581,25 +563,7 @@ const DataContainer& a_y, const void* ptr_b)
 	float b = *static_cast<const float*>(ptr_b);
 	SIRF_DYNAMIC_CAST(const STIRImageData, x, a_x);
 	SIRF_DYNAMIC_CAST(const STIRImageData, y, a_y);
-#if defined(_MSC_VER) && _MSC_VER < 1900
-	Image3DF::full_iterator iter;
-	Image3DF::const_full_iterator iter_x;
-	Image3DF::const_full_iterator iter_y;
-#else
-	typename Array<3, float>::full_iterator iter;
-	typename Array<3, float>::const_full_iterator iter_x;
-	typename Array<3, float>::const_full_iterator iter_y;
-#endif
-
-	if (size() != x.size() || size() != y.size())
-		throw std::runtime_error("xapyb error: operands sizes differ");
-
-	for (iter = data().begin_all(),
-		iter_x = x.data().begin_all(), iter_y = y.data().begin_all();
-		iter != data().end_all() &&
-		iter_x != x.data().end_all() && iter_y != y.data().end_all();
-	iter++, iter_x++, iter_y++)
-		*iter = a * (*iter_x) + b * (*iter_y);
+        data().xapyb(x.data(), a, y.data(), b);
 }
 
 void
@@ -643,30 +607,7 @@ STIRImageData::xapyb(
 	SIRF_DYNAMIC_CAST(const STIRImageData, b, a_b);
 	SIRF_DYNAMIC_CAST(const STIRImageData, x, a_x);
 	SIRF_DYNAMIC_CAST(const STIRImageData, y, a_y);
-#if defined(_MSC_VER) && _MSC_VER < 1900
-	Image3DF::full_iterator iter;
-	Image3DF::const_full_iterator iter_x;
-	Image3DF::const_full_iterator iter_y;
-	Image3DF::const_full_iterator iter_a;
-	Image3DF::const_full_iterator iter_b;
-#else
-	typename Array<3, float>::full_iterator iter;
-	typename Array<3, float>::const_full_iterator iter_x;
-	typename Array<3, float>::const_full_iterator iter_y;
-	typename Array<3, float>::const_full_iterator iter_a;
-	typename Array<3, float>::const_full_iterator iter_b;
-#endif
-
-	if (size() != x.size() || size() != y.size() ||
-		size() != a.size() || size() != b.size())
-		throw std::runtime_error("xapyb error: operands sizes differ");
-
-	for (iter = data().begin_all(),
-		iter_a = a.data().begin_all(), iter_b = b.data().begin_all(),
-		iter_x = x.data().begin_all(), iter_y = y.data().begin_all();
-		iter != data().end_all();
-		iter++, iter_x++, iter_y++, iter_a++, iter_b++)
-		*iter = (*iter_a) * (*iter_x) + (*iter_b) * (*iter_y);
+        data().xapyb(x.data(), a.data(), y.data(), b.data());
 }
 
 float
@@ -691,13 +632,7 @@ STIRImageData::norm() const
 void
 STIRImageData::scale(float s)
 {
-#if defined(_MSC_VER) && _MSC_VER < 1900
-	Image3DF::full_iterator iter;
-#else
-	typename Array<3, float>::full_iterator iter;
-#endif
-	for (iter = _data->begin_all(); iter != _data->end_all(); iter++)
-		*iter /= s;
+  data() /= s;
 }
 
 void
