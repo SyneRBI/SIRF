@@ -1856,9 +1856,11 @@ def calc_cartesian_dcw(ad):
     
     density_weight = (1.0 / counts)[inverse]
     print(density_weight.shape)
-    print(density_weight.flags['C_CONTIGUOUS'])
-    if not density_weight.flags['C_CONTIGUOUS']:
-        density_weight = numpy.ascontiguousarray(density_weight)
+    l = len(density_weight.shape)
+    print(l)
+    if l > 1:
+        density_weight.reshape((l,))
+    print(density_weight.shape)
     
     density_weight = numpy.expand_dims(density_weight, axis=1)
     print(density_weight.shape)
