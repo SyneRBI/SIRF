@@ -1855,17 +1855,12 @@ def calc_cartesian_dcw(ad):
     traj, inverse, counts = numpy.unique(traj, return_inverse=True, return_counts=True, axis=1)
     
     density_weight = (1.0 / counts)[inverse]
-    print(density_weight.shape)
     n = numpy.prod(density_weight.shape)
     density_weight = density_weight.reshape((n, 1, 1))
-    print(density_weight.shape)
     
-    print(ad.shape)
     density_weight = numpy.tile(density_weight, (1, ad.shape[1], ad.shape[2]))
-    print(density_weight.shape)
     
     dcw = ad.copy()
-    print(dcw.shape)
     dcw.fill(density_weight)
     
     return dcw
