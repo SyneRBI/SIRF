@@ -1,4 +1,4 @@
-#========================================================================
+##========================================================================
 # Author: Richard Brown
 # Copyright 2016 - 2019 University College London
 #
@@ -17,7 +17,9 @@
 # test Reg
 ########################################################################################
 # Create an executable
-ADD_EXECUTABLE (REG_TEST_CPLUSPLUS test_cReg.cpp)
+
+# Note: adding STIR_REGISTRIES to avoid linking errors
+ADD_EXECUTABLE (REG_TEST_CPLUSPLUS test_cReg.cpp ${STIR_REGISTRIES})
 SET_TARGET_PROPERTIES (REG_TEST_CPLUSPLUS
     PROPERTIES FOLDER ${CMAKE_INSTALL_PREFIX}/bin
     INSTALL_NAME_DIR "Reg")
