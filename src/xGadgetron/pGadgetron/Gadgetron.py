@@ -1859,7 +1859,8 @@ def calc_cartesian_dcw(ad):
     l = len(density_weight.shape)
     print(l)
     if l > 1:
-        density_weight.reshape((l,))
+        n = numpy.prod(density_weight.shape)
+        density_weight.reshape((n,))
     print(density_weight.shape)
     
     density_weight = numpy.expand_dims(density_weight, axis=1)
