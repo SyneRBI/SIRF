@@ -721,14 +721,6 @@ class CoilSensitivityData(ImageData):
         else:
             raise error('Unknown method %s' % method_name)
 
-    def __calc_from_acquisitions(self, data, method_name):
-        assert data.handle is not None
-        dcw = compute_kspace_density(data)
-        data = data * dcw
-        cis = CoilImagesData()
-        try_calling(pygadgetron.cGT_computeCoilImages(cis.handle, data.handle))
-        self.__calc_from_images(cis, method_name)
-
 DataContainer.register(CoilSensitivityData)
 
 
