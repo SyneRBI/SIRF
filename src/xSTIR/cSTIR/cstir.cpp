@@ -1168,8 +1168,8 @@ cSTIR_objectiveFunctionValue(void* ptr_f, void* ptr_i)
 		ObjectiveFunction3DF& fun = objectFromHandle< ObjectiveFunction3DF>(ptr_f);
 		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_i);
 		Image3DF& image = id.data();
-		float v = (float)fun.compute_objective_function(image);
-		return dataHandle<float>(v);
+		double v = fun.compute_objective_function(image);
+		return dataHandle<double>(v);
 	}
 	CATCH;
 }

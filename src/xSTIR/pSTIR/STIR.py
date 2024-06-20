@@ -2714,7 +2714,7 @@ class ObjectiveFunction(object):
         assert_validity(image, ImageData)
         handle = pystir.cSTIR_objectiveFunctionValue(self.handle, image.handle)
         check_status(handle)
-        v = pyiutil.floatDataFromHandle(handle)
+        v = pyiutil.doubleDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return v
 
