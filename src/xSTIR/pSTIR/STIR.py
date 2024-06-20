@@ -1383,7 +1383,7 @@ class AcquisitionData(ScanData):
         Keyword arguments:
 		num_segments_to_combine -- combines multiple oblique 'segments' together. If set to the
 		    total number of segments, this corresponds to SSRB. Another example is if the input data
-			has 'span=1', the output span will be equal to the \c num_segments_to_combine.
+			has 'span=1', the output span will be equal to the num_segments_to_combine.
 		num_views_to_combine -- combines neighbouring views. Needs to be a divisor of the total
 		    number of views in the data.
 		num_tang_poss_to_trim -- removes a number of tangential positions (horizontal direction
