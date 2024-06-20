@@ -716,25 +716,6 @@ The actual algorithm is described in
         /// Returns -1 if not found.
         float get_time_at_which_num_prompts_exceeds_threshold(const unsigned long threshold) const;
 
-		void prompts_and_randoms_from_listmode(
-			const STIRListmodeData& lm_data,
-			double start, double stop,
-			const STIRAcquisitionData& acq_data_template,
-			std::shared_ptr<STIRAcquisitionData>& prompts_sptr,
-			std::shared_ptr<STIRAcquisitionData>& randoms_sptr,
-			const std::string prompts_prefix = "prompts")
-		{
-			set_input(lm_data);
-			set_output(prompts_prefix);
-			set_template(acq_data_template);
-			set_time_interval(start, stop);
-			set_up();
-			process_data();
-			prompts_sptr = get_output();
-			estimate_randoms();
-			randoms_sptr = get_randoms_sptr();
-		}
-
 	protected:
 		// variables for ML estimation of singles/randoms
 		int fan_size;

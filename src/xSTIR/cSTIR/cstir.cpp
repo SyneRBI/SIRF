@@ -494,25 +494,6 @@ void* cSTIR_convertListmodeToSinograms(void* ptr)
 }
 
 extern "C"
-void* cSTIR_promptsAndRandomsFromListmode(void* ptr_lm2s, void* ptr_lmdata,
-	const float start, const float stop,
-	void* ptr_templ, void* ptr_sino, void* ptr_rand, const char* prefix)
-{
-	try {
-		ListmodeToSinograms& lm2s = objectFromHandle<ListmodeToSinograms>(ptr_lm2s);
-		STIRListmodeData& lm_data = objectFromHandle<STIRListmodeData>(ptr_lmdata);
-		STIRAcquisitionData& templ = objectFromHandle<STIRAcquisitionData>(ptr_templ);
-		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_sino, ptr_sino);
-		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_rand, ptr_rand);
-		lm2s.prompts_and_randoms_from_listmode(lm_data, start, stop, templ, sptr_sino, sptr_rand, prefix);
-		HANDLE_FROM_SPTR(STIRAcquisitionData, sptr_sino, ptr_sino);
-		HANDLE_FROM_SPTR(STIRAcquisitionData, sptr_rand, ptr_rand);
-		return new DataHandle;
-	}
-	CATCH;
-}
-
-extern "C"
 void* cSTIR_scatterSimulatorFwd
 (void* ptr_am, void* ptr_im)
 {

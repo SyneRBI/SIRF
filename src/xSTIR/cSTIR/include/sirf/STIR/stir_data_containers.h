@@ -480,6 +480,11 @@ namespace sirf {
 		{
 			return data()->get_proj_data_info_sptr();
 		}
+		std::string modality() const
+		{
+			const ExamInfo& ex_info = *get_exam_info_sptr();
+			return ex_info.imaging_modality.get_name();
+		}
 
 		// ProjData casts
 		operator stir::ProjData&() { return *data(); }
@@ -808,11 +813,15 @@ namespace sirf {
                 return this->STIRAcquisitionData::norm();
 
             // do it
+#if STIR_VERSION <= 060100
             double t = 0.0;
             auto iter = pd_ptr->begin();
 			for (; iter != pd_ptr->end(); ++iter)
 				t += (*iter) * (*iter);
 			return std::sqrt((float)t);
+#else
+                        return static_cast<float>(pd_ptr->norm());
+#endif
         }
         virtual void dot(const DataContainer& a_x, void* ptr) const
         {

@@ -2,6 +2,9 @@
 
 ## v3.8.0
 
+* SIRF/STIR (PET and SPECT)
+  - use direct STIR operations for arrays, potentially resulting in speed-up when using STIR 6.2 or later.
+
 * CMake/building:
 - set CMP0074 policy to NEW, i.e. honour <packagename>_ROOT env variables
 
@@ -11,7 +14,7 @@
   - Python `sapyb` returns the output even if it is pre-allocated
   - Python add `min()` to `DataContainer`
 
-* PET:
+* SIRF/STIR (PET and SPECT):
   - implemented basic-functionality list-mode data class in C++ and Python
   - added objective function type for list-mode reconstruction
   - added new demo script for the reconstruction from list-mode data
@@ -20,6 +23,12 @@
     gradient data are created.
   - provided prior and objective function objects with methods for computing
     the product of the Hessian and a vector.
+
+* PET:
+  - incorporated into SIRF data processing utilities from SyneRBI-Challenge.
+  - Added method modality() to AcquisitionData classes.
+
+## v3.7.0
 
 * CMake/building:
   - add `DISABLE_Gadgetron_TOOLBOXES` option (defaults to `OFF`) to be
