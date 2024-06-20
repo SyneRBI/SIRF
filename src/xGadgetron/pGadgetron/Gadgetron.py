@@ -721,14 +721,6 @@ class CoilSensitivityData(ImageData):
         else:
             raise error('Unknown method %s' % method_name)
 
-    def __calc_from_acquisitions(self, data, method_name):
-        assert data.handle is not None
-        dcw = compute_kspace_density(data)
-        data = data * dcw
-        cis = CoilImagesData()
-        try_calling(pygadgetron.cGT_computeCoilImages(cis.handle, data.handle))
-        self.__calc_from_images(cis, method_name)
-
 DataContainer.register(CoilSensitivityData)
 
 
@@ -1863,9 +1855,9 @@ def calc_cartesian_dcw(ad):
     traj, inverse, counts = numpy.unique(traj, return_inverse=True, return_counts=True, axis=1)
     
     density_weight = (1.0 / counts)[inverse]
+    n = numpy.prod(density_weight.shape)
+    density_weight = density_weight.reshape((n, 1, 1))
     
-    density_weight = numpy.expand_dims(density_weight, axis=1)
-    density_weight = numpy.expand_dims(density_weight, axis=2)
     density_weight = numpy.tile(density_weight, (1, ad.shape[1], ad.shape[2]))
     
     dcw = ad.copy()
