@@ -947,6 +947,18 @@ The actual algorithm is described in
           return this->get_reconstruction_method().get_num_subsets();
         }
 
+        //! Set maximal scale factor value of the SSS algorithm to use
+        void set_max_scale_value(float v)
+        {
+            stir::ScatterEstimation::set_max_scale_value(v);
+        }
+
+        //! Set minimal scale factor value of the SSS algorithm to use
+        void set_min_scale_value(float v)
+        {
+            stir::ScatterEstimation::set_min_scale_value(v);
+        }
+
         std::shared_ptr<STIRAcquisitionData> get_scatter_estimate(int est_num = -1) const
         {
             if (est_num == -1) // Get the last one

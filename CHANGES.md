@@ -4,6 +4,7 @@
 
 * SIRF/STIR (PET and SPECT)
   - use direct STIR operations for arrays, potentially resulting in speed-up when using STIR 6.2 or later.
+  - added means for setting maximal and minimal value for scale factor in stir::ScatterEstimation
 
 * CMake/building:
 - set CMP0074 policy to NEW, i.e. honour <packagename>_ROOT env variables

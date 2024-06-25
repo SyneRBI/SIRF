@@ -3614,6 +3614,14 @@ class ScatterEstimator():
         """Set number of iterations of the SSS algorithm to use."""
         parms.set_int_par(self.handle, 'PETScatterEstimator', 'set_num_iterations', v)
 
+    def set_max_scale_value(self, v):
+        """Set maximal scale factor value of the SSS algorithm to use."""
+        parms.set_float_par(self.handle, 'PETScatterEstimator', 'set_max_scale_value', v)
+
+    def set_min_scale_value(self, v):
+        """Set maximal scale factor value of the SSS algorithm to use."""
+        parms.set_float_par(self.handle, 'PETScatterEstimator', 'set_min_scale_value', v)
+
     def set_output_prefix(self, v):
         """
         Set prefix for filenames with scatter estimates.

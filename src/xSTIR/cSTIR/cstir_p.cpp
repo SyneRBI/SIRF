@@ -856,24 +856,27 @@ sirf::cSTIR_setScatterEstimatorParameter
         int value = dataFromHandle<int>(hv);
         obj.set_num_iterations(value);
     }
-    
     else if (sirf::iequals(name, "set_OSEM_num_subiterations"))
     {
         int value = dataFromHandle<int>(hv);
         obj.set_OSEM_num_subiterations(value);
     }
-    
     else if (sirf::iequals(name, "set_OSEM_num_subsets"))
     {
         int value = dataFromHandle<int>(hv);
         obj.set_OSEM_num_subsets(value);
     }
-    
-    
-    
     else if (sirf::iequals(name, "set_output_prefix"))
     {
         obj.set_output_prefix(charDataFromHandle(hv));
+    }
+    else if (sirf::iequals(name, "set_max_scale_value"))
+    {
+        obj.set_max_scale_value(dataFromHandle<float>(hv));
+    }
+    else if (sirf::iequals(name, "set_min_scale_value"))
+    {
+        obj.set_min_scale_value(dataFromHandle<float>(hv));
     }
     else
         return parameterNotFound(name, __FILE__, __LINE__);
