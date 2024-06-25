@@ -872,11 +872,11 @@ sirf::cSTIR_setScatterEstimatorParameter
     }
     else if (sirf::iequals(name, "set_max_scale_value"))
     {
-        obj.set_max_scale_factor_value(dataFromHandle<float>(hv));
+        obj.set_max_scale_value(dataFromHandle<float>(hv));
     }
     else if (sirf::iequals(name, "set_min_scale_value"))
     {
-        obj.set_min_scale_factor_value(dataFromHandle<float>(hv));
+        obj.set_min_scale_value(dataFromHandle<float>(hv));
     }
     else
         return parameterNotFound(name, __FILE__, __LINE__);
