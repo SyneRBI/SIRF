@@ -4,7 +4,12 @@
 
 * SIRF/STIR (PET and SPECT)
   - use direct STIR operations for arrays, potentially resulting in speed-up when using STIR 6.2 or later.
+  - fixed STIR linking problems by adding STIR_REGISTRIES to Reg executables
+  - added `compute_attenuation_factors` method to AcquisitionSensitivityModel
   - added means for setting maximal and minimal value for scale factor in stir::ScatterEstimation
+
+* MR
+  - fixed density_weight shape issue caused by upgrading numpy to version 2.0
 
 * CMake/building:
 - set CMP0074 policy to NEW, i.e. honour <packagename>_ROOT env variables
@@ -27,7 +32,7 @@
 
 * PET:
   - incorporated into SIRF data processing utilities from SyneRBI-Challenge.
-  - Added method modality() to AcquisitionData classes.
+  - added method modality() to AcquisitionData classes.
 
 ## v3.7.0
 
