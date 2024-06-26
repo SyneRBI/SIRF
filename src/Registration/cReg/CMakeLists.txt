@@ -115,7 +115,8 @@ SET(REG_executables
     )
 
 FOREACH(elem ${REG_executables})
-    ADD_EXECUTABLE(${elem} ${elem}.cpp)
+    # Note: adding STIR_REGISTRIES to avoid linking errors (and give extra IO capabilities)
+    ADD_EXECUTABLE(${elem} ${elem}.cpp ${STIR_REGISTRIES})
     TARGET_LINK_LIBRARIES(${elem} LINK_PUBLIC Reg)
     INSTALL(TARGETS ${elem} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 ENDFOREACH(elem ${REG_executables})
