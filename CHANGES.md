@@ -7,6 +7,7 @@
   - fixed STIR linking problems by adding STIR_REGISTRIES to Reg executables
   - added `compute_attenuation_factors` method to AcquisitionSensitivityModel
   - added means for setting maximal and minimal value for scale factor in stir::ScatterEstimation
+  - added support for the STIR 6.2 (somewhat experimental) Cuda Relative Difference Prior
 
 * MR
   - fixed density_weight shape issue caused by upgrading numpy to version 2.0
