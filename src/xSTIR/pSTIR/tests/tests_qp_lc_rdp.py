@@ -15,10 +15,11 @@ Options:
 {licence}
 """
 import sirf.STIR
+import sirf.config
 from sirf.Utilities import runner, RE_PYEXT, __license__, examples_data_path, pTest
-__version__ = "2.0.0"
+__version__ = "2.1.0"
 __author__ = "Imraj Singh, Evgueni Ovtchinnikov, Kris Thielemans"
-  
+
 
 def Hessian_test(test, prior, x, eps=1e-3):
     """Checks that grad(x + dx) - grad(x) is close to H(x)*dx
@@ -52,18 +53,21 @@ def test_main(rec=False, verb=False, throw=True):
 
     _ = sirf.STIR.MessageRedirector(warn=None)
 
-    im_thorax = sirf.STIR.ImageData(examples_data_path('PET') + '/thorax_single_slice/emission.hv')
-    im_1 = im_thorax.get_uniform_copy(1)
-    im_2 = im_thorax.get_uniform_copy(2)
+    im_0 = sirf.STIR.ImageData(examples_data_path('PET') + '/brain/emission.hv')
+    im_1 = im_0.get_uniform_copy(1)
+    im_2 = im_0.get_uniform_copy(2)
 
-    for im in [im_thorax, im_1, im_2]:
+    for im in [im_0, im_1, im_2]:
       for penalisation_factor in [0,1,4]:
         for kappa in [True, False]:
-          for prior in [sirf.STIR.QuadraticPrior(), sirf.STIR.LogcoshPrior(), sirf.STIR.RelativeDifferencePrior()]:
+          priors = [sirf.STIR.QuadraticPrior(), sirf.STIR.LogcoshPrior(), sirf.STIR.RelativeDifferencePrior()]
+          if sirf.config.STIR_WITH_CUDA:
+              priors.append(sirf.STIR.CudaRelativeDifferencePrior())
+          for prior in priors:
             if kappa:
-              prior.set_kappa(im_thorax)
+              prior.set_kappa(im_0)
               # Check if the kappa is stored/returned correctly
-              test.check_if_equal_within_tolerance(im_thorax.norm(),prior.get_kappa().norm())
+              test.check_if_equal_within_tolerance(im_0.norm(),prior.get_kappa().norm())
 
             prior.set_penalisation_factor(penalisation_factor)
             prior.set_up(im)
@@ -78,7 +82,7 @@ def test_main(rec=False, verb=False, throw=True):
               if kappa:
                     # check if multiplying kappa and dividing penalisation factor gives same result
                    prior.set_penalisation_factor(penalisation_factor/4)
-                   prior.set_kappa(im_thorax*2)
+                   prior.set_kappa(im_0*2)
                    prior.set_up(im)
                    test.check_if_equal_within_tolerance(prior.get_gradient(im).norm(), grad_norm)
 

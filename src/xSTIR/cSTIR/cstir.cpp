@@ -186,6 +186,10 @@ void* cSTIR_newObject(const char* name)
 			return NEW_OBJECT_HANDLE(LogPrior3DF);
 		if (sirf::iequals(name, "RelativeDifferencePrior"))
 			return NEW_OBJECT_HANDLE(RDPrior3DF);
+#ifdef STIR_WITH_CUDA
+		if (sirf::iequals(name, "CudaRelativeDifferencePrior"))
+			return NEW_OBJECT_HANDLE(CudaRDPrior3DF);
+#endif
 		if (sirf::iequals(name, "PLSPrior"))
 			return NEW_OBJECT_HANDLE(PLSPrior3DF);
 		if (sirf::iequals(name, "TruncateToCylindricalFOVImageProcessor"))

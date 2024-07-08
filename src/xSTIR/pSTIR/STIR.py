@@ -44,6 +44,7 @@ import sirf.pystir as pystir
 import sirf.STIR_params as parms
 from sirf.config import SIRF_HAS_NiftyPET
 from sirf.config import SIRF_HAS_Parallelproj
+from sirf.config import STIR_WITH_CUDA
 
 if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
     ABC = abc.ABC
@@ -2528,6 +2529,24 @@ class RelativeDifferencePrior(Prior):
         image.handle = pystir.cSTIR_parameter(self.handle, 'RelativeDifferencePrior', 'kappa')
         check_status(image.handle)
         return image
+
+if STIR_WITH_CUDA:
+    class CudaRelativeDifferencePrior(RelativeDifferencePrior):
+        r"""Class for Relative Difference Prior using CUDA computations
+
+        Identical to RelativeDifferencePrior, but using STIR's CUDA implementation.
+        """
+
+        def __init__(self):
+            """init."""
+            self.name = 'CudaRelativeDifferencePrior'
+            self.handle = pystir.cSTIR_newObject(self.name)
+            check_status(self.handle)
+
+        def __del__(self):
+            """del."""
+            if self.handle is not None:
+                pyiutil.deleteDataHandle(self.handle)
 
 
 class PLSPrior(Prior):
