@@ -1,7 +1,7 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC
-Copyright 2019 - 2020 University College London
+Copyright 2015 - 2024 Rutherford Appleton Laboratory STFC
+Copyright 2019 - 2024 University College London
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -64,6 +64,9 @@ limitations under the License.
 #include "stir/recon_buildblock/QuadraticPrior.h"
 #include "stir/recon_buildblock/LogcoshPrior.h"
 #include "stir/recon_buildblock/RelativeDifferencePrior.h"
+#ifdef STIR_WITH_CUDA
+#include "stir/recon_buildblock/CUDA/CudaRelativeDifferencePrior.h"
+#endif
 #include "stir/SegmentBySinogram.h"
 #include "stir/Shape/Box3D.h"
 #include "stir/Shape/Ellipsoid.h"
@@ -116,7 +119,10 @@ namespace sirf {
 	typedef stir::QuadraticPrior<float> QuadPrior3DF;
 	typedef stir::LogcoshPrior<float> LogPrior3DF;
 	typedef stir::RelativeDifferencePrior<float> RDPrior3DF;
-	typedef stir::PLSPrior<float> PLSPrior3DF;
+#ifdef STIR_WITH_CUDA
+	typedef stir::CudaRelativeDifferencePrior<float> CudaRDPrior3DF;
+#endif
+        typedef stir::PLSPrior<float> PLSPrior3DF;
 	typedef stir::DataProcessor<Image3DF> DataProcessor3DF;
 	typedef stir::TruncateToCylindricalFOVImageProcessor<float> CylindricFilter3DF;
 
