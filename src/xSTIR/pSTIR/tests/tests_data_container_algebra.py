@@ -15,7 +15,7 @@ Options:
 """
 from sirf.STIR import *
 from sirf.Utilities import runner, RE_PYEXT, __license__
-from sirf.Utilities import test_data_container_algebra
+from sirf.Utilities import data_container_algebra_tests
 
 __version__ = "0.2.3"
 __author__ = "Evgueni Ovtchinnikov"
@@ -33,14 +33,14 @@ def test_main(rec=False, verb=False, throw=True):
         AcquisitionData.set_storage_scheme(scheme)
         raw_data_file = existing_filepath(data_path, 'Utahscat600k_ca_seg4.hs')
         ad = AcquisitionData(raw_data_file)
-        test_data_container_algebra(test, ad)
+        data_container_algebra_tests(test, ad)
 
         image_size = (31, 111, 111)
         voxel_size = (3.375, 3, 3)
         image = ImageData()
         image.initialise(image_size, voxel_size)
         image.fill(1.0)
-        test_data_container_algebra(test, image)
+        data_container_algebra_tests(test, image)
 
     return test.failed, test.ntest
 

@@ -16,7 +16,7 @@ Options:
 from sirf.Utilities import __licence__, RE_PYEXT
 from glob import glob
 from os import path
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 __author__ = "Casper da Costa-Luis"
 
 
@@ -32,7 +32,7 @@ if __name__ == "__main__":
     failed = 0
     ntests = 0
 
-    for script in sorted(glob('*.py')):
+    for script in sorted(glob('tests_*.py')):
         if path.abspath(__file__) == path.abspath(script):
             continue
         print('\n\n--- running %s' % script)

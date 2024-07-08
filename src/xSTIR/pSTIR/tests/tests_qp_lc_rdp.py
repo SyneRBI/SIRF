@@ -20,7 +20,7 @@ __version__ = "2.0.0"
 __author__ = "Imraj Singh, Evgueni Ovtchinnikov, Kris Thielemans"
   
 
-def test_Hessian(test, prior, x, eps=1e-3):
+def Hessian_test(test, prior, x, eps=1e-3):
     """Checks that grad(x + dx) - grad(x) is close to H(x)*dx
         """
     if x.norm() > 0:
@@ -84,7 +84,7 @@ def test_main(rec=False, verb=False, throw=True):
 
             if isinstance(prior, sirf.STIR.RelativeDifferencePrior):
                 prior.set_epsilon(im.max()*.01)
-            test_Hessian(test, prior, im, 0.03)
+            Hessian_test(test, prior, im, 0.03)
             
     return test.failed, test.ntest
 
