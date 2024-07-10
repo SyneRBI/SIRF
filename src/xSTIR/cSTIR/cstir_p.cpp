@@ -843,6 +843,23 @@ sirf::cSTIR_setScatterEstimatorParameter
         SPTR_FROM_HANDLE(STIRImageData, sptr_id, hv);
         obj.set_attenuation_image_sptr(sptr_id);
     }
+    else if (sirf::iequals(name, "setMaskImage"))
+    {
+        SPTR_FROM_HANDLE(STIRImageData, sptr_id, hv);
+        obj.set_mask_image_sptr(sptr_id);
+    }
+    else if (sirf::iequals(name, "setMaskAcqData"))
+    {
+        SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_pd, hv);
+        obj.set_mask_acq_data_sptr(sptr_pd);
+    }
+#if STIR_VERSION >= 060200
+    else if (sirf::iequals(name, "setRecomputeMaskImage"))
+    {
+        bool value = dataFromHandle<bool>(hv);
+        obj.set_recompute_mask_image(value);
+    }
+#endif
     else if (sirf::iequals(name, "setAttenuationCorrectionFactors"))
     {
         SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_ad, hv);
