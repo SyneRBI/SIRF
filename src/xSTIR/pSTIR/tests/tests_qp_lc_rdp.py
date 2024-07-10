@@ -18,7 +18,13 @@ import sirf.STIR
 import sirf.config
 from sirf.Utilities import runner, RE_PYEXT, __license__, examples_data_path, pTest
 __version__ = "2.1.0"
-__author__ = "Imraj Singh, Evgueni Ovtchinnikov, Kris Thielemans"
+__author__ = "Imraj Singh, Evgueni Ovtchinnikov, Kris Thielemans, Edoardo Pasca"
+
+try:
+    subprocess.check_output('nvidia-smi')
+    has_nvidia = True
+except:
+    has_nvidia = False
 
 
 def Hessian_test(test, prior, x, eps=1e-3):
@@ -61,7 +67,7 @@ def test_main(rec=False, verb=False, throw=True):
       for penalisation_factor in [0,1,4]:
         for kappa in [True, False]:
           priors = [sirf.STIR.QuadraticPrior(), sirf.STIR.LogcoshPrior(), sirf.STIR.RelativeDifferencePrior()]
-          if sirf.config.STIR_WITH_CUDA:
+          if sirf.config.STIR_WITH_CUDA and has_nvidia:
               priors.append(sirf.STIR.CudaRelativeDifferencePrior())
           for prior in priors:
             if kappa:
