@@ -910,6 +910,12 @@ The actual algorithm is described in
         {
             stir::ScatterEstimation::set_mask_proj_data_sptr(arg->data());
         }
+#if STIR_VERSION >= 060200
+        void set_recompute_mask_image(bool arg)
+        {
+            stir::ScatterEstimation::set_recompute_mask_image(arg);
+        }
+#endif
 
         //! Set prefix for filenames with scatter estimates.
         /*!
