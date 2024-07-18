@@ -35,13 +35,13 @@ if ((NOT DISABLE_STIR) AND (NOT DISABLE_Gadgetron) AND (NOT DISABLE_Registration
   MESSAGE(STATUS "Registration, ISMRMRD and STIR (with ITK) have been built.")
   target_link_libraries(csirf PUBLIC iutilities csyn)
 else()
-  MESSAGE(STATUS "Either Registration or ISMRMRD or STIR (with ITK) have not been built.")
+  MESSAGE(STATUS "Either Registration or ISMRMRD/Gadgetron or STIR (with ITK) have not been built.")
   add_library(Syn syn_utilities.cpp)
   target_include_directories(Syn PUBLIC
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>"
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>$<INSTALL_INTERFACE:include>"
   )
   target_include_directories(Syn PUBLIC
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>$<INSTALL_INTERFACE:include>"
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../xGadgetron/cGadgetron/include/>$<INSTALL_INTERFACE:include>"
   )
   target_link_libraries(Syn PUBLIC cgadgetron cstir Reg)
   target_link_libraries(csirf PUBLIC iutilities Syn)

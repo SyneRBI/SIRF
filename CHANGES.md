@@ -1,29 +1,70 @@
 # ChangeLog
 
+## v3.8.0
+
+* SIRF/STIR (PET and SPECT)
+  - use direct STIR operations for arrays, potentially resulting in speed-up when using STIR 6.2 or later
+  - fixed STIR linking problems by adding STIR_REGISTRIES to Reg executables
+  - added `compute_attenuation_factors` method to AcquisitionSensitivityModel
+  - added means for setting maximal and minimal value for scale factor in stir::ScatterEstimation
+  - added support for the STIR 6.2 (somewhat experimental) Cuda Relative Difference Prior
+
+* MR
+  - fixed density_weight shape issue caused by upgrading numpy to version 2.0
+
+* CMake/building:
+  - set CMP0074 policy to NEW, i.e. honour <packagename>_ROOT env variables
+
+## v3.7.0
+
+* SIRF/common
+  - Python `sapyb` returns the output even if it is pre-allocated
+  - Python add `min()` to `DataContainer`
+
+* SIRF/STIR (PET and SPECT):
+  - implemented basic-functionality list-mode data class in C++ and Python
+  - added objective function type for list-mode reconstruction
+  - added new demo script for the reconstruction from list-mode data
+  - provided gradient-computing methods with return via optional argument out
+    in addition to the standard return, ensuring that no temporary copies of the
+    gradient data are created.
+  - provided prior and objective function objects with methods for computing
+    the product of the Hessian and a vector.
+
+* PET:
+  - incorporated into SIRF data processing utilities from SyneRBI-Challenge.
+  - added method modality() to AcquisitionData classes.
+
+## v3.7.0
+
+* CMake/building:
+  - add `DISABLE_Gadgetron_TOOLBOXES` option (defaults to `OFF`) to be
+    able to cope with compilation problems with older Gadgetron versions.
+
 ## v3.6.0
 
 * PET:
-  - added extra members to ScatterEstimation to set behaviour of OSEM used during scatter estimation
-  - added test for scatter simulation and estimation
+  - ensured compatibility with STIR 6.0, which supports Time-of-Flight data.
+  - added extra members to ScatterEstimation to set behaviour of OSEM used during scatter estimation.
   - added missing `set`/`get` methods for OSSPS `relaxation_parameter`, `relaxation_gamma` and `upper_bound`.
-
+  - added test for scatter simulation and estimation.
+  
 * CMake/building:
   - default `DISABLE_MATLAB` to `ON` as our Matlab support is out-of-date and could
   generate conflicts with Python shared libraries.
 
 * Demo scripts:
-  - replaced importing reconstruction engines by
-```
- exec('from sirf.' + args['--engine'] + ' import *')
-```
-  with importing via `importlib.import_module` thus getting rid of Codacy complaints about undefined modules.
+  - replaced importing reconstruction engines from calling `exec` to importing via `importlib.import_module` thus enabling code completion (and getting rid of Codacy complaints about undefined modules).
 
 * Python interfaces for the reconstruction engines:
-  - Several allocate methods in STIR.py, Gadgetron.py and Reg.py are replaced with just one allocate in DataContainer class that does not copy data between Python and C++.
+  - Several allocate methods in STIR.py, Gadgetron.py and Reg.py are replaced with just one allocate in `DataContainer` class that does not copy data between Python and C++.
   - `return None` in the method `Datacontainer.shape()` replaced with more Pythonesque `return (0,)`.
 
 * MR
-  - Handling of "irregular" ISMRMRD acquisitions hit what appears to be a bug in recent Gadgetron (HEAD detached at 0670db84). A quick fix applied, Gadgetron issue to be raised.
+  - Improved handling of "irregular" ISMRMRD acquisitions by providing `IgnoreMask` object that allows the user to specify which kind of acquisitions is to be ignored. By default, no acquisition is ignored when reading from file.
+
+* Registration
+  - fixed handling of complex images in NiftiImageData.cpp.
 
 ## v3.5.0
 

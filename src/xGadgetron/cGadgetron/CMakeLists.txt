@@ -40,38 +40,43 @@ endif()
 
 set(CGADGETRON_SOURCES cgadgetron.cpp gadgetron_x.cpp gadgetron_data_containers.cpp gadgetron_client.cpp
     gadgetron_fftw.cpp TrajectoryPreparation.cpp FourierEncoding.cpp)
-    
-find_package(gadgetron CONFIG)
-if (gadgetron_FOUND)
-  set (GT_LIBS
-    Gadgetron::gadgetron_toolbox_cpucore
-    Gadgetron::gadgetron_toolbox_cpufft
-    Gadgetron::gadgetron_toolbox_cpunfft
-    Gadgetron::gadgetron_toolbox_log
-    )
-else()
-  message(WARNING "gadgetron-config.cmake was not found. Setting gadgetron_DIR if you do have it. Alternatively, maybe you have an old Gadgetron version. We'll try to find some toolbox libraries by hand.")
-  find_library( GT_CPUCORE NAMES gadgetron_toolbox_cpucore
+
+option(DISABLE_Gadgetron_TOOLBOXES "Disable use of Gadgetron toolboxes" OFF)
+  
+if (NOT DISABLE_Gadgetron_TOOLBOXES)
+  find_package(gadgetron CONFIG)
+  if (gadgetron_FOUND)
+    set (GT_LIBS
+      Gadgetron::gadgetron_toolbox_cpucore
+      Gadgetron::gadgetron_toolbox_cpufft
+      Gadgetron::gadgetron_toolbox_cpunfft
+      Gadgetron::gadgetron_toolbox_log
+      )
+  else()
+    message(WARNING "gadgetron-config.cmake was not found. Setting gadgetron_DIR if you do have it. Alternatively, maybe you have an old Gadgetron version. We'll try to find some toolbox libraries by hand.")
+    find_library( GT_CPUCORE NAMES gadgetron_toolbox_cpucore
                 NAMES_PER_DIR
                 PATHS ${CMAKE_INSTALL_PREFIX}
                 )
-  find_library( GT_FFT NAMES gadgetron_toolbox_cpufft
+    find_library( GT_FFT NAMES gadgetron_toolbox_cpufft
                 NAMES_PER_DIR
                 PATHS ${CMAKE_INSTALL_PREFIX}
                 )
-  find_library( GT_NFFT NAMES gadgetron_toolbox_cpunfft
+    find_library( GT_NFFT NAMES gadgetron_toolbox_cpunfft
                 NAMES_PER_DIR
                 PATHS ${CMAKE_INSTALL_PREFIX}
                 )
-  find_library( GT_LOG NAMES gadgetron_toolbox_log
+    find_library( GT_LOG NAMES gadgetron_toolbox_log
                 NAMES_PER_DIR
                 PATHS ${CMAKE_INSTALL_PREFIX}
                 )
 
-  if (GT_CPUCORE AND GT_FFT AND GT_NFFT AND GT_LOG)
-    set (GT_LIBS ${GT_CPUCORE} ${GT_FFT} ${GT_NFFT} ${GT_LOG} )
+    if (GT_CPUCORE AND GT_FFT AND GT_NFFT AND GT_LOG)
+      set (GT_LIBS ${GT_CPUCORE} ${GT_FFT} ${GT_NFFT} ${GT_LOG} )
+    endif()
   endif()
-endif()
+
+endif() # NOT DISABLE_Gadgetron_TOOLBOXES
 
 if(GT_LIBS)
     MESSAGE(STATUS "The Gadgetron toolboxes required for radial gridding were found. Non-cartesian encoding will be compiled.")
@@ -101,32 +106,21 @@ if(GT_LIBS)
       endif()
 else()
     set(GADGETRON_TOOLBOXES_AVAILABLE FALSE)
-    MESSAGE(WARNING "The Gadgetron Toolboxes required for radial gridding were NOT FOUND. Non-cartesian encoding will NOT BE compiled.")
+    if (NOT DISABLE_Gadgetron_TOOLBOXES)
+      MESSAGE(WARNING "The Gadgetron Toolboxes required for radial gridding were NOT FOUND. Non-cartesian encoding will NOT BE compiled.")
+    else()
+      MESSAGE(STATUS "The Gadgetron Toolboxes required for radial gridding were disabled. Non-cartesian encoding will NOT BE compiled.")
+    endif()
     add_library(cgadgetron ${CGADGETRON_SOURCES})
 endif()
 
-set (cGadgetron_INCLUDE_DIR "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>$<INSTALL_INTERFACE:include>")
-target_include_directories(cgadgetron PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>")
-# copy to parent scope
-#set (cGadgetron_INCLUDE_DIR "${cGadgetron_INCLUDE_DIR}" PARENT_SCOPE)
-
-target_include_directories(cgadgetron PUBLIC "${cGadgetron_INCLUDE_DIR}")
+target_include_directories(cgadgetron PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>$<INSTALL_INTERFACE:include>")
 target_include_directories(cgadgetron PRIVATE "${FFTW3_INCLUDE_DIR}")
 target_include_directories(cgadgetron PUBLIC "${ISMRMRD_INCLUDE_DIR}")
 
 target_link_libraries(cgadgetron PUBLIC iutilities csirf)
 # Add boost library dependencies
-if((CMAKE_VERSION VERSION_LESS 3.5.0) OR (NOT _Boost_IMPORTED_TARGETS))
-  # This is harder than it should be on older CMake versions to be able to cope with
-  # spaces in filenames.
-  foreach(C SYSTEM FILESYSTEM THREAD DATE_TIME CHRONO)
-    target_link_libraries(cgadgetron PUBLIC optimized "${Boost_${C}_LIBRARY_RELEASE}")
-    target_link_libraries(cgadgetron PUBLIC debug  "${Boost_${C}_LIBRARY_DEBUG}")
-  endforeach()
-else()
-  # Nice and simple for recent CMake (which knows about your Boost version)
-  target_link_libraries(cgadgetron PUBLIC Boost::system Boost::filesystem Boost::thread Boost::date_time Boost::chrono)
-endif()
+target_link_libraries(cgadgetron PUBLIC Boost::system Boost::filesystem Boost::thread Boost::date_time Boost::chrono)
 
 target_link_libraries(cgadgetron PUBLIC ISMRMRD::ISMRMRD)
 target_link_libraries(cgadgetron PUBLIC "${FFTW3_LIBRARIES}")

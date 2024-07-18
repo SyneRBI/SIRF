@@ -1,7 +1,7 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2017 - 2020 Rutherford Appleton Laboratory STFC
-Copyright 2018 - 2020 University College London.
+Copyright 2017 - 2024 Rutherford Appleton Laboratory STFC
+Copyright 2018 - 2024 University College London.
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -39,6 +39,8 @@ using namespace sirf;
 #define NEW_OBJECT_HANDLE(T) new ObjectHandle<T >(std::shared_ptr<T >(new T))
 #define SPTR_FROM_HANDLE(Object, X, H) \
   std::shared_ptr<Object> X; getObjectSptrFromHandle<Object>(H, X);
+#define HANDLE_FROM_SPTR(Object, X, H) \
+  setHandleObjectSptr<Object>(H, X);
 
 static void*
 unknownObject(const char* obj, const char* name, const char* file, int line)
@@ -156,6 +158,10 @@ void* cSTIR_newObject(const char* name)
 			"PoissonLogLikelihoodWithLinearModelForMeanAndProjData"))
 			return NEW_OBJECT_HANDLE
 			(xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF);
+		if (sirf::iequals(name,
+			"PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin"))
+			return NEW_OBJECT_HANDLE
+			(xSTIR_PoissonLLhLinModMeanListDataProjMatBin3DF);
 		if (sirf::iequals(name, "AcqModUsingMatrix"))
 			return NEW_OBJECT_HANDLE(AcqModUsingMatrix3DF);
 #ifdef STIR_WITH_NiftyPET_PROJECTOR
@@ -178,6 +184,10 @@ void* cSTIR_newObject(const char* name)
 			return NEW_OBJECT_HANDLE(LogPrior3DF);
 		if (sirf::iequals(name, "RelativeDifferencePrior"))
 			return NEW_OBJECT_HANDLE(RDPrior3DF);
+#ifdef STIR_WITH_CUDA
+		if (sirf::iequals(name, "CudaRelativeDifferencePrior"))
+			return NEW_OBJECT_HANDLE(CudaRDPrior3DF);
+#endif
 		if (sirf::iequals(name, "PLSPrior"))
 			return NEW_OBJECT_HANDLE(PLSPrior3DF);
 		if (sirf::iequals(name, "TruncateToCylindricalFOVImageProcessor"))
@@ -263,6 +273,11 @@ void* cSTIR_setParameter
 			return
 			cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 			(hs, name, hv);
+        else if (sirf::iequals(obj,
+            "PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin"))
+            return
+            cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBinParameter
+            (hs, name, hv);
 		else if (sirf::iequals(obj, "Reconstruction"))
 			return cSTIR_setReconstructionParameter(hs, name, hv);
 		else if (sirf::iequals(obj, "IterativeReconstruction"))
@@ -329,11 +344,16 @@ void* cSTIR_parameter(const void* ptr, const char* obj, const char* name)
 			return cSTIR_RelativeDifferencePriorParameter(handle, name);
 		else if (sirf::iequals(obj, "GeneralisedObjectiveFunction"))
 			return cSTIR_generalisedObjectiveFunctionParameter(handle, name);
-		else if (sirf::iequals(obj,
-			"PoissonLogLikelihoodWithLinearModelForMeanAndProjData"))
-			return
-			cSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
-			(handle, name);
+        else if (sirf::iequals(obj,
+            "PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin"))
+            return
+            cSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBinParameter
+            (handle, name);
+        else if (sirf::iequals(obj,
+            "PoissonLogLikelihoodWithLinearModelForMeanAndProjData"))
+            return
+            cSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
+            (handle, name);
 		else if (sirf::iequals(obj, "IterativeReconstruction"))
 			return cSTIR_iterativeReconstructionParameter(handle, name);
 		else if (sirf::iequals(obj, "OSMAPOSL"))
@@ -382,8 +402,13 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
                 sptr.reset(new STIRAcquisitionDataInMemory(filename));
 			return newObjectHandle(sptr);
 		}
+		if (sirf::iequals(name, "ListmodeData")) {
+			std::shared_ptr<STIRListmodeData>
+				sptr(new STIRListmodeData(filename));
+			return newObjectHandle(sptr);
+		}
 		if (sirf::iequals(name, "ListmodeToSinograms")) {
-                        std::shared_ptr<ListmodeToSinograms>
+			std::shared_ptr<ListmodeToSinograms>
 				sptr(new ListmodeToSinograms(filename));
 			return newObjectHandle(sptr);
 		}
@@ -402,12 +427,25 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
 	CATCH;
 }
 
+typedef xSTIR_PoissonLLhLinModMeanListDataProjMatBin3DF LMObjFun;
+
+extern "C"
+void* cSTIR_objFunListModeSetInterval(void* ptr_f, size_t ptr_data)
+{
+	try {
+		auto& objFun = objectFromHandle<LMObjFun>(ptr_f);
+		float* data = (float*)ptr_data;
+		objFun.set_time_interval((double)data[0], (double)data[1]);
+		return (void*)new DataHandle;
+	}
+	CATCH;
+}
+
 extern "C"
 void* cSTIR_setListmodeToSinogramsInterval(void* ptr_lm2s, size_t ptr_data)
 {
 	try {
-		ListmodeToSinograms& lm2s = 
-			objectFromHandle<ListmodeToSinograms>(ptr_lm2s);
+		auto& lm2s = objectFromHandle<ListmodeToSinograms>(ptr_lm2s);
 		float *data = (float *)ptr_data;
 		lm2s.set_time_interval((double)data[0], (double)data[1]);
 		return (void*)new DataHandle;
@@ -614,6 +652,23 @@ void* cSTIR_createPETAttenuationModel(const void* ptr_img, const void* ptr_am)
 }
 
 extern "C"
+void* cSTIR_computeACF(const void* ptr_sino,
+    const void* ptr_att, void* ptr_af, void* ptr_acf)
+{
+	try {
+		STIRAcquisitionData& sino = objectFromHandle<STIRAcquisitionData>(ptr_sino);
+		PETAttenuationModel& att = objectFromHandle<PETAttenuationModel>(ptr_att);
+		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_af, ptr_af);
+		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_acf, ptr_acf);
+		PETAttenuationModel::compute_ac_factors(sino, att, sptr_af, sptr_acf);
+		HANDLE_FROM_SPTR(STIRAcquisitionData, sptr_af, ptr_af);
+		HANDLE_FROM_SPTR(STIRAcquisitionData, sptr_acf, ptr_acf);
+		return (void*) new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
 void* cSTIR_chainPETAcquisitionSensitivityModels
 (const void* ptr_first, const void* ptr_second)
 {
@@ -792,6 +847,17 @@ void* cSTIR_get_MatrixInfo(void* ptr)
 }
 
 extern "C"
+void* cSTIR_acquisitionDataFromListmode(void* ptr_t)
+{
+	try {
+                SPTR_FROM_HANDLE(STIRListmodeData, sptr_t, ptr_t);
+                auto sptr(sptr_t->acquisition_data_template());
+		return newObjectHandle(sptr);
+	}
+	CATCH;
+}
+
+extern "C"
 void*
 cSTIR_setAcquisitionDataStorageScheme(const char* scheme)
 { 
@@ -964,12 +1030,24 @@ void* cSTIR_writeAcquisitionData(void* ptr_acq, const char* filename)
 }
 
 extern "C"
-void* cSTIR_get_ProjDataInfo(void* ptr_acq)
+void* cSTIR_get_info(void* ptr_cont)
 {
 	try {
-		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_ad, ptr_acq);
+		std::string ret;
+		SPTR_FROM_HANDLE(ContainerBase, sptr_cont, ptr_cont);
+		if (auto sptr_ad = std::dynamic_pointer_cast<STIRAcquisitionData>(sptr_cont)) {
+			ret = sptr_ad->get_info();
+		}
+		else if (auto sptr_ld = std::dynamic_pointer_cast<STIRListmodeData>(sptr_cont)) {
+			ret = sptr_ld->get_info();
+		}
+		else if (auto sptr_id = std::dynamic_pointer_cast<STIRImageData>(sptr_cont)) {
+			ret = sptr_id->get_info();
+		}
+		else
+		        ret =  "get_info() not supported for this type";
 		return charDataHandleFromCharData(
-			sptr_ad->get_proj_data_info_sptr()->parameter_info().c_str());
+			ret.c_str());
 	}
 	CATCH;
 }
@@ -1098,8 +1176,8 @@ cSTIR_objectiveFunctionValue(void* ptr_f, void* ptr_i)
 		ObjectiveFunction3DF& fun = objectFromHandle< ObjectiveFunction3DF>(ptr_f);
 		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_i);
 		Image3DF& image = id.data();
-		float v = (float)fun.compute_objective_function(image);
-		return dataHandle<float>(v);
+		double v = fun.compute_objective_function(image);
+		return dataHandle<double>(v);
 	}
 	CATCH;
 }
@@ -1150,6 +1228,33 @@ cSTIR_objectiveFunctionGradient(void* ptr_f, void* ptr_i, int subset)
 
 extern "C"
 void*
+cSTIR_computeObjectiveFunctionGradient(void* ptr_f, void* ptr_i, int subset, void* ptr_g)
+{
+	try {
+		ObjectiveFunction3DF& fun = objectFromHandle< ObjectiveFunction3DF>(ptr_f);
+		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_i);
+		STIRImageData& gd = objectFromHandle<STIRImageData>(ptr_g);
+		Image3DF& image = id.data();
+		Image3DF& grad = gd.data();
+		if (subset >= 0)
+			fun.compute_sub_gradient(grad, image, subset);
+		else {
+			int nsub = fun.get_num_subsets();
+			grad.fill(0.0);
+			shared_ptr<STIRImageData> sptr_sub(new STIRImageData(image));
+			Image3DF& subgrad = sptr_sub->data();
+			for (int sub = 0; sub < nsub; sub++) {
+				fun.compute_sub_gradient(subgrad, image, sub);
+				grad += subgrad;
+			}
+		}
+		return (void*) new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cSTIR_objectiveFunctionGradientNotDivided(void* ptr_f, void* ptr_i, int subset)
 {
 	try {
@@ -1162,6 +1267,68 @@ cSTIR_objectiveFunctionGradientNotDivided(void* ptr_f, void* ptr_i, int subset)
 		fun.compute_sub_gradient_without_penalty_plus_sensitivity
 			(grad, image, subset);
 		return newObjectHandle(sptr);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSTIR_computeObjectiveFunctionGradientNotDivided(void* ptr_f, void* ptr_i, int subset, void* ptr_g)
+{
+	try {
+		PoissonLogLhLinModMean3DF& fun =
+			objectFromHandle<PoissonLogLhLinModMean3DF>(ptr_f);
+		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_i);
+		STIRImageData& gd = objectFromHandle<STIRImageData>(ptr_g);
+		Image3DF& image = id.data();
+		Image3DF& grad = gd.data();
+		fun.compute_sub_gradient_without_penalty_plus_sensitivity
+			(grad, image, subset);
+		return (void*) new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSTIR_objectiveFunctionAccumulateHessianTimesInput
+    (void* ptr_fun, void* ptr_est, void* ptr_inp, int subset, void* ptr_out)
+{
+	try {
+		auto& fun = objectFromHandle<ObjectiveFunction3DF>(ptr_fun);
+		auto& est = objectFromHandle<STIRImageData>(ptr_est);
+		auto& inp = objectFromHandle<STIRImageData>(ptr_inp);
+		auto& out = objectFromHandle<STIRImageData>(ptr_out);
+		auto& curr_est = est.data();
+		auto& input    = inp.data();
+		auto& output   = out.data();
+		if (subset >= 0)
+			fun.accumulate_sub_Hessian_times_input(output, curr_est, input, subset);
+		else {
+			for (int s = 0; s < fun.get_num_subsets(); s++) {
+				fun.accumulate_sub_Hessian_times_input(output, curr_est, input, s);
+			}
+		}
+		return (void*) new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSTIR_objectiveFunctionComputeHessianTimesInput
+    (void* ptr_fun, void* ptr_est, void* ptr_inp, int subset, void* ptr_out)
+{
+	try {
+		auto& fun = objectFromHandle<xSTIR_GeneralisedObjectiveFunction3DF>(ptr_fun);
+		auto& est = objectFromHandle<STIRImageData>(ptr_est);
+		auto& inp = objectFromHandle<STIRImageData>(ptr_inp);
+		auto& out = objectFromHandle<STIRImageData>(ptr_out);
+		auto& curr_est = est.data();
+		auto& input    = inp.data();
+		auto& output   = out.data();
+		fun.multiply_with_Hessian(output, curr_est, input, subset);
+		return (void*) new DataHandle;
 	}
 	CATCH;
 }
@@ -1205,7 +1372,7 @@ void*
 cSTIR_priorGradient(void* ptr_p, void* ptr_i)
 {
 	try {
-		Prior3DF& prior = objectFromHandle<Prior3DF>(ptr_p);
+		Prior3DF& prior = objectFromHandle<stir::GeneralisedPrior <Image3DF> >(ptr_p);
 		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_i);
 		Image3DF& image = id.data();
 		shared_ptr<STIRImageData> sptr(new STIRImageData(image));
@@ -1218,12 +1385,64 @@ cSTIR_priorGradient(void* ptr_p, void* ptr_i)
 
 extern "C"
 void*
-cSTIR_PLSPriorGradient(void* ptr_p, int dir)
+cSTIR_priorAccumulateHessianTimesInput(void* ptr_prior, void* ptr_out, void* ptr_cur, void* ptr_inp)
+{
+	try {
+		auto& prior = objectFromHandle<stir::GeneralisedPrior <Image3DF> >(ptr_prior);
+		auto& out = objectFromHandle<STIRImageData>(ptr_out);
+		auto& cur = objectFromHandle<STIRImageData>(ptr_cur);
+		auto& inp = objectFromHandle<STIRImageData>(ptr_inp);
+		auto& output  = out.data();
+		auto& current = cur.data();
+		auto& input   = inp.data();
+		prior.accumulate_Hessian_times_input(output, current, input);
+		return (void*) new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSTIR_priorComputeHessianTimesInput(void* ptr_prior, void* ptr_out, void* ptr_cur, void* ptr_inp)
+{
+	try {
+		auto& prior = objectFromHandle<xSTIR_GeneralisedPrior3DF>(ptr_prior);
+		auto& out = objectFromHandle<STIRImageData>(ptr_out);
+		auto& cur = objectFromHandle<STIRImageData>(ptr_cur);
+		auto& inp = objectFromHandle<STIRImageData>(ptr_inp);
+		auto& output  = out.data();
+		auto& current = cur.data();
+		auto& input   = inp.data();
+		prior.multiply_with_Hessian(output, current, input);
+		return (void*) new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSTIR_computePriorGradient(void* ptr_p, void* ptr_i, void* ptr_g)
+{
+	try {
+		Prior3DF& prior = objectFromHandle<Prior3DF>(ptr_p);
+		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_i);
+		STIRImageData& gd = objectFromHandle<STIRImageData>(ptr_g);
+		Image3DF& image = id.data();
+		Image3DF& grad = gd.data();
+		prior.compute_gradient(grad, image);
+		return (void*) new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSTIR_PLSPriorAnatomicalGradient(void* ptr_p, int dir)
 {
 	try {
 		PLSPrior<float>& prior = objectFromHandle<PLSPrior<float> >(ptr_p);
 		auto sptr_im = prior.get_anatomical_grad_sptr(dir);
-        auto sptr_id = std::make_shared<STIRImageData>(*sptr_im);
+		auto sptr_id = std::make_shared<STIRImageData>(*sptr_im);
 		return newObjectHandle(sptr_id);
 	}
 	CATCH;

@@ -1,7 +1,7 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
-Copyright 2018 - 2020 UCL
+Copyright 2018 - 2020, 2024 UCL
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -38,6 +38,9 @@ using namespace sirf;
 
 extern "C"
 char* charDataFromHandle(const void* ptr);
+
+extern "C"
+void* charDataHandle(const char* ptr);
 
 static void*
 handle_error(const std::string& error_string, const char* file, int line) 
@@ -100,6 +103,8 @@ sirf::cSTIR_AcquisitionDataParameter(void* hp, const char* name)
 	STIRAcquisitionData& ad = objectFromHandle<STIRAcquisitionData>(hp);
 	if (sirf::iequals(name, "tof_mash_factor"))
 		return dataHandle<int>(ad.get_tof_mash_factor());
+	if (sirf::iequals(name, "modality"))
+		return charDataHandleFromCharData(ad.modality().c_str());
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 }
@@ -129,8 +134,10 @@ void*
 sirf::cSTIR_setListmodeToSinogramsParameter(void* hp, const char* name, const void* hv)
 {
 	ListmodeToSinograms& lm2s = objectFromHandle<ListmodeToSinograms>(hp);
-	if (sirf::iequals(name, "input"))
+	if (sirf::iequals(name, "input_file"))
 		lm2s.set_input(charDataFromHandle(hv));
+	else if (sirf::iequals(name, "input"))
+		lm2s.set_input(objectFromHandle<STIRListmodeData>(hv));
 	else if (sirf::iequals(name, "output"))
 		lm2s.set_output(charDataFromHandle(hv));
 	else if (sirf::iequals(name, "template_file"))
@@ -696,9 +703,11 @@ void*
 sirf::cSTIR_setRelativeDifferencePriorParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
-	auto& prior = objectFromHandle<xSTIR_RelativeDifferencePrior3DF>(hp);
-	if (sirf::iequals(name, "only_2D"))
-		prior.only2D(dataFromHandle<int>((void*)hv));
+        auto& prior = objectFromHandle<stir::RelativeDifferencePrior<float>>(hp);
+	if (sirf::iequals(name, "only_2D")) {
+		auto& xrdp = objectFromHandle<xSTIR_RelativeDifferencePrior3DF>(hp);
+		xrdp.only2D(dataFromHandle<int>((void*)hv));
+        }
 	else if (sirf::iequals(name, "kappa")) {
 		auto& id = objectFromHandle<STIRImageData>(hv);
 		prior.set_kappa_sptr(id.data_sptr());
@@ -716,7 +725,7 @@ void*
 sirf::cSTIR_RelativeDifferencePriorParameter
 (DataHandle* hp, const char* name)
 {
-	auto& prior = objectFromHandle<xSTIR_RelativeDifferencePrior3DF >(hp);
+	auto& prior = objectFromHandle<stir::RelativeDifferencePrior<float>>(hp);
 	if (sirf::iequals(name, "kappa")) {
 		auto sptr_im = std::make_shared<STIRImageData>(*prior.get_kappa_sptr());
 		return newObjectHandle(sptr_im);
@@ -849,24 +858,27 @@ sirf::cSTIR_setScatterEstimatorParameter
         int value = dataFromHandle<int>(hv);
         obj.set_num_iterations(value);
     }
-    
     else if (sirf::iequals(name, "set_OSEM_num_subiterations"))
     {
         int value = dataFromHandle<int>(hv);
         obj.set_OSEM_num_subiterations(value);
     }
-    
     else if (sirf::iequals(name, "set_OSEM_num_subsets"))
     {
         int value = dataFromHandle<int>(hv);
         obj.set_OSEM_num_subsets(value);
     }
-    
-    
-    
     else if (sirf::iequals(name, "set_output_prefix"))
     {
         obj.set_output_prefix(charDataFromHandle(hv));
+    }
+    else if (sirf::iequals(name, "set_max_scale_value"))
+    {
+        obj.set_max_scale_value(dataFromHandle<float>(hv));
+    }
+    else if (sirf::iequals(name, "set_min_scale_value"))
+    {
+        obj.set_min_scale_value(dataFromHandle<float>(hv));
     }
     else
         return parameterNotFound(name, __FILE__, __LINE__);
@@ -967,6 +979,57 @@ sirf::cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 }
 
 void*
+sirf::cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBinParameter
+(DataHandle* hp, const char* name, const DataHandle* hv)
+{
+    xSTIR_PoissonLLhLinModMeanListDataProjMatBin3DF&
+        obj_fun = objectFromHandle
+        <xSTIR_PoissonLLhLinModMeanListDataProjMatBin3DF>
+        (hp);
+    if (sirf::iequals(name, "cache_path")) {
+        std::string s(charDataFromDataHandle(hv));
+        obj_fun.set_cache_path(s);
+    }
+    else if (sirf::iequals(name, "set_recompute_cache")) {
+        obj_fun.set_skip_lm_input_file(dataFromHandle<int>(hv));
+    }
+    else if (sirf::iequals(name, "acquisition_model")) {
+        SPTR_FROM_HANDLE(AcqMod3DF, sptr_am, hv);
+        obj_fun.set_acquisition_model(sptr_am);
+    }
+    else if (sirf::iequals(name, "acquisition_data")) {
+        SPTR_FROM_HANDLE(ContainerBase, sptr_cont, hv);
+        if (auto sptr_ld = std::dynamic_pointer_cast<STIRListmodeData>(sptr_cont)) {
+            obj_fun.set_input_data(sptr_ld->data_sptr());
+        }
+        else
+            THROW("set_acquisition_data argument needs to be ListmodeData");
+    }
+#if 0
+    else if (sirf::iequals(name, "skip_lm_input_file")) {
+        obj_fun.set_skip_lm_input_file(dataFromHandle<int>(hv));
+    }
+#endif
+    else if (sirf::iequals(name, "skip_balanced_subsets")) {
+        obj_fun.set_skip_balanced_subsets(dataFromHandle<int>(hv));
+    }
+    else if (sirf::iequals(name, "max_segment_num_to_process")) {
+        obj_fun.set_max_segment_num_to_process(dataFromHandle<int>(hv));
+    }
+    else if (sirf::iequals(name, "cache_max_size")) {
+        obj_fun.set_cache_max_size(dataFromHandle<int>(hv));
+    }
+    else if (sirf::iequals(name, "subsensitivity_filenames"))
+    {
+        std::string s(charDataFromDataHandle(hv));
+        obj_fun.set_subsensitivity_filenames(s.c_str());
+    }
+    else
+        return parameterNotFound(name, __FILE__, __LINE__);
+    return new DataHandle;
+}
+
+void*
 sirf::cSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 (const DataHandle* handle, const char* name)
 {
@@ -982,6 +1045,24 @@ sirf::cSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 }
 
 void*
+sirf::cSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBinParameter
+(DataHandle* handle, const char* name)
+{
+    xSTIR_PoissonLLhLinModMeanListDataProjMatBin3DF&
+        obj_fun = objectFromHandle
+        <xSTIR_PoissonLLhLinModMeanListDataProjMatBin3DF>
+        (handle);
+    if (sirf::iequals(name, "cache_path")) {
+        return charDataHandle(obj_fun.get_cache_path().c_str());
+    }
+    if (sirf::iequals(name, "cache_max_size"))
+        return dataHandle<int>(obj_fun.get_cache_max_size());
+    if (sirf::iequals(name, "subsensitivity_filenames"))
+        return charDataHandle(obj_fun.get_subsensitivity_filenames().c_str());
+    return parameterNotFound(name, __FILE__, __LINE__);
+}
+
+void*
 sirf::cSTIR_setReconstructionParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
@@ -990,8 +1071,15 @@ sirf::cSTIR_setReconstructionParameter
 	if (sirf::iequals(name, "output_filename_prefix"))
 		recon.set_output_filename_prefix(charDataFromDataHandle(hv));
 	else if (sirf::iequals(name, "input_data")) {
-		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_ad, hv);
-		recon.set_input_data(sptr_ad->data());
+		SPTR_FROM_HANDLE(ContainerBase, sptr_cont, hv);
+		if (auto sptr_ad = std::dynamic_pointer_cast<STIRAcquisitionData>(sptr_cont)) {
+			recon.set_input_data(sptr_ad->data_sptr());
+		}
+		else if (auto sptr_ld = std::dynamic_pointer_cast<STIRListmodeData>(sptr_cont)) {
+			recon.set_input_data(sptr_ld->data_sptr());
+		}
+		else
+		THROW("input_data needs to be either ListmodeData or AcquisitionData");
 	}
 	else if (sirf::iequals(name, "disable_output")) {
 		recon.set_disable_output(true);

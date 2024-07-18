@@ -83,6 +83,7 @@ def main():
 
     # raw data to be used as a template for the acquisition model
     acq_template = sirf.STIR.AcquisitionData(raw_data_file)
+    print('template modality: %s' % acq_template.modality)
 
     # create image with suitable sizes
     image = acq_template.create_uniform_image()
@@ -109,6 +110,7 @@ def main():
     # simulated_data = acq_model.forward(image, 0, 4)
     if output_file is not None:
         simulated_data.write(output_file)
+    print('simulated data modality: %s' % simulated_data.modality)
 
     # show simulated acquisition data
     simulated_data_as_array = simulated_data.as_array()

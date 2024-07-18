@@ -588,7 +588,7 @@ def is_operator_adjoint(operator, num_tests=5, max_err=10e-5, verbose=True):
     return True
 
 
-def test_data_container_algebra(test, x, eps=1e-5):
+def data_container_algebra_tests(test, x, eps=1e-5):
 
     ax = x.as_array()
     ay = numpy.ones_like(ax)
@@ -602,6 +602,10 @@ def test_data_container_algebra(test, x, eps=1e-5):
 
     s = x.max()
     t = numpy.max(ax)
+    test.check_if_equal_within_tolerance(t, s, 0, eps);
+
+    s = x.min()
+    t = numpy.min(ax)
     test.check_if_equal_within_tolerance(t, s, 0, eps);
 
     s = x.sum()

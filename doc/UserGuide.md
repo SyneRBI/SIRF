@@ -32,7 +32,7 @@
 
 The SIRF (Synergistic Image Reconstruction Framework) software is an Open Source toolkit for the reconstruction of PET and MRI raw data. The aim is to provide code simple enough to easily perform a reconstruction, yet powerful enough to be able to handle real, full-size datasets. Our strategy in achieving this aim is to employ available Open Source reconstruction software written in advanced programming languages such as C++ and provide basic-user-friendly interfaces to it written in script languages, primarily Matlab and Python. The interface style permits a reconstruction to be performed in stages, allowing the user to inspect or modify data, or insert their own code. 
 
-This User’s Guide describes version 3.5 of SIRF. The software can be found on [https://github.com/SyneRBI](https://github.com/SyneRBI).
+This User’s Guide describes version 3.8 of SIRF. The software can be found on [https://github.com/SyneRBI](https://github.com/SyneRBI).
 
 ## General architecture <a name="General_architecture"></a>
 
@@ -44,7 +44,7 @@ At present, you should only use the C++, MATLAB and Python interfaces. The under
 
 ### MRI <a name="MRI"></a>
 
-SIRF expects raw MR data in the ISMRMRD format. We use [siemens_to_ismrmrd](https://github.com/ismrmrd/siemens_to_ismrmrd) for this. This enables raw data from Siemens mMR Biograph PET-MR scanners to be converted to ISMRMRD format. For more details of how to export the raw MR data from Siemens PET-MR scanners and how to convert the data to ISMRMRD please see the wiki: [https://github.com/SyneRBI/SIRF/wiki/MR-raw-data](https://github.com/SyneRBI/SIRF/wiki/MR-raw-data).  
+SIRF expects raw MR data in the ISMRMRD format. We use [siemens_to_ismrmrd](https://github.com/ismrmrd/siemens_to_ismrmrd) for this. This enables raw data from Siemens mMR Biograph PET-MR scanners to be converted to ISMRMRD format. For more details of how to export the raw MR data from Siemens PET-MR scanners and how to convert the data to ISMRMRD please see the wiki: [https://github.com/SyneRBI/SIRF/wiki/MR-raw-data](https://github.com/SyneRBI/SIRF/wiki/MR-raw-data).
 
 Converters for data from other scanners are available from [https://github.com/ismrmrd](https://github.com/ismrmrd) but we have not tried these yet. 
 
@@ -245,6 +245,16 @@ In what follows, we mark by `PET` classes defined in `sirf.STIR` only and by `MR
 
 We remind that every derived class inherits all methods of its base class.
 
+##### ListmodeData (PET)
+
+An STIR-specitic acquisition data container class for list-mode  data objects. Inherits from `sirf.SIRF.ContainerBase`. 
+
+###### Methods:
+
+    ListmodeData        Constructor. If no arguments are present, creates an
+                        empty object, otherwise specifies the file containing raw data 
+    get_info      (PET) Returns information on the acquisition data as a string. 
+
 ##### AcquisitionData
 
 An engine-specific acquisition data container class for acquisition data objects. Inherits from `sirf.SIRF.DataContainer`. 
@@ -288,6 +298,7 @@ An engine-specific image data container class for data representing 3D objects. 
     fill                Replaces the object data with user-supplied data. 
     as_array            Returns the object data as an array. 
     read_from_file      Reads the image data from file.
+    get_info      (PET) Returns information on the data as a string. 
     get_ISMRMRD_info
                   (MR)  Returns information on the image data as an array.
     get_uniform_copy   

@@ -65,6 +65,7 @@ extern "C" {
 	void* cSTIR_convertListmodeToSinograms(void* ptr);
 	void* cSTIR_computeRandoms(void* ptr);
     void* cSTIR_lm_num_prompts_exceeds_threshold(void* ptr, const float threshold);
+    void* cSTIR_objFunListModeSetInterval(void* ptr_f, size_t ptr_data);
 
 	// Data processor methods
 	void* cSTIR_setupImageDataProcessor(const void* ptr_p, void* ptr_i);
@@ -75,6 +76,8 @@ extern "C" {
 		(const void* ptr_src, const char* src);
 	void* cSTIR_createPETAttenuationModel
 		(const void* ptr_img, const void* ptr_am);
+	void* cSTIR_computeACF
+		(const void* ptr_sino, const void* ptr_att, void* ptr_acf, void* ptr_iacf);
 	void* cSTIR_chainPETAcquisitionSensitivityModels
 		(const void* ptr_first, const void* ptr_second);
 	void* cSTIR_setupAcquisitionSensitivityModel(void* ptr_sm, void* ptr_ad);
@@ -91,13 +94,16 @@ extern "C" {
 		int subset_num, int num_subsets);
 	void* cSTIR_acquisitionModelBwdReplace(void* ptr_am, void* ptr_ad,
 		int subset_num, int num_subsets, void* ptr_im);
-        void* cSTIR_get_MatrixInfo(void* ptr);
+	void* cSTIR_get_MatrixInfo(void* ptr);
 
     // Acquisition Model Matrix
     void* cSTIR_setupSPECTUBMatrix(const void* h_smx, const void* h_acq, const void* h_img);
     void* cSTIR_SPECTUBMatrixSetResolution
         (const void* ptr_acq_matrix,
         const float collimator_sigma_0_in_mm, const float collimator_slope_in_mm, const bool full_3D);
+
+    // listmode data methods
+    void* cSTIR_acquisitionDataFromListmode(void* ptr_t);
 
 	// Acquisition data methods
 	void* cSTIR_getAcquisitionDataStorageScheme();
@@ -121,7 +127,8 @@ extern "C" {
 	void* cSTIR_fillAcquisitionDataFromAcquisitionData
 		(void* ptr_acq, const void * ptr_from);
 	void* cSTIR_writeAcquisitionData(void* ptr_acq, const char* filename);
-	void* cSTIR_get_ProjDataInfo(void* ptr_acq);
+        // works for AcquisitionData, ListmodeData and ImageData at present
+	void* cSTIR_get_info(void* ptr_acq);
 	void* cSTIR_get_subset(void* ptr_acq, int nv, size_t ptr_views);
 
 	// Reconstruction methods
@@ -139,18 +146,31 @@ extern "C" {
 
 	// Objective function methods
 	void* cSTIR_setupObjectiveFunction(void* ptr_r, void* ptr_i);
-	void*	cSTIR_subsetSensitivity(void* ptr_f, int subset);
+	void* cSTIR_subsetSensitivity(void* ptr_f, int subset);
 	void* cSTIR_objectiveFunctionValue(void* ptr_f, void* ptr_i);
 	void* cSTIR_objectiveFunctionGradient
 		(void* ptr_f, void* ptr_i, int subset);
+    void* cSTIR_computeObjectiveFunctionGradient
+        (void* ptr_f, void* ptr_i, int subset, void* ptr_g);
 	void* cSTIR_objectiveFunctionGradientNotDivided
 		(void* ptr_f, void* ptr_i, int subset);
+    void* cSTIR_computeObjectiveFunctionGradientNotDivided
+        (void* ptr_f, void* ptr_i, int subset, void* ptr_g);
+    void* cSTIR_objectiveFunctionAccumulateHessianTimesInput
+        (void* ptr_fun, void* ptr_est, void* ptr_inp, int subset, void* ptr_out);
+    void* cSTIR_objectiveFunctionComputeHessianTimesInput
+        (void* ptr_fun, void* ptr_est, void* ptr_inp, int subset, void* ptr_out);
 
 	// Prior methods
 	void* cSTIR_setupPrior(void* ptr_p, void* ptr_i);
 	void* cSTIR_priorValue(void* ptr_p, void* ptr_i);
 	void* cSTIR_priorGradient(void* ptr_p, void* ptr_i);
-	void* cSTIR_PLSPriorGradient(void* ptr_p, int dir);
+    void* cSTIR_priorAccumulateHessianTimesInput
+        (void* ptr_prior, void* ptr_out, void* ptr_curr, void* ptr_inp);
+    void* cSTIR_priorComputeHessianTimesInput
+        (void* ptr_prior, void* ptr_out, void* ptr_cur, void* ptr_inp);
+	void* cSTIR_computePriorGradient(void* ptr_p, void* ptr_i, void* ptr_g);
+	void* cSTIR_PLSPriorAnatomicalGradient(void* ptr_p, int dir);
 
 	// Image methods
 	void* cSTIR_getImageDimensions(const void* ptr, PTR_INT ptr_data);

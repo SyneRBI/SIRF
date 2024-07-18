@@ -568,7 +568,7 @@ cGT_ISMRMRDAcquisitionsFromFile(const char* file, int all, size_t ptr)
 	if (!file_exists(file))
 		return fileNotFound(file, __FILE__, __LINE__);
 	try {
-		auto ptr_ignored = reinterpret_cast<unsigned long int*>(ptr);
+		auto ptr_ignored = reinterpret_cast<unsigned long long int*>(ptr);
 		auto ignored = *ptr_ignored;
 		std::cout << "reading from " << file << " using ignore mask ";
 		IgnoreMask mask;
@@ -727,7 +727,7 @@ cGT_setAcquisitionsIgnoreMask(void* ptr_acqs, size_t ptr_im)
 			objectFromHandle<MRAcquisitionData>(h_acqs);
 		shared_ptr<ISMRMRD::Acquisition>
 			sptr_acq(new ISMRMRD::Acquisition);
-		auto im = *reinterpret_cast<unsigned long int*>(ptr_im);
+		auto im = *reinterpret_cast<unsigned long long int*>(ptr_im);
 		acqs.set_ignore_mask(im);
 		return new DataHandle;
 	}
@@ -744,7 +744,7 @@ cGT_acquisitionsIgnoreMask(void* ptr_acqs, size_t ptr_im)
 			objectFromHandle<MRAcquisitionData>(h_acqs);
 		shared_ptr<ISMRMRD::Acquisition>
 			sptr_acq(new ISMRMRD::Acquisition);
-		auto im = reinterpret_cast<unsigned long int*>(ptr_im);
+		auto im = reinterpret_cast<unsigned long long int*>(ptr_im);
 		*im = acqs.ignore_mask().bits();
 		return new DataHandle;
 	}

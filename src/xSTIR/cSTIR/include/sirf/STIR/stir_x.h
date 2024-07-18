@@ -1,7 +1,7 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2021 Rutherford Appleton Laboratory STFC
-Copyright 2019 - 2021 University College London
+Copyright 2019 - 2021, 2024 University College London
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -40,6 +40,7 @@ limitations under the License.
 #include "sirf/common/JacobiCG.h"
 #include "sirf/STIR/stir_data_containers.h"
 #include "stir/recon_buildblock/PoissonLogLikelihoodWithLinearModelForMeanAndProjData.h"
+#include "stir/recon_buildblock/PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin.h"
 
 #define MIN_BIN_EFFICIENCY 1.0e-20f
 //#define MIN_BIN_EFFICIENCY 1.0e-6f
@@ -80,169 +81,11 @@ The actual algorithm is described in
 > [Online](http://dx.doi.org/10.1109/nssmic.2002.1239610).
 */
 
-	class ListmodeToSinograms : public stir::LmToProjData {
-	public:
-		//! Constructor. 
-		/*! Takes an optional text string argument with
-			the name of a STIR parameter file defining the conversion options.
-			If no argument is given, default settings apply except
-			for the names of input raw data file, template file and
-			output filename prefix, which must be set by the user by
-			calling respective methods.
-
-			By default, `store_prompts` is `true` and `store_delayeds` is `false`.
-			*/
-		//ListmodeToSinograms(const char* const par) : stir::LmToProjData(par) {}
-		ListmodeToSinograms(const char* par) : stir::LmToProjData(par) {}
-		ListmodeToSinograms() : stir::LmToProjData()
-		{
-                        set_defaults();
-			fan_size = -1;
-			store_prompts = true;
-			store_delayeds = false;
-			delayed_increment = 0;
-			num_iterations = 10;
-			display_interval = 1;
-			KL_interval = 1;
-			save_interval = -1;
-			//num_events_to_store = -1;
-		}
-		void set_input(std::string lm_file)
-		{
-			input_filename = lm_file;
-                        lm_data_ptr = stir::read_from_file<ListModeData>(input_filename);
-                        exam_info_sptr_.reset(new ExamInfo(lm_data_ptr->get_exam_info()));
-                        proj_data_info_sptr_.reset(lm_data_ptr->get_proj_data_info_sptr()->clone());
-		}
-		//! Specifies the prefix for the output file(s), 
-		/*! This will be appended by `_g1f1d0b0.hs`.
-		*/
-		void set_output(std::string proj_data_file)
-		{
-			output_filename_prefix = proj_data_file;
-		}
-		void set_template(std::string proj_data_file)
-		{
-                        STIRAcquisitionDataInFile acq_data_template(proj_data_file.c_str());
-                        set_template(acq_data_template);
-		}
-		void set_template(const STIRAcquisitionData& acq_data_template)
-		{
-                        template_proj_data_info_ptr =
-                          acq_data_template.get_proj_data_info_sptr()->create_shared_clone();
-		}
-		void set_time_interval(double start, double stop)
-		{
-			std::pair<double, double> interval(start, stop);
-			std::vector < std::pair<double, double> > intervals;
-			intervals.push_back(interval);
-			frame_defs = stir::TimeFrameDefinitions(intervals);
-			do_time_frame = true;
-		}
-		int set_flag(const char* flag, bool value)
-		{
-			if (sirf::iequals(flag, "store_prompts"))
-				store_prompts = value;
-			else if (sirf::iequals(flag, "store_delayeds"))
-				store_delayeds = value;
-#if 0
-			else if (sirf::iequals(flag, "do_pre_normalisation"))
-				do_pre_normalisation = value;
-			else if (sirf::iequals(flag, "do_time_frame"))
-				do_time_frame = value;
-#endif
-			else if (sirf::iequals(flag, "interactive"))
-				interactive = value;
-			else
-				return -1;
-			return 0;
-		}
-		bool get_store_prompts() const
-		{
-			return store_prompts;
-		}
-		bool get_store_delayeds() const
-		{
-			return store_delayeds;
-		}
-        virtual stir::Succeeded set_up()
-		{
-			if (LmToProjData::set_up() == Succeeded::no)
-				THROW("LmToProjData setup failed");
-			fan_size = -1;
-#if STIR_VERSION < 060000
-			const auto max_fan_size =
-				lm_data_ptr->get_scanner_ptr()->get_max_num_non_arccorrected_bins();
-#else
-			const auto max_fan_size =
-                          lm_data_ptr->get_scanner().get_max_num_non_arccorrected_bins();
-#endif
-			if (fan_size == -1)
-				fan_size = max_fan_size;
-			else
-				fan_size =
-				std::min(fan_size, max_fan_size);
-			half_fan_size = fan_size / 2;
-			fan_size = 2 * half_fan_size + 1;
-
-			exam_info_sptr_->set_time_frame_definitions(frame_defs);
-			const float h = proj_data_info_sptr_->get_bed_position_horizontal();
-			const float v = proj_data_info_sptr_->get_bed_position_vertical();
-                        stir::shared_ptr<ProjDataInfo> temp_proj_data_info_sptr(template_proj_data_info_ptr->clone());
-			temp_proj_data_info_sptr->set_bed_position_horizontal(h);
-			temp_proj_data_info_sptr->set_bed_position_vertical(v);
-			randoms_sptr.reset(new STIRAcquisitionDataInMemory(exam_info_sptr_, temp_proj_data_info_sptr));
-
-			return stir::Succeeded::yes;
-		}
-		int estimate_randoms();
-		void save_randoms()
-		{
-			std::string filename = output_filename_prefix + "_randoms" + "_f1g1d0b0.hs";
-			randoms_sptr->write(filename.c_str());
-		}
-		std::shared_ptr<STIRAcquisitionData> get_output()
-		{
-			std::string filename = output_filename_prefix + "_f1g1d0b0.hs";
-			return std::shared_ptr<STIRAcquisitionData>
-				(new STIRAcquisitionDataInFile(filename.c_str()));
-		}
-		std::shared_ptr<STIRAcquisitionData> get_randoms_sptr()
-		{
-			return randoms_sptr;
-		}
-        /// Get the time at which the number of prompts exceeds a certain threshold.
-        /// Returns -1 if not found.
-        float get_time_at_which_num_prompts_exceeds_threshold(const unsigned long threshold) const;
-
-	protected:
-		// variables for ML estimation of singles/randoms
-		int fan_size;
-		int half_fan_size;
-		int max_ring_diff_for_fansums;
-		int num_iterations;
-		int display_interval;
-		int KL_interval;
-		int save_interval;
-		stir::shared_ptr<ExamInfo> exam_info_sptr_;
-		stir::shared_ptr<ProjDataInfo> proj_data_info_sptr_;
-		stir::shared_ptr<std::vector<stir::Array<2, float> > > fan_sums_sptr;
-		stir::shared_ptr<stir::DetectorEfficiencies> det_eff_sptr;
-		std::shared_ptr<STIRAcquisitionData> randoms_sptr;
-		void compute_fan_sums_(bool prompt_fansum = false);
-		int compute_singles_();
-//		void estimate_randoms_();
-		static unsigned long compute_num_bins_(const int num_rings,
-			const int num_detectors_per_ring,
-			const int max_ring_diff, const int half_fan_size);
-	};
-
 	/*!
 	\ingroup PET
 	\brief Class for PET scanner detector efficiencies model.
 
 	*/
-
 	class PETAcquisitionSensitivityModel {
 	public:
 		PETAcquisitionSensitivityModel() {}
@@ -259,6 +102,11 @@ The actual algorithm is described in
 
 		void set_up(const stir::shared_ptr<const stir::ExamInfo>& exam_info_sptr,
 			const stir::shared_ptr<stir::ProjDataInfo>&);
+
+		void set_up(const STIRAcquisitionData& ad)
+		{
+			set_up(ad.get_exam_info_sptr(), ad.get_proj_data_info_sptr()->create_shared_clone());
+		}
 
 		// multiply by bin efficiencies
 		virtual void unnormalise(STIRAcquisitionData& ad) const;
@@ -527,6 +375,369 @@ The actual algorithm is described in
 		//shared_ptr<stir::BinNormalisation> sptr_normalisation_;
 	};
 
+	/*!
+	\ingroup PET
+	\brief Ray tracing matrix implementation of the PET acquisition model.
+
+	In this implementation \e x and \e y are essentially vectors and \e G
+	a matrix. Each row of \e G corresponds to a line-of-response (LOR)
+	between two detectors (there may be more than one line for each pair).
+	The only non-zero elements of each row are those corresponding to
+	voxels through which LOR passes, so the matrix is very sparse.
+	Furthermore, owing to symmetries, many rows have the same values only
+	in different order, and thus only one set of values needs to be computed
+	and stored (see STIR documentation for details).
+	*/
+
+	class PETAcquisitionModelUsingMatrix : public PETAcquisitionModel {
+	public:
+		PETAcquisitionModelUsingMatrix()
+		{
+			this->sptr_projectors_.reset(new ProjectorPairUsingMatrix);
+		}
+		void set_matrix(stir::shared_ptr<stir::ProjMatrixByBin> sptr_matrix)
+		{
+			sptr_matrix_ = sptr_matrix;
+			((ProjectorPairUsingMatrix*)this->sptr_projectors_.get())->
+				set_proj_matrix_sptr(sptr_matrix);
+		}
+		stir::shared_ptr<stir::ProjMatrixByBin> matrix_sptr()
+		{
+			return sptr_matrix_;
+			//return ((ProjectorPairUsingMatrix*)this->sptr_projectors_.get())->
+			//	get_proj_matrix_sptr();
+		}
+		virtual	void set_up(
+			std::shared_ptr<STIRAcquisitionData> sptr_acq,
+			std::shared_ptr<STIRImageData> sptr_image)
+		{
+			if (!sptr_matrix_.get())
+				THROW("PETAcquisitionModelUsingMatrix setup failed - matrix not set");
+			PETAcquisitionModel::set_up(sptr_acq, sptr_image);
+		}
+                
+                //! Enables or disables the caching mechanism.
+                void enable_cache(bool v = true)
+                {
+                        sptr_matrix_->enable_cache(v);
+                }
+
+	private:
+		stir::shared_ptr<stir::ProjMatrixByBin> sptr_matrix_;
+	};
+
+	class PETAcquisitionModelUsingRayTracingMatrix :
+		public PETAcquisitionModelUsingMatrix {
+	public:
+		PETAcquisitionModelUsingRayTracingMatrix(int num_LORs = 2) :
+			PETAcquisitionModelUsingMatrix()
+		{
+			stir::shared_ptr<RayTracingMatrix> matrix_sptr(new RayTracingMatrix);
+			matrix_sptr->set_num_tangential_LORs(num_LORs);
+			set_matrix(matrix_sptr);
+		}
+		void set_num_tangential_LORs(int num_LORs)
+		{
+                       //RayTracingMatrix& matrix = (RayTracingMatrix&)*matrix_sptr();
+			auto matrix = dynamic_cast<RayTracingMatrix&>(*matrix_sptr());
+			//std::cout << matrix.get_num_tangential_LORs() << '\n';
+			matrix.set_num_tangential_LORs(num_LORs);
+			//std::cout << get_num_tangential_LORs() << '\n';
+		}
+                //!@
+		int get_num_tangential_LORs()
+		{
+			auto matrix = dynamic_cast<const RayTracingMatrix&>(*matrix_sptr());
+			return matrix.get_num_tangential_LORs();
+		}
+                //! Enables or disables using a circular axial FOV (vs rectangular)
+                void set_restrict_to_cylindrical_FOV(bool v = true)
+                {
+                        auto matrix = dynamic_cast<RayTracingMatrix&>(*matrix_sptr());
+                        matrix.set_restrict_to_cylindrical_FOV(v);
+                }
+                //! \name Which symmetries will be used
+                //!@{
+                //bool get_do_symmetry_90degrees_min_phi() const;
+                void set_do_symmetry_90degrees_min_phi(bool v = true)
+                {
+                        auto matrix = dynamic_cast<RayTracingMatrix&>(*matrix_sptr());
+                        matrix.set_do_symmetry_90degrees_min_phi(v);
+                }
+                //bool get_do_symmetry_180degrees_min_phi() const;
+                void set_do_symmetry_180degrees_min_phi(bool v = true)
+                {
+                        auto matrix = dynamic_cast<RayTracingMatrix&>(*matrix_sptr());
+                        matrix.set_do_symmetry_180degrees_min_phi(v);
+                }
+                //bool get_do_symmetry_swap_segment() const;
+                void set_do_symmetry_swap_segment(bool v = true)
+                {
+                        auto matrix = dynamic_cast<RayTracingMatrix&>(*matrix_sptr());
+                        matrix.set_do_symmetry_swap_segment(v);
+                }
+                //bool get_do_symmetry_swap_s() const;
+                void set_do_symmetry_swap_s(bool v = true)
+                {
+                        auto matrix = dynamic_cast<RayTracingMatrix&>(*matrix_sptr());
+                        matrix.set_do_symmetry_swap_s(v);
+                }
+                //bool get_do_symmetry_shift_z() const;
+                void set_do_symmetry_shift_z(bool v = true)
+                {
+                        auto matrix = dynamic_cast<RayTracingMatrix&>(*matrix_sptr());
+                        matrix.set_do_symmetry_shift_z(v);
+                }
+	};
+
+	typedef PETAcquisitionModel AcqMod3DF;
+	typedef PETAcquisitionModelUsingMatrix AcqModUsingMatrix3DF;
+	typedef std::shared_ptr<AcqMod3DF> sptrAcqMod3DF;
+
+#ifdef STIR_WITH_NiftyPET_PROJECTOR
+    /*!
+    \ingroup PET
+    \brief NiftyPET implementation of the PET acquisition model.
+    */
+
+    class PETAcquisitionModelUsingNiftyPET : public PETAcquisitionModel {
+    public:
+        PETAcquisitionModelUsingNiftyPET()
+        {
+            _NiftyPET_projector_pair_sptr.reset(new ProjectorPairUsingNiftyPET);
+            this->sptr_projectors_ = _NiftyPET_projector_pair_sptr;
+			// Set verbosity to 0 by default
+            _NiftyPET_projector_pair_sptr->set_verbosity(0);
+        }
+        void set_cuda_verbosity(const bool verbosity) const
+        {
+            _NiftyPET_projector_pair_sptr->set_verbosity(verbosity);
+        }
+        void set_use_truncation(const bool use_truncation) const
+        {
+            _NiftyPET_projector_pair_sptr->set_use_truncation(use_truncation);
+        }
+    protected:
+        stir::shared_ptr<stir::ProjectorPairUsingNiftyPET> _NiftyPET_projector_pair_sptr;
+    };
+    typedef PETAcquisitionModelUsingNiftyPET AcqModUsingNiftyPET3DF;
+#endif
+
+#ifdef STIR_WITH_Parallelproj_PROJECTOR
+    /*!
+    \ingroup PET
+    \brief Parallelproj implementation of the PET acquisition model
+    (see https://github.com/gschramm/parallelproj).
+    */
+	class PETAcquisitionModelUsingParallelproj : public PETAcquisitionModel {
+	public:
+		PETAcquisitionModelUsingParallelproj()
+		{
+			this->sptr_projectors_.reset(new ProjectorByBinPairUsingParallelproj);
+		}
+	};
+	typedef PETAcquisitionModelUsingParallelproj AcqModUsingParallelproj;
+#endif
+
+	/*!
+	\ingroup PET
+	\brief Attenuation model.
+
+	*/
+
+	class PETAttenuationModel : public PETAcquisitionSensitivityModel {
+	public:
+		PETAttenuationModel(STIRImageData& id, PETAcquisitionModel& am);
+		//! multiply by bin efficiencies (here attenuation factors), i.e. attenuate data in \a ad
+		virtual void unnormalise(STIRAcquisitionData& ad) const;
+		// divide by bin efficiencies (here attenuation factors), i.e. correct data in \a ad for attenuatio
+		virtual void normalise(STIRAcquisitionData& ad) const;
+		/*! Convenience function computing attenuation factor using unnormalise
+		    and its inverse (attenuation correction factor) using STIRImageData::inv
+		*/
+		static void compute_ac_factors(
+			// input arguments
+			const STIRAcquisitionData& acq_templ,
+			const PETAttenuationModel& acq_sens_mod,
+			// output arguments
+			std::shared_ptr<STIRAcquisitionData>& af_sptr,
+			std::shared_ptr<STIRAcquisitionData>& acf_sptr)
+		{
+			af_sptr = acq_templ.clone();
+			af_sptr->fill(1.0);
+			acf_sptr = af_sptr->clone();
+			acq_sens_mod.unnormalise(*af_sptr);
+			acf_sptr->inv(0, *af_sptr);
+		}
+
+	protected:
+		stir::shared_ptr<stir::ForwardProjectorByBin> sptr_forw_projector_;
+	};
+
+
+	class ListmodeToSinograms : public stir::LmToProjData {
+	public:
+		//! Constructor. 
+		/*! Takes an optional text string argument with
+			the name of a STIR parameter file defining the conversion options.
+			If no argument is given, default settings apply except
+			for the names of input raw data file, template file and
+			output filename prefix, which must be set by the user by
+			calling respective methods.
+
+			By default, `store_prompts` is `true` and `store_delayeds` is `false`.
+			*/
+		//ListmodeToSinograms(const char* const par) : stir::LmToProjData(par) {}
+		ListmodeToSinograms(const char* par) : stir::LmToProjData(par) {}
+		ListmodeToSinograms() : stir::LmToProjData()
+		{
+                        set_defaults();
+			fan_size = -1;
+			store_prompts = true;
+			store_delayeds = false;
+			delayed_increment = 0;
+			num_iterations = 10;
+			display_interval = 1;
+			KL_interval = 1;
+			save_interval = -1;
+			//num_events_to_store = -1;
+		}
+		void set_input(const STIRListmodeData& lm_data_v)
+		{
+			input_filename = "UNKNOWN";
+                        // call stir::LmToProjData::set_input_data
+                        this->set_input_data(lm_data_v.data());
+                        exam_info_sptr_.reset(new ExamInfo(lm_data_ptr->get_exam_info()));
+                        proj_data_info_sptr_.reset(lm_data_ptr->get_proj_data_info_sptr()->clone());
+		}
+		void set_input(std::string lm_file)
+		{
+			this->set_input(STIRListmodeData(lm_file));
+			this->input_filename = lm_file;
+  }
+		//! Specifies the prefix for the output file(s), 
+		/*! This will be appended by `_g1f1d0b0.hs`.
+		*/
+		void set_output(std::string proj_data_file)
+		{
+			output_filename_prefix = proj_data_file;
+		}
+		void set_template(std::string proj_data_file)
+		{
+                        STIRAcquisitionDataInFile acq_data_template(proj_data_file.c_str());
+                        set_template(acq_data_template);
+		}
+		void set_template(const STIRAcquisitionData& acq_data_template)
+		{
+                        template_proj_data_info_ptr =
+                          acq_data_template.get_proj_data_info_sptr()->create_shared_clone();
+		}
+		void set_time_interval(double start, double stop)
+		{
+			std::pair<double, double> interval(start, stop);
+			std::vector < std::pair<double, double> > intervals;
+			intervals.push_back(interval);
+			frame_defs = stir::TimeFrameDefinitions(intervals);
+			do_time_frame = true;
+		}
+		int set_flag(const char* flag, bool value)
+		{
+			if (sirf::iequals(flag, "store_prompts"))
+				store_prompts = value;
+			else if (sirf::iequals(flag, "store_delayeds"))
+				store_delayeds = value;
+#if 0
+			else if (sirf::iequals(flag, "do_pre_normalisation"))
+				do_pre_normalisation = value;
+			else if (sirf::iequals(flag, "do_time_frame"))
+				do_time_frame = value;
+#endif
+			else if (sirf::iequals(flag, "interactive"))
+				interactive = value;
+			else
+				return -1;
+			return 0;
+		}
+		bool get_store_prompts() const
+		{
+			return store_prompts;
+		}
+		bool get_store_delayeds() const
+		{
+			return store_delayeds;
+		}
+        virtual stir::Succeeded set_up()
+		{
+			if (LmToProjData::set_up() == Succeeded::no)
+				THROW("LmToProjData setup failed");
+			fan_size = -1;
+#if STIR_VERSION < 060000
+			const auto max_fan_size =
+				lm_data_ptr->get_scanner_ptr()->get_max_num_non_arccorrected_bins();
+#else
+			const auto max_fan_size =
+                          lm_data_ptr->get_scanner().get_max_num_non_arccorrected_bins();
+#endif
+			if (fan_size == -1)
+				fan_size = max_fan_size;
+			else
+				fan_size =
+				std::min(fan_size, max_fan_size);
+			half_fan_size = fan_size / 2;
+			fan_size = 2 * half_fan_size + 1;
+
+			exam_info_sptr_->set_time_frame_definitions(frame_defs);
+			const float h = proj_data_info_sptr_->get_bed_position_horizontal();
+			const float v = proj_data_info_sptr_->get_bed_position_vertical();
+                        stir::shared_ptr<ProjDataInfo> temp_proj_data_info_sptr(template_proj_data_info_ptr->clone());
+			temp_proj_data_info_sptr->set_bed_position_horizontal(h);
+			temp_proj_data_info_sptr->set_bed_position_vertical(v);
+			randoms_sptr.reset(new STIRAcquisitionDataInMemory(exam_info_sptr_, temp_proj_data_info_sptr));
+
+			return stir::Succeeded::yes;
+		}
+		int estimate_randoms();
+		void save_randoms()
+		{
+			std::string filename = "randoms_f1g1d0b0.hs";
+			randoms_sptr->write(filename.c_str());
+		}
+		std::shared_ptr<STIRAcquisitionData> get_output()
+		{
+			std::string filename = output_filename_prefix + "_f1g1d0b0.hs";
+			return std::shared_ptr<STIRAcquisitionData>
+				(new STIRAcquisitionDataInFile(filename.c_str()));
+		}
+		std::shared_ptr<STIRAcquisitionData> get_randoms_sptr()
+		{
+			return randoms_sptr;
+		}
+        /// Get the time at which the number of prompts exceeds a certain threshold.
+        /// Returns -1 if not found.
+        float get_time_at_which_num_prompts_exceeds_threshold(const unsigned long threshold) const;
+
+	protected:
+		// variables for ML estimation of singles/randoms
+		int fan_size;
+		int half_fan_size;
+		int max_ring_diff_for_fansums;
+		int num_iterations;
+		int display_interval;
+		int KL_interval;
+		int save_interval;
+		stir::shared_ptr<ExamInfo> exam_info_sptr_;
+		stir::shared_ptr<ProjDataInfo> proj_data_info_sptr_;
+		stir::shared_ptr<std::vector<stir::Array<2, float> > > fan_sums_sptr;
+		stir::shared_ptr<stir::DetectorEfficiencies> det_eff_sptr;
+		std::shared_ptr<STIRAcquisitionData> randoms_sptr;
+		void compute_fan_sums_(bool prompt_fansum = false);
+		int compute_singles_();
+//		void estimate_randoms_();
+		static unsigned long compute_num_bins_(const int num_rings,
+			const int num_detectors_per_ring,
+			const int max_ring_diff, const int half_fan_size);
+	};
+
         /*!
           \ingroup PET
 
@@ -736,6 +947,18 @@ The actual algorithm is described in
           return this->get_reconstruction_method().get_num_subsets();
         }
 
+        //! Set maximal scale factor value of the SSS algorithm to use
+        void set_max_scale_value(float v)
+        {
+            stir::ScatterEstimation::set_max_scale_value(v);
+        }
+
+        //! Set minimal scale factor value of the SSS algorithm to use
+        void set_min_scale_value(float v)
+        {
+            stir::ScatterEstimation::set_min_scale_value(v);
+        }
+
         std::shared_ptr<STIRAcquisitionData> get_scatter_estimate(int est_num = -1) const
         {
             if (est_num == -1) // Get the last one
@@ -806,187 +1029,6 @@ The actual algorithm is described in
 
 	/*!
 	\ingroup PET
-	\brief Ray tracing matrix implementation of the PET acquisition model.
-
-	In this implementation \e x and \e y are essentially vectors and \e G
-	a matrix. Each row of \e G corresponds to a line-of-response (LOR)
-	between two detectors (there may be more than one line for each pair).
-	The only non-zero elements of each row are those corresponding to
-	voxels through which LOR passes, so the matrix is very sparse.
-	Furthermore, owing to symmetries, many rows have the same values only
-	in different order, and thus only one set of values needs to be computed
-	and stored (see STIR documentation for details).
-	*/
-
-	class PETAcquisitionModelUsingMatrix : public PETAcquisitionModel {
-	public:
-		PETAcquisitionModelUsingMatrix()
-		{
-			this->sptr_projectors_.reset(new ProjectorPairUsingMatrix);
-		}
-		void set_matrix(stir::shared_ptr<stir::ProjMatrixByBin> sptr_matrix)
-		{
-			sptr_matrix_ = sptr_matrix;
-			((ProjectorPairUsingMatrix*)this->sptr_projectors_.get())->
-				set_proj_matrix_sptr(sptr_matrix);
-		}
-		stir::shared_ptr<stir::ProjMatrixByBin> matrix_sptr()
-		{
-			return sptr_matrix_;
-			//return ((ProjectorPairUsingMatrix*)this->sptr_projectors_.get())->
-			//	get_proj_matrix_sptr();
-		}
-		virtual	void set_up(
-			std::shared_ptr<STIRAcquisitionData> sptr_acq,
-			std::shared_ptr<STIRImageData> sptr_image)
-		{
-			if (!sptr_matrix_.get())
-				THROW("PETAcquisitionModelUsingMatrix setup failed - matrix not set");
-			PETAcquisitionModel::set_up(sptr_acq, sptr_image);
-		}
-                
-                //! Enables or disables the caching mechanism.
-                void enable_cache(bool v = true)
-                {
-                        sptr_matrix_->enable_cache(v);
-                }
-
-	private:
-		stir::shared_ptr<stir::ProjMatrixByBin> sptr_matrix_;
-	};
-
-	class PETAcquisitionModelUsingRayTracingMatrix :
-		public PETAcquisitionModelUsingMatrix {
-	public:
-		PETAcquisitionModelUsingRayTracingMatrix(int num_LORs = 2) :
-			PETAcquisitionModelUsingMatrix()
-		{
-			stir::shared_ptr<RayTracingMatrix> matrix_sptr(new RayTracingMatrix);
-			matrix_sptr->set_num_tangential_LORs(num_LORs);
-			set_matrix(matrix_sptr);
-		}
-		void set_num_tangential_LORs(int num_LORs)
-		{
-                       //RayTracingMatrix& matrix = (RayTracingMatrix&)*matrix_sptr();
-			auto matrix = dynamic_cast<RayTracingMatrix&>(*matrix_sptr());
-			//std::cout << matrix.get_num_tangential_LORs() << '\n';
-			matrix.set_num_tangential_LORs(num_LORs);
-			//std::cout << get_num_tangential_LORs() << '\n';
-		}
-                //!@
-		int get_num_tangential_LORs()
-		{
-			auto matrix = dynamic_cast<const RayTracingMatrix&>(*matrix_sptr());
-			return matrix.get_num_tangential_LORs();
-		}
-                //! Enables or disables using a circular axial FOV (vs rectangular)
-                void set_restrict_to_cylindrical_FOV(bool v = true)
-                {
-                        auto matrix = dynamic_cast<RayTracingMatrix&>(*matrix_sptr());
-                        matrix.set_restrict_to_cylindrical_FOV(v);
-                }
-                //! \name Which symmetries will be used
-                //!@{
-                //bool get_do_symmetry_90degrees_min_phi() const;
-                void set_do_symmetry_90degrees_min_phi(bool v = true)
-                {
-                        auto matrix = dynamic_cast<RayTracingMatrix&>(*matrix_sptr());
-                        matrix.set_do_symmetry_90degrees_min_phi(v);
-                }
-                //bool get_do_symmetry_180degrees_min_phi() const;
-                void set_do_symmetry_180degrees_min_phi(bool v = true)
-                {
-                        auto matrix = dynamic_cast<RayTracingMatrix&>(*matrix_sptr());
-                        matrix.set_do_symmetry_180degrees_min_phi(v);
-                }
-                //bool get_do_symmetry_swap_segment() const;
-                void set_do_symmetry_swap_segment(bool v = true)
-                {
-                        auto matrix = dynamic_cast<RayTracingMatrix&>(*matrix_sptr());
-                        matrix.set_do_symmetry_swap_segment(v);
-                }
-                //bool get_do_symmetry_swap_s() const;
-                void set_do_symmetry_swap_s(bool v = true)
-                {
-                        auto matrix = dynamic_cast<RayTracingMatrix&>(*matrix_sptr());
-                        matrix.set_do_symmetry_swap_s(v);
-                }
-                //bool get_do_symmetry_shift_z() const;
-                void set_do_symmetry_shift_z(bool v = true)
-                {
-                        auto matrix = dynamic_cast<RayTracingMatrix&>(*matrix_sptr());
-                        matrix.set_do_symmetry_shift_z(v);
-                }
-	};
-
-	typedef PETAcquisitionModel AcqMod3DF;
-	typedef PETAcquisitionModelUsingMatrix AcqModUsingMatrix3DF;
-	typedef std::shared_ptr<AcqMod3DF> sptrAcqMod3DF;
-
-#ifdef STIR_WITH_NiftyPET_PROJECTOR
-    /*!
-    \ingroup PET
-    \brief NiftyPET implementation of the PET acquisition model.
-    */
-
-    class PETAcquisitionModelUsingNiftyPET : public PETAcquisitionModel {
-    public:
-        PETAcquisitionModelUsingNiftyPET()
-        {
-            _NiftyPET_projector_pair_sptr.reset(new ProjectorPairUsingNiftyPET);
-            this->sptr_projectors_ = _NiftyPET_projector_pair_sptr;
-			// Set verbosity to 0 by default
-            _NiftyPET_projector_pair_sptr->set_verbosity(0);
-        }
-        void set_cuda_verbosity(const bool verbosity) const
-        {
-            _NiftyPET_projector_pair_sptr->set_verbosity(verbosity);
-        }
-        void set_use_truncation(const bool use_truncation) const
-        {
-            _NiftyPET_projector_pair_sptr->set_use_truncation(use_truncation);
-        }
-    protected:
-        stir::shared_ptr<stir::ProjectorPairUsingNiftyPET> _NiftyPET_projector_pair_sptr;
-    };
-    typedef PETAcquisitionModelUsingNiftyPET AcqModUsingNiftyPET3DF;
-#endif
-
-#ifdef STIR_WITH_Parallelproj_PROJECTOR
-    /*!
-    \ingroup PET
-    \brief Parallelproj implementation of the PET acquisition model
-    (see https://github.com/gschramm/parallelproj).
-    */
-	class PETAcquisitionModelUsingParallelproj : public PETAcquisitionModel {
-	public:
-		PETAcquisitionModelUsingParallelproj()
-		{
-			this->sptr_projectors_.reset(new ProjectorByBinPairUsingParallelproj);
-		}
-	};
-	typedef PETAcquisitionModelUsingParallelproj AcqModUsingParallelproj;
-#endif
-
-	/*!
-	\ingroup PET
-	\brief Attenuation model.
-
-	*/
-
-	class PETAttenuationModel : public PETAcquisitionSensitivityModel {
-	public:
-		PETAttenuationModel(STIRImageData& id, PETAcquisitionModel& am);
-		// multiply by bin efficiencies
-		virtual void unnormalise(STIRAcquisitionData& ad) const;
-		// divide by bin efficiencies
-		virtual void normalise(STIRAcquisitionData& ad) const;
-	protected:
-		stir::shared_ptr<stir::ForwardProjectorByBin> sptr_forw_projector_;
-	};
-
-	/*!
-	\ingroup PET
 	\brief Accessor classes.
 
 	Some methods of the STIR classes exposed to the user by SIRF are protected
@@ -1024,6 +1066,12 @@ The actual algorithm is described in
 
 	class xSTIR_GeneralisedPrior3DF : public stir::GeneralisedPrior < Image3DF > {
 	public:
+		void multiply_with_Hessian(Image3DF& output, const Image3DF& curr_image_est,
+            const Image3DF& input) const
+		{
+			output.fill(0.0);
+			accumulate_Hessian_times_input(output, curr_image_est, input);
+		}
 //		bool post_process() {
 //			return post_processing();
 //		}
@@ -1060,6 +1108,19 @@ The actual algorithm is described in
 	class xSTIR_GeneralisedObjectiveFunction3DF :
 		public stir::GeneralisedObjectiveFunction < Image3DF > {
 	public:
+		void multiply_with_Hessian(Image3DF& output, const Image3DF& curr_image_est,
+            const Image3DF& input, const int subset) const
+		{
+			output.fill(0.0);
+			if (subset >= 0)
+				accumulate_sub_Hessian_times_input(output, curr_image_est, input, subset);
+			else {
+				for (int s = 0; s < get_num_subsets(); s++) {
+					accumulate_sub_Hessian_times_input(output, curr_image_est, input, s);
+				}
+			}
+		}
+
 //		bool post_process() {
 //			return post_processing();
 //		}
@@ -1078,36 +1139,8 @@ The actual algorithm is described in
 			sptr_ad_ = sptr;
 			set_proj_data_sptr(sptr->data());
 		}
-		void set_acquisition_model(std::shared_ptr<AcqMod3DF> sptr_am)
-		{
-			sptr_am_ = sptr_am;
-			AcqMod3DF& am = *sptr_am;
-			auto sptr_asm = am.asm_sptr();
-			set_projector_pair_sptr(am.projectors_sptr());
-			bool have_a = am.additive_term_sptr().get();
-			bool have_b = am.background_term_sptr().get();
-			bool have_asm = sptr_asm.get();
-			if (!have_b) {
-				if (have_a)
-					set_additive_proj_data_sptr(am.additive_term_sptr()->data());
-			}
-			else {
-				auto sptr_b = am.background_term_sptr();
-				stir::shared_ptr<STIRAcquisitionData> sptr;
-				if (have_asm)
-					sptr = sptr_asm->invert(*sptr_b);
-				else
-					sptr = sptr_b->clone();
-				if (have_a) {
-					auto sptr_a = am.additive_term_sptr();
-					float a = 1.0f;
-					sptr->axpby(&a, *sptr, &a, *sptr_a);
-				}
-				set_additive_proj_data_sptr(sptr->data());
-			}
-			if (am.normalisation_sptr().get())
-				set_normalisation_sptr(am.normalisation_sptr());
-		}
+		void set_acquisition_model(std::shared_ptr<AcqMod3DF> sptr_am);
+
 		std::shared_ptr<AcqMod3DF> acquisition_model_sptr()
 		{
 			return sptr_am_;
@@ -1119,6 +1152,41 @@ The actual algorithm is described in
 
 	typedef xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF
 		PoissonLogLhLinModMeanProjData3DF;
+
+	class xSTIR_PoissonLLhLinModMeanListDataProjMatBin3DF :
+		public stir::PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin<Image3DF> {
+    public:
+#if 0
+          // this functionality was for skip_lm_input_file, but this is disabled for now
+        void set_acquisition_data(std::shared_ptr<PETAcquisitionData> sptr)
+        {
+            sptr_ad_ = sptr;
+            set_proj_data_info(*sptr->data());
+        }
+#endif
+        void set_acquisition_model(std::shared_ptr<AcqMod3DF> sptr_am);
+
+        void set_cache_path(const std::string filepath)
+        {
+            stir::PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin<Image3DF>::
+                 set_cache_path(filepath);
+        }
+
+        void set_time_interval(double start, double stop)
+        {
+	        std::pair<double, double> interval(start, stop);
+	        std::vector < std::pair<double, double> > intervals;
+	        intervals.push_back(interval);
+	        frame_defs = stir::TimeFrameDefinitions(intervals);
+	        do_time_frame = true;
+        }
+
+    private:
+        //std::shared_ptr<PETAcquisitionData> sptr_ad_;
+        std::shared_ptr<PETAcquisitionModelUsingMatrix> sptr_am_;
+        };
+
+        typedef xSTIR_PoissonLLhLinModMeanListDataProjMatBin3DF PoissonLLhLinModMeanListDataProjMatBin3DF;
 
 	class xSTIR_IterativeReconstruction3DF :
 		public stir::IterativeReconstruction < Image3DF > {
@@ -1256,7 +1324,7 @@ The actual algorithm is described in
 		std::shared_ptr<STIRImageData> _sptr_image_data;
 	};
 
-	class xSTIR_SeparableGaussianImageFilter : 
+	class xSTIR_SeparableGaussianImageFilter :
 		public stir::SeparableGaussianImageFilter<float> {
 	public:
 		//stir::Succeeded set_up(const STIRImageData& id)

@@ -38,7 +38,8 @@ class TestSTIRObjectiveFunction(unittest.TestCase):
         templ = pet.AcquisitionData(os.path.join(data_path,'template_sinogram.hs'))
         am.set_up(templ,image)
         acquired_data=am.forward(image)
-
+        am.set_background_term(acquired_data*0 + numpy.mean(acquired_data.as_array()))
+        am.set_up(templ,image)
         obj_fun = pet.make_Poisson_loglikelihood(acquired_data)
         obj_fun.set_acquisition_model(am)
         obj_fun.set_up(image)
@@ -55,4 +56,22 @@ class TestSTIRObjectiveFunction(unittest.TestCase):
         b = self.obj_fun(x)
 
         numpy.testing.assert_almost_equal(a,b)
+
+    def test_Hessian(self, subset=-1, eps=1e-3):
+        """Checks that grad(x + dx) - grad(x) is close to H(x)*dx
+        """
+        x = self.image
+        dx = x.clone()
+        dx *= eps/dx.norm()
+        dx += eps/2
+        y = x + dx
+        gx = self.obj_fun.gradient(x, subset)
+        gy = self.obj_fun.gradient(y, subset)
+        dg = gy - gx
+        Hdx = self.obj_fun.multiply_with_Hessian(x, dx, subset)
+        q = (dg - Hdx).norm()/dg.norm()
+        print('norm of grad(x + dx) - grad(x): %f' % dg.norm())
+        print('norm of H(x)*dx: %f' % Hdx.norm())
+        print('relative difference: %f' % q)
+        assert q <= .002
 

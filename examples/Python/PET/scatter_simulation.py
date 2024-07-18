@@ -8,7 +8,7 @@ Usage:
 
 Options:
   -f <file>, --file=<file>    raw data file [default: scatter_template.hs]
-  -p <path>, --path=<path>    path to data files, defaults to data/examples/PET
+  -p <path>, --path=<path>    path to data files, defaults to examples/parameter_files
                               subfolder of SIRF root folder
   -o <file>, --output=<file>  output file for simulated data [default: scatter_output.hs]
   --non-interactive           do not show plots

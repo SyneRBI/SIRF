@@ -1,7 +1,7 @@
 """Object-Oriented wrap for the cSTIR-to-Python interface pystir.py."""
 
 # SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-# Copyright 2015 - 2021 Rutherford Appleton Laboratory STFC
+# Copyright 2015 - 2022 Rutherford Appleton Laboratory STFC
 # Copyright 2015 - 2022 University College London
 # Copyright 2019 University of Hull
 #
@@ -33,7 +33,7 @@ from numbers import Integral, Number
 from deprecation import deprecated
 
 from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
-     try_calling, assert_validity, \
+     try_calling, assert_validity, assert_validities, \
      cpp_int_dtype, cpp_int_array, \
      examples_data_path, existing_filepath, pTest
 from sirf import SIRF
@@ -44,6 +44,7 @@ import sirf.pystir as pystir
 import sirf.STIR_params as parms
 from sirf.config import SIRF_HAS_NiftyPET
 from sirf.config import SIRF_HAS_Parallelproj
+from sirf.config import STIR_WITH_CUDA
 
 if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
     ABC = abc.ABC
@@ -449,6 +450,15 @@ class ImageData(SIRF.ImageData):
         """See DataContainer method."""
         return ImageData()
 
+    def get_info(self):
+        """Returns the STIR metadata as Python str."""
+        handle = pystir.cSTIR_get_info(self.handle)
+        check_status(handle)
+        info = pyiutil.charDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return info
+
+    @property
     def modality(self):
         """Returns imaging modality as Python string."""
         return parms.char_par(self.handle, 'ImageData', 'modality')
@@ -1111,8 +1121,67 @@ class PinholeSPECTUBMatrix:
         return self
 
 
-class AcquisitionData(DataContainer):
-    """Class for PET acquisition data."""
+class ScanData(DataContainer):
+    """Abstract base class for STIR raw data."""
+
+    def get_info(self):
+        """Returns the STIR metadata as Python str."""
+        handle = pystir.cSTIR_get_info(self.handle)
+        check_status(handle)
+        info = pyiutil.charDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return info
+
+
+class ListmodeData(ScanData):
+    """Class for STIR list mode data."""
+
+    def __init__(self, filename=None):
+        self.handle = None
+        self.name = 'ListmodeData'
+        self.read_only = False
+        if filename is None:
+            return
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+        self.handle = pystir.cSTIR_objectFromFile('ListmodeData', filename)
+        check_status(self.handle)
+        self.read_only = True
+
+    def __del__(self):
+        """del."""
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+    def read_from_file(self, filename):
+        """
+        Reads data from file.
+
+        Replaces the current content of the object.
+        """
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+        self.handle = pystir.cSTIR_objectFromFile('ListmodeData', filename)
+        check_status(self.handle)
+        self.read_only = True
+
+    def acquisition_data_template(self):
+        """
+        Construct an AcquisitionData object corresponding to the listmode data
+        if no additional compression (such as as mashing, or rebinning) is used.
+        """
+        if self.handle is None:
+            raise AssertionError('ListmodeData not yet set')
+        acq_data = AcquisitionData()
+        acq_data.handle = pystir.cSTIR_acquisitionDataFromListmode(self.handle)
+        return acq_data
+
+        
+ScanData.register(ListmodeData)
+
+
+class AcquisitionData(ScanData):
+    """Class for stir sinogram (or projection) acquisition data."""
 
     def __init__(self, src=None, span=1, max_ring_diff=-1, view_mash_factor=1, tof_mash_factor=1):
         """Creates new AcquisitionData.
@@ -1247,6 +1316,11 @@ class AcquisitionData(DataContainer):
         '''Returns TOF mashing factor.'''
         return parms.int_par(self.handle, 'AcquisitionData', 'tof_mash_factor')
 
+    @property
+    def modality(self):
+        """Returns imaging modality as Python string."""
+        return parms.char_par(self.handle, 'AcquisitionData', 'modality')
+
     def as_array(self):
         """Returns bin values as ndarray.
 
@@ -1328,7 +1402,7 @@ class AcquisitionData(DataContainer):
         Keyword arguments:
 		num_segments_to_combine -- combines multiple oblique 'segments' together. If set to the
 		    total number of segments, this corresponds to SSRB. Another example is if the input data
-			has 'span=1', the output span will be equal to the \c num_segments_to_combine.
+			has 'span=1', the output span will be equal to the num_segments_to_combine.
 		num_views_to_combine -- combines neighbouring views. Needs to be a divisor of the total
 		    number of views in the data.
 		num_tang_poss_to_trim -- removes a number of tangential positions (horizontal direction
@@ -1390,14 +1464,6 @@ class AcquisitionData(DataContainer):
                 suptitle=title, show=(t == ns))
             f = t
 
-    def get_info(self):
-        """Returns the AcquisitionData's metadata as Python str."""
-        handle = pystir.cSTIR_get_ProjDataInfo(self.handle)
-        check_status(handle)
-        info = pyiutil.charDataFromHandle(handle)
-        pyiutil.deleteDataHandle(handle)
-        return info
-
     def get_subset(self, views):
         """Returns the subset of self data formed by specified views
 
@@ -1416,7 +1482,7 @@ class AcquisitionData(DataContainer):
         return self.dimensions()
 
 
-DataContainer.register(AcquisitionData)
+ScanData.register(AcquisitionData)
 
 
 class ListmodeToSinograms(object):
@@ -1473,9 +1539,12 @@ class ListmodeToSinograms(object):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
-    def set_input(self, lm_file):
-        """Sets the listmode file name."""
-        parms.set_char_par(self.handle, self.name, 'input', lm_file)
+    def set_input(self, lm_data):
+        """Sets the listmode file name, or ListmodeData object."""
+        if isinstance(lm_data, str):
+            parms.set_char_par(self.handle, self.name, 'input_file', lm_data)
+        else:
+            parms.set_parameter(self.handle, self.name, 'input', lm_data.handle)
 
     def set_output_prefix(self, sino_file):
         """Sets the sinograms file names prefix."""
@@ -1678,6 +1747,20 @@ class AcquisitionSensitivityModel(object):
             self.handle, ad.handle, 'inv')
         check_status(fd.handle)
         return fd
+
+    @staticmethod
+    def compute_attenuation_factors(sinograms, mu_map):
+        '''Creates attenuation model and returns the attenuation factor (af)
+        and the attenuation correction factor (acf) as AcquisitionData objects
+        '''
+        am = AcquisitionModelUsingRayTracingMatrix()
+        attn = AcquisitionSensitivityModel(mu_map, am)
+        af = AcquisitionData(sinograms)
+        acf = AcquisitionData(sinograms)
+        am.set_up(sinograms, mu_map)
+        attn.set_up(sinograms)
+        try_calling(pystir.cSTIR_computeACF(sinograms.handle, attn.handle, af.handle, acf.handle))
+        return af, acf
 
     def __del__(self):
         """del."""
@@ -2263,27 +2346,49 @@ class Prior(object):
         """Returns the value of the prior (alias of get_value())."""
         return self.get_value(image)
 
-    def get_gradient(self, image):
+    def get_gradient(self, image, out=None, **kwargs):
         """Returns gradient of the prior.
 
         Returns the value of the gradient of the prior for the specified image.
         image: ImageData object
         """
         assert_validity(image, ImageData)
-        grad = ImageData()
-        grad.handle = pystir.cSTIR_priorGradient(self.handle, image.handle)
-        check_status(grad.handle)
-        return grad
+        if out is None:
+            out = ImageData()
+        if out.handle is None:
+            out.handle = pystir.cSTIR_priorGradient(self.handle, image.handle)
+        else:
+            assert_validities(image, out)
+            pystir.cSTIR_computePriorGradient(self.handle, image.handle, out.handle)
+        check_status(out.handle)
+        return out
 
-    def gradient(self, image):
+    def gradient(self, image, out=None, **kwargs):
         """Returns the gradient of the prior (alias of get_gradient())."""
 
-        return self.get_gradient(image)
+        return self.get_gradient(image, out)
 
     def set_up(self, image):
         """Sets up."""
         try_calling(pystir.cSTIR_setupPrior(self.handle, image.handle))
 
+    def accumulate_Hessian_times_input(self, current_estimate, input_, out=None):
+        """Computes the multiplication of the Hessian with a vector and adds it to output.
+        """
+        if out is None or out.handle is None:
+            out = input_.get_uniform_copy(0.0)
+        try_calling(pystir.cSTIR_priorAccumulateHessianTimesInput
+            (self.handle, out.handle, current_estimate.handle, input_.handle))
+        return out
+
+    def multiply_with_Hessian(self, current_estimate, input_, out=None):
+        """Computes the multiplication of the Hessian at current_estimate with a vector.
+        """
+        if out is None or out.handle is None:
+            out = input_.get_uniform_copy(0.0)
+        try_calling(pystir.cSTIR_priorComputeHessianTimesInput
+            (self.handle, current_estimate.handle, input_.handle, out.handle))
+        return out
 
 class QuadraticPrior(Prior):
     r"""Class for the prior that is a quadratic function of the image values.
@@ -2443,6 +2548,24 @@ class RelativeDifferencePrior(Prior):
         check_status(image.handle)
         return image
 
+if STIR_WITH_CUDA:
+    class CudaRelativeDifferencePrior(RelativeDifferencePrior):
+        r"""Class for Relative Difference Prior using CUDA computations
+
+        Identical to RelativeDifferencePrior, but using STIR's CUDA implementation.
+        """
+
+        def __init__(self):
+            """init."""
+            self.name = 'CudaRelativeDifferencePrior'
+            self.handle = pystir.cSTIR_newObject(self.name)
+            check_status(self.handle)
+
+        def __del__(self):
+            """del."""
+            if self.handle is not None:
+                pyiutil.deleteDataHandle(self.handle)
+
 
 class PLSPrior(Prior):
     r"""Class for Parallel Level Sets prior.
@@ -2522,10 +2645,13 @@ class PLSPrior(Prior):
         check_status(image.handle)
         return image
 
-    def get_anatomical_grad(self, direction):
+    def get_anatomical_grad(self, direction, out=None):
         """Returns anatomical gradient."""
-        image = ImageData()
-        image.handle = pystir.cSTIR_PLSPriorGradient(self.handle, direction)
+        if out is None:
+            image = ImageData()
+        else:
+            image = out
+        image.handle = pystir.cSTIR_PLSPriorAnatomicalGradient(self.handle, direction)
         check_status(image.handle)
         return image
 
@@ -2625,7 +2751,7 @@ class ObjectiveFunction(object):
         assert_validity(image, ImageData)
         handle = pystir.cSTIR_objectiveFunctionValue(self.handle, image.handle)
         check_status(handle)
-        v = pyiutil.floatDataFromHandle(handle)
+        v = pyiutil.doubleDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return v
 
@@ -2642,7 +2768,7 @@ class ObjectiveFunction(object):
         """
         return self.value(image)
 
-    def gradient(self, image, subset=-1):
+    def gradient(self, image, subset=-1, out=None):
         """Returns the value of the additive component of the gradient
 
         of this objective function on the specified image corresponding to the
@@ -2653,20 +2779,24 @@ class ObjectiveFunction(object):
         subset: Python integer scalar
         """
         assert_validity(image, ImageData)
-        grad = ImageData()
-        grad.handle = pystir.cSTIR_objectiveFunctionGradient(
-            self.handle, image.handle, subset)
-        check_status(grad.handle)
-        return grad
+        if out is None:
+            out = ImageData()
+        if out.handle is None:
+            out.handle = pystir.cSTIR_objectiveFunctionGradient(self.handle, image.handle, subset)
+        else:
+            assert_validities(image, out)
+            pystir.cSTIR_computeObjectiveFunctionGradient(self.handle, image.handle, subset, out.handle)
+        check_status(out.handle)
+        return out
 
-    def get_gradient(self, image):
+    def get_gradient(self, image, out=None):
         """Returns the gradient of the objective function on specified image.
 
         image: ImageData object
         """
-        return self.gradient(image)
+        return self.gradient(image, -1, out)
 
-    def get_subset_gradient(self, image, subset):
+    def get_subset_gradient(self, image, subset, out=None):
         """Returns the value of the additive component of the gradient
 
         of this objective function on <image> corresponding to the specified
@@ -2674,7 +2804,25 @@ class ObjectiveFunction(object):
         image: ImageData object
         subset: Python integer scalar
         """
-        return self.gradient(image, subset)
+        return self.gradient(image, subset, out)
+
+    def accumulate_Hessian_times_input(self, current_estimate, input_, subset=-1, out=None):
+        """Computes the multiplication of the Hessian at current_estimate with a vector and adds it to output.
+        """
+        if out is None or out.handle is None:
+            out = input_.clone()
+        try_calling(pystir.cSTIR_objectiveFunctionAccumulateHessianTimesInput
+            (self.handle, current_estimate.handle, input_.handle, subset, out.handle))
+        return out
+
+    def multiply_with_Hessian(self, current_estimate, input_, subset=-1, out=None):
+        """Computes the multiplication of the Hessian at current_estimate with a vector.
+        """
+        if out is None or out.handle is None:
+            out = input_.get_uniform_copy(0.0)
+        try_calling(pystir.cSTIR_objectiveFunctionComputeHessianTimesInput
+            (self.handle, current_estimate.handle, input_.handle, subset, out.handle))
+        return out
 
     @abc.abstractmethod
     def get_subset_sensitivity(self, subset):
@@ -2723,18 +2871,24 @@ class PoissonLogLikelihoodWithLinearModelForMean(ObjectiveFunction):
         check_status(ss.handle)
         return ss
 
-    def get_backprojection_of_acquisition_ratio(self, image, subset):
+    def get_backprojection_of_acquisition_ratio(self, image, subset, out=None):
         """Returns backprojection of measured to estimated acquisition ratio.
 
         Returns the back-projection of the ratio of the measured and estimated
         acquisition data.
         """
         assert_validity(image, ImageData)
-        grad = ImageData()
-        grad.handle = pystir.cSTIR_objectiveFunctionGradientNotDivided(
-            self.handle, image.handle, subset)
-        check_status(grad.handle)
-        return grad
+        if out is None:
+            out = ImageData()
+        if out.handle is None:
+            out.handle = pystir.cSTIR_objectiveFunctionGradientNotDivided(
+                self.handle, image.handle, subset)
+        else:
+            assert_validities(image, out)
+            pystir.cSTIR_computeObjectiveFunctionGradientNotDivided(
+                self.handle, image.handle, subset, out.handle)
+        check_status(out.handle)
+        return out
 
 
 class PoissonLogLikelihoodWithLinearModelForMeanAndProjData(
@@ -2792,6 +2946,89 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData(
             self.handle, self.name, 'acquisition_data', ad.handle)
 
 
+class PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin(PoissonLogLikelihoodWithLinearModelForMean):
+#(ObjectiveFunction):
+    """Class for a STIR type of Poisson loglikelihood object for listmode data.
+
+    Specifically, PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin.
+    """
+
+    def __init__(self):
+        """init."""
+        self.handle = None
+        self.name = 'PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin'
+        self.handle = pystir.cSTIR_newObject(self.name)
+        check_status(self.handle)
+
+    def __del__(self):
+        """del."""
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+    def set_cache_path(self, path):
+        parms.set_char_par(self.handle, self.name, 'cache_path', path)
+
+    def get_cache_path(self):
+        return parms.char_par(self.handle, self.name, 'cache_path')
+    
+    def set_time_interval(self, start, stop):
+        """Sets the time interval.
+
+        Only data scanned during this time interval will be converted.
+        """
+        interval = numpy.ndarray((2,), dtype=numpy.float32)
+        interval[0] = start
+        interval[1] = stop
+        try_calling(pystir.cSTIR_objFunListModeSetInterval(
+            self.handle, interval.ctypes.data))
+
+    def set_acquisition_data(self, ad):
+        assert_validity(ad, ListmodeData)
+        parms.set_parameter(
+            self.handle, self.name, 'acquisition_data', ad.handle)
+
+    def set_acquisition_model(self, am):
+        """Sets the acquisition model to be used by this objective function."""
+        assert_validity(am, AcquisitionModel)
+        parms.set_parameter(
+            self.handle, self.name, 'acquisition_model', am.handle)
+
+    # disabled for now as this doesn't work yet in STIR
+    # def set_skip_lm_input_file(self, tf):
+    #    flag = 1 if tf else 0
+    #    parms.set_int_par(
+    #            self.handle, self.name, 'skip_lm_input_file', flag)
+
+    def set_skip_balanced_subsets(self, tf):
+        ''' if tf=True, disable the check for balanced subsets (somewhat dangerous)'''
+        flag = 1 if tf else 0
+        parms.set_int_par(
+                self.handle, self.name, 'skip_balanced_subsets', flag)
+
+    def set_max_segment_num_to_process(self, diff):
+        parms.set_int_par(
+                self.handle, self.name, 'max_segment_num_to_process', diff)
+
+    def set_recompute_cache(self, tf):
+        ''' if tf=True (and cache_size>0, recompute the listmode cache'''
+        flag = 1 if tf else 0
+        parms.set_int_par(
+                self.handle, self.name, 'recompute_cache', flag)
+
+    def set_cache_max_size(self, diff):
+        parms.set_int_par(
+                self.handle, self.name, 'cache_max_size', diff)
+
+    def get_cache_max_size(self):
+        return parms.int_par(self.handle, self.name, 'cache_max_size')
+
+    def set_subsensitivity_filenames(self, names):
+        return parms.set_char_par(self.handle, self.name, 'subsensitivity_filenames', names)
+
+    def get_subsensitivity_filenames(self):
+        return parms.char_par(self.handle, self.name, 'subsensitivity_filenames')
+
+
 class Reconstructor(object):
     """Base class for a generic PET reconstructor."""
 
@@ -2808,7 +3045,7 @@ class Reconstructor(object):
 
     def set_input(self, input_data):
         """Sets the acquisition data to use for reconstruction."""
-        assert_validity(input_data, AcquisitionData)
+        assert_validity(input_data, ScanData)
         parms.set_parameter(
             self.handle, 'Reconstruction',
             'input_data', input_data.handle)
@@ -3413,6 +3650,14 @@ class ScatterEstimator():
         """Set number of iterations of the SSS algorithm to use."""
         parms.set_int_par(self.handle, 'PETScatterEstimator', 'set_num_iterations', v)
 
+    def set_max_scale_value(self, v):
+        """Set maximal scale factor value of the SSS algorithm to use."""
+        parms.set_float_par(self.handle, 'PETScatterEstimator', 'set_max_scale_value', v)
+
+    def set_min_scale_value(self, v):
+        """Set maximal scale factor value of the SSS algorithm to use."""
+        parms.set_float_par(self.handle, 'PETScatterEstimator', 'set_min_scale_value', v)
+
     def set_output_prefix(self, v):
         """
         Set prefix for filenames with scatter estimates.
@@ -3475,7 +3720,8 @@ class OSSPSReconstructor(IterativeReconstructor):
         return parms.double_par(self.handle, self.name, 'upper_bound')
 
 
-def make_Poisson_loglikelihood(acq_data, likelihood_type='LinearModelForMean',
+#def make_Poisson_loglikelihood(acq_data, likelihood_type='LinearModelForMean',
+def make_Poisson_loglikelihood(acq_data=None, likelihood_type=None,
                                acq_model=None):
     """Makes Poisson loglikelihood.
 
@@ -3483,13 +3729,21 @@ def make_Poisson_loglikelihood(acq_data, likelihood_type='LinearModelForMean',
     model types.
     """
     # only this objective function is implemented for now
-    if likelihood_type == 'LinearModelForMean':
+    #if likelihood_type == 'LinearModelForMean':
+    if likelihood_type is None or likelihood_type=='LinearModelForMean':
         obj_fun = PoissonLogLikelihoodWithLinearModelForMeanAndProjData()
-        obj_fun.set_acquisition_data(acq_data)
+        if acq_data is not None:
+            obj_fun.set_acquisition_data(acq_data)
+        else:
+            raise error('PoissonLogLikelihoodWithLinearModelForMeanAndProjData' + \
+            ' requires acquisition data')
+    elif likelihood_type == 'LinearModelForMeanAndListModeDataWithProjMatrixByBin':
+        obj_fun = PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin()
+        if acq_data is not None:
+            obj_fun.set_acquisition_data(acq_data)
     else:
-        raise error(
-            'only PoissonLogLikelihoodWithLinearModelForMeanAndProjData ' +
-            'is currently implemented in SIRF')
+        raise error('Poisson_loglikelihood of type ' + likelihood_type + \
+                    ' is not implemented')
     if acq_model is not None:
         obj_fun.set_acquisition_model(acq_model)
     return obj_fun

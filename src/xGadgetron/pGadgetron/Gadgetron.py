@@ -665,8 +665,8 @@ class CoilSensitivityData(ImageData):
             raise AssertionError("The handle for data is None. Please pass valid acquisition data.")
 
         dcw = compute_kspace_density(data)
-
         data = data * dcw
+
         if method_name == 'Inati':
 
             try:
@@ -686,7 +686,11 @@ class CoilSensitivityData(ImageData):
             self.fill(csm.astype(numpy.complex64))
         
         elif method_name == 'SRSS':
+
             try_calling(pygadgetron.cGT_computeCoilSensitivities(self.handle, data.handle))
+
+        else:
+            raise error('Unknown method %s' % method_name)
 
     def __calc_from_images(self, data, method_name):
 
@@ -716,14 +720,6 @@ class CoilSensitivityData(ImageData):
 
         else:
             raise error('Unknown method %s' % method_name)
-
-    def __calc_from_acquisitions(self, data, method_name):
-        assert data.handle is not None
-        dcw = compute_kspace_density(data)
-        data = data * dcw
-        cis = CoilImagesData()
-        try_calling(pygadgetron.cGT_computeCoilImages(cis.handle, data.handle))
-        self.__calc_from_images(cis, method_name)
 
 DataContainer.register(CoilSensitivityData)
 
@@ -888,7 +884,7 @@ class AcquisitionData(DataContainer):
     Class for an MR acquisitions container.
     Each item is a 2D complex array of acquisition samples for each coil.
     '''
-    def __init__(self, file=None, all_=False, ignored=IgnoreMask()):
+    def __init__(self, file=None, all_=True, ignored=IgnoreMask(0)):
         self.handle = None
         self.sorted = False
         self.info = None
@@ -1708,7 +1704,7 @@ def preprocess_acquisition_data(input_data):
         ['NoiseAdjustGadget', \
          'AsymmetricEchoAdjustROGadget', \
          'RemoveROOversamplingGadget'])
-    
+
 def set_grpe_trajectory(ad, traj=None):
     '''
     Function that fills the trajectory of AcquisitionData with golden angle radial
@@ -1859,9 +1855,9 @@ def calc_cartesian_dcw(ad):
     traj, inverse, counts = numpy.unique(traj, return_inverse=True, return_counts=True, axis=1)
     
     density_weight = (1.0 / counts)[inverse]
+    n = numpy.prod(density_weight.shape)
+    density_weight = density_weight.reshape((n, 1, 1))
     
-    density_weight = numpy.expand_dims(density_weight, axis=1)
-    density_weight = numpy.expand_dims(density_weight, axis=2)
     density_weight = numpy.tile(density_weight, (1, ad.shape[1], ad.shape[2]))
     
     dcw = ad.copy()

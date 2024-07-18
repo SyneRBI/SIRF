@@ -180,6 +180,18 @@ cSIRF_compute_max(const void* ptr_x, void* ptr_z)
 
 extern "C"
 void*
+cSIRF_compute_min(const void* ptr_x, void* ptr_z)
+{
+	try {
+		auto const& x = objectFromHandle<DataContainer>(ptr_x);
+		x.min(ptr_z);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cSIRF_axpby(
 	const void* ptr_a, const void* ptr_x,
 	const void* ptr_b, const void* ptr_y

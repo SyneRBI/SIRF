@@ -19,7 +19,7 @@
 #=========================================================================
 
 add_test(NAME PET_TESTS_PYTHON
-  COMMAND ${Python_EXECUTABLE} -m pytest --cov=sirf.STIR --cov-config=.coveragerc-STIR src/xSTIR/pSTIR
+  COMMAND ${Python_EXECUTABLE} -m pytest --cov=sirf.STIR --cov-config=.coveragerc-STIR src/xSTIR/pSTIR/tests
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 #add_test(NAME PET_DEMOS_PYTHON
 #  COMMAND ${PYTHON_EXECUTABLE} run_all.py --non-interactive

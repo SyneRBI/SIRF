@@ -51,5 +51,6 @@ Number of crystals per block in transaxial direction        := 1
 Number of detector layers                                   := 1
 Number of crystals per singles unit in axial direction      := 1
 Number of crystals per singles unit in transaxial direction := 1
+Maximum number of non-arc-corrected bins := 63
 end scanner parameters:=
 !END OF INTERFILE :=

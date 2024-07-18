@@ -202,7 +202,7 @@ def test():
 
     mr_data_path = examples_data_path('MR')
     reg_data_path = examples_data_path('Registration')
-    raw_mr_filename = mr_data_path + "/grappa2_1rep.h5"
+    raw_mr_filename = mr_data_path + "/simulated_MR_2D_cartesian.h5"
     if os.path.isfile(mr_data_path + "/zenodo/dicom_as_nifti.nii"):
         nifti_filename = mr_data_path + "/zenodo/dicom_as_nifti.nii"
         mr_recon_h5_filename = mr_data_path + "/zenodo/SIRF_recon.h5"

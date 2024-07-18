@@ -25,6 +25,10 @@ cmake_minimum_required(VERSION 3.9.0)
 # require 3.3 for descent FindMatlab.cmake
 # require 3.9 for compatible FindOPENMP.cmake
 
+if (POLICY CMP0074)
+  # honour <packagename>_ROOT env variables
+  cmake_policy(SET CMP0074 NEW)
+endif()
 
 # Set the CMake policy for SWIG
 # https://cmake.org/cmake/help/v3.14/policy/CMP0078.html#policy:CMP0078
@@ -57,7 +61,7 @@ endif()
 
 ####### Set Version number etc
 set(VERSION_MAJOR   3 )
-set(VERSION_MINOR   5 )
+set(VERSION_MINOR   8 )
 set(VERSION_PATCH   0 )
 mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 

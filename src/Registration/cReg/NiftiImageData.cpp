@@ -1762,10 +1762,25 @@ void NiftiImageData<dataType>::sum(void* ptr) const
 template<class dataType>
 void NiftiImageData<dataType>::max(void* ptr) const
 {
-    float s = 0.0;
-    for (unsigned i = 0; i < this->_nifti_image->nvox; ++i) {
+    unsigned i = 0;
+    float s = _data[i++];
+    for (; i < this->_nifti_image->nvox; ++i) {
         float si = _data[i];
         if (si > s)
+            s = si;
+    }
+    float* ptr_s = static_cast<float*>(ptr);
+    *ptr_s = s;
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::min(void* ptr) const
+{
+    unsigned i = 0;
+    float s = _data[i++];
+    for (; i < this->_nifti_image->nvox; ++i) {
+        float si = _data[i];
+        if (si < s)
             s = si;
     }
     float* ptr_s = static_cast<float*>(ptr);
