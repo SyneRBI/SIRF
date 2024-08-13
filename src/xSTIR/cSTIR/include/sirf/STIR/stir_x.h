@@ -1107,6 +1107,11 @@ The actual algorithm is described in
 
 	class xSTIR_GeneralisedObjectiveFunction3DF : public ObjectiveFunction3DF {
 	public:
+		//! computes the gradientof an objective function
+		/*! if the subset number is non-negative, computes the gradient of
+			this objective function for that subset, otherwise computes
+			the sum of gradients for all subsets
+		*/
 		void compute_gradient(const STIRImageData& id, int subset, STIRImageData& gd)
 		{
 			const Image3DF& image = id.data();

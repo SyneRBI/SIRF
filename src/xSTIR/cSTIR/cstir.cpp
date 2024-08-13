@@ -1198,12 +1198,10 @@ void*
 cSTIR_objectiveFunctionGradient(void* ptr_f, void* ptr_i, int subset)
 {
 	try {
-		xSTIR_ObjFun3DF& fun = objectFromHandle<xSTIR_ObjFun3DF>(ptr_f);
-		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_i);
-		STIRImageData* ptr_gd = new STIRImageData(id);
-		shared_ptr<STIRImageData> sptr_gd(ptr_gd);
-		STIRImageData& gd = *sptr_gd;
-		fun.compute_gradient(id, subset, gd);
+		auto& fun = objectFromHandle<xSTIR_ObjFun3DF>(ptr_f);
+		auto& id = objectFromHandle<STIRImageData>(ptr_i);
+		auto sptr_gd = std::make_shared<STIRImageData>(id);
+		fun.compute_gradient(id, subset, *sptr_gd);
 		return newObjectHandle(sptr_gd);
 	}
 	CATCH;
