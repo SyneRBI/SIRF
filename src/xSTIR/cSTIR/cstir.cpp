@@ -1202,26 +1202,11 @@ void*
 cSTIR_objectiveFunctionGradient(void* ptr_f, void* ptr_i, int subset)
 {
 	try {
-		ObjectiveFunction3DF& fun = objectFromHandle< ObjectiveFunction3DF>(ptr_f);
-		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_i);
-		Image3DF& image = id.data();
-		STIRImageData* ptr_id = new STIRImageData(image);
-		shared_ptr<STIRImageData> sptr(ptr_id);
-		Image3DF& grad = sptr->data();
-		if (subset >= 0)
-			fun.compute_sub_gradient(grad, image, subset);
-		else {
-			int nsub = fun.get_num_subsets();
-			grad.fill(0.0);
-			STIRImageData* ptr_id = new STIRImageData(image);
-			shared_ptr<STIRImageData> sptr_sub(ptr_id);
-			Image3DF& subgrad = sptr_sub->data();
-			for (int sub = 0; sub < nsub; sub++) {
-				fun.compute_sub_gradient(subgrad, image, sub);
-				grad += subgrad;
-			}
-		}
-		return newObjectHandle(sptr);
+		auto& fun = objectFromHandle<xSTIR_ObjFun3DF>(ptr_f);
+		auto& id = objectFromHandle<STIRImageData>(ptr_i);
+		auto sptr_gd = std::make_shared<STIRImageData>(id);
+		fun.compute_gradient(id, subset, *sptr_gd);
+		return newObjectHandle(sptr_gd);
 	}
 	CATCH;
 }
@@ -1231,23 +1216,10 @@ void*
 cSTIR_computeObjectiveFunctionGradient(void* ptr_f, void* ptr_i, int subset, void* ptr_g)
 {
 	try {
-		ObjectiveFunction3DF& fun = objectFromHandle< ObjectiveFunction3DF>(ptr_f);
+		xSTIR_ObjFun3DF& fun = objectFromHandle<xSTIR_ObjFun3DF>(ptr_f);
 		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_i);
 		STIRImageData& gd = objectFromHandle<STIRImageData>(ptr_g);
-		Image3DF& image = id.data();
-		Image3DF& grad = gd.data();
-		if (subset >= 0)
-			fun.compute_sub_gradient(grad, image, subset);
-		else {
-			int nsub = fun.get_num_subsets();
-			grad.fill(0.0);
-			shared_ptr<STIRImageData> sptr_sub(new STIRImageData(image));
-			Image3DF& subgrad = sptr_sub->data();
-			for (int sub = 0; sub < nsub; sub++) {
-				fun.compute_sub_gradient(subgrad, image, sub);
-				grad += subgrad;
-			}
-		}
+		fun.compute_gradient(id, subset, gd);
 		return (void*) new DataHandle;
 	}
 	CATCH;
