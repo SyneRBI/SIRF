@@ -1329,8 +1329,8 @@ cSTIR_priorValue(void* ptr_p, void* ptr_i)
 			objectFromHandle<xSTIR_GeneralisedPrior3DF>(ptr_p);
 		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_i);
 		Image3DF& image = id.data();
-		float v = (float)prior.compute_value(image);
-		return dataHandle<float>(v);
+		double v = prior.compute_value(image);
+		return dataHandle<double>(v);
 	}
 	CATCH;
 }
