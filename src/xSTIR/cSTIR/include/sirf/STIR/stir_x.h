@@ -1119,11 +1119,33 @@ The actual algorithm is described in
 		}
 	};
 
-	class xSTIR_GeneralisedObjectiveFunction3DF :
-		public stir::GeneralisedObjectiveFunction < Image3DF > {
+	class xSTIR_GeneralisedObjectiveFunction3DF : public ObjectiveFunction3DF {
 	public:
+		//! computes the gradientof an objective function
+		/*! if the subset number is non-negative, computes the gradient of
+			this objective function for that subset, otherwise computes
+			the sum of gradients for all subsets
+		*/
+		void compute_gradient(const STIRImageData& id, int subset, STIRImageData& gd)
+		{
+			const Image3DF& image = id.data();
+			Image3DF& grad = gd.data();
+			if (subset >= 0)
+				compute_sub_gradient(grad, image, subset);
+			else {
+				int nsub = get_num_subsets();
+				grad.fill(0.0);
+				shared_ptr<STIRImageData> sptr_sub(new STIRImageData(image));
+				Image3DF& subgrad = sptr_sub->data();
+				for (int sub = 0; sub < nsub; sub++) {
+					compute_sub_gradient(subgrad, image, sub);
+					grad += subgrad;
+				}
+			}
+		}
+
 		void multiply_with_Hessian(Image3DF& output, const Image3DF& curr_image_est,
-            const Image3DF& input, const int subset) const
+			const Image3DF& input, const int subset) const
 		{
 			output.fill(0.0);
 			if (subset >= 0)
@@ -1134,13 +1156,9 @@ The actual algorithm is described in
 				}
 			}
 		}
-
-//		bool post_process() {
-//			return post_processing();
-//		}
 	};
 
-	//typedef xSTIR_GeneralisedObjectiveFunction3DF ObjectiveFunction3DF;
+	typedef xSTIR_GeneralisedObjectiveFunction3DF xSTIR_ObjFun3DF;
 
 	class xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF :
 		public stir::PoissonLogLikelihoodWithLinearModelForMeanAndProjData < Image3DF > {

@@ -1,5 +1,10 @@
 # ChangeLog
 
+## v3.8.1
+
+* SIRF/STIR
+  - prior value returned as double
+
 ## v3.8.0
 
 * SIRF/STIR (PET and SPECT)

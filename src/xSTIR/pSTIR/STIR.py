@@ -2320,7 +2320,7 @@ class Prior(object):
         assert_validity(image, ImageData)
         handle = pystir.cSTIR_priorValue(self.handle, image.handle)
         check_status(handle)
-        v = pyiutil.floatDataFromHandle(handle)
+        v = pyiutil.doubleDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return v
 
