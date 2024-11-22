@@ -1,10 +1,14 @@
 # ChangeLog
+## vx.x.x
+
+* SIRF/STIR
+  - `ScatterEstimation` has extra methods that allow setting masks for the tail-fitting
+
 
 ## v3.8.1
 
 * SIRF/STIR
   - prior value returned as double
-  - ScatterEstimation has extra methods that allow setting masks for the tail-fitting
 
 ## v3.8.0
 
