@@ -902,6 +902,20 @@ The actual algorithm is described in
             stir::ScatterEstimation::set_attenuation_image_sptr(arg->data_sptr());
 #endif
         }
+        void set_mask_image_sptr(std::shared_ptr<const STIRImageData> arg)
+        {
+            stir::ScatterEstimation::set_mask_image_sptr(arg->data_sptr());
+        }
+        void set_mask_acq_data_sptr(std::shared_ptr<const STIRAcquisitionData> arg)
+        {
+            stir::ScatterEstimation::set_mask_proj_data_sptr(arg->data());
+        }
+#if STIR_VERSION >= 060200
+        void set_recompute_mask_image(bool arg)
+        {
+            stir::ScatterEstimation::set_recompute_mask_image(arg);
+        }
+#endif
 
         //! Set prefix for filenames with scatter estimates.
         /*!
