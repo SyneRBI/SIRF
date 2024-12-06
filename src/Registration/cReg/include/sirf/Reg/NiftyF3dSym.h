@@ -34,6 +34,7 @@ in the symmetric version, and therefore do not recommend using it until that iss
 #pragma once
 
 #include "sirf/Reg/NiftyRegistration.h"
+#include "sirf/Reg/NiftiImageData3DTensor.h"
 
 template<class dataType> class reg_f3d;
 
@@ -52,6 +53,7 @@ In theory, multiple time points can be used, but thus far has only been tested f
 t == 1 for both reference and floating images.
 
 \author Richard Brown
+\author Alexander C. Whitehead
 \author SyneRBI
 */
 template<class dataType> class NiftyF3dSym : public NiftyRegistration<dataType>
@@ -63,6 +65,7 @@ public:
     {
         _floating_time_point  = 1;
         _reference_time_point = 1;
+        this->_cpp_fwd_images.resize(1);
     }
 
     /// Process
@@ -80,6 +83,12 @@ public:
 
     /// Set initial affine transformation
     void set_initial_affine_transformation(const std::shared_ptr<const AffineTransformation<float> > mat) { _initial_transformation_sptr = mat; }
+    
+    /// Set initial control_point_grid
+    void set_initial_control_point_grid(const std::shared_ptr<const NiftiImageData3DTensor<float> > cpp) { _initial_cpp_sptr = cpp; }
+    
+    /// Get forward CPP image
+    virtual const std::shared_ptr<const NiftiImageData3DTensor<dataType> > get_cpp_forward_sptr(const unsigned idx = 0) const { return _cpp_fwd_images.at(idx); }
 
     /// Get inverse deformation field image
     virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_inverse_sptr(const unsigned idx = 0) const;
@@ -107,7 +116,13 @@ protected:
     int _reference_time_point;
     /// Use symmetric bool
     bool _use_symmetric = false;
+    /// Use velocity bool
+    bool _use_velocity = true;
     /// Transformation matrix
     std::shared_ptr<const AffineTransformation<float> > _initial_transformation_sptr;
+    /// Transformation matrix
+    std::shared_ptr<const NiftiImageData3DTensor<float> > _initial_cpp_sptr;
+    /// CPP
+    std::vector<std::shared_ptr<NiftiImageData3DTensor<dataType> > > _cpp_fwd_images;
 };
 }
