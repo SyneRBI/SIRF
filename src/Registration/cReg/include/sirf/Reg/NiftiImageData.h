@@ -613,7 +613,7 @@ protected:
     {
 	return new NiftiImageData(*this);
     }
-    virtual ObjectHandle<DataContainer>* new_data_container_handle() const
+    virtual ObjectHandle<DataContainer>* new_data_container_handle(const bool initialise_with_0) const
     {
         return new ObjectHandle<DataContainer>
             (std::shared_ptr<DataContainer>(new NiftiImageData));

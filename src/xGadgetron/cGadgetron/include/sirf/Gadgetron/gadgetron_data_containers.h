@@ -827,7 +827,7 @@ namespace sirf {
 		{
 			return new AcquisitionsVector(info, ignore_mask_);
 		}
-		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
+		virtual ObjectHandle<DataContainer>* new_data_container_handle(const bool initialise_with_0) const
 		{
 			DataContainer* ptr = new AcquisitionsVector(acqs_info_, ignore_mask_);
 			return new ObjectHandle<DataContainer>
@@ -1389,7 +1389,7 @@ namespace sirf {
 			return *sptr_iw;
 		}
 */
-		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
+		virtual ObjectHandle<DataContainer>* new_data_container_handle(const bool initialise_with_0) const
 		{
 			return new ObjectHandle<DataContainer>
 				(gadgetron::shared_ptr<DataContainer>(new_images_container()));
