@@ -381,13 +381,16 @@ void*
 cSIRF_semibinary(const void* ptr_x, const void* ptr_y, const char* f)
 {
 	try {
+		float zero = 0.0;
+		float* ptr_0 = &zero;
 		auto const& x = objectFromHandle<DataContainer>(ptr_x);
 		void* h = x.new_data_container_handle();
 		auto& z = objectFromHandle<DataContainer>(h);
 		if (sirf::iequals(f, "power"))
 			z.power(x, ptr_y);
 		else if (sirf::iequals(f, "multiply"))
-			z.multiply(x, ptr_y);
+			z.axpby(ptr_y, x, (void*)ptr_0, x);
+// slow!		z.multiply(x, ptr_y);
 		else if (sirf::iequals(f, "maximum"))
 			z.maximum(x, ptr_y);
 		else if (sirf::iequals(f, "minimum"))
@@ -404,12 +407,15 @@ void*
 cSIRF_compute_semibinary(const void* ptr_x, const void* ptr_y, const char* f, const void* ptr_z)
 {
 	try {
+		float zero = 0.0;
+		float* ptr_0 = &zero;
 		auto const& x = objectFromHandle<DataContainer>(ptr_x);
 		auto& z = objectFromHandle<DataContainer>(ptr_z);
 		if (sirf::iequals(f, "power"))
 			z.power(x, ptr_y);
 		else if (sirf::iequals(f, "multiply"))
-			z.multiply(x, ptr_y);
+			z.axpby(ptr_y, x, (void*)ptr_0, x);
+// slow!		z.multiply(x, ptr_y);
 		else if (sirf::iequals(f, "maximum"))
 			z.maximum(x, ptr_y);
 		else if (sirf::iequals(f, "minimum"))
