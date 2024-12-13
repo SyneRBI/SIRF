@@ -824,11 +824,11 @@ namespace sirf {
 #if STIR_VERSION <= 060100
             double t = 0.0;
             auto iter = pd_ptr->begin();
-			for (; iter != pd_ptr->end(); ++iter)
-				t += (*iter) * (*iter);
-			return std::sqrt((float)t);
+            for (; iter != pd_ptr->end(); ++iter)
+                t += double(*iter) * (*iter);
+            return std::sqrt((float)t);
 #else
-                        return static_cast<float>(pd_ptr->norm());
+            return static_cast<float>(pd_ptr->norm());
 #endif
         }
         virtual void dot(const DataContainer& a_x, void* ptr) const
@@ -847,9 +847,25 @@ namespace sirf {
             auto iter_other = pd2_ptr->begin();
             while (iter != pd_ptr->end())
                 t += (*iter++) * double(*iter_other++);
+            float* ptr_t = static_cast<float*>(ptr);
+            *ptr_t = (float)t;
+        }
+        virtual void add(const DataContainer& x, const void* ptr_y)
+        {
+            auto a_x = dynamic_cast<const STIRAcquisitionData*>(&x);
+            float y = *static_cast<const float*>(ptr_y);
+            auto *pd_ptr   = dynamic_cast<stir::ProjDataInMemory*>(data().get());
+            auto *pd_x_ptr = dynamic_cast<const stir::ProjDataInMemory*>(a_x->data().get());
+            // If either cast failed, fall back to general method
+            if (is_null_ptr(pd_ptr) || is_null_ptr(pd_x_ptr))
+                return this->STIRAcquisitionData::add(x, ptr_y);
 
-			float* ptr_t = static_cast<float*>(ptr);
-			*ptr_t = (float)t;
+            // do it
+            auto iter = pd_ptr->begin();
+            auto iter_x = pd_x_ptr->begin();
+            while (iter != pd_ptr->end())
+                *iter++ = (*iter_x++) + y;
+
         }
         virtual void multiply(const DataContainer& x, const DataContainer& y)
         {
@@ -862,7 +878,7 @@ namespace sirf {
             auto *pd_y_ptr = dynamic_cast<const stir::ProjDataInMemory*>(a_y->data().get());
 
             // If either cast failed, fall back to general method
-            if (is_null_ptr(pd_ptr) || is_null_ptr(pd_x_ptr) || is_null_ptr(pd_x_ptr))
+            if (is_null_ptr(pd_ptr) || is_null_ptr(pd_x_ptr) || is_null_ptr(pd_y_ptr))
                 return this->STIRAcquisitionData::multiply(x,y);
 
             // do it
