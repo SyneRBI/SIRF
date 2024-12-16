@@ -2338,7 +2338,7 @@ class Prior(object):
         assert_validity(image, ImageData)
         handle = pystir.cSTIR_priorValue(self.handle, image.handle)
         check_status(handle)
-        v = pyiutil.floatDataFromHandle(handle)
+        v = pyiutil.doubleDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return v
 
@@ -3624,6 +3624,15 @@ class ScatterEstimator():
     def set_attenuation_correction_factors(self, arg):
         assert_validity(arg, AcquisitionData)
         parms.set_parameter(self.handle, self.name, 'setAttenuationCorrectionFactors', arg.handle)
+
+    def set_mask_image(self, image):
+        assert_validity(image, ImageData)
+        parms.set_parameter(self.handle, self.name, 'setMaskImage', image.handle)
+
+    def set_mask_acq_data(self, arg):
+        assert_validity(arg, AcquisitionData)
+        parms.set_parameter(self.handle, self.name, 'setMaskAcqData', arg.handle)
+
 
     def set_input(self, acq_data):
         assert_validity(acq_data, AcquisitionData)
