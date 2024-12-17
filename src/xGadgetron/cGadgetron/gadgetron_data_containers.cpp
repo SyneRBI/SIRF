@@ -423,28 +423,52 @@ void
 MRAcquisitionData::multiply
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
-    MRAcquisitionData::binary_op(acq_x, acq_y, DataContainer::product<complex_float_t>);
+//    MRAcquisitionData::binary_op(acq_x, acq_y, DataContainer::product<complex_float_t>);
+    const complex_float_t* px;
+    complex_float_t* py;
+    for (px = acq_x.data_begin(), py = acq_y.data_begin();
+        px != acq_x.data_end() && py != acq_y.data_end(); px++, py++) {
+        *py = (*px) * (*py);
+    }
 }
 
 void
 MRAcquisitionData::multiply
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y)
 {
-    MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainer::product<complex_float_t>);
+//    MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainer::product<complex_float_t>);
+    const complex_float_t* px;
+    complex_float_t* py;
+    for (px = acq_x.data_begin(), py = acq_y.data_begin();
+        px != acq_x.data_end() && py != acq_y.data_end(); px++, py++) {
+        *py = *px * y;
+    }
 }
 
 void
 MRAcquisitionData::add
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y)
 {
-    MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainer::sum<complex_float_t>);
+//    MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainer::sum<complex_float_t>);
+    const complex_float_t* px;
+    complex_float_t* py;
+    for (px = acq_x.data_begin(), py = acq_y.data_begin();
+        px != acq_x.data_end() && py != acq_y.data_end(); px++, py++) {
+        *py = *px + y;
+    }
 }
 
 void
 MRAcquisitionData::divide
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
-    MRAcquisitionData::binary_op(acq_x, acq_y, DataContainer::ratio<complex_float_t>);
+//    MRAcquisitionData::binary_op(acq_x, acq_y, DataContainer::ratio<complex_float_t>);
+    const complex_float_t* px;
+    complex_float_t* py;
+    for (px = acq_x.data_begin(), py = acq_y.data_begin();
+        px != acq_x.data_end() && py != acq_y.data_end(); px++, py++) {
+        *py = (*px) / (*py);
+    }
 }
 
 void
