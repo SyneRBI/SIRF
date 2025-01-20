@@ -1685,6 +1685,9 @@ class AcquisitionSensitivityModel(object):
         if self.handle is None:
             raise AssertionError()
         assert_validity(ad, AcquisitionData)
+        if ad.read_only:
+            raise error(
+                'Cannot normalise a read-only object, consider using method invert instead')
         try_calling(pystir.cSTIR_applyAcquisitionSensitivityModel(
             self.handle, ad.handle, 'normalise'))
 
@@ -1697,6 +1700,9 @@ class AcquisitionSensitivityModel(object):
         if self.handle is None:
             raise AssertionError()
         assert_validity(ad, AcquisitionData)
+        if ad.read_only:
+            raise error(
+                'Cannot normalise a read-only object, consider using method forward instead')
         try_calling(pystir.cSTIR_applyAcquisitionSensitivityModel(
             self.handle, ad.handle, 'unnormalise'))
 
