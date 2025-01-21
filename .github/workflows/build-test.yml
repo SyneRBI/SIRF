@@ -32,19 +32,19 @@ jobs:
 #           DEVEL_BUILD: "OFF"
 #           EXTRA_BUILD_FLAGS: "-DUSE_ITK=ON"
 #           CMAKE_BUILD_TYPE: "Release"
-        - os: ubuntu-latest
+        - os: ubuntu-22.04
           compiler: gcc
           compiler_version: 9
           DEVEL_BUILD: "OFF"
           EXTRA_BUILD_FLAGS: "-DUSE_ITK=ON"
           CMAKE_BUILD_TYPE: "Release"
-        - os: ubuntu-latest
+        - os: ubuntu-22.04
           compiler: gcc
           compiler_version: 9
           DEVEL_BUILD: "ON"
           EXTRA_BUILD_FLAGS: "-DUSE_ITK=ON"
           CMAKE_BUILD_TYPE: "Release"
-        # need to upgrade Gadgetron before we can enable gcc 10
+        # need to upgrade Gadgetron before we can enable ubuntu 24.04 (and gcc 10?)
         #- os: ubuntu-latest
         #  compiler: gcc
         #  compiler_version: 10
@@ -55,7 +55,7 @@ jobs:
       fail-fast: false
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         submodules: recursive
     - name: install_dependencies
