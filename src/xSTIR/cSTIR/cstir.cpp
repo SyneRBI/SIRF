@@ -203,14 +203,8 @@ void* cSTIR_newObject(const char* name)
                 if (sirf::iequals(name, "PETScatterEstimator"))
                   return NEW_OBJECT_HANDLE(PETScatterEstimator);
 		if (sirf::iequals(name, "SeparableGaussianImageFilter"))
-
-		
 			return NEW_OBJECT_HANDLE(xSTIR_SeparableGaussianImageFilter);
-
-
 		return unknownObject("object", name, __FILE__, __LINE__);
-
-
 	}
 	CATCH;
 }
@@ -1516,13 +1510,15 @@ void* cSTIR_ImageData_zoom_image(void* ptr_im, const size_t zooms_ptr_raw, const
 }
 
 extern "C"
-void* cSTIR_ImageData_zoom_image_from_template(void* zoomed_image_ptr, void* original_image_ptr, const char *const zoom_options) {
+void* cSTIR_ImageData_zoom_image_as_template(void* zoomed_image_ptr, void* template_image_ptr, 
+                                                const char *const zoom_options) 
+{
     try {
         STIRImageData& zoomed_id = objectFromHandle<STIRImageData>(zoomed_image_ptr);
-        STIRImageData& original_id = objectFromHandle<STIRImageData>(original_image_ptr);
+        STIRImageData& template_id = objectFromHandle<STIRImageData>(template_image_ptr);
 
         // Use the in_id image as the template for zooming
-        zoomed_id.zoom_image(original_id, zoom_options);
+        zoomed_id.zoom_image_as_template(template_id, zoom_options);
 
         return static_cast<void*>(new DataHandle);
 	}

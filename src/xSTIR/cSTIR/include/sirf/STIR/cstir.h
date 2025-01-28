@@ -195,8 +195,8 @@ extern "C" {
                                      const PTR_FLOAT offsets_in_mm_ptr_raw,
                                      const PTR_INT new_sizes_ptr_raw,
                                      const char * const zoom_options);
-	void* cSTIR_ImageData_zoom_image_from_template(void* zoomed_image_ptr, 
-									 const void* original_image_ptr,
+	void* cSTIR_ImageData_zoom_image_as_template(void* zoomed_image_ptr, 
+                                     const void* template_image_ptr,
                                      const char * const zoom_options);
     void* cSTIR_ImageData_move_to_scanner_centre(void* im_ptr, const void* acq_data_ptr);
 	void* cSTIR_computeKernelisedImage(void* ptr_r, void* ptr_i, void* ptr_a);

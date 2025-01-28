@@ -682,21 +682,21 @@ class ImageData(SIRF.ImageData):
 
         return zoomed_im
     
-    def zoom_image_from_template(self, template, scaling='preserve_sum'):
+    def zoom_image_as_template(self, template_image, scaling='preserve_sum'):
         """
         Returns a zoomed image based on a template image's geometry.
+
         Supported scaling options are: 'preserve_sum', 'preserve_values' and
         'preserve_projections'
         """
+        zoomed_image = template_image.clone()
 
-        zoomed_image = template.clone()
+        if not isinstance(template_image, ImageData):
+            raise error('zoom_image_as_template: template should be ImageData')
 
-        if not isinstance(template, ImageData):
-            raise error('zoom_image_from_template: template should be ImageData')
-
-        ### becaus of a bug somewherre
-        try_calling(pystir.cSTIR_ImageData_zoom_image_from_template(
-        zoomed_image.handle, self.handle, scaling))
+        ### because of a bug somewherre
+        try_calling(pystir.cSTIR_ImageData_zoom_image_as_template(
+            zoomed_image.handle, self.handle, scaling))
         
         return zoomed_image
 
