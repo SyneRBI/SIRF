@@ -24,6 +24,8 @@ import sys
 
 for i in sorted(glob.glob('*.py')):
     narg = len(sys.argv)
+    if narg > 1 and (i.find('from') >= 0 or i.find('listmode') >=0):
+        continue
     if os.path.abspath(__file__) == os.path.abspath(i):
         continue
     print('\n=== %s\n' % i)
