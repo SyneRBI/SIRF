@@ -30,30 +30,35 @@ Options:
 __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
-storage = args['--storage']
 
+from sirf.Utilities import error
 from sirf.Utilities import show_2D_array
 
 # import engine module
-#exec('from p' + args['--engine'] + ' import *')
-exec('from sirf.' + args['--engine'] + ' import *')
-
+import importlib
+engine = args['--engine']
+pet = importlib.import_module('sirf.' + engine)
+storage = args['--storage']
 
 
 def main():
 
     # select acquisition data storage scheme
-    AcquisitionData.set_storage_scheme(storage)
+    pet.AcquisitionData.set_storage_scheme(storage)
+
+    # print all allowed names. Some scanners have different names, and they appear on 1 line.
+    print(pet.scanner_names())
 
     # create acquisition data from scanner parameters
-    acq_data = AcquisitionData('Siemens_mMR')
+    acq_data = pet.AcquisitionData('Siemens_mMR')
     # copy the acquisition data into a Python array
     acq_array = acq_data.as_array()
     acq_dim = acq_array.shape
     print('acquisition data dimensions (maximum resolution): %dx%dx%dx%d' % acq_dim)
 
     # create acquisition data from scanner parameters but with axial compression etc
-    acq_data = AcquisitionData('Siemens_mMR',span=11, view_mash_factor=2)
+    # see https://stir.sourceforge.net/documentation/STIR-glossary.pdf for some information on naming
+    acq_data = pet.AcquisitionData('Siemens_mMR', span=11, view_mash_factor=2)
     # set all values to 1.0
     acq_data.fill(1.0)
     # copy the acquisition data into a Python array
@@ -62,11 +67,10 @@ def main():
     print('acquisition data dimensions (span 11, view mashing 2): %dx%dx%dx%d' % acq_dim)
 
     # By default, the Siemens mMR uses acquisition settings corresponding to the following constructor
-    acq_data = AcquisitionData('Siemens_mMR',span=11, max_ring_diff=60, view_mash_factor=1)
+    acq_data = pet.AcquisitionData('Siemens_mMR', span=11, max_ring_diff=60, view_mash_factor=1)
 
     # write the acquisition data to a file (commented out for this demo)
     # acq_data.write('example_mMR_ones.hs')
-
 
 
 try:

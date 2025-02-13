@@ -87,7 +87,7 @@ public:
    *  \param denseDVFIn Deformation vector field 
    *  \param sourceImage The image for which the gradient is calculated
    */
-  virtual BSplineTransformation::PrecisionType* GetDVFGradientWRTTransformationParameters( nifti_image* denseDVFIn, nifti_image* sourceImage );
+  virtual BSplineTransformation::PrecisionType* GetDVFGradientWRTTransformationParameters( nifti_image* denseDVFIn );
   
   /** Calculate the gradient of the constraint term (regularisation) for the transformation with the current parameters.
    */

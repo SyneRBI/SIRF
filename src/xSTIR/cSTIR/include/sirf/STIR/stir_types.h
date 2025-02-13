@@ -1,7 +1,7 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC
-Copyright 2019 - 2020 University College London
+Copyright 2015 - 2024 Rutherford Appleton Laboratory STFC
+Copyright 2019 - 2024 University College London
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -57,15 +57,32 @@ limitations under the License.
 #include "stir/recon_buildblock/PoissonLogLikelihoodWithLinearModelForMeanAndProjData.h"
 #include "stir/recon_buildblock/ProjectorByBinPairUsingProjMatrixByBin.h"
 #include "stir/recon_buildblock/ProjMatrixByBinUsingRayTracing.h"
+#include "stir/recon_buildblock/ProjMatrixByBinSPECTUB.h"
+#if STIR_VERSION >= 050100
+#include "stir/recon_buildblock/ProjMatrixByBinPinholeSPECTUB.h"
+#endif
 #include "stir/recon_buildblock/QuadraticPrior.h"
+#include "stir/recon_buildblock/LogcoshPrior.h"
+#include "stir/recon_buildblock/RelativeDifferencePrior.h"
+#ifdef STIR_WITH_CUDA
+#include "stir/recon_buildblock/CUDA/CudaRelativeDifferencePrior.h"
+#endif
+#include "stir/SegmentBySinogram.h"
+#include "stir/Shape/Box3D.h"
+#include "stir/Shape/Ellipsoid.h"
 #include "stir/Shape/EllipsoidalCylinder.h"
 #include "stir/Shape/Shape3D.h"
 #include "stir/shared_ptr.h"
 #include "stir/SSRB.h"
 #include "stir/TruncateToCylindricalFOVImageProcessor.h"
+#include "stir/scatter/SingleScatterSimulation.h"
+#include "stir/scatter/ScatterEstimation.h"
 
 #ifdef STIR_WITH_NiftyPET_PROJECTOR
 #include "stir/recon_buildblock/NiftyPET_projector/ProjectorByBinPairUsingNiftyPET.h"
+#endif
+#ifdef STIR_WITH_Parallelproj_PROJECTOR
+#include "stir/recon_buildblock/Parallelproj_projector/ProjectorByBinPairUsingParallelproj.h"
 #endif
 
 #include "stir/StirException.h"
@@ -94,11 +111,25 @@ namespace sirf {
     typedef stir::ProjectorByBinPairUsingNiftyPET ProjectorPairUsingNiftyPET;
 #endif
 	typedef stir::ProjMatrixByBinUsingRayTracing RayTracingMatrix;
+	typedef stir::ProjMatrixByBinSPECTUB SPECTUBMatrix;
+#if STIR_VERSION >= 050100
+	typedef stir::ProjMatrixByBinPinholeSPECTUB PinholeSPECTUBMatrix;
+#endif
 	typedef stir::GeneralisedPrior<Image3DF> Prior3DF;
 	typedef stir::QuadraticPrior<float> QuadPrior3DF;
+	typedef stir::LogcoshPrior<float> LogPrior3DF;
+	typedef stir::RelativeDifferencePrior<float> RDPrior3DF;
+#ifdef STIR_WITH_CUDA
+	typedef stir::CudaRelativeDifferencePrior<float> CudaRDPrior3DF;
+#endif
+        typedef stir::PLSPrior<float> PLSPrior3DF;
 	typedef stir::DataProcessor<Image3DF> DataProcessor3DF;
 	typedef stir::TruncateToCylindricalFOVImageProcessor<float> CylindricFilter3DF;
 
 }
+
+#ifdef STIR_USE_BOOST_SHARED_PTR
+#define USE_BOOST //KTXXXX
+#endif
 
 #endif

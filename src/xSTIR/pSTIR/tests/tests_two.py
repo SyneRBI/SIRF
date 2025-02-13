@@ -16,7 +16,8 @@ Options:
 import math
 from sirf.STIR import *
 from sirf.Utilities import runner, RE_PYEXT, __license__
-__version__ = "0.2.3"
+import numpy
+__version__ = "3.1.0"
 __author__ = "Evgueni Ovtchinnikov, Casper da Costa-Luis"
 
 def test_main(rec=False, verb=False, throw=True):
@@ -35,10 +36,18 @@ def test_main(rec=False, verb=False, throw=True):
         test.check(acq_data.norm())
 
         image = acq_data.create_uniform_image(1.0)
-        test.check(image.norm())
+        test.check_if_equal_within_tolerance(image.norm(), numpy.sqrt(numpy.prod(image.dimensions())))
 
         acq_model = AcquisitionModelUsingRayTracingMatrix()
         acq_model.set_up(acq_data, image)
+
+        acq_mod_lin = acq_model.get_linear_acquisition_model()
+        rng = acq_mod_lin.range_geometry()
+        dom = acq_mod_lin.domain_geometry()
+        rng = rng - acq_data
+        dom = dom - image
+        test.check_if_equal(0, rng.norm())
+        test.check_if_equal(0, dom.norm())
 
         obj_fun = make_Poisson_loglikelihood(acq_data)
         obj_fun.set_acquisition_model(acq_model)
@@ -57,16 +66,17 @@ def test_main(rec=False, verb=False, throw=True):
             if verb:
                 print('\n------------- iteration %d' % iteration)
             recon.update_current_estimate()
-        test.check(image.norm())
+        test.check(recon.get_output().norm())
 
         if verb:
             print('projecting...')
-        simulated_data = acq_model.forward(image)
+        simulated_data = acq_model.forward(recon.get_output())
         diff = simulated_data * (
                 acq_data.norm() / simulated_data.norm()) - acq_data
+        res = diff.norm() / acq_data.norm()
         if verb:
-            print('relative residual norm: %e' % (diff.norm() / acq_data.norm()))
-        test.check(diff.norm())
+            print('relative residual norm: %e' % res)
+        test.check_if_zero_within_tolerance(res, abs_tol=0.28) # only 2 iterations, so low tolerance
 
         acq_copy = acq_data.get_uniform_copy(1.0)
         acq_copy *= acq_data
@@ -109,6 +119,19 @@ def test_main(rec=False, verb=False, throw=True):
         d = numpy.linalg.norm(ad2_arr - ad_arr/2)
         print('acquisitions division (with out=) error: %.1e' % d)
         test.check_if_equal(0, d)
+        acq_arr = acq_data.as_array()
+        acq_conj = acq_data.conjugate()
+        acq_arr2 = acq_data.as_array()
+        d = numpy.linalg.norm(acq_arr - acq_arr2)
+        test.check_if_equal(0, d)
+        acq_arr_conj_sirf = acq_conj.as_array()
+        acq_arr_conj_numpy = numpy.conjugate(acq_arr)
+        d = numpy.linalg.norm(acq_arr_conj_sirf - acq_arr_conj_numpy)
+        test.check_if_equal(0, d)
+        acq_data.conjugate(out=acq_data)
+        acq_arr_conj_sirf = acq_data.as_array()
+        d = numpy.linalg.norm(acq_arr_conj_sirf - acq_arr_conj_numpy)
+        test.check_if_equal(0, d)
 
         image_copy = image.get_uniform_copy(1.0)
         image_copy *= image
@@ -150,6 +173,29 @@ def test_main(rec=False, verb=False, throw=True):
         im2_arr = im2.as_array()
         d = numpy.linalg.norm(im2_arr - im_arr/2)
         print('images division (with out=) error: %.1e' % d)
+        test.check_if_equal(0, d)
+        # test on fill with scalar
+        types = (2,2.0,numpy.int32(2),numpy.int64(2))
+        try:
+            twos = types + (numpy.float128(2),)
+        except AttributeError:
+            twos = types
+        for n in twos:
+            image.fill(n)
+            test.check_if_zero_within_tolerance((image-2).norm())
+        img = image
+        img_arr = img.as_array()
+        img_conj = img.conjugate()
+        img_arr2 = img.as_array()
+        d = numpy.linalg.norm(img_arr - img_arr2)
+        test.check_if_equal(0, d)
+        img_arr_conj_sirf = img_conj.as_array()
+        img_arr_conj_numpy = numpy.conjugate(img_arr)
+        d = numpy.linalg.norm(img_arr_conj_sirf - img_arr_conj_numpy)
+        test.check_if_equal(0, d)
+        img.conjugate(out=img)
+        img_arr_conj_sirf = img.as_array()
+        d = numpy.linalg.norm(img_arr_conj_sirf - img_arr_conj_numpy)
         test.check_if_equal(0, d)
 
     return test.failed, test.ntest

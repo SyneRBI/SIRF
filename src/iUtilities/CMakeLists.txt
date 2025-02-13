@@ -28,6 +28,13 @@ target_include_directories(iutilities PUBLIC
 
 target_include_directories(iutilities PUBLIC ${Boost_INCLUDE_DIRS})
 
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+  COMPONENT Development
+  DESTINATION include)
+install(TARGETS iutilities EXPORT SIRFTargets
+  COMPONENT Development
+  DESTINATION lib)
+
 if(BUILD_PYTHON)
   if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13") 
     # policy introduced in CMake 3.13
@@ -43,18 +50,18 @@ if(BUILD_PYTHON)
   # find libraries and include files
   # TODO would be better to use target_include_directories
 
-  FIND_PACKAGE(PythonLibs REQUIRED)
+  # FIND_PACKAGE(PythonLibs REQUIRED)
   set(SWIG_MODULE_pyiutilities_EXTRA_DEPS 
     "${ciUtilities_INCLUDE_DIR}/sirf/iUtilities/DataHandle.h" 
     "${ciUtilities_INCLUDE_DIR}/sirf/iUtilities/iutilities.h")
   SWIG_ADD_LIBRARY(pyiutilities LANGUAGE python TYPE MODULE SOURCES pyiutilities.i)
-  TARGET_INCLUDE_DIRECTORIES(${SWIG_MODULE_pyiutilities_REAL_NAME} PUBLIC ${PYTHON_INCLUDE_PATH})
-  SWIG_LINK_LIBRARIES(pyiutilities iutilities ${PYTHON_LIBRARIES})
+  TARGET_INCLUDE_DIRECTORIES(${SWIG_MODULE_pyiutilities_REAL_NAME} PUBLIC ${Python_INCLUDE_DIRS})
+  SWIG_LINK_LIBRARIES(pyiutilities iutilities ${Python_LIBRARIES})
 
   INSTALL(TARGETS ${SWIG_MODULE_pyiutilities_REAL_NAME} DESTINATION "${PYTHON_DEST}/sirf")
   INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/pyiutilities.py"  DESTINATION "${PYTHON_DEST}/sirf")
 
-endif(BUILD_PYTHON)
+endif()
 
 if(BUILD_MATLAB)
 
@@ -66,7 +73,7 @@ if(BUILD_MATLAB)
   # Generate m-files on the fly
   add_custom_command(
     OUTPUT ${mutilities_c} ${mutilities_h}
-    COMMAND gmi_iutilities ${CMAKE_CURRENT_BINARY_DIR}
+    COMMAND gmi_iutilities ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR}
     DEPENDS ${CMAKE_SOURCE_DIR}/src/iUtilities/include/sirf/iUtilities/iutilities.h
     COMMENT "Generating mutilities.c/.h"
     VERBATIM

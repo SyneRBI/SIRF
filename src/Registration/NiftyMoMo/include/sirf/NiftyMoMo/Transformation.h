@@ -87,7 +87,7 @@ public:
    *  \return pointer to the internally allocated output data of length numberOfParameters. Needs to be freed outside 
    *          of this class since no internal references will be kept.
    */
-  virtual PrecisionType* GetDVFGradientWRTTransformationParameters( nifti_image* denseDVFIn, nifti_image* sourceImage ) = 0;
+  virtual PrecisionType* GetDVFGradientWRTTransformationParameters( nifti_image* denseDVFIn ) = 0;
   
   /** Get the gradient of the regularisation/constraint with respect to the transformation parameters
    *  \f$ \frac{\partial \mathcal{R}_t}{\partial\mathbf{M}_t} \f$

@@ -27,6 +27,15 @@ limitations under the License.
 namespace sirf {
 
 	void*
+		cSTIR_setImageDataParameter(void* hp, const char* name, const void* hv);
+
+	void*
+		cSTIR_AcquisitionDataParameter(void* hp, const char* name);
+
+	void*
+		cSTIR_ImageDataParameter(void* hp, const char* name);
+
+	void*
 		cSTIR_setListmodeToSinogramsParameter(void* hp, const char* name, const void* hv);
 
 	void*
@@ -34,6 +43,20 @@ namespace sirf {
 
 	void*
 		cSTIR_shapeParameter(const DataHandle* handle, const char* name);
+
+	void*
+		cSTIR_setBox3DParameter
+		(DataHandle* hp, const char* name, const DataHandle* hv);
+
+	void*
+		cSTIR_Box3DParameter(const DataHandle* handle, const char* name);
+
+	void*
+		cSTIR_setEllipsoidParameter
+		(DataHandle* hp, const char* name, const DataHandle* hv);
+
+	void*
+		cSTIR_ellipsoidParameter(const DataHandle* handle, const char* name);
 
 	void*
 		cSTIR_setEllipsoidalCylinderParameter
@@ -50,8 +73,25 @@ namespace sirf {
 		cSTIR_rayTracingMatrixParameter(const DataHandle* handle, const char* name);
 
 	void*
+		cSTIR_setSPECTUBMatrixParameter
+		(DataHandle* hp, const char* name, const DataHandle* hv);
+
+	void*
+		cSTIR_SPECTUBMatrixParameter(const DataHandle* handle, const char* name);
+		
+	void*
+		cSTIR_setPinholeSPECTUBMatrixParameter
+		(DataHandle* hp, const char* name, const DataHandle* hv);
+
+	void*
+		cSTIR_PinholeSPECTUBMatrixParameter(const DataHandle* handle, const char* name);
+
+	void*
 		cSTIR_setAcquisitionModelParameter
 		(DataHandle* hp, const char* name, const DataHandle* hv);
+
+	void*
+		cSTIR_AcquisitionModelParameter(DataHandle* hm, const char* name);
 
 	void*
 		cSTIR_setAcqModUsingMatrixParameter
@@ -88,6 +128,23 @@ namespace sirf {
 	void*
 		cSTIR_setQuadraticPriorParameter
 		(DataHandle* hp, const char* name, const DataHandle* hv);
+	void*
+		cSTIR_QuadraticPriorParameter
+		(DataHandle* hp, const char* name);
+
+	void*
+		cSTIR_setLogcoshPriorParameter
+		(DataHandle* hp, const char* name, const DataHandle* hv);
+	void*
+		cSTIR_LogcoshPriorParameter
+		(DataHandle* hp, const char* name);
+
+	void*
+		cSTIR_setRelativeDifferencePriorParameter
+		(DataHandle* hp, const char* name, const DataHandle* hv);
+	void*
+		cSTIR_RelativeDifferencePriorParameter
+		(DataHandle* hp, const char* name);
 
 	void*
 		cSTIR_setPLSPriorParameter
@@ -101,6 +158,16 @@ namespace sirf {
 		cSTIR_generalisedObjectiveFunctionParameter
 		(const DataHandle* handle, const char* name);
 
+        void*
+                cSTIR_setScatterSimulatorParameter
+                (const DataHandle* hp, const char* name, const DataHandle* hv);
+        void*
+                cSTIR_setScatterEstimatorParameter
+                (const DataHandle *hp, const char* name, const DataHandle* hv);
+        void*
+                cSTIR_ScatterEstimatorParameter
+                (DataHandle* hp, const char* name);
+
 	void*
 		cSTIR_setGeneralisedObjectiveFunctionParameter
 		(DataHandle* hp, const char* name, const DataHandle* hv);
@@ -112,6 +179,14 @@ namespace sirf {
 	void*
 		cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 		(DataHandle* hp, const char* name, const DataHandle* hv);
+
+    void*
+        cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBinParameter
+        (DataHandle* hp, const char* name, const DataHandle* hv);
+
+    void*
+        cSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBinParameter
+        (DataHandle* handle, const char* name);
 
 	void*
 		cSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
@@ -134,10 +209,16 @@ namespace sirf {
 
 	void*
 		cSTIR_OSMAPOSLParameter(const DataHandle* handle, const char* name);
+
 #ifdef USE_HKEM
 	void*
-		cSTIR_setKOSMAPOSLParameter(DataHandle* hp, const char* name, const DataHandle* hv);
+		cSTIR_setKOSMAPOSLParameter
+		(DataHandle* hp, const char* name, const DataHandle* hv);
+
+	void*
+		cSTIR_KOSMAPOSLParameter(const DataHandle* handle, const char* name);
 #endif
+
 	void*
 		cSTIR_setOSSPSParameter(DataHandle* hp, const char* name, const DataHandle* hv);
 

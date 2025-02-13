@@ -12,7 +12,8 @@ Options:
   -p <path>, --path=<path>     path to data files, defaults to data/examples/PET/mMR
                                subfolder of SIRF root folder
   -l <list>, --list=<list>     listmode file [default: list.l.hdr]
-  -o <sino>, --sino=<sino>     output file prefix [default: sinograms]
+  -o <sino>, --sino=<sino>     sinograms file prefix [default: sinograms]
+  -r <rand>, --rand=<rand>     randoms file [default: randoms]
   -t <tmpl>, --tmpl=<tmpl>     raw data template [default: mMR_template_span11_small.hs]
   -i <int>, --interval=<int>   scanning time interval to convert as string '(a,b)'
                                (no space after comma) [default: (0,100)]
@@ -45,12 +46,21 @@ args = docopt(__doc__, version=__version__)
 
 from ast import literal_eval
 
-from pUtilities import show_3D_array
+from sirf.Utilities import error, examples_data_path, existing_filepath
+from sirf.Utilities import show_3D_array
 
 import numpy as np
+try:
+    import pylab
+    HAVE_PYLAB = True
+except RuntimeWarning:
+    HAVE_PYLAB = False
+
 
 # import engine module
-exec('from sirf.' + args['--engine'] + ' import *')
+import importlib
+engine = args['--engine']
+pet = importlib.import_module('sirf.' + engine)
 
 
 # process command-line options
@@ -62,24 +72,25 @@ if data_path is None:
     data_path = examples_data_path('PET') + '/mMR'
 list_file = args['--list']
 sino_file = args['--sino']
+rand_file = args['--rand']
 tmpl_file = args['--tmpl']
 list_file = existing_filepath(data_path, list_file)
 tmpl_file = existing_filepath(data_path, tmpl_file)
 interval = literal_eval(args['--interval'])
 storage = args['--storage']
-show_plot = not args['--non-interactive']
+show_plot = not args['--non-interactive'] and HAVE_PYLAB
 
 
 def main():
 
     # direct all engine's messages to files
-    msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
+    _ = pet.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     # select acquisition data storage scheme
-    AcquisitionData.set_storage_scheme(storage)
+    pet.AcquisitionData.set_storage_scheme(storage)
 
     # create listmode-to-sinograms converter object
-    lm2sino = ListmodeToSinograms()
+    lm2sino = pet.ListmodeToSinograms()
 
     # set input, output and template files
     lm2sino.set_input(list_file)
@@ -105,6 +116,7 @@ def main():
     # estimate the randoms from the delayeds via Maximum Likelihood estimation
     # This will take at least a few seconds
     randoms_estimate_acq_data = lm2sino.estimate_randoms();
+    randoms_estimate_acq_data.write(rand_file)
     
     # copy the acquisition data into Python arrays
     delayeds_acq_array = delayeds_acq_data.as_array()

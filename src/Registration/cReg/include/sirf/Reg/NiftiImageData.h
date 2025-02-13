@@ -208,7 +208,7 @@ public:
     }
 
     /// Create NiftiImageData from geometrical info
-    static std::shared_ptr<nifti_image> create_from_geom_info(const VoxelisedGeometricalInfo3D &geom, const bool is_tensor=false);
+    static std::shared_ptr<nifti_image> create_from_geom_info(const VoxelisedGeometricalInfo3D &geom, const bool is_tensor=false, const NREG_TRANS_TYPE tensor_type=NREG_TRANS_TYPE::DEF_FIELD);
 
     /// Construct NiftiImageData from the real component of a complex SIRF ImageData
     static void construct_NiftiImageData_from_complex_im_real_component(std::shared_ptr<NiftiImageData> &out_sptr, const std::shared_ptr<const ImageData> in_sptr);
@@ -267,6 +267,8 @@ public:
 
     /// Multiplication operator
     NiftiImageData& operator*=(const float);
+    /// Multiplication operator
+    NiftiImageData& operator*=(const NiftiImageData &rhs);
 
     /// Multiplication operator
     friend NiftiImageData operator*(NiftiImageData lhs, const float val)
@@ -275,13 +277,29 @@ public:
         return lhs;
     }
 
-    /// Division operator
-    NiftiImageData& operator/=(const float);
+    /// Multiplication operator
+    friend NiftiImageData operator*(NiftiImageData lhs, const NiftiImageData& rhs)
+    {
+        lhs *= rhs;
+        return lhs;
+    }
 
     /// Division operator
+    NiftiImageData& operator/=(const float);
+    // /// Division operator
+    NiftiImageData& operator/=(const NiftiImageData &rhs);
+    
+    // /// Division operator
     friend NiftiImageData operator/(NiftiImageData lhs, const float val)
     {
         lhs /= val;
+        return lhs;
+    }
+
+    /// Division operator
+    friend NiftiImageData operator/(NiftiImageData lhs, const NiftiImageData& rhs)
+    {
+        lhs /= rhs;
         return lhs;
     }
 
@@ -296,6 +314,12 @@ public:
 
     /// Access data element via 7D index
     float &operator()(const int index[7]);
+
+    /// Access data element via 7D index (const)
+    float operator()(const int x, const int y, const int z, const int t=0, const int u=0, const int v=0, const int w=0) const;
+
+    /// Access data element via 7D index
+    float &operator()(const int x, const int y, const int z, const int t=0, const int u=0, const int v=0, const int w=0);
 
     /// Is the image initialised? (Should be unless default constructor was used.)
     bool is_initialised() const { return (_nifti_image && _data && _nifti_image->datatype == DT_FLOAT32 ? true : false); }
@@ -337,6 +361,12 @@ public:
     /// Fill
     void fill(const float v);
 
+    /// Fill from array
+    void fill(const dataType *v);
+
+    /// Fill from array
+    void fill(const NiftiImageData &im);
+
     /// Get norm
     float get_norm(const NiftiImageData&) const;
 
@@ -365,9 +395,6 @@ public:
     int get_original_datatype() const { return _original_datatype; }
 
     /// Check if the norms of two images are equal to a given accuracy.
-    static bool are_equal_to_given_accuracy(const std::shared_ptr<const NiftiImageData> &im1_sptr, const std::shared_ptr<const NiftiImageData> &im2_sptr, const float required_accuracy_compared_to_max);
-
-    /// Check if the norms of two images are equal to a given accuracy.
     static bool are_equal_to_given_accuracy(const NiftiImageData &im1, const NiftiImageData &im2, const float required_accuracy_compared_to_max);
 
     /// Point is in bounds?
@@ -393,7 +420,13 @@ public:
     template<typename T>
     static void dump_nifti_element(const std::vector<const NiftiImageData*> &ims, const std::string &name, const T &call_back, const unsigned num_elems);
 
-    /// Set the voxel spacing. Requires resampling image, and so interpolation order is required.
+	static std::string get_headers(const std::vector<const NiftiImageData<dataType>*> &ims);
+	template<typename T>
+	static std::string get_nifti_element(const std::vector<const NiftiImageData*> &ims, const std::string &name, const T &call_back);
+	template<typename T>
+	static std::string get_nifti_element(const std::vector<const NiftiImageData*> &ims, const std::string &name, const T &call_back, const unsigned num_elems);
+
+	/// Set the voxel spacing. Requires resampling image, and so interpolation order is required.
     /// As per NiftyReg, interpolation_order can be either 0, 1 or 3 meaning nearest neighbor, linear or cubic spline interpolation.
     void set_voxel_spacing(const float factors[3], const int interpolation_order);
 
@@ -422,7 +455,7 @@ protected:
 
     enum NiftiImageDataType { _general, _3D, _3DTensor, _3DDisp, _3DDef};
 
-    enum MathsType { add, sub, mul };
+    enum MathsType { ADD, sub, mul, div};
 
     /// Image data as a nifti object
     std::shared_ptr<nifti_image>  _nifti_image;
@@ -561,6 +594,19 @@ public:
         _end_const.reset(new Iterator_const(_data+_nifti_image->nvox));
         return *_end_const;
     }
+    /*
+    unsigned int items() const { return 1; }
+    virtual void dot      (const DataContainer& a_x, void* ptr) const;
+    virtual void axpby    (const void* ptr_a, const DataContainer& a_x, const void* ptr_b, const DataContainer& a_y);
+    virtual void xapyb    (const DataContainer& a_x, const void* ptr_a, const DataContainer& a_y, const void* ptr_b);
+    virtual void xapyb    (const DataContainer& a_x, const DataContainer& a_a, const DataContainer& a_y, const DataContainer& a_b);
+    virtual float norm() const;
+    virtual void scale(float s);
+    virtual void multiply (const DataContainer& a_x, const DataContainer& a_y);
+    virtual void divide   (const DataContainer& a_x, const DataContainer& a_y);
+	virtual void maximum(const DataContainer& x, const DataContainer& y);
+	virtual void minimum(const DataContainer& x, const DataContainer& y);
+*/
 protected:
     /// Clone helper function. Don't use.
     virtual NiftiImageData* clone_impl() const
@@ -572,12 +618,38 @@ protected:
         return new ObjectHandle<DataContainer>
             (std::shared_ptr<DataContainer>(new NiftiImageData));
     }
+
+public:
     unsigned int items() const { return 1; }
+    /// below all void* are actually float*
+    virtual void sum      (void* ptr) const;
+    virtual void max      (void* ptr) const;
+    virtual void min      (void* ptr) const;
     virtual void dot      (const DataContainer& a_x, void* ptr) const;
     virtual void axpby    (const void* ptr_a, const DataContainer& a_x, const void* ptr_b, const DataContainer& a_y);
+    virtual void xapyb    (const DataContainer& a_x, const void* ptr_a, const DataContainer& a_y, const void* ptr_b);
+    virtual void xapyb    (const DataContainer& a_x, const DataContainer& a_a, const DataContainer& a_y, const DataContainer& a_b);
+    virtual void xapyb(
+        const DataContainer& a_x, const void* ptr_a,
+        const DataContainer& a_y, const DataContainer& a_b);
     virtual float norm() const;
+    virtual void scale(float s);
     virtual void multiply (const DataContainer& a_x, const DataContainer& a_y);
     virtual void divide   (const DataContainer& a_x, const DataContainer& a_y);
+    virtual void maximum(const DataContainer& x, const DataContainer& y);
+    virtual void minimum(const DataContainer& x, const DataContainer& y);
+    virtual void power(const DataContainer& x, const DataContainer& y);
+    virtual void multiply(const DataContainer& a_x, const void* a_y);
+    virtual void add(const DataContainer& a_x, const void* a_y);
+    virtual void maximum(const DataContainer& x, const void* a_y);
+    virtual void minimum(const DataContainer& x, const void* a_y);
+    virtual void power(const DataContainer& x, const void* a_y);
+    virtual void exp(const DataContainer& x);
+    virtual void log(const DataContainer& x);
+    virtual void sqrt(const DataContainer& x);
+    virtual void sign(const DataContainer& x);
+    virtual void abs(const DataContainer& x);
+
     virtual Dimensions dimensions() const
     {
         Dimensions dim;
@@ -591,7 +663,9 @@ protected:
         dim["w"] = d[7];
         return dim;
     }
-public:
+    void unary_op(const DataContainer& a_x, dataType(*f)(dataType));
+    void semibinary_op(const DataContainer& a_x, const void* a_y, dataType(*f)(dataType, dataType));
+    void binary_op(const DataContainer& a_x, const DataContainer& a_y, dataType(*f)(dataType, dataType));
     /// Set up the geometrical info. Use qform preferentially over sform.
     virtual void set_up_geom_info();
 protected:

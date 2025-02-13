@@ -29,9 +29,10 @@ limitations under the License.
 */
 
 #include <iostream>
+#include "sirf/common/utilities.h"
 #include "sirf/Reg/NiftyAladinSym.h"
 #include "sirf/Reg/NiftyF3dSym.h"
-#include "sirf/Reg/NiftyResample.h"
+#include "sirf/Reg/NiftyResampler.h"
 #include "sirf/Reg/NiftiImageData3D.h"
 #include "sirf/Reg/ImageWeightedMean.h"
 #include "sirf/Reg/NiftiImageData3DDisplacement.h"
@@ -51,12 +52,7 @@ int main(int argc, char* argv[])
     try {
 
     // Paths
-    std::string SIRF_PATH;
-    if (argc==1)
-        SIRF_PATH = getenv("SIRF_PATH");
-    else
-        SIRF_PATH = argv[1];
-    const std::string examples_path = SIRF_PATH + "/data/examples/Registration";
+    const std::string examples_path = examples_data_path("Registration");
     const std::string output_prefix   = "results/cplusplus_";
 
     // Input filenames
@@ -76,6 +72,7 @@ int main(int argc, char* argv[])
     const std::string save_nifti_image_3d_deformation_split      = output_prefix   + "save_NiftiImageData3DDeformation_split_%s.nii";
     const std::string save_nifti_image_3d_displacement_not_split = output_prefix   + "save_NiftiImageData3DDisplacement_not_split.nii";
     const std::string save_nifti_image_3d_displacement_split     = output_prefix   + "save_NiftiImageData3DDisplacement_split_%s.nii";
+    const std::string save_nifti_image_2d                        = output_prefix   + "save_NiftiImageData2D.nii";
     const std::string save_nifti_image_upsample                  = output_prefix   + "save_NiftiImageData_upsample.nii";
     const std::string save_nifti_image_downsample                = output_prefix   + "save_NiftiImageData_downsample.nii";
     const std::string save_nifti_image_up_downsample             = output_prefix   + "save_NiftiImageData_upsample_downsample.nii";
@@ -405,6 +402,15 @@ int main(int argc, char* argv[])
         // image was already of type NIFTI_TYPE_UINT8 (unsigned char).
         if (b != t)
             throw std::runtime_error("NiftiImageData3D constructor from array.");
+
+        // Check that 2D images are ok for the 3D class
+        int crop_for_2D_min[7] = { -1, -1, 0, 0, 0, 0, 0 };
+        int crop_for_2D_max[7] = { -1, -1, 0, 0, 0, 0, 0 };
+        b.crop(crop_for_2D_min,crop_for_2D_max);
+        b.write(save_nifti_image_2d);
+        NiftiImageData3D<float> im_2d(save_nifti_image_2d);
+        if (im_2d.get_dimensions()[0] != 2)
+            throw std::runtime_error("NiftiImageData3D crop to 2D.");
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished NiftiImageData3D test.\n";
@@ -786,13 +792,21 @@ int main(int argc, char* argv[])
         NiftiImageData<float>::print_headers({&*ref_aladin, &*flo_aladin, &*def_inverse_sptr, &*def_fwd_then_inv_sptr});
 
         // Reference forward with def_inv
-        NiftyResample<float> resample;
+        NiftyResampler<float> resample;
         resample.set_reference_image(flo_aladin);
         resample.set_floating_image(ref_aladin);
         resample.set_padding_value(0.f);
         resample.set_interpolation_type_to_linear();
         resample.add_transformation(def_inverse_sptr);
         const std::shared_ptr<const NiftiImageData<float> > out1_sptr = std::dynamic_pointer_cast<const NiftiImageData<float> >(resample.forward(ref_aladin));
+
+        std::cout << "ref image norm: " << flo_aladin->norm() << '\n';
+        std::cout << "flo image norm: " << ref_aladin->norm() << '\n';
+        std::cout << "fwd(flo) image norm: " << out1_sptr->norm() << '\n';
+
+        float s = resample.norm(8, 1);
+        std::cout << "resampler norm: " << s << '\n';
+        //return 0;
 
         // Reference forward with def_fwd_then_inv_sptr
         resample.clear_transformations();
@@ -803,6 +817,26 @@ int main(int argc, char* argv[])
 
         if (*out1_sptr != *out2_sptr)
             throw std::runtime_error("NiftiImageData3DDeformation::get_inverse() failed.");
+
+        // Check 2D registration
+        {
+            // Create 2D images
+            int mid_z = int(ref_aladin->get_dimensions()[3]/2);
+            int crop_for_2D_min[7] = { -1, -1, mid_z, 0, 0, 0, 0 };
+            int crop_for_2D_max[7] = { -1, -1, mid_z, 0, 0, 0, 0 };
+            std::shared_ptr<NiftiImageData3D<float> > ref_2d_sptr = ref_aladin->clone();
+            ref_2d_sptr->crop(crop_for_2D_min,crop_for_2D_max);
+            NiftyAladinSym<float> NA_2D;
+            NA_2D.set_reference_image(ref_2d_sptr);
+            NA_2D.set_floating_image (ref_2d_sptr);
+            NA_2D.set_parameter_file (      parameter_file_aladin    );
+            NA_2D.set_parameter("SetInterpolationToCubic");
+            NA_2D.set_parameter("SetLevelsToPerform","1");
+            NA_2D.set_parameter("SetMaxIterations","5");
+            NA_2D.set_parameter("SetPerformRigid","1");
+            NA_2D.set_parameter("SetPerformAffine","0");
+            NA_2D.process();
+        }
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished Nifty aladin test.\n";
@@ -869,6 +903,25 @@ int main(int argc, char* argv[])
         NF2.process();
         if (*NF2.get_output_sptr() != *ref_f3d_crop)
             throw std::runtime_error("NiftyF3dSym failed: ref==flo, but registered image != ref");
+
+        // Check 2D registration
+        {
+            // Create 2D images
+            int mid_z = int(ref_f3d->get_dimensions()[3]/2);
+            int crop_for_2D_min[7] = { -1, -1, mid_z, 0, 0, 0, 0 };
+            int crop_for_2D_max[7] = { -1, -1, mid_z, 0, 0, 0, 0 };
+            std::shared_ptr<NiftiImageData3D<float> > ref_2d_sptr = ref_f3d->clone();
+            std::shared_ptr<NiftiImageData3D<float> > flo_2d_sptr = flo_f3d->clone();
+            ref_2d_sptr->crop(crop_for_2D_min,crop_for_2D_max);
+            flo_2d_sptr->crop(crop_for_2D_min,crop_for_2D_max);
+            NiftyF3dSym<float> NF_2D;
+            NF_2D.set_reference_image(ref_2d_sptr);
+            NF_2D.set_floating_image (flo_2d_sptr);
+            NF_2D.set_parameter_file( parameter_file_f3d );
+            NF_2D.set_reference_time_point(1);
+            NF_2D.set_floating_time_point(1);
+            NF_2D.process();
+        }
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished Nifty f3d test.\n";
@@ -941,11 +994,11 @@ int main(int argc, char* argv[])
         float padding_value = -20.f;
 
         std::cout << "Testing rigid resample...\n";
-        NiftyResample<float> nr1;
+        NiftyResampler<float> nr1;
         nr1.set_reference_image(ref_aladin);
         nr1.set_floating_image(flo_aladin);
         nr1.set_interpolation_type_to_cubic_spline(); // try different interpolations
-        nr1.set_interpolation_type(NiftyResample<float>::CUBICSPLINE); // try different interpolations (cubic)
+        nr1.set_interpolation_type(NiftyResampler<float>::CUBICSPLINE); // try different interpolations (cubic)
         nr1.add_transformation(tm_iden);
         nr1.clear_transformations();
         nr1.add_transformation(tm_iden);
@@ -954,7 +1007,7 @@ int main(int argc, char* argv[])
         nr1.get_output_sptr()->write(rigid_resample);
 
         std::cout << "Testing non-rigid displacement...\n";
-        NiftyResample<float> nr2;
+        NiftyResampler<float> nr2;
         nr2.set_reference_image(ref_aladin);
         nr2.set_floating_image(flo_aladin);
         nr2.set_interpolation_type_to_sinc(); // try different interpolations
@@ -968,10 +1021,10 @@ int main(int argc, char* argv[])
         nr2_output->write(nonrigid_resample_disp);
 
         if (std::abs(nr2_output->get_min() - padding_value) > 1e-4f) // only get exact value with linear inerpolation
-            throw std::runtime_error("NiftyResample::set_padding_value failed.");
+            throw std::runtime_error("NiftyResampler::set_padding_value failed.");
 
         std::cout << "Testing non-rigid deformation...\n";
-        NiftyResample<float> nr3;
+        NiftyResampler<float> nr3;
         nr3.set_reference_image(ref_aladin);
         nr3.set_floating_image(flo_aladin);
         nr3.set_interpolation_type_to_nearest_neighbour(); // try different interpolations
@@ -991,7 +1044,7 @@ int main(int argc, char* argv[])
         nr3.forward(out2_sptr, flo_aladin);
 
         if (*out1_sptr != *out2_sptr)
-            throw std::runtime_error("out = NiftyResample::forward(in) and NiftyResample::forward(out, in) do not give same result.");
+            throw std::runtime_error("out = NiftyResampler::forward(in) and NiftyResampler::forward(out, in) do not give same result.");
 
         // TODO this doesn't work. For some reason (even with NiftyReg directly), resampling with the TM from the registration
         // doesn't give the same result as the output from the registration itself (even with same interpolations). Even though
@@ -1032,10 +1085,10 @@ int main(int argc, char* argv[])
         int max_idx[7] = {y_dims[1]-3,y_dims[2]-1,y_dims[3]-5-1,-1,-1,-1};
         y->crop(min_idx,max_idx);
 
-        NiftyResample<float> nr;
+        NiftyResampler<float> nr;
         nr.set_reference_image(x);
         nr.set_floating_image(y);
-        nr.set_interpolation_type(Resample<float>::LINEAR);
+        nr.set_interpolation_type(Resampler<float>::LINEAR);
         nr.add_transformation(T);
 
         // Do the forward
@@ -1056,7 +1109,7 @@ int main(int argc, char* argv[])
         std::cout << "<y, Tsx> = " << inner_y_Tsx << "\n";
         std::cout << "|<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) = " << adjoint_test << "\n";
         if (adjoint_test > 1e-4F)
-            throw std::runtime_error("NiftyResample::adjoint() failed");
+            throw std::runtime_error("NiftyResampler::adjoint() failed");
 
         // Check that the following give the same result
         //      out = resample.adjoint(in)
@@ -1069,7 +1122,7 @@ int main(int argc, char* argv[])
         nr.backward(out2_sptr, x);
 
         if (*out1_sptr != *out2_sptr)
-            throw std::runtime_error("out = NiftyResample::adjoint(in) and NiftyResample::adjoint(out, in) do not give same result.");
+            throw std::runtime_error("out = NiftyResampler::adjoint(in) and NiftyResampler::adjoint(out, in) do not give same result.");
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished NiftyMoMo test.\n";
@@ -1134,33 +1187,7 @@ int main(int argc, char* argv[])
         std::cout << "//                  Finished weighted mean test.\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
     }
-/* TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED
-    {
-        std::cout << "// ----------------------------------------------------------------------- //\n";
-        std::cout << "//                  Starting STIR to Nifti test...\n";
-        std::cout << "//------------------------------------------------------------------------ //\n";
 
-            // Open stir image
-            sirf::PETImageData pet_image_data(ref_aladin_filename);
-            NiftiImageData3D<float> image_data_from_stir(pet_image_data);
-
-            // Now fill the stir and nifti images with 1 and 100, respectively
-            pet_image_data.fill(1.F);
-            image_data_from_stir.fill(100.F);
-
-            if (fabs(pet_image_data.data_sptr()->find_max() - image_data_from_stir.get_max()) < 1.e-5F)
-                throw std::runtime_error("STIR & Nifti seem to share the same data pointers (their values should be different, but they're the same).");
-
-            // Fill the stir image with the Nifti
-            image_data_from_stir.copy_data_to(pet_image_data);
-            if (fabs(pet_image_data.data_sptr()->find_max() - image_data_from_stir.get_max()) > 1.e-5F)
-                throw std::runtime_error("NiftiImageData3D::copy_data_to failed.");
-
-        std::cout << "// ----------------------------------------------------------------------- //\n";
-        std::cout << "//                  Finished STIR to Nifti test.\n";
-        std::cout << "//------------------------------------------------------------------------ //\n";
-    }
-*/
     {
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Starting AffineTransformation test...\n";
@@ -1279,7 +1306,7 @@ int main(int argc, char* argv[])
 
         {
 
-            // Resample an image with NiftyResample. Register SPM, check the result
+            // Resample an image with NiftyResampler. Register SPM, check the result
 
             // TM
             std::array<float,3> translations = {5.f, 4.f, -5.f};
@@ -1287,7 +1314,7 @@ int main(int argc, char* argv[])
             const std::shared_ptr<const AffineTransformation<float> > tm_sptr =
                     std::make_shared<const AffineTransformation<float> >(translations,euler_angles,true);
 
-            NiftyResample<float> niftyreg_resampler;
+            NiftyResampler<float> niftyreg_resampler;
             niftyreg_resampler.set_padding_value(0.f);
             niftyreg_resampler.set_reference_image(ref_aladin);
             niftyreg_resampler.set_floating_image(ref_aladin);

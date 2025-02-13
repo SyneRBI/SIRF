@@ -18,9 +18,13 @@ function assert_validity(object, type)
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
-if ~strcmp(object.class_name(), type)
-    fprintf('??? Argument of a wrong type %s: expected %s.\n', ...
-        object.class_name(), type)
-    error('Object of a wrong type %s\n', object.class_name())
+errID = 'SIRF:assert_validity';
+if ~ismethod(object, 'class_name')
+    object_class = sirf.Utilities.class_name(object);
+else
+    object_class = object.class_name();
 end
-assert(~isempty(object.handle_), 'empty object')
+if ~strcmp(object_class, type)
+    error(errID, 'expected %s, got %s\n', type, object_class)
+end
+assert(~isempty(object.handle_), errID, 'empty object')

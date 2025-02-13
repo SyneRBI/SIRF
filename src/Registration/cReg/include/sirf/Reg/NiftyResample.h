@@ -44,7 +44,7 @@ namespace sirf {
 
 namespace detail {
 /*! \ingroup Registration
-  \brief This is an internal class requied by NiftyResample to handle complex images.
+  \brief This is an internal class requied by NiftyResampler to handle complex images.
 
 NiftyReg doesn't currently handle complex nifti images. So we split complex (e.g., MR)
 images into two images, a real and imaginary component. We can then resample them and
@@ -98,15 +98,15 @@ The reference image and floating image can have nt and/or nu != 1.
 \author SyneRBI
 */
 template<class dataType>
-class NiftyResample : public Resample<dataType>
+class NiftyResampler : public Resampler<dataType>
 {
 public:
 
     /// Constructor
-    NiftyResample() {}
+    NiftyResampler() {}
 
     /// Destructor
-    virtual ~NiftyResample() {}
+    virtual ~NiftyResampler() {}
 
     /// Process. Equivalent of calling forward(floating_image). Use get_output to get resampled image.
     virtual void process();
@@ -122,6 +122,13 @@ public:
 
     /// Do the adjoint transformation
     virtual void adjoint(std::shared_ptr<ImageData> output_sptr, const std::shared_ptr<const ImageData> input_sptr);
+
+    std::shared_ptr<const ImageData> reference_image_sptr() const
+    {
+        return this->_reference_image_sptr;
+    }
+
+    virtual float norm(int num_iter, int verb) const;
 
 protected:
 

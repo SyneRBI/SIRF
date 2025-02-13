@@ -1,9 +1,6 @@
 #========================================================================
-# Author: Edoardo Pasca
-# Copyright 2017 - 2020 University College London
-# Copyright 2017 Science Technology Facilities Council
-# Author: Casper da Costa-Luis
-# Copyright 2017
+# Copyright 2017 - 2022 University College London
+# Copyright 2017 - 2021 Science Technology Facilities Council
 #
 # This file is part of the SyneRBI Synergistic Image Reconstruction Framework (SIRF) SuperBuild.
 #
@@ -21,13 +18,8 @@
 #
 #=========================================================================
 
-# If not NiftyPET projector, dont test that
-if (NOT STIR_WITH_NiftyPET_PROJECTOR)
-	set(exclude_test "--exclude=tests_NiftyPET.py")
-endif()
-
 add_test(NAME PET_TESTS_PYTHON
-  COMMAND ${PYTHON_EXECUTABLE} -m nose --with-coverage --cover-package=sirf.STIR src/xSTIR/pSTIR ${exclude_test}
+  COMMAND ${Python_EXECUTABLE} -m pytest --cov=sirf.STIR --cov-config=.coveragerc-STIR src/xSTIR/pSTIR/tests
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 add_test(NAME PET_DEMOS_PYTHON
   COMMAND ${PYTHON_EXECUTABLE} run_all.py --non-interactive

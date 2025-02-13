@@ -24,6 +24,7 @@
 #define SIRF_GEOMETRICAL_INFO_TYPE
 
 #include <array>
+#include <string>
 
 namespace sirf {
 
@@ -40,6 +41,7 @@ public:
 	virtual bool operator!=(const GeometricalInfo& vgi) const = 0;
 	/// Print info
     virtual void print_info() const = 0;
+	virtual std::string get_info() const = 0;
 };
 
 
@@ -88,11 +90,13 @@ public:
 	virtual bool operator==(const GeometricalInfo<num_dimensions, num_dimensions>& gi) const
 	{
 		const VoxelisedGeometricalInfo& vgi = (const VoxelisedGeometricalInfo&)gi;
+		const float eps = 0.01F;
+		const float delta = 0.1F;
 		return
-			_offset == vgi.get_offset() &&
-			_spacing == vgi.get_spacing() &&
+			near_(_offset, vgi.get_offset(), eps) &&
+			near_(_spacing, vgi.get_spacing(), eps) &&
 			_size == vgi.get_size() &&
-			_direction == vgi.get_direction();
+			near_(_direction, vgi.get_direction(), delta);
 	}
 	virtual bool operator!=(const GeometricalInfo<num_dimensions, num_dimensions>& gi) const
 	{
@@ -107,13 +111,36 @@ public:
     const TransformMatrix calculate_index_to_physical_point_matrix() const;
 
     /// Print info
-    virtual void print_info() const;
+	virtual void print_info() const;
+	virtual std::string get_info() const;
 
 private:
 	Offset _offset;
 	Spacing _spacing;
 	Size _size;
 	DirectionMatrix _direction;
+	static bool near_(const Coordinate& x, const Coordinate& y, float eps)
+	{
+		float t = 0;
+		for (int i = 0; i < num_dimensions; i++) {
+			float xi = x[i];
+			float yi = y[i];
+			t = std::max(t, std::abs(xi - yi));
+		}
+		return t <= eps;
+	}
+	static bool near_(const DirectionMatrix& x, const DirectionMatrix& y, float eps)
+	{
+		float t = 0;
+		for (int i = 0; i < num_dimensions; i++) {
+			for (int j = 0; j < num_dimensions; j++) {
+				float xij = x[i][j];
+				float yij = y[i][j];
+				t = std::max(t, std::abs(xij - yij));
+			}
+		}
+		return t <= eps;
+	}
 };
 
 typedef GeometricalInfo<3, 3> GeometricalInfo3D;

@@ -42,8 +42,13 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
+import numpy
+
+from sirf.Utilities import error, examples_data_path, existing_filepath
+
 # import engine module
-exec('from sirf.' + args['--engine'] + ' import *')
+import importlib
+mr = importlib.import_module('sirf.' + args['--engine'])
 
 # process command-line options
 data_file = args['--file']
@@ -70,15 +75,16 @@ def main():
     input_file = existing_filepath(data_path, data_file)
 
     # acquisition data will be read from an HDF file input_data
-    acq_data = AcquisitionData(input_file)
+    mr.AcquisitionData.set_storage_scheme('memory')
+    acq_data = mr.AcquisitionData(input_file)
 
     # pre-process acquisition data
     print('---\n pre-processing acquisition data...')
-    preprocessed_data = preprocess_acquisition_data(acq_data)
+    preprocessed_data = mr.preprocess_acquisition_data(acq_data)
     preprocessed_data_norm = preprocessed_data.norm()
 
     # perform reconstruction
-    recon = CartesianGRAPPAReconstructor()
+    recon = mr.CartesianGRAPPAReconstructor()
     recon.set_input(preprocessed_data)
     recon.compute_gfactors(False)
     print('---\n reconstructing...')
@@ -94,7 +100,7 @@ def main():
         return
 
     # compute coil sensitivity maps
-    csms = CoilSensitivityData()
+    csms = mr.CoilSensitivityData()
     print('---\n sorting acquisition data...')
     preprocessed_data.sort()
     print('---\n computing sensitivity maps...')
@@ -103,8 +109,11 @@ def main():
     # create acquisition model based on the acquisition parameters
     # stored in preprocessed_data and image parameters stored in
     # image_data
-    acq_model = AcquisitionModel(preprocessed_data, image_data)
+    acq_model = mr.AcquisitionModel(preprocessed_data, image_data)
     acq_model.set_coil_sensitivity_maps(csms)
+
+    start_val = 0.001
+    image_data.fill(start_val + start_val * 1j)
 
     res = numpy.ndarray((niter,))
     scale = 1 # reconstructed image and phantom may have different scale,
@@ -127,24 +136,24 @@ def main():
         image_data = image_data - grad * tau
         if (i%10 == 0 or i == niter - 1) and show_plot:
             it = i + 1
-            title = 'Steepest-descent-refined image data, iteration %d' % it
+            title = 'Image data computed by steepest descent at iteration %d' % it
             image_data.show(zyx=zyx, slice=slc, title=title, cmap=None, \
                             postpone=(i < niter - 1))
 
     if niter > 1 and show_plot:
-        import pylab
-        pylab.figure()
-        pylab.plot(numpy.arange(1, niter + 1, 1), res)
-        pylab.grid()
-        pylab.title('residual norm')
-        pylab.show()
+        try:
+            import pylab
+            pylab.figure()
+            pylab.plot(numpy.arange(1, niter + 1, 1), res)
+            pylab.grid()
+            pylab.title('residual norm')
+            pylab.show()
+        except:
+            print('pylab not found')
 
     if output_file is not None:
-      # write images to a new group in args.output
-      # named after the current date and time
-      time_str = time.asctime()
-      print('writing to %s' % output_file)
-      image_data.write(output_file) #, time_str)
+        print('writing to %s' % output_file)
+        image_data.write(output_file)
 
 try:
     main()
@@ -153,3 +162,4 @@ try:
 except error as err:
     # display error information
     print('??? %s' % err.value)
+    exit(1)

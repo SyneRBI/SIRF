@@ -22,7 +22,7 @@ import glob
 import os
 import sys
 
-for i in glob.glob('*.py'):
+for i in sorted(glob.glob('*.py')):
     narg = len(sys.argv)
     if narg > 1 and (i.find('from') >= 0 or i.find('listmode') >=0):
         continue
@@ -32,4 +32,7 @@ for i in glob.glob('*.py'):
     args = ''
     for a in range(1, narg):
         args += ' ' + sys.argv[a]
-    os.system(sys.executable + ' ' + i + args)
+    exe = '"' + sys.executable + '" ' + i + args
+    err = os.system(exe)
+    if err:
+        raise RuntimeError(i + ' failed')

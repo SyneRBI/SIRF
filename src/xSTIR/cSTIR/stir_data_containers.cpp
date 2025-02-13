@@ -1,7 +1,7 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2017 - 2019 Rutherford Appleton Laboratory STFC
-Copyright 2018 - 2020 University College London
+Copyright 2017 - 2023 Rutherford Appleton Laboratory STFC
+Copyright 2018 - 2023 University College London
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -23,104 +23,223 @@ limitations under the License.
 #include "stir/KeyParser.h"
 #include "stir/is_null_ptr.h"
 #include "stir/zoom.h"
+#include "stir/CartesianCoordinate3D.h"
+#include "stir/numerics/norm.h"
 
 using namespace stir;
 using namespace sirf;
 
-//#define DYNAMIC_CAST(T, X, Y) T& X = (T&)Y
-#define DYNAMIC_CAST(T, X, Y) T& X = dynamic_cast<T&>(Y)
+#define SIRF_DYNAMIC_CAST(T, X, Y) T& X = dynamic_cast<T&>(Y)
 
-std::string PETAcquisitionData::_storage_scheme;
-shared_ptr<PETAcquisitionData> PETAcquisitionData::_template;
+std::string STIRAcquisitionData::_storage_scheme;
+std::shared_ptr<STIRAcquisitionData> STIRAcquisitionData::_template;
+
+#ifdef STIR_TOF
+#define TOF_LOOP  for (int k=data()->get_min_tof_pos_num(); k<=data()->get_max_tof_pos_num(); ++k)
+#define TOF_ARG , k
+#else
+#define TOF_LOOP
+#define TOF_ARG
+#endif
 
 float
-PETAcquisitionData::norm() const
+STIRAcquisitionData::norm() const
 {
+#if STIR_VERSION >= 060200
+        return data()->norm();
+#else
 	double t = 0.0;
-	for (int s = 0; s <= get_max_segment_num(); ++s)
+        TOF_LOOP
+          for (int s = data()->get_min_segment_num(); s <= data()->get_max_segment_num(); ++s)
 	{
-		SegmentBySinogram<float> seg = get_segment_by_sinogram(s);
-		SegmentBySinogram<float>::full_iterator seg_iter;
-		for (seg_iter = seg.begin_all(); seg_iter != seg.end_all();) {
-			double r = *seg_iter++;
-			t += r*r;
-		}
-		if (s != 0) {
-			seg = get_segment_by_sinogram(-s);
-			for (seg_iter = seg.begin_all(); seg_iter != seg.end_all();) {
-				double r = *seg_iter++;
-				t += r*r;
-			}
-		}
+		const auto seg = get_segment_by_sinogram(s TOF_ARG);
+		t += stir::norm_squared(seg.begin_all(), seg.end_all());
 	}
-	return sqrt((float)t);
+	return static_cast<float>(std::sqrt(t));
+#endif
 }
 
 void
-PETAcquisitionData::dot(const DataContainer& a_x, void* ptr) const
+STIRAcquisitionData::sum(void* ptr) const
 {
-	//PETAcquisitionData& x = (PETAcquisitionData&)a_x;
-	DYNAMIC_CAST(const PETAcquisitionData, x, a_x);
+	float* ptr_t = static_cast<float*>(ptr);
+#if STIR_VERSION >= 060200
+        *ptr_t = data()->sum();
+#else
+	int n = get_max_segment_num();
+	double t = 0;
+        TOF_LOOP
+	for (int s = 0; s <= n; ++s)
+	{
+		SegmentBySinogram<float> seg = get_segment_by_sinogram(s TOF_ARG);
+		SegmentBySinogram<float>::full_iterator seg_iter;
+		for (seg_iter = seg.begin_all(); seg_iter != seg.end_all();)
+			t += *seg_iter++;
+		if (s != 0) {
+			seg = get_segment_by_sinogram(-s TOF_ARG);
+			for (seg_iter = seg.begin_all(); seg_iter != seg.end_all();)
+				t += *seg_iter++;
+		}
+	}
+	*ptr_t = (float)t;
+#endif
+}
+
+void
+STIRAcquisitionData::max(void* ptr) const
+{
+	float* ptr_t = static_cast<float*>(ptr);
+#if STIR_VERSION >= 060200
+        *ptr_t = data()->find_max();
+#else
+	int n = get_max_segment_num();
+	float t = 0;
+	bool init = true;
+        TOF_LOOP
+	for (int s = 0; s <= n; ++s)
+	{
+		SegmentBySinogram<float> seg = get_segment_by_sinogram(s TOF_ARG);
+		SegmentBySinogram<float>::full_iterator seg_iter;
+		for (seg_iter = seg.begin_all(); seg_iter != seg.end_all();)
+			if (init) {
+				t = *seg_iter++;
+				init = false;
+			}
+			else
+				t = std::max(t, *seg_iter++);
+		if (s != 0) {
+			seg = get_segment_by_sinogram(-s TOF_ARG);
+			for (seg_iter = seg.begin_all(); seg_iter != seg.end_all();)
+				t = std::max(t, *seg_iter++);
+		}
+	}
+	*ptr_t = (float)t;
+#endif
+}
+
+void
+STIRAcquisitionData::min(void* ptr) const
+{
+	float* ptr_t = static_cast<float*>(ptr);
+#if STIR_VERSION >= 060200
+        *ptr_t = data()->find_min();
+#else
+	float t = 0;
+	bool init = true;
+        TOF_LOOP
+        for (int s = data()->get_min_segment_num(); s <= get_max_segment_num(); ++s)
+	{
+                const auto t_seg = get_segment_by_sinogram(s TOF_ARG).find_min();
+                if (init) {
+                        init = false;
+                        t = t_seg;
+                }
+                else {
+                        t = std::min(t, t_seg);
+		}
+	}
+	*ptr_t = (float)t;
+#endif
+}
+
+void
+STIRAcquisitionData::dot(const DataContainer& a_x, void* ptr) const
+{
+	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, x, a_x);
 	int n = get_max_segment_num();
 	int nx = x.get_max_segment_num();
 	double t = 0;
+        TOF_LOOP
 	for (int s = 0; s <= n && s <= nx; ++s)
 	{
-		SegmentBySinogram<float> seg = get_segment_by_sinogram(s);
-		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s);
+		SegmentBySinogram<float> seg = get_segment_by_sinogram(s TOF_ARG);
+		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s TOF_ARG);
 		SegmentBySinogram<float>::full_iterator seg_iter;
 		SegmentBySinogram<float>::full_iterator sx_iter;
 		for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
 			seg_iter != seg.end_all() && sx_iter != sx.end_all();
 			/*empty*/) {
-			t += (*seg_iter++)*double(*sx_iter++);
+			t += (*seg_iter++) * double(*sx_iter++);
 		}
 		if (s != 0) {
-			seg = get_segment_by_sinogram(-s);
-			sx = x.get_segment_by_sinogram(-s);
+			seg = get_segment_by_sinogram(-s TOF_ARG);
+			sx = x.get_segment_by_sinogram(-s TOF_ARG);
 			for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
 				seg_iter != seg.end_all() && sx_iter != sx.end_all();
 				/*empty*/)
-				t += (*seg_iter++)*double(*sx_iter++);
+				t += (*seg_iter++) * double(*sx_iter++);
 		}
 	}
-	float* ptr_t = (float*)ptr;
+	float* ptr_t = static_cast<float*>(ptr);
 	*ptr_t = (float)t;
 }
 
 void
-PETAcquisitionData::axpby(
+STIRAcquisitionData::axpby(
 const void* ptr_a, const DataContainer& a_x,
 const void* ptr_b, const DataContainer& a_y
 )
 {
-    // Cast to correct types
-    float a = *(float*)ptr_a;
-    float b = *(float*)ptr_b;
-    auto x = dynamic_cast<const PETAcquisitionData*>(&a_x);
-    auto y = dynamic_cast<const PETAcquisitionData*>(&a_y);
-
-    if (is_null_ptr(x) || is_null_ptr(x->data()) ||
-            is_null_ptr(y) || is_null_ptr(y->data()))
-        throw std::runtime_error("PETAcquisitionData::axpby: At least one argument is not"
-                                 "PETAcquisitionData or is not initialised.");
-
-    // Call STIR's axpby
-    data()->axpby(a, *x->data(), b, *y->data());
+	//Add deprecation warning
+    STIRAcquisitionData::xapyb(a_x, ptr_a, a_y, ptr_b);
 }
 
 void
-PETAcquisitionData::inv(float amin, const DataContainer& a_x)
+STIRAcquisitionData::xapyb(
+const DataContainer& a_x, const void* ptr_a,
+const DataContainer& a_y, const void* ptr_b
+)
 {
-	//PETAcquisitionData& x = (PETAcquisitionData&)a_x;
-	DYNAMIC_CAST(const PETAcquisitionData, x, a_x);
+    // Cast to correct types
+	float a = *static_cast<const float*>(ptr_a);
+	float b = *static_cast<const float*>(ptr_b);
+	auto x = dynamic_cast<const STIRAcquisitionData*>(&a_x);
+    auto y = dynamic_cast<const STIRAcquisitionData*>(&a_y);
+
+    if (is_null_ptr(x) || is_null_ptr(x->data()) ||
+            is_null_ptr(y) || is_null_ptr(y->data()))
+        throw std::runtime_error("STIRAcquisitionData::xapyb: At least one argument is not"
+                                 "STIRAcquisitionData or is not initialised.");
+
+    // Call STIR's xapyb
+    data()->xapyb(*x->data(), a, *y->data(), b);
+}
+
+void
+STIRAcquisitionData::xapyb(
+const DataContainer& a_x, const DataContainer& a_a,
+const DataContainer& a_y, const DataContainer& a_b
+)
+{
+    // Cast to correct types
+    auto a = dynamic_cast<const STIRAcquisitionData*>(&a_a);
+    auto b = dynamic_cast<const STIRAcquisitionData*>(&a_b);
+    auto x = dynamic_cast<const STIRAcquisitionData*>(&a_x);
+    auto y = dynamic_cast<const STIRAcquisitionData*>(&a_y);
+
+    if (is_null_ptr(x) || is_null_ptr(x->data()) ||
+            is_null_ptr(y) || is_null_ptr(y->data()) ||
+            is_null_ptr(a) || is_null_ptr(a->data()) ||
+            is_null_ptr(b) || is_null_ptr(b->data()))
+        throw std::runtime_error("STIRAcquisitionData::xapyb: At least one argument is not"
+                                 "STIRAcquisitionData or is not initialised.");
+
+    // Call STIR's xapyb
+    data()->xapyb(*x->data(), *a->data(), *y->data(), *b->data());
+}
+
+void
+STIRAcquisitionData::inv(float amin, const DataContainer& a_x)
+{
+	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, x, a_x);
 	int n = get_max_segment_num();
 	int nx = x.get_max_segment_num();
+        TOF_LOOP
 	for (int s = 0; s <= n && s <= nx; ++s)
 	{
 		//std::cout << "processing segment " << s << std::endl;
-		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s);
-		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s);
+		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s TOF_ARG);
+		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s TOF_ARG);
 		SegmentBySinogram<float>::full_iterator seg_iter;
 		SegmentBySinogram<float>::full_iterator sx_iter;
 		for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
@@ -130,8 +249,8 @@ PETAcquisitionData::inv(float amin, const DataContainer& a_x)
 		set_segment(seg);
 		if (s != 0) {
 			//std::cout << "processing segment " << -s << std::endl;
-			seg = get_empty_segment_by_sinogram(-s);
-			sx = x.get_segment_by_sinogram(-s);
+			seg = get_empty_segment_by_sinogram(-s TOF_ARG);
+			sx = x.get_segment_by_sinogram(-s TOF_ARG);
 			for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
 				seg_iter != seg.end_all() && sx_iter != sx.end_all();
 				/*empty*/) {
@@ -143,94 +262,187 @@ PETAcquisitionData::inv(float amin, const DataContainer& a_x)
 }
 
 void
-PETAcquisitionData::multiply(
-const DataContainer& a_x,
-const DataContainer& a_y
+STIRAcquisitionData::unary_op(
+	const DataContainer& a_x,
+	float(*f)(float)
 )
 {
-	//PETAcquisitionData& x = (PETAcquisitionData&)a_x;
-	//PETAcquisitionData& y = (PETAcquisitionData&)a_y;
-	DYNAMIC_CAST(const PETAcquisitionData, x, a_x);
-	DYNAMIC_CAST(const PETAcquisitionData, y, a_y);
+	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, x, a_x);
+	int n = get_max_segment_num();
+	int nx = x.get_max_segment_num();
+        TOF_LOOP
+	for (int s = 0; s <= n && s <= nx; ++s) {
+		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s TOF_ARG);
+		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s TOF_ARG);
+		SegmentBySinogram<float>::full_iterator seg_iter;
+		SegmentBySinogram<float>::full_iterator sx_iter;
+		for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
+			seg_iter != seg.end_all() && sx_iter != sx.end_all(); /*empty*/)
+			*seg_iter++ = f(*sx_iter++);
+		set_segment(seg);
+		if (s > 0) {
+			SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(-s TOF_ARG);
+			SegmentBySinogram<float> sx = x.get_segment_by_sinogram(-s TOF_ARG);
+			SegmentBySinogram<float>::full_iterator seg_iter;
+			SegmentBySinogram<float>::full_iterator sx_iter;
+			for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
+				seg_iter != seg.end_all() && sx_iter != sx.end_all(); /*empty*/)
+				*seg_iter++ = f(*sx_iter++);
+			set_segment(seg);
+		}
+	}
+
+}
+
+void
+STIRAcquisitionData::semibinary_op(
+	const DataContainer& a_x,
+	float y,
+	float(*f)(float, float)
+)
+{
+	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, x, a_x);
+	int n = get_max_segment_num();
+	int nx = x.get_max_segment_num();
+        TOF_LOOP
+	for (int s = 0; s <= n && s <= nx; ++s) {
+		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s TOF_ARG);
+		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s TOF_ARG);
+		SegmentBySinogram<float>::full_iterator seg_iter;
+		SegmentBySinogram<float>::full_iterator sx_iter;
+		for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
+			seg_iter != seg.end_all() && sx_iter != sx.end_all(); /*empty*/)
+			*seg_iter++ = f(*sx_iter++, y);
+		set_segment(seg);
+		if (s > 0) {
+			SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(-s TOF_ARG);
+			SegmentBySinogram<float> sx = x.get_segment_by_sinogram(-s TOF_ARG);
+			SegmentBySinogram<float>::full_iterator seg_iter;
+			SegmentBySinogram<float>::full_iterator sx_iter;
+			for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
+				seg_iter != seg.end_all() && sx_iter != sx.end_all(); /*empty*/)
+				*seg_iter++ = f(*sx_iter++, y);
+			set_segment(seg);
+		}
+	}
+
+}
+
+void
+STIRAcquisitionData::binary_op(
+	const DataContainer& a_x,
+	const DataContainer& a_y,
+	float(*f)(float, float)
+)
+{
+	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, x, a_x);
+	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, y, a_y);
 	int n = get_max_segment_num();
 	int nx = x.get_max_segment_num();
 	int ny = y.get_max_segment_num();
-	for (int s = 0; s <= n && s <= nx && s <= ny; ++s)
+	if (n != nx || n != ny)
+		throw std::runtime_error("binary_op error: operands sizes differ");
+	SegmentBySinogram<float>::full_iterator seg_iter;
+	SegmentBySinogram<float>::full_iterator sx_iter;
+	SegmentBySinogram<float>::full_iterator sy_iter;
+        TOF_LOOP
+	for (int s = 0; s <= n; ++s)
 	{
-		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s);
-		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s);
-		SegmentBySinogram<float> sy = y.get_segment_by_sinogram(s);
-		SegmentBySinogram<float>::full_iterator seg_iter;
-		SegmentBySinogram<float>::full_iterator sx_iter;
-		SegmentBySinogram<float>::full_iterator sy_iter;
+		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s TOF_ARG);
+		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s TOF_ARG);
+		SegmentBySinogram<float> sy = y.get_segment_by_sinogram(s TOF_ARG);
+		if (seg.size_all() != sx.size_all() || seg.size_all() != sy.size_all())
+			throw std::runtime_error("binary_op error: operands sizes differ");
 		for (seg_iter = seg.begin_all(),
 			sx_iter = sx.begin_all(), sy_iter = sy.begin_all();
-			seg_iter != seg.end_all() &&
-			sx_iter != sx.end_all() && sy_iter != sy.end_all();
-		/*empty*/) {
-			*seg_iter++ = (*sx_iter++) * (*sy_iter++);
-		}
+			seg_iter != seg.end_all(); /*empty*/)
+			*seg_iter++ = f(*sx_iter++, *sy_iter++);
 		set_segment(seg);
 		if (s != 0) {
-			seg = get_empty_segment_by_sinogram(-s);
-			sx = x.get_segment_by_sinogram(-s);
-			sy = y.get_segment_by_sinogram(-s);
+			seg = get_empty_segment_by_sinogram(-s TOF_ARG);
+			sx = x.get_segment_by_sinogram(-s TOF_ARG);
+			sy = y.get_segment_by_sinogram(-s TOF_ARG);
 			for (seg_iter = seg.begin_all(),
 				sx_iter = sx.begin_all(), sy_iter = sy.begin_all();
-				seg_iter != seg.end_all() &&
-				sx_iter != sx.end_all() && sy_iter != sy.end_all();
-			/*empty*/) {
-				*seg_iter++ = (*sx_iter++) * (*sy_iter++);
-			}
+				seg_iter != seg.end_all();	/*empty*/)
+				*seg_iter++ = f(*sx_iter++, *sy_iter++);
 			set_segment(seg);
 		}
 	}
 }
 
 void
-PETAcquisitionData::divide(
-const DataContainer& a_x,
-const DataContainer& a_y
-)
+STIRAcquisitionData::xapyb(
+	const DataContainer& a_x, const void* ptr_a,
+	const DataContainer& a_y, const DataContainer& a_b)
 {
-	//PETAcquisitionData& x = (PETAcquisitionData&)a_x;
-	//PETAcquisitionData& y = (PETAcquisitionData&)a_y;
-	DYNAMIC_CAST(const PETAcquisitionData, x, a_x);
-	DYNAMIC_CAST(const PETAcquisitionData, y, a_y);
+	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, x, a_x);
+	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, y, a_y);
+	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, b, a_b);
+	float a = *static_cast<const float*>(ptr_a);
 	int n = get_max_segment_num();
 	int nx = x.get_max_segment_num();
 	int ny = y.get_max_segment_num();
-	for (int s = 0; s <= n && s <= nx && s <= ny; ++s)
+	int nb = b.get_max_segment_num();
+	if (n != nx || n != ny || n != nb)
+		throw std::runtime_error("binary_op error: operands sizes differ");
+	SegmentBySinogram<float>::full_iterator seg_iter;
+	SegmentBySinogram<float>::full_iterator sx_iter;
+	SegmentBySinogram<float>::full_iterator sy_iter;
+	SegmentBySinogram<float>::full_iterator sb_iter;
+        TOF_LOOP
+	for (int s = 0; s <= n; ++s)
 	{
-		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s);
-		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s);
-		SegmentBySinogram<float> sy = y.get_segment_by_sinogram(s);
-		SegmentBySinogram<float>::full_iterator seg_iter;
-		SegmentBySinogram<float>::full_iterator sx_iter;
-		SegmentBySinogram<float>::full_iterator sy_iter;
+		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s TOF_ARG);
+		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s TOF_ARG);
+		SegmentBySinogram<float> sy = y.get_segment_by_sinogram(s TOF_ARG);
+		SegmentBySinogram<float> sb = b.get_segment_by_sinogram(s TOF_ARG);
+		size_t size_seg = seg.size_all();
+		size_t size_sx = sx.size_all();
+		size_t size_sy = sy.size_all();
+		size_t size_sb = sb.size_all();
+		if (size_seg != size_sx || size_seg != size_sy || size_seg != size_sb)
+			throw std::runtime_error("binary_op error: operands sizes differ");
 		for (seg_iter = seg.begin_all(),
-			sx_iter = sx.begin_all(), sy_iter = sy.begin_all();
-			seg_iter != seg.end_all() &&
-			sx_iter != sx.end_all() && sy_iter != sy.end_all();
-		/*empty*/) {
-			*seg_iter++ = (*sx_iter++) / (*sy_iter++);
-		}
+			sx_iter = sx.begin_all(), sy_iter = sy.begin_all(), sb_iter = sb.begin_all();
+			seg_iter != seg.end_all(); /*empty*/)
+			*seg_iter++ = (*sx_iter++) * a + (*sy_iter++) * (*sb_iter++);
 		set_segment(seg);
 		if (s != 0) {
-			seg = get_empty_segment_by_sinogram(-s);
-			sx = x.get_segment_by_sinogram(-s);
-			sy = y.get_segment_by_sinogram(-s);
+			seg = get_empty_segment_by_sinogram(-s TOF_ARG);
+			sx = x.get_segment_by_sinogram(-s TOF_ARG);
+			sy = y.get_segment_by_sinogram(-s TOF_ARG);
+			sb = b.get_segment_by_sinogram(-s TOF_ARG);
 			for (seg_iter = seg.begin_all(),
-				sx_iter = sx.begin_all(), sy_iter = sy.begin_all();
-				seg_iter != seg.end_all() &&
-				sx_iter != sx.end_all() && sy_iter != sy.end_all();
-			/*empty*/) {
-				*seg_iter++ = (*sx_iter++) / (*sy_iter++);
-			}
+				sx_iter = sx.begin_all(), sy_iter = sy.begin_all(), sb_iter = sb.begin_all();
+				seg_iter != seg.end_all(); /*empty*/)
+				*seg_iter++ = (*sx_iter++) * a + (*sy_iter++) * (*sb_iter++);
 			set_segment(seg);
 		}
 	}
 }
+
+std::unique_ptr<STIRAcquisitionData>
+STIRAcquisitionDataInFile::get_subset(const std::vector<int>& views) const
+{
+	auto ptr_ad = new STIRAcquisitionDataInFile(std::move(_data->get_subset(views)));
+//	auto ptr_ad = new STIRAcquisitionDataInMemory(std::move(_data->get_subset(views)));
+	return std::unique_ptr<STIRAcquisitionData>(ptr_ad);
+}
+
+std::unique_ptr<STIRAcquisitionData>
+STIRAcquisitionDataInMemory::get_subset(const std::vector<int>& views) const
+{
+	auto ptr_ad = new STIRAcquisitionDataInMemory(std::move(_data->get_subset(views)));
+	return std::unique_ptr<STIRAcquisitionData>(ptr_ad);
+}
+
+void
+STIRAcquisitionDataInMemory::init()
+{
+	STIRAcquisitionDataInFile::init();
+}
+
 
 STIRImageData::STIRImageData(const ImageData& id)
 {
@@ -271,12 +483,16 @@ STIRImageData::write(const std::string &filename, const std::string &format_file
 
     if (!format_file.empty()) {
         KeyParser parser;
+        // STIR format
+        parser.add_start_key("Output File Format Parameters");
+        // old SIRF format, still accepted
         parser.add_start_key("OutputFileFormat Parameters");
         parser.add_parsing_key("output file format type", &format_sptr);
         parser.add_stop_key("END");
         parser.parse(format_file.c_str());
         if(is_null_ptr(format_sptr))
-            throw std::runtime_error("STIRImageData::write: Parsing of output format file (" + format_file + ") failed "
+            throw std::runtime_error("STIRImageData::write: Parsing of output format file (" + format_file + ") failed.\n"
+                                     "STIR should have written a warning message why (if you don't see it, redirect warnings to a file using MessageRedirector)\n"
                                      "(see examples/parameter_files/STIR_output_file_format_xxx.par for help).");
     }
     if(is_null_ptr(format_sptr))
@@ -286,10 +502,30 @@ STIRImageData::write(const std::string &filename, const std::string &format_file
 }
 
 void
+STIRImageData::sum(void* ptr) const
+{
+	float* ptr_s = static_cast<float*>(ptr);
+        *ptr_s = (float)data().sum();
+}
+
+void
+STIRImageData::max(void* ptr) const
+{
+	float* ptr_s = static_cast<float*>(ptr);
+        *ptr_s = (float)data().find_max();
+}
+
+void
+STIRImageData::min(void* ptr) const
+{
+	float* ptr_s = static_cast<float*>(ptr);
+        *ptr_s = (float)data().find_min();
+}
+
+void
 STIRImageData::dot(const DataContainer& a_x, void* ptr) const
 {
-	//STIRImageData& x = (STIRImageData&)a_x;
-	DYNAMIC_CAST(const STIRImageData, x, a_x);
+	SIRF_DYNAMIC_CAST(const STIRImageData, x, a_x);
 #if defined(_MSC_VER) && _MSC_VER < 1900
 	Image3DF::const_full_iterator iter;
 	Image3DF::const_full_iterator iter_x;
@@ -305,7 +541,7 @@ STIRImageData::dot(const DataContainer& a_x, void* ptr) const
 		double t = *iter;
 		s += t * (*iter_x);
 	}
-	float* ptr_s = (float*)ptr;
+	float* ptr_s = static_cast<float*>(ptr);
 	*ptr_s = (float)s;
 }
 
@@ -314,28 +550,64 @@ STIRImageData::axpby(
 const void* ptr_a, const DataContainer& a_x,
 const void* ptr_b, const DataContainer& a_y)
 {
-	float a = *(float*)ptr_a;
-	float b = *(float*)ptr_b;
-	DYNAMIC_CAST(const STIRImageData, x, a_x);
-	DYNAMIC_CAST(const STIRImageData, y, a_y);
-	//STIRImageData& x = (STIRImageData&)a_x;
-	//STIRImageData& y = (STIRImageData&)a_y;
+	//add deprecation warning
+	STIRImageData::xapyb(a_x, ptr_a, a_y, ptr_b);
+}
+
+void
+STIRImageData::xapyb(
+const DataContainer& a_x, const void* ptr_a,
+const DataContainer& a_y, const void* ptr_b)
+{
+	float a = *static_cast<const float*>(ptr_a);
+	float b = *static_cast<const float*>(ptr_b);
+	SIRF_DYNAMIC_CAST(const STIRImageData, x, a_x);
+	SIRF_DYNAMIC_CAST(const STIRImageData, y, a_y);
+        data().xapyb(x.data(), a, y.data(), b);
+}
+
+void
+STIRImageData::xapyb(
+const DataContainer& a_x, const void* ptr_a,
+const DataContainer& a_y, const DataContainer& a_b)
+{
+	float a = *static_cast<const float*>(ptr_a);
+	SIRF_DYNAMIC_CAST(const STIRImageData, b, a_b);
+	SIRF_DYNAMIC_CAST(const STIRImageData, x, a_x);
+	SIRF_DYNAMIC_CAST(const STIRImageData, y, a_y);
 #if defined(_MSC_VER) && _MSC_VER < 1900
 	Image3DF::full_iterator iter;
 	Image3DF::const_full_iterator iter_x;
 	Image3DF::const_full_iterator iter_y;
+	Image3DF::const_full_iterator iter_b;
 #else
 	typename Array<3, float>::full_iterator iter;
 	typename Array<3, float>::const_full_iterator iter_x;
 	typename Array<3, float>::const_full_iterator iter_y;
+	typename Array<3, float>::const_full_iterator iter_b;
 #endif
 
+	if (size() != x.size() || size() != y.size() || size() != b.size())
+		throw std::runtime_error("xapyb error: operands sizes differ");
+
 	for (iter = data().begin_all(),
+		iter_b = b.data().begin_all(),
 		iter_x = x.data().begin_all(), iter_y = y.data().begin_all();
-		iter != data().end_all() &&
-		iter_x != x.data().end_all() && iter_y != y.data().end_all();
-	iter++, iter_x++, iter_y++)
-		*iter = a * (*iter_x) + b * (*iter_y);
+		iter != data().end_all();
+		iter++, iter_x++, iter_y++, iter_b++)
+		*iter = a * (*iter_x) + (*iter_b) * (*iter_y);
+}
+
+void
+STIRImageData::xapyb(
+	const DataContainer& a_x, const DataContainer& a_a,
+	const DataContainer& a_y, const DataContainer& a_b)
+{
+	SIRF_DYNAMIC_CAST(const STIRImageData, a, a_a);
+	SIRF_DYNAMIC_CAST(const STIRImageData, b, a_b);
+	SIRF_DYNAMIC_CAST(const STIRImageData, x, a_x);
+	SIRF_DYNAMIC_CAST(const STIRImageData, y, a_y);
+        data().xapyb(x.data(), a.data(), y.data(), b.data());
 }
 
 float
@@ -354,18 +626,68 @@ STIRImageData::norm() const
 		s += t*t;
 	}
 	//std::cout << "voxels count: " << i << std::endl;
-	return (float)sqrt(s);
+	return (float)std::sqrt(s);
 }
 
 void
-STIRImageData::multiply(
-const DataContainer& a_x,
-const DataContainer& a_y)
+STIRImageData::scale(float s)
 {
-	//STIRImageData& x = (STIRImageData&)a_x;
-	//STIRImageData& y = (STIRImageData&)a_y;
-	DYNAMIC_CAST(const STIRImageData, x, a_x);
-	DYNAMIC_CAST(const STIRImageData, y, a_y);
+  data() /= s;
+}
+
+void
+STIRImageData::unary_op(
+	const DataContainer& a_x,
+	float (*f)(float)
+) {
+	SIRF_DYNAMIC_CAST(const STIRImageData, x, a_x);
+#if defined(_MSC_VER) && _MSC_VER < 1900
+	Image3DF::full_iterator iter;
+	Image3DF::const_full_iterator iter_x;
+#else
+	typename Array<3, float>::full_iterator iter;
+	typename Array<3, float>::const_full_iterator iter_x;
+#endif
+
+	for (iter = data().begin_all(),
+		iter_x = x.data().begin_all();
+		iter != data().end_all() &&
+		iter_x != x.data().end_all();
+		iter++, iter_x++)
+		*iter = f(*iter_x);
+}
+
+void
+STIRImageData::semibinary_op(
+	const DataContainer& a_x,
+	float y, 
+	float (*f)(float, float)
+){
+	SIRF_DYNAMIC_CAST(const STIRImageData, x, a_x);
+#if defined(_MSC_VER) && _MSC_VER < 1900
+	Image3DF::full_iterator iter;
+	Image3DF::const_full_iterator iter_x;
+#else
+	typename Array<3, float>::full_iterator iter;
+	typename Array<3, float>::const_full_iterator iter_x;
+#endif
+
+	for (iter = data().begin_all(),
+		iter_x = x.data().begin_all();
+		iter != data().end_all() &&
+		iter_x != x.data().end_all();
+		iter++, iter_x++)
+		*iter = f(*iter_x, y);
+}
+
+void
+STIRImageData::binary_op(
+	const DataContainer& a_x,
+	const DataContainer& a_y,
+	float (*f)(float, float)
+) {
+	SIRF_DYNAMIC_CAST(const STIRImageData, x, a_x);
+	SIRF_DYNAMIC_CAST(const STIRImageData, y, a_y);
 #if defined(_MSC_VER) && _MSC_VER < 1900
 	Image3DF::full_iterator iter;
 	Image3DF::const_full_iterator iter_x;
@@ -380,54 +702,8 @@ const DataContainer& a_y)
 		iter_x = x.data().begin_all(), iter_y = y.data().begin_all();
 		iter != data().end_all() &&
 		iter_x != x.data().end_all() && iter_y != y.data().end_all();
-	iter++, iter_x++, iter_y++)
-		*iter = (*iter_x) * (*iter_y);
-}
-
-void
-STIRImageData::divide(
-const DataContainer& a_x,
-const DataContainer& a_y)
-{
-	//STIRImageData& x = (STIRImageData&)a_x;
-	//STIRImageData& y = (STIRImageData&)a_y;
-	DYNAMIC_CAST(const STIRImageData, x, a_x);
-	DYNAMIC_CAST(const STIRImageData, y, a_y);
-#if defined(_MSC_VER) && _MSC_VER < 1900
-	Image3DF::full_iterator iter;
-	Image3DF::const_full_iterator iter_x;
-	Image3DF::const_full_iterator iter_y;
-#else
-	typename Array<3, float>::full_iterator iter;
-	typename Array<3, float>::const_full_iterator iter_x;
-	typename Array<3, float>::const_full_iterator iter_y;
-#endif
-
-	float vmax = 0.0;
-	for (
-		iter_x = x.data().begin_all(), iter_y = y.data().begin_all();
-		iter_x != x.data().end_all() && iter_y != y.data().end_all();
-	iter_x++, iter_y++) {
-		float vy = abs(*iter_y);
-		if (vy > vmax)
-			vmax = vy;
-	}
-	float vmin = 1e-6*vmax;
-	if (vmin == 0.0)
-		THROW("division by zero in STIRImageData::divide");
-
-	for (iter = data().begin_all(),
-		iter_x = x.data().begin_all(), iter_y = y.data().begin_all();
-		iter != data().end_all() &&
-		iter_x != x.data().end_all() && iter_y != y.data().end_all();
-	iter++, iter_x++, iter_y++) {
-		float vy = *iter_y;
-		if (vy >= 0 && vy < vmin)
-			vy = vmin;
-		else if (vy < 0 && vy > -vmin)
-			vy = -vmin;
-		*iter = (*iter_x) / vy;
-	}
+		iter++, iter_x++, iter_y++)
+		*iter = f(*iter_x, *iter_y);
 }
 
 int
@@ -449,8 +725,7 @@ STIRImageData::get_dimensions(int* dim) const
 void
 STIRImageData::get_voxel_sizes(float* vsize) const
 {
-	//const Voxels3DF& voxels = (const Voxels3DF&)*_data;
-	DYNAMIC_CAST(const Voxels3DF, voxels, *_data);
+	SIRF_DYNAMIC_CAST(const Voxels3DF, voxels, *_data);
 	CartesianCoordinate3D<float> vs = voxels.get_voxel_size();
 	for (int i = 0; i < 3; i++)
 		vsize[i] = vs[i + 1];
@@ -463,7 +738,6 @@ STIRImageData::get_data(float* data) const
 	Coordinate3D<int> max_indices;
 	if (!_data->get_regular_range(min_indices, max_indices))
 		throw LocalisedException("irregular STIR image", __FILE__, __LINE__);
-		//return -1;
 	//std::cout << "trying new const iterator...\n";
 	STIRImageData::Iterator_const iter(begin());
 	for (int i = 0; iter != end(); ++i, ++iter)
@@ -473,14 +747,6 @@ STIRImageData::get_data(float* data) const
 	//auto iter = image.begin_all();
 	//for (int i = 0; iter != image.end_all(); i++, iter++)
 	//	data[i] = *iter;
-	//for (int z = min_indices[1], i = 0; z <= max_indices[1]; z++) {
-	//	for (int y = min_indices[2]; y <= max_indices[2]; y++) {
-	//		for (int x = min_indices[3]; x <= max_indices[3]; x++, i++) {
-	//			data[i] = image[z][y][x];
-	//		}
-	//	}
-	//}
-	//return 0;
 }
 
 void
@@ -491,7 +757,6 @@ STIRImageData::set_data(const float* data)
 	Coordinate3D<int> max_indices;
 	if (!image.get_regular_range(min_indices, max_indices))
 		throw LocalisedException("irregular STIR image", __FILE__, __LINE__);
-	//return -1;
 	size_t n = 1;
 	for (int i = 0; i < 3; i++)
 		n *= (max_indices[i + 1] - min_indices[i + 1] + 1);
@@ -501,14 +766,6 @@ STIRImageData::set_data(const float* data)
 		*iter = data[i];
 	//std::copy(data, data + n, begin());
 	//std::copy(data, data + n, image.begin_all());
-	//for (int z = min_indices[1], i = 0; z <= max_indices[1]; z++) {
-	//	for (int y = min_indices[2]; y <= max_indices[2]; y++) {
-	//		for (int x = min_indices[3]; x <= max_indices[3]; x++, i++) {
-	//			image[z][y][x] = data[i];
-	//		}
-	//	}
-	//}
-	//return 0;
 }
 
 void
@@ -537,7 +794,7 @@ zoom_image(const Coord3DF &zooms, const Coord3DF &offsets_in_mm,
            const Coord3DI &new_sizes_in, const stir::ZoomOptions zoom_options)
 {
     // We need the underyling image as a VoxelsOnCartesianGrid
-    DYNAMIC_CAST(Voxels3DF, voxels, this->data());
+    SIRF_DYNAMIC_CAST(Voxels3DF, voxels, this->data());
 
     int dim[3];
     this->get_dimensions(dim);
@@ -557,7 +814,7 @@ zoom_image(const Coord3DF &zooms, const Coord3DF &offsets_in_mm,
 
 void
 STIRImageData::
-move_to_scanner_centre(const PETAcquisitionData &)
+move_to_scanner_centre(const STIRAcquisitionData &)
 {
     this->_data->set_origin(CartesianCoordinate3D<float>{0.f,0.f,0.f});
 
@@ -606,7 +863,7 @@ STIRImageData::set_up_geom_info()
             = vox_image->get_LPS_coordinates_for_indices(next_vox_along_axis);
         Coord3DF axis_direction
             = next_vox_along_axis_coord - first_vox_coord;
-        axis_direction /= stir::norm(axis_direction);
+        axis_direction /= stir::norm(axis_direction.begin(), axis_direction.end());
         for (int dim = 0; dim < 3; dim++)
             direction[dim][axis] = axis_direction[3 - dim];
     }

@@ -1,9 +1,6 @@
 #========================================================================
-# Author: Edoardo Pasca
-# Copyright 2017 University College London
-# Copyright 2017 Science Technology Facilities Council
-# Author: Casper da Costa-Luis
-# Copyright 2017
+# Copyright 2017 - 2021 Science Technology Facilities Council
+# Copyright 2017 - 2022 University College London
 #
 # This file is part of the SyneRBI Synergistic Image Reconstruction Framework (SIRF) SuperBuild.
 #
@@ -21,11 +18,11 @@
 #
 #=========================================================================
 add_test(NAME MR_TESTS_PYTHON
-  COMMAND ${PYTHON_EXECUTABLE} -m nose --with-coverage --cover-package=sirf.Gadgetron src/xGadgetron/pGadgetron/
+  COMMAND ${Python_EXECUTABLE} -m pytest --cov=sirf.Gadgetron --cov-config=.coveragerc-Gadgetron src/xGadgetron/pGadgetron/
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 add_test(NAME MR_DEMOS_PYTHON
-  COMMAND ${PYTHON_EXECUTABLE} run_all.py --non-interactive
+  COMMAND ${Python_EXECUTABLE} run_all.py --non-interactive
   WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/examples/Python/MR")
 add_test(NAME MR_GADGETRON_DEMOS_PYTHON
-  COMMAND ${PYTHON_EXECUTABLE} run_all.py --non-interactive
+  COMMAND ${Python_EXECUTABLE} run_all.py --non-interactive
   WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/examples/Python/MR/Gadgetron")

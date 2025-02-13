@@ -35,24 +35,15 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
         end
         function set_storage_scheme(scheme)
 %***SIRF*** Sets acquisition data storage scheme.
-%           scheme = 'file' (default):
-%               all acquisition data generated from now on will be kept in
-%               scratch files deleted after the user's script terminates
-%           scheme = 'memory':
-%               all acquisition data generated from now on will be kept in
-%               RAM (avoid if data is very large)
-            h = calllib...
-                ('mgadgetron', 'mGT_setAcquisitionDataStorageScheme', scheme);
-            sirf.Utilities.check_status('AcquisitionData', h);
-            sirf.Utilities.delete(h)
+            if ~strcmp(scheme, 'memory')
+                fprintf("WARNING: storage scheme '%s' not supported, ", scheme)
+                fprintf('using memory storage scheme instead\n')
+            end
+            return
         end
         function scheme = get_storage_scheme()
 %***SIRF*** Returns current acquisition storage scheme name
-            h = calllib...
-                ('mgadgetron', 'mGT_getAcquisitionDataStorageScheme');
-            sirf.Utilities.check_status('AcquisitionData', h);
-            scheme = calllib('miutilities', 'mCharDataFromHandle', h);
-            sirf.Utilities.delete(h)
+			scheme = 'memory';
         end
     end
     methods
@@ -132,6 +123,10 @@ classdef AcquisitionData < sirf.SIRF.DataContainer
             undersampled = (sirf.Gadgetron.parameter(self.handle_, ...
                 'acquisitions', 'undersampled', 'i') ~= 0);
 %            sorted = self.sorted_;
+        end
+        function header = get_header(self)
+            header = sirf.Gadgetron.parameter(self.handle_, ...
+                'acquisitions', 'info', 'c');
         end
         function a = process(self, list)
 %***SIRF*** Returns acquisitions processed by a chain of gadgets.

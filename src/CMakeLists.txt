@@ -1,7 +1,7 @@
 
 #========================================================================
 # Author: Richard Brown, Kris Thielemans
-# Copyright 2016 - 2020 University College London
+# Copyright 2016 - 2024 University College London
 # Copyright 2016 - 2020 Science Technology Facilities Council
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +18,14 @@
 #
 #=========================================================================
 
+# a macro to set properties of a test target to use the
+# data in the source dir, as opposed to the installed one
+# (which might not exist or be out of date)
+macro(add_SIRF_DATA_PATH test_target)
+ set_tests_properties(${test_target}
+     PROPERTIES ENVIRONMENT "SIRF_DATA_PATH=${PROJECT_SOURCE_DIR}/data")
+endmacro()
+
 ADD_SUBDIRECTORY(iUtilities)
 #ADD_SUBDIRECTORY(common)
 
@@ -25,17 +33,68 @@ ADD_SUBDIRECTORY(iUtilities)
 ##########################################################################
 #                              Gadgetron                                 #
 ##########################################################################
-option(DISABLE_Gadgetron "Disable building the SIRF interface to Gadgetron" OFF)
 if (DISABLE_Gadgetron)
   message(STATUS "Gadgetron support disabled.")
 else()
-  find_package(ISMRMRD 1.4 REQUIRED)
+  find_package(ISMRMRD 1.4.2 REQUIRED)
   # Add ISMRMRD to search path for FFTW3
   set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${ISMRMRD_DIR}")
   find_package(FFTW3 COMPONENTS single REQUIRED)
   ADD_SUBDIRECTORY(xGadgetron)
+  set(SIRF_BUILT_WITH_ISMRMRD TRUE PARENT_SCOPE)
+  set(ISMRMRD_VERSION ${ISMRMRD_VERSION} PARENT_SCOPE)
 endif()
 
+
+##########################################################################
+#                                 STIR                                   #
+##########################################################################
+option(DISABLE_STIR "Disable building the SIRF interface to STIR" OFF)
+if (DISABLE_STIR)
+  message(STATUS "STIR support disabled.")
+  set(NiftyPET_BOOL_STR "0" PARENT_SCOPE)
+  set(Parallelproj_BOOL_STR "0" PARENT_SCOPE)
+  set(STIR_WITH_CUDA_BOOL_STR "0" PARENT_SCOPE)
+else()
+  find_package(STIR REQUIRED)
+  message(STATUS "STIR version found: ${STIR_VERSION}")
+  if (STIR_VERSION  VERSION_LESS 5.1.0)
+    # Note: we support both version 5 and 6, so cannot put the version in the find_package statement
+    message(FATAL_ERROR "SIRF requires STIR version at least 5.1.0")
+  endif()
+  if (STIR_WITH_NiftyPET_PROJECTOR)
+    set(NiftyPET_BOOL_STR "1")
+  	message(STATUS "STIR was built with NiftyPET, GPU projectors will be enabled.")
+    if(${CMAKE_VERSION} VERSION_LESS "3.12.0")
+      add_definitions(-DSTIR_WITH_NiftyPET_PROJECTOR)
+    else()
+      add_compile_definitions(STIR_WITH_NiftyPET_PROJECTOR)
+    endif()
+  else()
+    MESSAGE(STATUS "STIR not built with NiftyPET.")
+    set(NiftyPET_BOOL_STR "0")
+  endif()
+  if (STIR_WITH_Parallelproj_PROJECTOR)
+    set(Parallelproj_BOOL_STR "1")
+  	message(STATUS "STIR was built with Parallelproj, parallelproj projectors will be enabled.")
+  else()
+    MESSAGE(STATUS "STIR not built with Parallelproj.")
+    set(Parallelproj_BOOL_STR "0")
+  endif()
+  if (STIR_WITH_CUDA)
+    set(STIR_WITH_CUDA_BOOL_STR "1")
+        message(STATUS "STIR was built with CUDA, corresponding functionality will be enabled.")
+  else()
+    MESSAGE(STATUS "STIR not built with CUDA.")
+    set(STIR_WITH_CUDA_BOOL_STR "0")
+  endif()
+  ADD_SUBDIRECTORY(xSTIR)
+  set(SIRF_BUILT_WITH_STIR TRUE PARENT_SCOPE)
+  set(STIR_VERSION ${STIR_VERSION} PARENT_SCOPE)
+endif()
+set(NiftyPET_BOOL_STR ${NiftyPET_BOOL_STR} PARENT_SCOPE)
+set(Parallelproj_BOOL_STR ${Parallelproj_BOOL_STR} PARENT_SCOPE)
+set (STIR_WITH_CUDA_BOOL_STR ${STIR_WITH_CUDA_BOOL_STR} PARENT_SCOPE)
 
 
 ##########################################################################
@@ -44,6 +103,8 @@ endif()
 option(DISABLE_Registration "Disable building the SIRF registration package" OFF)
 if (DISABLE_Registration)
   message(STATUS "Registration support disabled.")
+  set(SPM_BOOL_STR "0" PARENT_SCOPE)
+  set(SIRF_BUILT_WITH_REGISTRATION False PARENT_SCOPE)
 else()
   FIND_PACKAGE(NIFTYREG 1.5.61 REQUIRED)
   # NIFTYREG
@@ -67,33 +128,9 @@ else()
     SET(NR_libs_full_path "${NR_libs_full_path};${CUDA_CUDA_LIBRARY};${CUDA_CUDART_LIBRARY}")
   endif()
   ADD_SUBDIRECTORY(Registration)
+  set(SPM_BOOL_STR ${SPM_BOOL_STR} PARENT_SCOPE)
+  set(SIRF_BUILT_WITH_REGISTRATION TRUE PARENT_SCOPE)
 endif()
-
-
-
-##########################################################################
-#                                 STIR                                   #
-##########################################################################
-option(DISABLE_STIR "Disable building the SIRF interface to STIR" OFF)
-if (DISABLE_STIR)
-  message(STATUS "STIR support disabled.")
-else()
-  find_package(STIR 4.0.0 REQUIRED)
-  if (STIR_WITH_NiftyPET_PROJECTOR)
-    set(NiftyPET_BOOL_STR "1")
-  	message(STATUS "STIR was built with NiftyPET, GPU projectors will be enabled.")
-    if(${CMAKE_VERSION} VERSION_LESS "3.12.0")
-      add_definitions(-DSTIR_WITH_NiftyPET_PROJECTOR)
-    else()
-      add_compile_definitions(STIR_WITH_NiftyPET_PROJECTOR)
-    endif()
-  else()
-    MESSAGE(STATUS "STIR not built with NiftyPET.")
-    set(NiftyPET_BOOL_STR "0")
-  endif()
-  ADD_SUBDIRECTORY(xSTIR)
-endif()
-
 
 ##########################################################################
 #                             Synergistic                                #

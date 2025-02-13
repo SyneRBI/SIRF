@@ -26,12 +26,13 @@
     2. [Programming chains of Gadgetron gadgets](#programming_Gadgetron_chains)
         1. [Creating and running gadget chains by SIRF script](#creating_and_running_gadget_chains)
         2. [SIRF gadget library](#SIRF_gadget_library)
+    3. [Using the C++ libraries](#using_the_c++_libraries)
 
 # Overview <a name="Overview"></a>
 
 The SIRF (Synergistic Image Reconstruction Framework) software is an Open Source toolkit for the reconstruction of PET and MRI raw data. The aim is to provide code simple enough to easily perform a reconstruction, yet powerful enough to be able to handle real, full-size datasets. Our strategy in achieving this aim is to employ available Open Source reconstruction software written in advanced programming languages such as C++ and provide basic-user-friendly interfaces to it written in script languages, primarily Matlab and Python. The interface style permits a reconstruction to be performed in stages, allowing the user to inspect or modify data, or insert their own code. 
 
-This User’s Guide describes version 2.2 of SIRF. The software can be found on [https://github.com/SyneRBI](https://github.com/SyneRBI).
+This User’s Guide describes version 3.8 of SIRF. The software can be found on [https://github.com/SyneRBI](https://github.com/SyneRBI).
 
 ## General architecture <a name="General_architecture"></a>
 
@@ -43,9 +44,11 @@ At present, you should only use the C++, MATLAB and Python interfaces. The under
 
 ### MRI <a name="MRI"></a>
 
-SIRF expects raw MR data in the ISMRMRD format. We use [siemens_to_ismrmrd](https://github.com/ismrmrd/siemens_to_ismrmrd) for this. This enables raw data from Siemens mMR Biograph PET-MR scanners to be converted to ISMRMRD format. For more details of how to export the raw MR data from Siemens PET-MR scanners and how to convert the data to ISMRMRD please see the wiki: [https://github.com/SyneRBI/SIRF/wiki/MR-raw-data](https://github.com/SyneRBI/SIRF/wiki/MR-raw-data).  
+SIRF expects raw MR data in the ISMRMRD format. We use [siemens_to_ismrmrd](https://github.com/ismrmrd/siemens_to_ismrmrd) for this. This enables raw data from Siemens mMR Biograph PET-MR scanners to be converted to ISMRMRD format. For more details of how to export the raw MR data from Siemens PET-MR scanners and how to convert the data to ISMRMRD please see the wiki: [https://github.com/SyneRBI/SIRF/wiki/MR-raw-data](https://github.com/SyneRBI/SIRF/wiki/MR-raw-data).
 
 Converters for data from other scanners are available from [https://github.com/ismrmrd](https://github.com/ismrmrd) but we have not tried these yet. 
+
+SIRF currently supports sequences that use 2D and 3D cartesian sampling. If the Gadgetron toolboxes were found during building, it supports radial, golden-angle radial and radial-phase-encoding trajectories.
 
 ### PET <a name="PET"></a>
 
@@ -76,12 +79,13 @@ The MR module and the demos create temporary files during operation. They are no
 	
 # Framework basic functionality <a name="Basic_functionality"></a>
 
+This section mostly describes the Python/MATLAB interface of SIRF, although a lot of the text applies to the underlying C++ library as well. See the [appendix on using SIRF C++](#using_the_c++_libraries) for additional information if you use C++.
 
 ## General conventions <a name="General_conventions"></a> 
 
 ### Object-oriented paradigm <a name="Object-oriented_paradigm"></a>
 
-SIRF library modules are interfaces to object-oriented C++, which makes it reasonable for them to follow the object-oriented programming paradigm as well. This means that instead of having data containers (arrays, files etc.) and functions that operate on them, we employ objects, which contain data and come with sets of functions, called their _methods_, that operate on data. Each object contains a special method called constructor, which has the same name as the object class name and must be called to create that object. For example, to create an object of class `ImageData` that handles MR image data and fill it with data stored in the HDF5 file 'my_image.h5' one needs to do assignment 
+SIRF Python/MATLAB modules are interfaces to object-oriented C++, which makes it reasonable for them to follow the object-oriented programming paradigm as well. This means that instead of having data containers (arrays, files etc.) and functions that operate on them, we employ objects, which contain data and come with sets of functions, called their _methods_, that operate on data. Each object contains a special method called constructor, which has the same name as the object class name and must be called to create that object. For example, to create an object of class `ImageData` that handles MR image data and fill it with data stored in the HDF5 file 'my_image.h5' one needs to do assignment 
 
     image = ImageData('my_image.h5'); 
 
@@ -241,6 +245,16 @@ In what follows, we mark by `PET` classes defined in `sirf.STIR` only and by `MR
 
 We remind that every derived class inherits all methods of its base class.
 
+##### ListmodeData (PET)
+
+An STIR-specitic acquisition data container class for list-mode  data objects. Inherits from `sirf.SIRF.ContainerBase`. 
+
+###### Methods:
+
+    ListmodeData        Constructor. If no arguments are present, creates an
+                        empty object, otherwise specifies the file containing raw data 
+    get_info      (PET) Returns information on the acquisition data as a string. 
+
 ##### AcquisitionData
 
 An engine-specific acquisition data container class for acquisition data objects. Inherits from `sirf.SIRF.DataContainer`. 
@@ -265,7 +279,9 @@ An engine-specific acquisition data container class for acquisition data objects
     fill                Replaces the object data with user-supplied data. 
     sort           (MR) Sorts the acquisition data. 
     is_sorted      (MR) Returns true if and only if the acquisition data is sorted. 
-    get_info       (MR) Returns information on the acquisition data. 
+    get_info      (PET) Returns information on the acquisition data as a string. 
+    get_ISMRMRD_info
+                   (MR) Returns information on the acquisition data as an array.
     process        (MR) Processes the acquisition data by a chain of gadgets. 
     dimensions    (PET) Returns the acquisition data dimensions
     show                Displays the acquisition data as a set of 2D sinograms (PET)
@@ -282,6 +298,9 @@ An engine-specific image data container class for data representing 3D objects. 
     fill                Replaces the object data with user-supplied data. 
     as_array            Returns the object data as an array. 
     read_from_file      Reads the image data from file.
+    get_info      (PET) Returns information on the data as a string. 
+    get_ISMRMRD_info
+                  (MR)  Returns information on the image data as an array.
     get_uniform_copy   
                  (PET)  Returns a copy of this image filled with a constant value. 
     add_shape    (PET)  Adds a shape to the image. 
@@ -350,8 +369,8 @@ in each spacial direction.
 
 ###### Methods (in addition to those of ImageDataProcessor):
 
-	set_fwhms            Sets Full Widths at Half Maximum in each spacial direction
-	set_max_kernel_sizes Sets max kernel size in each spacial direction.
+	set_fwhms            Sets Full Widths at Half Maximum in mm in each spacial direction
+	set_max_kernel_sizes Sets max kernel size in voxels in each spacial direction.
 	set_normalise        Normalise the kernel to 1 or not (default is on)
 
 ##### AcquisitionDataProcessor (MR)
@@ -512,6 +531,7 @@ Class for reconstructor objects using Ordered Subsets Separable Paraboloidal Sur
 
     OSSPSReconstructor       Constructor. Creates new OSSPS reconstructor object.
     set_relaxation_parameter Sets relaxation parameter.
+    set_relaxation_gamma Sets relaxation gamma parameter.
 
 ##### FullySampledReconstructor (MR) 
 
@@ -653,7 +673,7 @@ It has 2 main functions:
                          be appended by `_g1f1d0b0.hs`.
     set_template         Specifies the file containing acquisition data to be
                          used as a source of information about the scanner.
-    set_time_interval    Specifies the scanning time sub-interval to be converted
+    set_time_interval    Specifies the scanning time sub-interval (in seconds) to be converted
                          (an empty interval indicates that all raw data must be converted)
     flag_on              Turns on (i.e. assigns value true to) a conversion flag.
     flag_off             Turns off (i.e. assigns value false to) a conversion flag.
@@ -736,6 +756,8 @@ where `T'` is the complex transpose of `T`, i.e. the inverse Fourier transform.
                         (PET) Defines the ImageDataProcessor P
     set_coil_sensitivity_maps  
                          (MR) Sets coil sensitivity maps to be used.  
+    norm                      Returns the operator norm of F(x) (in PET case -
+                              its linear part S G P)
 
 ###### Examples: 
 
@@ -752,14 +774,35 @@ Class for the PET acquisition process model that uses (implicitly) a sparse matr
     AcquisitionModelUsingRayTracingMatrix  
                           Constructor. Creates an acquisition model. 
 
+    set_num_tangential_LORs(int)
+                          can be set to use more than 1 LOR (recommended)
+
 ###### Examples: 
 
     acq_model = AcquisitionModelUsingRayTracingMatrix();
+    acq_mode.set_num_tangential_LORs(10)
     smoother = SeparableGaussianImageFilter()
     smoother.set_fwhms((6,5,5))
     acq_model.set_image_data_processor(smoother)
     acq_model.set_up(acq_template, image_template) 
     sim_data = acq_model.forward(image); 
+
+##### AcquisitionModelUsingParallelproj (PET)
+
+This class is only available if STIR is at least version 5 (or built from the master branch).
+It uses [Georg Schramm's parallel (computing) projector](https://github.com/gschramm/parallelproj proj). This uses Joseph interpolation, but importantly can use your GPU (if CUDA was found during building).
+
+###### Methods:
+    AcquisitionModelUsingParallelproj
+                      Constructor
+
+###### Examples:
+
+    acq_model = AcquisitionModelUsingParallelproj()
+    acq_model.set_up(acq_template, image_template) 
+    sim_data = acq_model.forward(image); 
+
+(Note that `set_image_data_processor` can also be used of course.)
 
 ##### AcquisitionSensitivityModel (PET)
 
@@ -806,7 +849,7 @@ Provides methods for for applying `S` factor in (F) and (B) or its inverse.
 
 Class for objective functions maximized by iterative Ordered Subsets reconstruction algorithms. At present we use Poisson logarithmic likelihood function with linear model for mean and a specific arrangement of the acquisition data. To make our interface more user-friendly, we provide a convenience function `make_PoissonLogLikelihood` that creates objects of this class (instead of the usual constructor) based on the acquisition data to be used. 
 
-The user have an option of adding a penalty term (referred to as prior) to the objective function. At present, we have just one particular kind of prior implemented, the quadratic prior described in the next section. 
+The user have an option of adding a penalty term (referred to as prior) to the objective function. At present, we have a limited number of priors implemented, see the next section.
 
 ###### Methods: 
 
@@ -829,6 +872,8 @@ The user have an option of adding a penalty term (referred to as prior) to the o
 ##### Prior (PET)
 
 An abstract base class for a penalty term to be added to the objective function. 
+The value $f$ (and sometimes the gradient $g_r$ for the $r^{th}$
+voxel) for each prior is presented below.
 
 ###### Methods: 
 
@@ -840,18 +885,57 @@ An abstract base class for a penalty term to be added to the objective function.
 
 Class for the prior that is a quadratic functions of the image values.
 
-Implements a quadratic Gibbs prior. The gradient of the prior is computed
-as follows:
+Implements a quadratic Gibbs prior:
+    $$f = \frac{1}{4} \sum_{r,dr} w_{dr} (\lambda_r - \lambda_{r+dr})^2 * \kappa_r * \kappa_{r+dr}$$
 
-    g_r = \sum_dr w_{dr} (\lambda_r - \lambda_{r+dr}) * \kappa_r * \kappa_{r+dr}
 
-where \lambda is the image and r and dr are indices and the sum is over 
-the neighbourhood where the weights w_{dr} are non-zero.
+The gradient of the prior is computed as follows:
+    $$g_r = \sum_{dr} \frac{w_{dr}}{2} (\lambda_r - \lambda_{r+dr}) * \kappa_r * \kappa_{r+dr}$$
 
-The \kappa image can be used to have spatially-varying penalties such
+where $\lambda$ is the image and r and dr are indices and the sum is over
+the neighbourhood where the weights $w_{dr}$ are non-zero.
+
+The $\kappa$ image can be used to have spatially-varying penalties such
 as in Jeff Fessler's papers. It should have identical dimensions to the
-image for which the penalty is computed. If \kappa is not set, this
-class will effectively use 1 for all \kappa's.
+image for which the penalty is computed. If $\kappa$ is not set, this
+class will effectively use 1 for all $\kappa$'s.
+
+By default, a 3x3 or 3x3x3 neigbourhood is used where the weights are set
+to x-voxel_size divided by the Euclidean distance between the points.
+
+##### LogcoshPrior (PET)
+
+This implements a Logcosh prior that is given by:
+$$f = \sum_{r,dr} w_{dr} \frac{1}{2 s^2}  log(cosh(s(\lambda_r - \lambda_{r+dr}))) * \kappa_r * \kappa_{r+dr}$$
+
+The gradient of Logcosh prior is computed as follows:
+$$g_r = \sum_{dr} w_{dr} \frac{1}{s} \tanh (s (\lambda_r-\lambda_{r + dr}))* \kappa_r * \kappa_{r+dr}$$
+
+where $\lambda$ is the image where the prior is computed and $r$ and $dr$ are
+indices and the sum is over the neighbourhood where the weights $w_{dr}$ are 
+non-zero. $s$ (a.k.a. scalar) controls the transition between the quadratic 
+(smooth) and linear (edge-preserving) nature of the prior
+
+The $\kappa$ image is the spatially-varying penalties as before.
+
+By default, a 3x3 or 3x3x3 neigbourhood is used where the weights are set
+to x-voxel_size divided by the Euclidean distance between the points.
+
+##### RelativeDifferencePrior (PET)
+
+This implements a Relative Difference Prior (RDP), proposed by J. Nuyts, et.al., 
+2002. RDP is given by:
+$$f= \sum_{r,dr} \frac{w_{dr}}{2} \frac{(\lambda_r - \lambda_{r+dr})^2}{(\lambda_r+ \lambda_{r+dr} + \gamma |\lambda_r - \lambda_{r+dr}| + \epsilon)} * \kappa_r * \kappa_{r+dr}$$
+
+The gradient of the prior is computed as follows:
+$$g_r = \sum_{dr} w_{dr} \frac{(\lambda_r - \lambda_{r+dr}) (\gamma |\lambda_r - \lambda_{r+dr}|+ \lambda_r + 3\lambda_{r+dr} + 2 \epsilon)}{(\lambda_r+ \lambda_{r+dr} + \gamma |\lambda_r - \lambda_{r+dr}| + \epsilon)^2} * \kappa_r * \kappa_{r+dr}$$
+
+where $\lambda$ is the image where the prior is computed and $r$ and $dr$ are 
+indices and the sum is over the neighbourhood where the weights $w_{dr}$ are 
+non-zero. $\gamma$ is a edge preservation hyper-parameter and $\epsilon$ is small 
+modification the penalty function used to prevent divide by zero’s.
+
+The $\kappa$ image is the spatially-varying penalties as before.
 
 By default, a 3x3 or 3x3x3 neigbourhood is used where the weights are set
 to x-voxel_size divided by the Euclidean distance between the points.
@@ -867,18 +951,16 @@ vol. 35, no. 9, Sep 2016 (https://doi.org/10.1109/TMI.2016.2549601).
 Note that PLS becomes smoothed TV when a uniform anatomical image is
 provided.
 
-The prior has 2 parameters alpha and eta. It is computed for an image
-f as
-
-    \phi(f) = \sqrt{\alpha^2 + |\nabla f|^2 - {(\nabla f,\xi)}^2}
-
-where \xi is the normalised gradient of the anatomical image v calculated
+The prior has 2 parameters $\alpha$ (alpha) and $\eta$ (eta). It is computed for an image
+$f$ as
+  $$\phi(f) = \sqrt{\alpha^2 + |\nabla f|^2 - {(\nabla f,\xi)}^2}$$
+where
+$\nabla$ is the finite difference operator (not taking voxel-sizes into account) and
+$\xi$ is the normalised gradient of the anatomical image $v$ calculated
 as follows:
-
-    \xi = (\nabla v) / )\sqrt{|\nabla v|^2 + \eta^2)
-
-The parameter alpha controls the edge-preservation property 
-of PLS, and depends on the scale of the emission image, and eta avoids 
+  $$\xi = (\nabla v) / )\sqrt{|\nabla v|^2 + \eta^2}$$
+The parameter $\alpha$ controls the edge-preservation property
+of PLS, and depends on the scale of the emission image, and $\eta$ avoids
 division by zero, and depends on the scale of the anatomical image.
 
 An image kappa can be used to have spatially-varying penalties
@@ -914,14 +996,14 @@ class will effectively use 1 for all kappa values.
 
 ## Compatibility with CCPi CIL <a name="CIL_compatibility"></a>
 
-The CCPi [`CIL Python Framework`](https://github.com/vais-ral/CCPi-Framework) for development of novel
+The CCPi [`CIL Python Framework`](https://github.com/TomographicImaging/CIL) for development of novel
 reconstruction algorithms can be used with SIRF classes such as
 `DataContainer`, `ImageData`, `AcquisitionData` and `AcquisitionModel`. To achieve this goal,
 a number of methods and properties were added to SIRF Python classes for compatibility.
 
 ### `AcquisitionModel`
 
-PET and MR `AcquisitionModel`s can be used instead of the CCPi [`Operator`](http://edosil.net/stfc/cil/html/optimisation.html). `Operator`s have the main methods `direct` and `adjoint` to perform the forward and backward projections. The `adjoint` method exists only if the `AcquisitionModel` is linear. 
+PET and MR `AcquisitionModel`s can be used instead of the CCPi [`Operator`](https://tomographicimaging.github.io/CIL/nightly/optimisation.html#operator). `Operator`s have the main methods `direct` and `adjoint` to perform the forward and backward projections. The `adjoint` method exists only if the `AcquisitionModel` is linear. 
 In all what follows the parameter `out` can be passed when user wants to use a specific instance to retrieve the result.
 
 The methods that have been added both in MR and PET :
@@ -1106,6 +1188,56 @@ Collects lines of k-space until a certain trigger condition is encountered, i.e.
 
 Inserts the data collected in a bucket into a buffer. A buffer is more suitable for the reconstruction processing.
 
+#### GenericReconEigenChannelGadget
+
+| input | output | parameters | default values |
+| - | - | - | - |
+| internal2 | internal3 | debug_folder | "" |
+| | | perform_timing | "true" |
+| | | verbose | "true" |
+| | | average_all_ref_N | "true" |
+| | | average_all_ref_S | "true" |
+| | | upstream_coil_compression | "true" |
+| | | upstream_coil_compression_thres | "0.002" |
+| | | upstream_coil_compression_num_modesKep | "0" |
+
+Coil compression by calculating the Eigen values along the coil dimension and only keeping the values above a certain threshhold.
+
+#### GenericReconPartialFourierHandlingFilterGadget
+
+| input | output | parameters | default values |
+| - | - | - | - |
+| internal2 | internal3 | debug_folder | "" |
+| | | perform_timing | "false" |
+| | | verbose | "false" |
+| | | skip_processing_meta_field | "Skip_processing_after_recon" |
+| | | partial_fourier_filter_RO_width | "0.15" |
+| | | partial_fourier_filter_E1_width | "0.15" |
+| | | partial_fourier_filter_E2_width | "0.15" |
+| | | partial_fourier_filter_densityComp | "false" |
+
+Handle partial Fourier encoding and apply filter along the partial Fourier directions.
+
+#### GenericReconKSpaceFilteringGadget
+
+| input | output | parameters | default values |
+| - | - | - | - |
+| internal4 | internal5 | debug_folder | "" |
+| | | perform_timing | "false" |
+| | | verbose | "false" |
+| | | skip_processing_meta_field | "Skip_processing_after_recon" |
+| | | filterRO | "Gaussian" |
+| | | filterRO_sigma | "1.0" |
+| | | filterRO_width | "0.15" |
+| | | filterE1 | "Gaussian" |
+| | | filterE1_sigma | "1.0" |
+| | | filterE1_width | "0.15" |
+| | | filterE2 | "Gaussian" |
+| | | filterE2_sigma | "1.0" |
+| | | filterE2_width | "0.15" |
+
+Apply a filter along different k-space dimensions on an image. Image is transformed to k-space, filter is applied and image is transformed back.
+
 #### SimpleReconGadget
 
 | input | output | parameters |
@@ -1223,3 +1355,12 @@ for fully sampled reconstruction.
 | | | trigger_dimension | "repetition" |
 | | | split_slices | "true" |
 
+### Using the C++ libraries<a name="using_the_c++_libraries"></a>
+
+The Python/MATLAB interface is based on the underlying C++ code. However, the mapping is currently not one-to-one. Python/MATLAB classes do correspond to C++ classes but might have extra methods or vice versa.
+
+The C++ library is currently still somewhat preliminary, although quite usable of course.
+We use [Doxygen](https://www.doxygen.nl/index.html) to generate the documentation for the C++ classes. The documentation for the current SIRF release can be found via the [SyneRBI website](http://www.ccpsynerbi.ac.uk/) (currently the link is in the Wiki, accessible via the Software tab).
+
+If you want to develop a program or library that uses SIRF functionality, we recommend using CMake for your project.
+After SIRF v3.1.0 was released, we added CMake code to SIRF such that building SIRF will export a CMake config file to enable this. See the [../examples/C++](SIRF/examples/C++) folder for an example on how to use this.

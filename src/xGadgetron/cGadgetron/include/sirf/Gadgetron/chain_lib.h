@@ -20,7 +20,7 @@ limitations under the License.
 
 /*!
 \file
-\ingroup Gadgets Chains Library
+\ingroup MR
 \brief Specification file for the library of SIRF generators of xml-definitions
 			 of Gadgetron gadget chains.
 

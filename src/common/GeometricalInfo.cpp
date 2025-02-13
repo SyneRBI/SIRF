@@ -20,6 +20,8 @@ limitations under the License.
 
 #include "sirf/common/GeometricalInfo.h"
 #include <iostream>
+#include <sstream>
+#include <string>
 
 using namespace sirf;
 
@@ -28,24 +30,54 @@ void
 VoxelisedGeometricalInfo<num_dimensions>::
 print_info() const
 {
-    std::cout << "Offset: (";
-    std::cout << _offset[0] << ", " << _offset[1] << ", " << _offset[2] << ")\n";
+	std::cout << get_info();
+}
 
-    std::cout << "Spacing: (";
-    std::cout << _spacing[0] << ", " << _spacing[1] << ", " << _spacing[2] << ")\n";
+template <int num_dimensions>
+std::string
+VoxelisedGeometricalInfo<num_dimensions>::
+get_info() const
+{
+	std::stringstream info;
+	info << "Offset: (";
+	for (int i = 0; i < num_dimensions; i++) {
+		info << _offset[i];
+		if (i < num_dimensions - 1)
+			info << ", ";
+		else
+			info << ")\n";
+	}
 
-    std::cout << "Size: (";
-    std::cout << _size[0] << ", " << _size[1] << ", " << _size[2] << ")\n";
+	info << "Spacing: (";
+	for (int i = 0; i < num_dimensions; i++) {
+		info << _spacing[i];
+		if (i < num_dimensions - 1)
+			info << ", ";
+		else
+			info << ")\n";
+	}
 
-    std::cout << "Dir mat: \n";
-    for( int i=0;i<3; i++) {
-        for( int j=0;j<3; j++) {
-            std::cout << _direction[i][j];
-            if (j<2) std::cout << ", ";
-            else     std::cout << "\n";
-        }
-    }
-    std::cout << "\n";
+	info << "Size: (";
+	for (int i = 0; i < num_dimensions; i++) {
+		info << _size[i];
+		if (i < num_dimensions - 1)
+			info << ", ";
+		else
+			info << ")\n";
+	}
+
+	info << "Direction matrix: \n";
+	for (int i = 0; i < num_dimensions; i++) {
+		for (int j = 0; j < num_dimensions; j++) {
+			info << _direction[i][j];
+			if (j < num_dimensions - 1)
+				info << ", ";
+			else
+				info << "\n";
+		}
+	}
+	info << "\n";
+	return info.str();
 }
 
 template <int num_dimensions>

@@ -28,6 +28,7 @@ limitations under the License.
 \author SyneRBI
 */
 
+#include "sirf/iUtilities/LocalisedException.h"
 #include "sirf/Reg/NiftiImageData.h"
 #include <nifti1_io.h>
 #include "_reg_resampling.h"
@@ -37,10 +38,11 @@ limitations under the License.
 #include "sirf/Reg/NiftiImageData3DDeformation.h"
 #include "sirf/Reg/NiftiImageData3DDisplacement.h"
 #include "sirf/Reg/AffineTransformation.h"
-#include "sirf/Reg/NiftyResample.h"
+#include "sirf/Reg/NiftyResampler.h"
 #include <iomanip>
 #include <cmath>
 #include <numeric>
+#include <algorithm>
 
 // Remove NiftyReg's definition of isnan
 #undef isnan
@@ -122,15 +124,16 @@ NiftiImageData<dataType>::NiftiImageData(const nifti_image &image_nifti)
 }
 
 template<class dataType>
-std::shared_ptr<nifti_image> NiftiImageData<dataType>::create_from_geom_info(const VoxelisedGeometricalInfo3D &geom, const bool is_tensor)
+std::shared_ptr<nifti_image> NiftiImageData<dataType>::create_from_geom_info(const VoxelisedGeometricalInfo3D &geom, const bool is_tensor, const NREG_TRANS_TYPE tensor_type)
 {
     typedef VoxelisedGeometricalInfo3D Info;
     Info::Size            size    = geom.get_size();
     Info::Spacing         spacing = geom.get_spacing();
     Info::TransformMatrix tm      = geom.calculate_index_to_physical_point_matrix();
 
+    const bool has_z_component = (size[2] > 1);
+
     int dims[8];
-    dims[0] = 3;
     dims[1] = int(size[0]);
     dims[2] = int(size[1]);
     dims[3] = int(size[2]);
@@ -139,10 +142,14 @@ std::shared_ptr<nifti_image> NiftiImageData<dataType>::create_from_geom_info(con
     dims[6] = 1;
     dims[7] = 1;
 
-    // If tensor image, dims[0] and dims[5] should be 5 and 3, respectively
-    if (is_tensor) {
+    // If not tensor, then ndim is 2 or 3, depending on has_z_component
+    if (!is_tensor)
+        dims[0] = has_z_component ? 3 : 2;
+
+    // If tensor image, dims[0] is 5. nu is 2 or 3, depending on has_z_component
+    else {
         dims[0] = 5;
-        dims[5] = 3;
+        dims[5] = has_z_component ? 3 : 2;
     }
 
     nifti_image *im = nifti_make_new_nim(dims, DT_FLOAT32, 1);
@@ -187,8 +194,20 @@ std::shared_ptr<nifti_image> NiftiImageData<dataType>::create_from_geom_info(con
                             &_nifti_image->qfac );
     _nifti_image->pixdim[0]=_nifti_image->qfac;
 
+    for (unsigned i=0; i<4; ++i) {
+        for (unsigned j=0; j<4; ++j) {
+            _nifti_image->sto_ijk.m[i][j] = _nifti_image->qto_ijk.m[i][j];
+            _nifti_image->sto_xyz.m[i][j] = _nifti_image->qto_xyz.m[i][j];
+        }
+    }
+
     // Check everything is ok
     reg_checkAndCorrectDimension(_nifti_image.get());
+
+    if (is_tensor) {
+        _nifti_image->intent_code = NIFTI_INTENT_VECTOR;
+        _nifti_image->intent_p1 = tensor_type;
+    }
 
     return _nifti_image;
 }
@@ -201,7 +220,7 @@ void NiftiImageData<dataType>::construct_NiftiImageData_from_complex_im_real_com
 
     auto &it_in = in_sptr->begin();
     auto &it_out = out_sptr->begin();
-    for (; it_in!=in_sptr->end(); ++it_in, ++it_out)
+    for (; it_out != out_sptr->end(); ++it_in, ++it_out)
         *it_out = (*it_in).complex_float().real();
 }
 
@@ -216,7 +235,7 @@ void NiftiImageData<dataType>::construct_NiftiImageData_from_complex_im_imag_com
 
     auto &it_in = in_sptr->begin();
     auto &it_out = out_sptr->begin();
-    for (; it_in!=in_sptr->end(); ++it_in, ++it_out)
+    for (; it_out != out_sptr->end(); ++it_in, ++it_out)
         *it_out = (*it_in).complex_float().imag();
 }
 
@@ -244,7 +263,7 @@ bool NiftiImageData<dataType>::operator!=(const NiftiImageData<dataType> &other)
 template<class dataType>
 NiftiImageData<dataType>& NiftiImageData<dataType>::operator+=(const NiftiImageData<dataType>& rhs)
 {
-    maths(rhs, add);
+    maths(rhs, ADD);
     return *this;
 }
 
@@ -258,7 +277,7 @@ NiftiImageData<dataType>& NiftiImageData<dataType>::operator-=(const NiftiImageD
 template<class dataType>
 NiftiImageData<dataType>& NiftiImageData<dataType>::operator+=(const float val)
 {
-    maths(val, add);
+    maths(val, ADD);
     return *this;
 }
 
@@ -275,11 +294,24 @@ NiftiImageData<dataType>& NiftiImageData<dataType>::operator*=(const float val)
     maths(val, mul);
     return *this;
 }
+template<class dataType>
+NiftiImageData<dataType>& NiftiImageData<dataType>::operator*=(const NiftiImageData<dataType>& rhs)
+{
+    maths(rhs, mul);
+    return *this;
+}
 
 template<class dataType>
 NiftiImageData<dataType>& NiftiImageData<dataType>::operator/=(const float val)
 {
-    maths(1.f/val, add);
+    maths(val, div);
+    return *this;
+}
+
+template<class dataType>
+NiftiImageData<dataType>& NiftiImageData<dataType>::operator/=(const NiftiImageData<dataType>& rhs)
+{
+    maths(rhs, div);
     return *this;
 }
 
@@ -311,6 +343,24 @@ float &NiftiImageData<dataType>::operator()(const int index[7])
     assert(this->is_in_bounds(index));
     const int index_1d = this->get_1D_index(index);
     return _data[index_1d];
+}
+
+template<class dataType>
+float NiftiImageData<dataType>::operator()(const int x, const int y, const int z,
+                                           const int t, const int u, const int v,
+                                           const int w) const
+{
+    const int idx[7] = { x, y, z, t, u, v, w };
+    return (*this)(idx);
+}
+
+template<class dataType>
+float &NiftiImageData<dataType>::operator()(const int x, const int y, const int z,
+                                            const int t, const int u, const int v,
+                                            const int w)
+{
+    const int idx[7] = { x, y, z, t, u, v, w };
+    return (*this)(idx);
 }
 
 template<class dataType>
@@ -408,7 +458,7 @@ float NiftiImageData<dataType>::get_variance() const
 template<class dataType>
 float NiftiImageData<dataType>::get_standard_deviation() const
 {
-    return sqrt(this->get_variance());
+    return std::sqrt(this->get_variance());
 }
 
 template<class dataType>
@@ -448,6 +498,26 @@ void NiftiImageData<dataType>::fill(const float v)
 }
 
 template<class dataType>
+void NiftiImageData<dataType>::fill(const dataType *v)
+{
+    if(!this->is_initialised())
+        throw std::runtime_error("NiftiImageData<dataType>::fill(): Image not initialised.");
+
+    for (unsigned i=0; i<_nifti_image->nvox; ++i)
+        _data[i] = v[i];
+}
+
+
+template<class dataType>
+void NiftiImageData<dataType>::fill(const NiftiImageData &im)
+{
+    if(!im.is_initialised())
+        throw std::runtime_error("NiftiImageData<dataType>::fill(): Argument image not initialised.");
+
+    this->fill(static_cast<const dataType*>(im.get_raw_nifti_sptr()->data));
+}
+
+template<class dataType>
 float NiftiImageData<dataType>::get_norm(const NiftiImageData<dataType>& other) const
 {
     if (!this->is_initialised())
@@ -466,7 +536,7 @@ float NiftiImageData<dataType>::get_norm(const NiftiImageData<dataType>& other) 
         if (!std::isnan(this->operator()(i)+other(i)))
             result += double(pow( this->operator()(i) - other(i), 2));
 
-    return float(sqrt(result));
+    return float(std::sqrt(result));
 }
 
 template<class dataType>
@@ -487,9 +557,11 @@ void NiftiImageData<dataType>::check_dimensions(const NiftiImageDataType image_t
     if (!this->is_initialised())
         throw std::runtime_error("NiftiImageData<dataType>::check_dimensions(): Image not initialised.");
 
+    // Nothing to check for this one. return
+    if (image_type == _general) return;
+
     int ndim, nt, nu, intent_code, intent_p1;
-    if        (image_type == _general)  { ndim=-1; nt=-1; nu=-1; intent_code = NIFTI_INTENT_NONE;   intent_p1=-1;         }
-    else   if (image_type == _3D)       { ndim= 3; nt= 1; nu= 1; intent_code = NIFTI_INTENT_NONE;   intent_p1=-1;         }
+    if        (image_type == _3D)       { ndim= 3; nt= 1; nu= 1; intent_code = NIFTI_INTENT_NONE;   intent_p1=-1;         }
     else   if (image_type == _3DTensor) { ndim= 5; nt= 1; nu= 3; intent_code = NIFTI_INTENT_VECTOR; intent_p1=-1;         }
     else   if (image_type == _3DDisp)   { ndim= 5; nt= 1; nu= 3; intent_code = NIFTI_INTENT_VECTOR; intent_p1=DISP_FIELD; }
     else /*if (image_type == _3DDef)*/  { ndim= 5; nt= 1; nu= 3; intent_code = NIFTI_INTENT_VECTOR; intent_p1=DEF_FIELD;  }
@@ -497,8 +569,9 @@ void NiftiImageData<dataType>::check_dimensions(const NiftiImageDataType image_t
     // Check everthing is as it should be. -1 means we don't care about it
     // (e.g., NiftiImageData3D doesn't care about intent_p1, which is used by NiftyReg for Disp/Def fields)
     bool everything_ok = true;
-    if (ndim         != -1 && ndim        != _nifti_image->ndim)        everything_ok = false;
-    if ( nu          != -1 && nu          != _nifti_image->nu  )        everything_ok = false;
+    if ( _3D               && ndim        <  _nifti_image->ndim)        everything_ok = false; // allow for 1D and 2D images
+    if (!_3D               && ndim        != _nifti_image->ndim)        everything_ok = false;
+    if ( nu          != -1 && nu          <  _nifti_image->nu  )        everything_ok = false; // allow for 2D tensors
     if ( nt          != -1 && nt          != _nifti_image->nt  )        everything_ok = false;
     if ( intent_code != -1 && intent_code != _nifti_image->intent_code) everything_ok = false;
     if ( intent_p1   != -1 && intent_p1   != _nifti_image->intent_p1)   everything_ok = false;
@@ -534,12 +607,18 @@ void NiftiImageData<dataType>::maths(const NiftiImageData<dataType>& c, const Ma
         throw std::runtime_error("NiftiImageData<dataType>::maths_image: at least one image is not initialised.");
     if (!NiftiImageData<dataType>::do_nifti_image_metadata_match(*this, c, true))
         throw std::runtime_error("NiftiImageData<dataType>::maths_image: metadata do not match.");
-    if (type != add && type != sub)
-        throw std::runtime_error("NiftiImageData<dataType>::maths_image: only implemented for add and subtract.");
+    if (type != ADD && type != sub && type != mul && type != div)
+        throw std::runtime_error("NiftiImageData<dataType>::maths_image: only implemented for add, subtract, multiply and divide.");
 
     for (int i=0; i<int(this->_nifti_image->nvox); ++i) {
-        if (type == add) (*this)(i) += c(i);
-        else             (*this)(i) -= c(i);
+        if (type == ADD) (*this)(i) += c(i);
+        else if (type == sub) (*this)(i) -= c(i);
+        else if (type == mul) (*this)(i) *= c(i);
+        else if (type == div) {
+            if (c(i) != 0) (*this)(i) /= c(i);
+            else throw std::runtime_error("NiftiImageData<dataType>::maths_image: division by zero.");
+        }
+        
     }
 }
 
@@ -548,13 +627,17 @@ void NiftiImageData<dataType>::maths(const float val, const MathsType type)
 {
     if (!this->is_initialised())
         throw std::runtime_error("NiftiImageData<dataType>::maths_image_val: image is not initialised.");
-    if (type != add && type != sub && type != mul)
-        throw std::runtime_error("NiftiImageData<dataType>::maths_image_val: only implemented for add, subtract and multiply.");
+    if (type != ADD && type != sub && type != mul && type != div)
+        throw std::runtime_error("NiftiImageData<dataType>::maths_image_val: only implemented for add, subtract, multiply and divide.");
 
     for (int i=0; i<int(this->_nifti_image->nvox); ++i) {
-        if      (type == add) (*this)(i) += val;
+        if      (type == ADD) (*this)(i) += val;
         else if (type == sub) (*this)(i) -= val;
-        else                  (*this)(i) *= val;
+        else if (type == mul) (*this)(i) *= val;
+        else if (type == div) {
+           if (val != 0) (*this)(i) /= val; 
+           else throw std::runtime_error("NiftiImageData<dataType>::maths_image_val: division by zero.");
+        }
     }
 }
 
@@ -656,7 +739,8 @@ void NiftiImageData<dataType>::print_header() const
 template<class dataType>
 void NiftiImageData<dataType>::print_headers(const std::vector<const NiftiImageData<dataType>*> &ims)
 {
-    dump_headers(ims);
+    //dump_headers(ims);
+	std::cout << get_headers(ims);
 }
 
 template<class dataType>
@@ -755,10 +839,14 @@ void NiftiImageData<dataType>::crop(const int min_index[7], const int max_index[
     }
 
     // If the minimum has been changed, need to alter the origin.
-    for (int i=0; i<3; ++i)
+    for (int i=0; i<3; ++i) {
         _nifti_image->qto_ijk.m[i][3] -= min_idx[i];
+        _nifti_image->sto_ijk.m[i][3] -= min_idx[i];
+    }
     _nifti_image->qto_xyz =
             nifti_mat44_inverse(_nifti_image->qto_ijk);
+    _nifti_image->sto_xyz =
+            nifti_mat44_inverse(_nifti_image->sto_ijk);
     nifti_mat44_to_quatern( _nifti_image->qto_xyz,
                             &_nifti_image->quatern_b,
                             &_nifti_image->quatern_c,
@@ -1196,6 +1284,148 @@ void NiftiImageData<dataType>::dump_nifti_element(const std::vector<const NiftiI
 }
 
 template<class dataType>
+std::string NiftiImageData<dataType>::get_headers(const std::vector<const NiftiImageData<dataType>*> &ims)
+{
+	std::stringstream stream;
+	stream << "\nPrinting info for " << ims.size() << " nifti image(s):\n";
+	stream << get_nifti_element(ims, "analyze_75_orient", &nifti_image::analyze75_orient);
+	stream << get_nifti_element(ims, "analyze75_orient", &nifti_image::analyze75_orient);
+	stream << get_nifti_element(ims, "byteorder", &nifti_image::byteorder);
+	stream << get_nifti_element(ims, "cal_max", &nifti_image::cal_max);
+	stream << get_nifti_element(ims, "cal_min", &nifti_image::cal_min);
+	stream << get_nifti_element(ims, "datatype", &nifti_image::datatype);
+	stream << get_nifti_element(ims, "dt", &nifti_image::dt);
+	stream << get_nifti_element(ims, "du", &nifti_image::du);
+	stream << get_nifti_element(ims, "dv", &nifti_image::dv);
+	stream << get_nifti_element(ims, "dw", &nifti_image::dw);
+	stream << get_nifti_element(ims, "dx", &nifti_image::dx);
+	stream << get_nifti_element(ims, "dy", &nifti_image::dy);
+	stream << get_nifti_element(ims, "dz", &nifti_image::dz);
+	stream << get_nifti_element(ims, "ext_list", &nifti_image::ext_list);
+	stream << get_nifti_element(ims, "freq_dim", &nifti_image::freq_dim);
+	stream << get_nifti_element(ims, "iname_offset", &nifti_image::iname_offset);
+	stream << get_nifti_element(ims, "intent_code", &nifti_image::intent_code);
+	stream << get_nifti_element(ims, "intent_p1", &nifti_image::intent_p1);
+	stream << get_nifti_element(ims, "intent_p2", &nifti_image::intent_p2);
+	stream << get_nifti_element(ims, "intent_p3", &nifti_image::intent_p3);
+	stream << get_nifti_element(ims, "nbyper", &nifti_image::nbyper);
+	stream << get_nifti_element(ims, "ndim", &nifti_image::ndim);
+	stream << get_nifti_element(ims, "nifti_type", &nifti_image::nifti_type);
+	stream << get_nifti_element(ims, "num_ext", &nifti_image::num_ext);
+	stream << get_nifti_element(ims, "nvox", &nifti_image::nvox);
+	stream << get_nifti_element(ims, "nx", &nifti_image::nx);
+	stream << get_nifti_element(ims, "ny", &nifti_image::ny);
+	stream << get_nifti_element(ims, "nz", &nifti_image::nz);
+	stream << get_nifti_element(ims, "nt", &nifti_image::nt);
+	stream << get_nifti_element(ims, "nu", &nifti_image::nu);
+	stream << get_nifti_element(ims, "nv", &nifti_image::nv);
+	stream << get_nifti_element(ims, "nw", &nifti_image::nw);
+	stream << get_nifti_element(ims, "phase_dim", &nifti_image::phase_dim);
+	stream << get_nifti_element(ims, "qfac", &nifti_image::qfac);
+	stream << get_nifti_element(ims, "qform_code", &nifti_image::qform_code);
+	stream << get_nifti_element(ims, "qoffset_x", &nifti_image::qoffset_x);
+	stream << get_nifti_element(ims, "qoffset_y", &nifti_image::qoffset_y);
+	stream << get_nifti_element(ims, "qoffset_z", &nifti_image::qoffset_z);
+	stream << get_nifti_element(ims, "quatern_b", &nifti_image::quatern_b);
+	stream << get_nifti_element(ims, "quatern_c", &nifti_image::quatern_c);
+	stream << get_nifti_element(ims, "quatern_d", &nifti_image::quatern_d);
+	stream << get_nifti_element(ims, "scl_inter", &nifti_image::scl_inter);
+	stream << get_nifti_element(ims, "scl_slope", &nifti_image::scl_slope);
+	stream << get_nifti_element(ims, "sform_code", &nifti_image::sform_code);
+	stream << get_nifti_element(ims, "slice_code", &nifti_image::slice_code);
+	stream << get_nifti_element(ims, "slice_dim", &nifti_image::slice_dim);
+	stream << get_nifti_element(ims, "slice_duration", &nifti_image::slice_duration);
+	stream << get_nifti_element(ims, "slice_end", &nifti_image::slice_end);
+	stream << get_nifti_element(ims, "slice_start", &nifti_image::slice_start);
+	stream << get_nifti_element(ims, "swapsize", &nifti_image::swapsize);
+	stream << get_nifti_element(ims, "time_units", &nifti_image::time_units);
+	stream << get_nifti_element(ims, "toffset", &nifti_image::toffset);
+	stream << get_nifti_element(ims, "xyz_units", &nifti_image::xyz_units);
+	stream << get_nifti_element(ims, "dim", &nifti_image::dim, 8);
+	stream << get_nifti_element(ims, "pixdim", &nifti_image::pixdim, 8);
+
+	std::vector<std::shared_ptr<const nifti_image> > images;
+	for (unsigned i = 0; i < ims.size(); i++)
+		images.push_back(ims[i]->get_raw_nifti_sptr());
+
+	// Print transformation matrices
+	std::vector<AffineTransformation<float> > qto_ijk_vec, qto_xyz_vec, sto_ijk_vec, sto_xyz_vec;
+	for (unsigned j = 0; j < images.size(); j++) {
+		qto_ijk_vec.push_back(images[j]->qto_ijk.m);
+		qto_xyz_vec.push_back(images[j]->qto_xyz.m);
+		sto_ijk_vec.push_back(images[j]->sto_ijk.m);
+		sto_xyz_vec.push_back(images[j]->sto_xyz.m);
+	}
+	stream << "\t" << std::left << std::setw(19) << "qto_ijk:" << "\n";
+	stream << AffineTransformation<float>::get(qto_ijk_vec);
+	stream << "\t" << std::left << std::setw(19) << "qto_xyz:" << "\n";
+	stream << AffineTransformation<float>::get(qto_xyz_vec);
+	stream << "\t" << std::left << std::setw(19) << "sto_ijk:" << "\n";
+	stream << AffineTransformation<float>::get(sto_ijk_vec);
+	stream << "\t" << std::left << std::setw(19) << "sto_xyz:" << "\n";
+	stream << AffineTransformation<float>::get(sto_xyz_vec);
+
+	// Print original datatype
+	std::string original_datatype = "orig_datatype: ";
+	stream << "\t" << std::left << std::setw(19) << original_datatype;
+	for (unsigned i = 0; i < ims.size(); i++)
+		stream << std::setw(19) << ims[i]->get_original_datatype();
+
+	// Print min
+	std::string min_header = "min: ";
+	stream << "\n\t" << std::left << std::setw(19) << min_header;
+	for (unsigned i = 0; i < ims.size(); i++)
+		std::cout << std::setw(19) << ims[i]->get_min();
+
+	// Print max
+	stream << "\n\t" << std::left << std::setw(19) << "max: ";
+	for (unsigned i = 0; i < ims.size(); i++)
+		stream << std::setw(19) << ims[i]->get_max();
+
+	// Print mean
+	stream << "\n\t" << std::left << std::setw(19) << "mean: ";
+	for (unsigned i = 0; i < ims.size(); i++)
+		stream << std::setw(19) << ims[i]->get_mean();
+
+	// Print if image contains nans
+	stream << "\n\t" << std::left << std::setw(19) << "contains nans?: ";
+	for (unsigned i = 0; i < ims.size(); i++)
+		stream << std::setw(19) << ims[i]->get_contains_nans();
+
+	stream << "\n\n";
+
+	return stream.str();
+}
+
+template<class dataType>
+template<typename T>
+std::string NiftiImageData<dataType>::get_nifti_element(const std::vector<const NiftiImageData*> &ims, const std::string &name, const T &call_back)
+{
+	std::stringstream stream;
+	std::string header = name + ": ";
+	stream << "\t" << std::left << std::setw(19) << header;
+	for (unsigned i = 0; i < ims.size(); i++)
+		stream << std::setw(19) << ims[i]->get_raw_nifti_sptr().get()->*call_back;
+	stream << "\n";
+	return stream.str();
+}
+
+template<class dataType>
+template<typename T>
+std::string NiftiImageData<dataType>::get_nifti_element(const std::vector<const NiftiImageData*> &ims, const std::string &name, const T &call_back, const unsigned num_elems)
+{
+	std::stringstream stream;
+	for (unsigned i = 0; i < num_elems; i++) {
+		std::string header = name + "[" + std::to_string(i) + "]: ";
+		stream << "\t" << std::left << std::setw(19) << header;
+		for (unsigned j = 0; j < ims.size(); j++)
+			stream << std::setw(19) << (ims[j]->get_raw_nifti_sptr().get()->*call_back)[i];
+		stream << "\n";
+	}
+	return stream.str();
+}
+
+template<class dataType>
 void NiftiImageData<dataType>::set_voxel_spacing(const float new_spacing[3], const int interpolation_order)
 {
 #ifndef NDEBUG
@@ -1351,13 +1581,10 @@ void NiftiImageData<dataType>::kernel_convolution(const float sigma, NREG_CONV_K
     if(!this->is_initialised())
         throw std::runtime_error("NiftiImageData<dataType>::set_voxel_spacing: Image not initialised.");
 
-    // Warning
-    std::cout << "\n\n\n\nNiftiImageData<dataType>::kernel_convolution(): Warning, I haven't tested this at all!\n\n\n\n";
-
     float *sigma_t=new float[_nifti_image->nt];
     for(int i=0; i<_nifti_image->nt; ++i) sigma_t[i]=sigma; //-0.7355f?
     reg_tools_kernelConvolution(_nifti_image.get(),sigma_t,conv_type);
-    delete []sigma_t;
+    delete[] sigma_t;
 }
 
 enum FlipOrMirror {
@@ -1450,32 +1677,34 @@ get_inner_product(const NiftiImageData &other) const
 }
 
 template<class dataType>
-bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const std::shared_ptr<const NiftiImageData> &im1_sptr, const std::shared_ptr<const NiftiImageData> &im2_sptr, const float required_accuracy_compared_to_max)
+bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const NiftiImageData &im1, const NiftiImageData &im2, const float required_accuracy_compared_to_max)
 {
-    if(!im1_sptr->is_initialised())
+    if(!im1.is_initialised())
         throw std::runtime_error("NiftiImageData<dataType>::are_equal_to_given_accuracy: Image 1 not initialised.");
-    if(!im2_sptr->is_initialised())
+    if(!im2.is_initialised())
         throw std::runtime_error("NiftiImageData<dataType>::are_equal_to_given_accuracy: Image 2 not initialised.");
 
     // Check the number of dimensions match
-    if(im1_sptr->get_dimensions()[0] != im2_sptr->get_dimensions()[0]) {
-        std::cout << "\nImage comparison: different number of dimensions (" << im1_sptr->get_dimensions()[0] << " versus " << im2_sptr->get_dimensions()[0] << ").\n";
+    if(im1.get_dimensions()[0] != im2.get_dimensions()[0]) {
+        std::cout << "\nImage comparison: different number of dimensions (" << im1.get_dimensions()[0] << " versus " << im2.get_dimensions()[0] << ").\n";
         return false;
     }
 
     // Get required accuracy compared to the image maxes
     float norm;
-    float epsilon = (std::abs(im1_sptr->get_max())+std::abs(im2_sptr->get_max()))/2.F;
+    float epsilon = (std::abs(im1.get_max())+std::abs(im2.get_max()))/2.F;
     epsilon *= required_accuracy_compared_to_max;
 
     // If metadata match, get the norm
-    if (do_nifti_image_metadata_match(*im1_sptr,*im2_sptr, false))
-        norm = im1_sptr->get_norm(*im2_sptr);
+    if (do_nifti_image_metadata_match(im1,im2, false))
+        norm = im1.get_norm(im2);
 
     // If not, we'll have to resample
     else {
         std::cout << "\nImage comparison: metadata do not match, doing resampling...\n";
-        NiftyResample<float> resample;
+        std::shared_ptr<NiftiImageData> im1_sptr = im1.clone();
+        std::shared_ptr<NiftiImageData> im2_sptr = im2.clone();
+        NiftyResampler<float> resample;
         resample.set_interpolation_type_to_nearest_neighbour();
         resample.set_reference_image(im1_sptr);
         resample.set_floating_image(im2_sptr);
@@ -1485,30 +1714,24 @@ bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const std::shared_ptr
         norm = resampled_sptr->get_norm(*im1_sptr);
     }
 
-    norm /= float(im1_sptr->get_num_voxels());
+    norm /= float(im1.get_num_voxels());
 
     if (norm <= epsilon)
         return true;
 
     std::cout << "\nImages are not equal (norm > epsilon).\n";
-    std::cout << "\tmax1                              = " << im1_sptr->get_max() << "\n";
-    std::cout << "\tmax2                              = " << im2_sptr->get_max() << "\n";
-    std::cout << "\tmin1                              = " << im1_sptr->get_min() << "\n";
-    std::cout << "\tmin2                              = " << im2_sptr->get_min() << "\n";
-    std::cout << "\tmean1                             = " << im1_sptr->get_mean() << "\n";
-    std::cout << "\tmean2                             = " << im2_sptr->get_mean() << "\n";
-    std::cout << "\tstandard deviation1               = " << im1_sptr->get_standard_deviation() << "\n";
-    std::cout << "\tstandard deviation2               = " << im2_sptr->get_standard_deviation() << "\n";
+    std::cout << "\tmax1                              = " << im1.get_max() << "\n";
+    std::cout << "\tmax2                              = " << im2.get_max() << "\n";
+    std::cout << "\tmin1                              = " << im1.get_min() << "\n";
+    std::cout << "\tmin2                              = " << im2.get_min() << "\n";
+    std::cout << "\tmean1                             = " << im1.get_mean() << "\n";
+    std::cout << "\tmean2                             = " << im2.get_mean() << "\n";
+    std::cout << "\tstandard deviation1               = " << im1.get_standard_deviation() << "\n";
+    std::cout << "\tstandard deviation2               = " << im2.get_standard_deviation() << "\n";
     std::cout << "\trequired accuracy compared to max = " << required_accuracy_compared_to_max << "\n";
     std::cout << "\tepsilon                           = " << epsilon << "\n";
     std::cout << "\tnorm/num_vox                      = " << norm << "\n";
     return false;
-}
-
-template<class dataType>
-bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const NiftiImageData &im1, const NiftiImageData &im2, const float required_accuracy_compared_to_max)
-{
-    return are_equal_to_given_accuracy(im1.clone(), im2.clone(), required_accuracy_compared_to_max);
 }
 
 // ------------------------------------------------------------------------------ //
@@ -1518,12 +1741,50 @@ template<class dataType>
 void NiftiImageData<dataType>::dot(const DataContainer& a_x, void* ptr) const
 {
     const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
-    assert(_nifti_image->nvox == x._nifti_image->nvox);
+    ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "dot operands size mismatch");
     double s = 0.0;
-    for (unsigned i=0; i<this->_nifti_image->nvox; ++i)
-        s += double(_data[i] * x._data[i]);
+    for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
+        s += double(_data[i]) * x._data[i];
     float* ptr_s = static_cast<float*>(ptr);
-    *ptr_s = float(s);
+    *ptr_s = (float)s;
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::sum(void* ptr) const
+{
+    double s = 0.0;
+    for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
+        s += _data[i];
+    float* ptr_s = static_cast<float*>(ptr);
+    *ptr_s = (float)s;
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::max(void* ptr) const
+{
+    unsigned i = 0;
+    float s = _data[i++];
+    for (; i < this->_nifti_image->nvox; ++i) {
+        float si = _data[i];
+        if (si > s)
+            s = si;
+    }
+    float* ptr_s = static_cast<float*>(ptr);
+    *ptr_s = s;
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::min(void* ptr) const
+{
+    unsigned i = 0;
+    float s = _data[i++];
+    for (; i < this->_nifti_image->nvox; ++i) {
+        float si = _data[i];
+        if (si < s)
+            s = si;
+    }
+    float* ptr_s = static_cast<float*>(ptr);
+    *ptr_s = s;
 }
 
 template<class dataType>
@@ -1540,11 +1801,70 @@ void NiftiImageData<dataType>::axpby(
     if (!this->is_initialised())
         *this = *x.clone();
 
-    assert(_nifti_image->nvox == x._nifti_image->nvox);
-    assert(_nifti_image->nvox == y._nifti_image->nvox);
+    ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "axpby operands size mismatch");
+	ASSERT(_nifti_image->nvox == y._nifti_image->nvox, "axpby operands size mismatch");
 
     for (unsigned i=0; i<this->_nifti_image->nvox; ++i)
         _data[i] = a * x._data[i] + b * y._data[i];
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::xapyb(
+    const DataContainer& a_x, const void* ptr_a,
+    const DataContainer& a_y, const DataContainer& a_b)
+{
+    const float a = *static_cast<const float*>(ptr_a);
+    const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
+    const NiftiImageData<dataType>& y = dynamic_cast<const NiftiImageData<dataType>&>(a_y);
+    const NiftiImageData<dataType>& b = dynamic_cast<const NiftiImageData<dataType>&>(a_b);
+
+    // If the result hasn't been initialised, make a clone of one of them
+    if (!this->is_initialised())
+        *this = *x.clone();
+
+    ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "axpby operands size mismatch");
+    ASSERT(_nifti_image->nvox == y._nifti_image->nvox, "axpby operands size mismatch");
+    ASSERT(_nifti_image->nvox == b._nifti_image->nvox, "axpby operands size mismatch");
+
+    for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
+        _data[i] = a * x._data[i] + b._data[i] * y._data[i];
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::xapyb(
+    const DataContainer& a_x, const void* ptr_a,
+    const DataContainer& a_y, const void* ptr_b)
+{
+	NiftiImageData<dataType>::axpby(ptr_a, a_x, ptr_b, a_y);
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::xapyb(
+    const DataContainer& a_x, const DataContainer& a_a,
+    const DataContainer& a_y, const DataContainer& a_b)
+{
+    try{
+        auto& a = dynamic_cast<const NiftiImageData<dataType>&>(a_a);
+        auto& b = dynamic_cast<const NiftiImageData<dataType>&>(a_b);
+        auto& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
+        auto& y = dynamic_cast<const NiftiImageData<dataType>&>(a_y);
+
+        // If the result hasn't been initialised, make a clone of one of them
+        if (!this->is_initialised())
+            *this = *x.clone();
+
+        ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "axpby operands size mismatch");
+        ASSERT(_nifti_image->nvox == y._nifti_image->nvox, "axpby operands size mismatch");
+        ASSERT(_nifti_image->nvox == a._nifti_image->nvox, "axpby operands size mismatch");
+        ASSERT(_nifti_image->nvox == b._nifti_image->nvox, "axpby operands size mismatch");
+        
+        for (unsigned i=0; i<this->_nifti_image->nvox; ++i)
+            _data[i] = a._data[i] * x._data[i] + b._data[i] * y._data[i];
+
+    }
+    catch (...) {
+        throw std::runtime_error("NiftiImageData<dataType>::xapyb expects a_a and a_b to be NiftiImageData<dataType> of the same size as x and y\n");
+    }    
 }
 
 template<class dataType>
@@ -1553,46 +1873,168 @@ float NiftiImageData<dataType>::norm() const
     double s = 0.0;
     for (unsigned i=0; i<this->_nifti_image->nvox; ++i)
         s += double(_data[i]*_data[i]);
-    return float(sqrt(s));
+    return float(std::sqrt(s));
+}
+
+template<class dataType>
+void 
+NiftiImageData<dataType>::unary_op(const DataContainer& a_x,
+    dataType(*f)(dataType))
+{
+    const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
+
+    // If the result hasn't been initialised, make a clone of one of them
+    if (!this->is_initialised())
+        *this = *x.clone();
+
+    ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "operands size mismatch");
+
+    for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
+        _data[i] = f(x._data[i]);
+}
+
+template<class dataType>
+void
+NiftiImageData<dataType>::semibinary_op(const DataContainer& a_x,
+    const void* a_y, dataType(*f)(dataType, dataType))
+{
+    const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
+    dataType y = *static_cast<const dataType*>(a_y);
+    //dataType y = *(dataType*)a_y;
+
+    // If the result hasn't been initialised, make a clone of one of them
+    if (!this->is_initialised())
+        *this = *x.clone();
+
+    ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "operands size mismatch");
+
+    for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
+        _data[i] = f(x._data[i], y);
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::binary_op(const DataContainer& a_x,
+    const DataContainer& a_y, dataType(*f)(dataType, dataType))
+{
+    const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
+    const NiftiImageData<dataType>& y = dynamic_cast<const NiftiImageData<dataType>&>(a_y);
+
+    // If the result hasn't been initialised, make a clone of one of them
+    if (!this->is_initialised())
+        *this = *x.clone();
+
+    ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "operands size mismatch");
+    ASSERT(_nifti_image->nvox == y._nifti_image->nvox, "operands size mismatch");
+
+    for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
+        _data[i] = f(x._data[i], y._data[i]);
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::scale(float s)
+{
+    for (unsigned i=0; i<this->_nifti_image->nvox; ++i)
+        _data[i] /= s;
 }
 
 template<class dataType>
 void NiftiImageData<dataType>::multiply
     (const DataContainer& a_x, const DataContainer& a_y)
 {
-    const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
-    const NiftiImageData<dataType>& y = dynamic_cast<const NiftiImageData<dataType>&>(a_y);
+    binary_op(a_x, a_y, DataContainer::product<dataType>);
+}
 
-    // If the result hasn't been initialised, make a clone of one of them
-    if (!this->is_initialised())
-        *this = *x.clone();
+template<class dataType>
+void NiftiImageData<dataType>::multiply
+(const DataContainer& a_x, const void* a_y)
+{
+    semibinary_op(a_x, a_y, DataContainer::product<dataType>);
+}
 
-    assert(_nifti_image->nvox == x._nifti_image->nvox);
-    assert(_nifti_image->nvox == y._nifti_image->nvox);
-
-    for (unsigned i=0; i<this->_nifti_image->nvox; ++i)
-        _data[i] = x._data[i] * y._data[i];
+template<class dataType>
+void NiftiImageData<dataType>::add
+(const DataContainer& a_x, const void* a_y)
+{
+    semibinary_op(a_x, a_y, DataContainer::sum<dataType>);
 }
 
 template<class dataType>
 void NiftiImageData<dataType>::divide
     (const DataContainer& a_x, const DataContainer& a_y)
 {
-    const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
-    const NiftiImageData<dataType>& y = dynamic_cast<const NiftiImageData<dataType>&>(a_y);
+    binary_op(a_x, a_y, DataContainer::ratio<dataType>);
+}
 
-    // If the result hasn't been initialised, make a clone of one of them
-    if (!this->is_initialised())
-        *this = *x.clone();
+template<class dataType>
+void NiftiImageData<dataType>::maximum
+(const DataContainer& a_x, const DataContainer& a_y)
+{
+    binary_op(a_x, a_y, DataContainer::maximum<dataType>);
+}
 
-    assert(_nifti_image->nvox == x._nifti_image->nvox);
-    assert(_nifti_image->nvox == y._nifti_image->nvox);
+template<class dataType>
+void NiftiImageData<dataType>::maximum
+(const DataContainer& a_x, const void* a_y)
+{
+    semibinary_op(a_x, a_y, DataContainer::maximum<dataType>);
+}
 
-    if (y.get_max() < 1.e-12F)
-        THROW("division by zero in NiftiImageData::divide");
+template<class dataType>
+void NiftiImageData<dataType>::minimum
+(const DataContainer& a_x, const DataContainer& a_y)
+{
+    binary_op(a_x, a_y, DataContainer::minimum<dataType>);
+}
 
-    for (unsigned i=0; i<this->_nifti_image->nvox; ++i)
-        _data[i] = x._data[i] / abs(y._data[i]);
+template<class dataType>
+void NiftiImageData<dataType>::minimum
+(const DataContainer& a_x, const void* a_y)
+{
+    semibinary_op(a_x, a_y, DataContainer::minimum<dataType>);
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::power
+(const DataContainer& a_x, const DataContainer& a_y)
+{
+    binary_op(a_x, a_y, std::pow);
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::power
+(const DataContainer& a_x, const void* a_y)
+{
+    semibinary_op(a_x, a_y, std::pow);
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::exp(const DataContainer& a_x)
+{
+    unary_op(a_x, std::exp);
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::log(const DataContainer& a_x)
+{
+    unary_op(a_x, std::log);
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::sqrt(const DataContainer& a_x)
+{
+    unary_op(a_x, std::sqrt);
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::sign(const DataContainer& a_x)
+{
+    unary_op(a_x, DataContainer::sign);
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::abs(const DataContainer& a_x)
+{
+    unary_op(a_x, DataContainer::abs);
 }
 
 template<class dataType>

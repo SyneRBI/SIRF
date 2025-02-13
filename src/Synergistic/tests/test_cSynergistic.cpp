@@ -30,7 +30,7 @@ limitations under the License.
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
 #include "sirf/STIR/stir_data_containers.h"
 #include "sirf/Reg/NiftiImageData3D.h"
-#include "sirf/Reg/NiftyResample.h"
+#include "sirf/Reg/NiftyResampler.h"
 #include "sirf/Reg/AffineTransformation.h"
 #include "sirf/Gadgetron/gadgetron_x.h"
 #include "sirf/Gadgetron/gadget_lib.h"
@@ -137,7 +137,8 @@ int main(int argc, char* argv[])
             std::cout << "//                  Starting complex resampler test...\n";
             std::cout << "//------------------------------------------------------------------------ //\n";
 
-            AcquisitionsFile raw_mr(raw_mr_filename);
+			AcquisitionsVector raw_mr;
+			raw_mr.read(raw_mr_filename);
 
             std::vector<gadgetron::shared_ptr<Gadget> > gadgets;
             ADD_GADGET(gadgets, NoiseAdjustGadget);
@@ -179,7 +180,7 @@ int main(int argc, char* argv[])
             (*tm_sptr)[0][3] = 2.f;
 
             // Resample the complex data
-            NiftyResample<float> res_complex;
+            NiftyResampler<float> res_complex;
             res_complex.set_reference_image(ismrmrd_im_sptr);
             res_complex.set_floating_image(ismrmrd_im_sptr);
             res_complex.set_interpolation_type_to_linear();
@@ -198,7 +199,7 @@ int main(int argc, char* argv[])
             adjoint_cplx_imag_sptr->write("results/adjoint_cplx_imag");
 
             // Now resample each of the components individually
-            NiftyResample<float> res_real;
+            NiftyResampler<float> res_real;
             res_real.set_reference_image(real_sptr);
             res_real.set_floating_image(real_sptr);
             res_real.set_interpolation_type_to_linear();
@@ -208,7 +209,7 @@ int main(int argc, char* argv[])
             std::shared_ptr<NiftiImageData<float> > adjoint_real_sptr =
                     std::dynamic_pointer_cast<NiftiImageData<float> >(res_real.adjoint(real_sptr));
 
-            NiftyResample<float> res_imag;
+            NiftyResampler<float> res_imag;
             res_imag.set_reference_image(imag_sptr);
             res_imag.set_floating_image(imag_sptr);
             res_imag.set_interpolation_type_to_linear();
@@ -222,10 +223,10 @@ int main(int argc, char* argv[])
             // of whether they were resampled separately or together.
             if (*forward_real_sptr != *forward_cplx_real_sptr
                     || *forward_imag_sptr != *forward_cplx_imag_sptr)
-                throw std::runtime_error("NiftyResample forward failed for complex data");
+                throw std::runtime_error("NiftyResampler forward failed for complex data");
             if (*adjoint_real_sptr != *adjoint_cplx_real_sptr
                     || *adjoint_imag_sptr != *adjoint_cplx_imag_sptr)
-                throw std::runtime_error("NiftyResample adjoint failed for complex data");
+                throw std::runtime_error("NiftyResampler adjoint failed for complex data");
 
             std::cout << "// ----------------------------------------------------------------------- //\n";
             std::cout << "//                  Finished complex resampler test.\n";
@@ -290,7 +291,7 @@ int main(int argc, char* argv[])
             G2_sptr->get_geom_info_sptr()->print_info();
 
             // Now resampled G2 back to G1 using inverse TM, should be the same
-            NiftyResample<float> res;
+            NiftyResampler<float> res;
             res.set_reference_image(G1_sptr);
             res.set_floating_image(G2_sptr);
             res.set_padding_value(0.f);

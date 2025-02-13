@@ -1,8 +1,8 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
-Copyright 2019 - 2020 University College London
-Copyright 2020 Physikalisch-Technische Bundesanstalt (PTB)
+Copyright 2015 - 2023 Rutherford Appleton Laboratory STFC
+Copyright 2019 - 2023 University College London
+Copyright 2020 - 2023 Physikalisch-Technische Bundesanstalt (PTB)
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -28,6 +28,7 @@ limitations under the License.
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/dataset.h>
 
+#include "sirf/common/iequals.h"
 #include "sirf/iUtilities/DataHandle.h"
 #include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
@@ -37,6 +38,13 @@ limitations under the License.
 #include "sirf/Gadgetron/gadgetron_x.h"
 #include "sirf/Gadgetron/gadget_lib.h"
 #include "sirf/Gadgetron/chain_lib.h"
+#include "sirf/Gadgetron/TrajectoryPreparation.h"
+// #include "sirf/Gadgetron/FourierEncoding.h"
+
+#if GADGETRON_TOOLBOXES_AVAILABLE
+    #include "sirf/Gadgetron/NonCartesianEncoding.h"
+#endif
+
 
 using namespace gadgetron;
 using namespace sirf;
@@ -44,12 +52,14 @@ using namespace sirf;
 #define GRAB 1
 
 #define NEW_OBJECT_HANDLE(T) new ObjectHandle<T>(shared_ptr<T>(new T))
-#define NEW_GADGET(G) if (boost::iequals(name, G::class_name())) \
-return NEW_OBJECT_HANDLE(G)
-#define NEW_GADGET_CHAIN(C) if (boost::iequals(name, C::class_name())) \
-return NEW_OBJECT_HANDLE(C)
+#define NEW_GADGET(G) if (sirf::iequals(name, G::class_name())) \
+	return NEW_OBJECT_HANDLE(G)
+#define NEW_GADGET_CHAIN(C) if (sirf::iequals(name, C::class_name())) \
+	return NEW_OBJECT_HANDLE(C)
+#define SPTR_FROM_HANDLE(Object, X, H) \
+	shared_ptr<Object> X; getObjectSptrFromHandle<Object>(H, X);
 
-shared_ptr<boost::mutex> Mutex::sptr_mutex_;
+shared_ptr<std::mutex> Mutex::sptr_mutex_;
 
 static void*
 unknownObject(const char* obj, const char* name, const char* file, int line)
@@ -105,13 +115,13 @@ extern "C"
 void* cGT_newObject(const char* name)
 {
 	try {
-		if (boost::iequals(name, "Mutex"))
+		if (sirf::iequals(name, "Mutex"))
 			return NEW_OBJECT_HANDLE(Mutex);
-		if (boost::iequals(name, "GTConnector"))
+		if (sirf::iequals(name, "GTConnector"))
 			return NEW_OBJECT_HANDLE(GTConnector);
-		if (boost::iequals(name, "CoilImages"))
+		if (sirf::iequals(name, "CoilImages"))
 			return NEW_OBJECT_HANDLE(CoilImagesVector);
-		if (boost::iequals(name, "AcquisitionModel"))
+        if (sirf::iequals(name, "AcquisitionModel"))
 			return NEW_OBJECT_HANDLE(MRAcquisitionModel);
 		NEW_GADGET_CHAIN(GadgetChain);
 		NEW_GADGET_CHAIN(AcquisitionsProcessor);
@@ -134,6 +144,9 @@ void* cGT_newObject(const char* name)
 		NEW_GADGET(AcquisitionAccumulateTriggerGadget);
 		NEW_GADGET(BucketToBufferGadget);
 		NEW_GADGET(GenericReconCartesianReferencePrepGadget);
+		NEW_GADGET(GenericReconEigenChannelGadget);
+		NEW_GADGET(GenericReconPartialFourierHandlingFilterGadget);
+		NEW_GADGET(GenericReconKSpaceFilteringGadget);
 		NEW_GADGET(GenericReconCartesianGrappaGadget);
 		NEW_GADGET(SimpleReconGadget);
         NEW_GADGET(GenericReconCartesianFFTGadget);
@@ -144,6 +157,8 @@ void* cGT_newObject(const char* name)
 		NEW_GADGET(PhysioInterpolationGadget);
 		NEW_GADGET(GPURadialSensePrepGadget);
 		NEW_GADGET(GPUCGSenseGadget);
+		NEW_GADGET(FFTGadget);
+		NEW_GADGET(CombineGadget);
 		NEW_GADGET(ExtractGadget);
 		NEW_GADGET(AutoScaleGadget);
 		NEW_GADGET(ComplexToFloatGadget);
@@ -163,13 +178,13 @@ void*
 cGT_parameter(void* ptr, const char* obj, const char* name)
 {
 	try {
-		if (boost::iequals(obj, "image"))
+		if (sirf::iequals(obj, "image"))
 			return cGT_imageParameter(ptr, name);
-		if (boost::iequals(obj, "acquisition"))
+		if (sirf::iequals(obj, "acquisition"))
 			return cGT_acquisitionParameter(ptr, name);
-		if (boost::iequals(obj, "acquisitions"))
+		if (sirf::iequals(obj, "acquisitions"))
 			return cGT_acquisitionsParameter(ptr, name);
-		if (boost::iequals(obj, "gadget_chain")) {
+		if (sirf::iequals(obj, "gadget_chain")) {
 			GadgetChain& gc = objectFromHandle<GadgetChain>(ptr);
 			shared_ptr<aGadget> sptr = gc.gadget_sptr(name);
 			if (sptr.get())
@@ -184,14 +199,85 @@ cGT_parameter(void* ptr, const char* obj, const char* name)
 				return (void*)handle;
 			}
 		}
-		if (boost::iequals(obj, "gadget")) {
+		if (sirf::iequals(obj, "gadget")) {
 			aGadget& g = objectFromHandle<aGadget>(ptr);
 			std::string value = g.value_of(name);
 			return charDataHandleFromCharData(value.c_str());
 		}
+		if (sirf::iequals(obj, "AcquisitionModel")) {
+			return cGT_AcquisitionModelParameter(ptr, name);
+		}
 		return unknownObject("object", obj, __FILE__, __LINE__);
 	}
 	CATCH;
+}
+
+
+extern "C"
+void*
+cGT_setAcquisitionParameter(void* ptr, const char* param_name, const void* val)
+{
+	CAST_PTR(DataHandle, h_acq, ptr);
+	ISMRMRD::Acquisition& acq =
+		objectFromHandle<ISMRMRD::Acquisition>(h_acq);
+
+	if (sirf::iequals(param_name, "measurement_uid"))
+		acq.measurement_uid() = dataFromHandle<int>(val);
+	else if (sirf::iequals(param_name, "scan_counter"))
+		acq.scan_counter() = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "acquisition_time_stamp"))
+		acq.acquisition_time_stamp() = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "physiology_time_stamp0"))
+		acq.physiology_time_stamp()[0] = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "physiology_time_stamp1"))
+		acq.physiology_time_stamp()[1] = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "physiology_time_stamp2"))
+		acq.physiology_time_stamp()[2] = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "available_channels"))
+		acq.available_channels() = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "discard_pre"))
+		acq.discard_pre() = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "discard_post"))
+		acq.discard_post() = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "center_sample"))
+		acq.center_sample() = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "encoding_space_ref"))
+		acq.encoding_space_ref() = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "idx_kspace_encode_step_1"))
+		acq.idx().kspace_encode_step_1 = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "idx_kspace_encode_step_2"))
+		acq.idx().kspace_encode_step_2 = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "idx_average"))
+		acq.idx().average = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "idx_slice"))
+		acq.idx().slice = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "idx_contrast"))
+		acq.idx().contrast = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "idx_phase"))
+		acq.idx().phase = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "idx_repetition"))
+		acq.idx().repetition = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "idx_set"))
+		acq.idx().set = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "idx_segment"))
+		acq.idx().segment = dataFromHandle<int>(val);
+	else if  (sirf::iequals(param_name, "sample_time_us"))
+		acq.sample_time_us() = dataFromHandle<float>(val);
+	
+	// else if  (sirf::iequals(param_name, "position"))
+	// 	acq.position() = dataFromHandle<float*>(val);
+	// else if  (sirf::iequals(param_name, "read_dir"))
+	// 	acq.read_dir() = dataFromHandle<float*>(val);
+	// else if  (sirf::iequals(param_name, "phase_dir"))
+	// 	acq.phase_dir() = dataFromHandle<float*>(val);
+	// else if  (sirf::iequals(param_name, "slice_dir"))
+	// 	acq.slice_dir() = dataFromHandle<float*>(val);
+	// else if  (sirf::iequals(param_name, "patient_table_position"))
+	// 	acq.patient_table_position() = dataFromHandle<float*>(val);
+	else
+		return unknownObject("parameter", param_name, __FILE__, __LINE__);
+
+	return new DataHandle;
 }
 
 extern "C"
@@ -199,8 +285,10 @@ void*
 cGT_setParameter(void* ptr, const char* obj, const char* par, const void* val)
 {
 	try {
-		if (boost::iequals(obj, "coil_sensitivity"))
+		if (sirf::iequals(obj, "coil_sensitivity"))
 			return cGT_setCSParameter(ptr, par, val);
+		if (sirf::iequals(obj, "acquisition"))
+			return cGT_setAcquisitionParameter(ptr,par,val);
 		return unknownObject("object", obj, __FILE__, __LINE__);
 	}
 	CATCH;
@@ -212,14 +300,14 @@ cGT_CoilSensitivities(const char* file)
 {
 	try {
 		if (std::strlen(file) > 0) {
-			shared_ptr<CoilSensitivitiesContainer>
-				csms(new CoilSensitivitiesAsImages(file));
-			return newObjectHandle<CoilSensitivitiesContainer>(csms);
+			shared_ptr<CoilSensitivitiesVector>
+                csms(new CoilSensitivitiesVector(file));
+			return newObjectHandle<CoilSensitivitiesVector>(csms);
 		}
 		else {
-			shared_ptr<CoilSensitivitiesContainer>
-				csms(new CoilSensitivitiesAsImages());
-			return newObjectHandle<CoilSensitivitiesContainer>(csms);
+			shared_ptr<CoilSensitivitiesVector>
+                csms(new CoilSensitivitiesVector());
+			return newObjectHandle<CoilSensitivitiesVector>(csms);
 		}
 	}
 	CATCH;
@@ -230,48 +318,16 @@ void*
 cGT_setCSParameter(void* ptr, const char* par, const void* val)
 {
 	CAST_PTR(DataHandle, h_csms, ptr);
-	CoilSensitivitiesContainer& csms =
-		objectFromHandle<CoilSensitivitiesContainer>(h_csms);
-	if (boost::iequals(par, "smoothness"))
+	CoilSensitivitiesVector& csms =
+		objectFromHandle<CoilSensitivitiesVector>(h_csms);
+	if (sirf::iequals(par, "smoothing_iterations"))
 		csms.set_csm_smoothness(dataFromHandle<int>(val));
 	//csms.set_csm_smoothness(intDataFromHandle(val)); // causes problems with Matlab
+	else if (sirf::iequals(par, "conv_kernel_size"))
+		csms.set_csm_conv_kernel_size(dataFromHandle<int>(val));
 	else
 		return unknownObject("parameter", par, __FILE__, __LINE__);
 	return new DataHandle;
-}
-
-extern "C"
-void*
-cGT_computeCoilImages(void* ptr_cis, void* ptr_acqs)
-{
-	try {
-		CAST_PTR(DataHandle, h_csms, ptr_cis);
-		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
-		CoilImagesContainer& cis =
-			objectFromHandle<CoilImagesContainer>(h_csms);
-		MRAcquisitionData& acqs =
-			objectFromHandle<MRAcquisitionData>(h_acqs);
-		cis.compute(acqs);
-		return (void*)new DataHandle;
-	}
-	CATCH;
-}
-
-extern "C"
-void*
-cGT_computeCSMsFromCIs(void* ptr_csms, void* ptr_cis)
-{
-	try {
-		CAST_PTR(DataHandle, h_csms, ptr_csms);
-		CAST_PTR(DataHandle, h_cis, ptr_cis);
-		CoilSensitivitiesContainer& csms =
-			objectFromHandle<CoilSensitivitiesContainer>(h_csms);
-		CoilImagesContainer& cis =
-			objectFromHandle<CoilImagesContainer>(h_cis);
-		csms.compute(cis);
-		return (void*)new DataHandle;
-	}
-	CATCH;
 }
 
 extern "C"
@@ -281,11 +337,11 @@ cGT_computeCoilSensitivities(void* ptr_csms, void* ptr_acqs)
 	try {
 		CAST_PTR(DataHandle, h_csms, ptr_csms);
 		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
-		CoilSensitivitiesContainer& csms =
-			objectFromHandle<CoilSensitivitiesContainer>(h_csms);
+		CoilSensitivitiesVector& csms =
+			objectFromHandle<CoilSensitivitiesVector>(h_csms);
 		MRAcquisitionData& acqs =
 			objectFromHandle<MRAcquisitionData>(h_acqs);
-		csms.compute(acqs);
+		csms.calculate(acqs);
 		return (void*)new DataHandle;
 	}
 	CATCH;
@@ -293,42 +349,36 @@ cGT_computeCoilSensitivities(void* ptr_csms, void* ptr_acqs)
 
 extern "C"
 void*
-cGT_appendCSM
-(void* ptr_csms, int nx, int ny, int nz, int nc, size_t ptr_re, size_t ptr_im)
+cGT_computeCoilImages(void* ptr_imgs, void* ptr_acqs)
 {
-	try {
-		CAST_PTR(DataHandle, h_csms, ptr_csms);
-		float* re = (float*)ptr_re;
-		float* im = (float*)ptr_im;
-		CoilSensitivitiesContainer& csms =
-			objectFromHandle<CoilSensitivitiesContainer>(h_csms);
-		csms.append_csm(nx, ny, nz, nc, re, im);
-		return (void*)new DataHandle;
-	}
-	CATCH;
+    try {
+        CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+        CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+        CoilImagesVector& cis =
+            objectFromHandle<CoilImagesVector>(h_imgs);
+        MRAcquisitionData& acqs =
+            objectFromHandle<MRAcquisitionData>(h_acqs);
+        cis.calculate(acqs);
+        return (void*)new DataHandle;
+    }
+    CATCH;
 }
 
 extern "C"
-void
-cGT_getCoilDataDimensions(void* ptr_csms, int csm_num, size_t ptr_dim)
+void*
+cGT_computeCoilSensitivitiesFromCoilImages(void* ptr_csms, void* ptr_imgs)
 {
-	int* dim = (int*)ptr_dim;
-	CAST_PTR(DataHandle, h_csms, ptr_csms);
-	CoilDataContainer& csms =
-		objectFromHandle<CoilDataContainer>(h_csms);
-	csms.get_dim(csm_num, dim);
-}
-
-extern "C"
-void
-cGT_getCoilData(void* ptr_csms, int csm_num, size_t ptr_re, size_t ptr_im)
-{
-	float* re = (float*)ptr_re;
-	float* im = (float*)ptr_im;
-	CAST_PTR(DataHandle, h_csms, ptr_csms);
-	CoilDataContainer& csms =
-		objectFromHandle<CoilDataContainer>(h_csms);
-	csms.get_data(csm_num, re, im);
+    try {
+        CAST_PTR(DataHandle, h_csms, ptr_csms);
+        CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+        CoilSensitivitiesVector& csms =
+            objectFromHandle<CoilSensitivitiesVector>(h_csms);
+        CoilImagesVector& imgs =
+            objectFromHandle<CoilImagesVector>(h_imgs);
+        csms.calculate(imgs);
+        return (void*)new DataHandle;
+    }
+    CATCH;
 }
 
 extern "C"
@@ -376,26 +426,46 @@ cGT_setAcquisitionModelParameter
 {
 	try {
 		CAST_PTR(DataHandle, h_am, ptr_am);
-		if (boost::iequals(name, "acquisition_template")) {
+		if (sirf::iequals(name, "acquisition_template")) {
 			CAST_PTR(DataHandle, handle, ptr);
 			MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(h_am);
 			shared_ptr<MRAcquisitionData> sptr_acqs;
 			getObjectSptrFromHandle<MRAcquisitionData>(handle, sptr_acqs);
 			am.set_acquisition_template(sptr_acqs);
 		}
-		else if (boost::iequals(name, "image_template")) {
+		else if (sirf::iequals(name, "image_template")) {
 			CAST_PTR(DataHandle, handle, ptr);
 			MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(h_am);
 			shared_ptr<GadgetronImageData> sptr_imgs;
 			getObjectSptrFromHandle<GadgetronImageData>(handle, sptr_imgs);
 			am.set_image_template(sptr_imgs);
 		}
-		else if (boost::iequals(name, "coil_sensitivity_maps")) {
+		else if (sirf::iequals(name, "coil_sensitivity_maps")) {
 			CAST_PTR(DataHandle, handle, ptr);
 			MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(h_am);
-			shared_ptr<CoilSensitivitiesContainer> sptr_csc;
-			getObjectSptrFromHandle<CoilSensitivitiesContainer>(handle, sptr_csc);
-			am.setCSMs(sptr_csc);
+			shared_ptr<CoilSensitivitiesVector> sptr_csc;
+			getObjectSptrFromHandle<CoilSensitivitiesVector>(handle, sptr_csc);
+			am.set_csm(sptr_csc);
+		}
+		else
+			return unknownObject("parameter", name, __FILE__, __LINE__);
+		return (void*)new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_AcquisitionModelParameter(void* ptr_am, const char* name)
+{
+	try {
+		CAST_PTR(DataHandle, h_am, ptr_am);
+		MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(h_am);
+		if (sirf::iequals(name, "range geometry")) {
+			return newObjectHandle(am.acq_template_sptr());
+		}
+		else if (sirf::iequals(name, "domain geometry")) {
+			return newObjectHandle(am.image_template_sptr());
 		}
 		else
 			return unknownObject("parameter", name, __FILE__, __LINE__);
@@ -412,10 +482,20 @@ cGT_setCSMs(void* ptr_am, const void* ptr_csms)
 		CAST_PTR(DataHandle, h_am, ptr_am);
 		CAST_PTR(DataHandle, h_csms, ptr_csms);
 		MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(h_am);
-		shared_ptr<CoilSensitivitiesContainer> sptr_csms;
-		getObjectSptrFromHandle<CoilSensitivitiesContainer>(h_csms, sptr_csms);
-		am.setCSMs(sptr_csms);
+		shared_ptr<CoilSensitivitiesVector> sptr_csms;
+		getObjectSptrFromHandle<CoilSensitivitiesVector>(h_csms, sptr_csms);
+		am.set_csm(sptr_csms);
 		return (void*)new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void* cGT_acquisitionModelNorm(void* ptr_am, int num_iter, int verb)
+{
+	try {
+		MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(ptr_am);
+		return dataHandle(am.norm(num_iter, verb));
 	}
 	CATCH;
 }
@@ -453,28 +533,6 @@ cGT_AcquisitionModelBackward(void* ptr_am, const void* ptr_acqs)
 
 extern "C"
 void*
-cGT_setAcquisitionDataStorageScheme(const char* scheme)
-{
-	try{
-		if (scheme[0] == 'f' || strcmp(scheme, "default") == 0)
-			AcquisitionsFile::set_as_template();
-		else
-			AcquisitionsVector::set_as_template();
-		return (void*)new DataHandle;
-	}
-	CATCH;
-}
-
-extern "C"
-void*
-cGT_getAcquisitionDataStorageScheme()
-{
-	return charDataHandleFromCharData
-		(MRAcquisitionData::storage_scheme().c_str());
-}
-
-extern "C"
-void*
 cGT_sortAcquisitions(void* ptr_acqs)
 {
 	try {
@@ -505,13 +563,26 @@ cGT_sortAcquisitionsByTime(void* ptr_acqs)
 
 extern "C"
 void*
-cGT_ISMRMRDAcquisitionsFromFile(const char* file)
+cGT_ISMRMRDAcquisitionsFromFile(const char* file, int all, size_t ptr)
 {
 	if (!file_exists(file))
 		return fileNotFound(file, __FILE__, __LINE__);
 	try {
-		shared_ptr<MRAcquisitionData> 
-			acquisitions(new AcquisitionsFile(file));
+		auto ptr_ignored = reinterpret_cast<unsigned long long int*>(ptr);
+		auto ignored = *ptr_ignored;
+		std::cout << "reading from " << file << " using ignore mask ";
+		IgnoreMask mask;
+		if (all)
+			mask.set(0);
+		else
+			mask.set(ignored);
+		std::cout << mask.bits_string() << '\n';
+		shared_ptr<MRAcquisitionData>
+			acquisitions(new AcquisitionsVector);
+		IgnoreMask copy = acquisitions->ignore_mask();
+		acquisitions->set_ignore_mask(mask);
+		acquisitions->read(file, all);
+		acquisitions->set_ignore_mask(copy);
 		return newObjectHandle<MRAcquisitionData>(acquisitions);
 	}
 	CATCH;
@@ -523,7 +594,8 @@ cGT_ISMRMRDAcquisitionsFile(const char* file)
 {
 	try {
 		shared_ptr<MRAcquisitionData> 
-			acquisitions(new AcquisitionsFile(file, true));
+			acquisitions(new AcquisitionsVector);
+		acquisitions->read(file);
 		return newObjectHandle<MRAcquisitionData>(acquisitions);
 	}
 	CATCH;
@@ -562,6 +634,28 @@ cGT_createEmptyAcquisitionData(void* ptr_ad)
 
 extern "C"
 void*
+cGT_getAcquisitionsSubset(void* ptr_acqs, size_t const ptr_idx, size_t const num_elem_subset)
+{
+    try {
+        MRAcquisitionData& ad =
+            objectFromHandle<MRAcquisitionData>(ptr_acqs);
+        shared_ptr<MRAcquisitionData> sptr_subset = ad.new_acquisitions_container();
+        int* idx = (int*)ptr_idx;
+
+        std::vector<int> vec_idx(num_elem_subset);
+        for(size_t i=0; i<num_elem_subset; ++i)
+	    vec_idx.at(i) = *(idx+i);
+			
+        ad.get_subset(*sptr_subset.get(), vec_idx);
+        sptr_subset->sort();
+
+        return newObjectHandle<MRAcquisitionData>(sptr_subset);
+    }
+    CATCH;
+}
+
+extern "C"
+void*
 cGT_cloneAcquisitions(void* ptr_input)
 {
 	try {
@@ -582,9 +676,10 @@ cGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num)
 		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
 		MRAcquisitionData& acqs =
 			objectFromHandle<MRAcquisitionData>(h_acqs);
-		shared_ptr<ISMRMRD::Acquisition>
-			sptr_acq(new ISMRMRD::Acquisition);
-		acqs.get_acquisition(acq_num, *sptr_acq);
+		shared_ptr<ISMRMRD::Acquisition> sptr_acq = acqs.get_acquisition_sptr(acq_num);
+		//shared_ptr<ISMRMRD::Acquisition>
+		//	sptr_acq(new ISMRMRD::Acquisition);
+		//acqs.get_acquisition(acq_num, *sptr_acq);
 		return newObjectHandle<ISMRMRD::Acquisition>(sptr_acq);
 	}
 	CATCH;
@@ -618,6 +713,40 @@ cGT_getAcquisitionDataDimensions(void* ptr_acqs, size_t ptr_dim)
 			sptr_acq(new ISMRMRD::Acquisition);
 		int num_reg_dim = acqs.get_acquisitions_dimensions(ptr_dim);
 		return dataHandle(num_reg_dim);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_setAcquisitionsIgnoreMask(void* ptr_acqs, size_t ptr_im)
+{
+	try {
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		MRAcquisitionData& acqs =
+			objectFromHandle<MRAcquisitionData>(h_acqs);
+		shared_ptr<ISMRMRD::Acquisition>
+			sptr_acq(new ISMRMRD::Acquisition);
+		auto im = *reinterpret_cast<unsigned long long int*>(ptr_im);
+		acqs.set_ignore_mask(im);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_acquisitionsIgnoreMask(void* ptr_acqs, size_t ptr_im)
+{
+	try {
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		MRAcquisitionData& acqs =
+			objectFromHandle<MRAcquisitionData>(h_acqs);
+		shared_ptr<ISMRMRD::Acquisition>
+			sptr_acq(new ISMRMRD::Acquisition);
+		auto im = reinterpret_cast<unsigned long long int*>(ptr_im);
+		*im = acqs.ignore_mask().bits();
+		return new DataHandle;
 	}
 	CATCH;
 }
@@ -670,65 +799,65 @@ cGT_acquisitionParameter(void* ptr_acq, const char* name)
 	CAST_PTR(DataHandle, h_acq, ptr_acq);
 	ISMRMRD::Acquisition& acq =
 		objectFromHandle<ISMRMRD::Acquisition>(h_acq);
-	if (boost::iequals(name, "version"))
+	if (sirf::iequals(name, "version"))
 		return dataHandle((int)acq.version());
-	if (boost::iequals(name, "flags"))
+	if (sirf::iequals(name, "flags"))
 		return dataHandle((int)acq.flags());
-	if (boost::iequals(name, "measurement_uid"))
+	if (sirf::iequals(name, "measurement_uid"))
 		return dataHandle((int)acq.measurement_uid());
-	if (boost::iequals(name, "scan_counter"))
+	if (sirf::iequals(name, "scan_counter"))
 		return dataHandle((int)acq.scan_counter());
-	if (boost::iequals(name, "acquisition_time_stamp"))
+	if (sirf::iequals(name, "acquisition_time_stamp"))
 		return dataHandle((int)acq.acquisition_time_stamp());
-	if (boost::iequals(name, "number_of_samples"))
+	if (sirf::iequals(name, "number_of_samples"))
 		return dataHandle((int)acq.number_of_samples());
-	if (boost::iequals(name, "available_channels"))
+	if (sirf::iequals(name, "available_channels"))
 		return dataHandle((int)acq.available_channels());
-	if (boost::iequals(name, "active_channels"))
+	if (sirf::iequals(name, "active_channels"))
 		return dataHandle((int)acq.active_channels());
-	if (boost::iequals(name, "discard_pre"))
+	if (sirf::iequals(name, "discard_pre"))
 		return dataHandle((int)acq.discard_pre());
-	if (boost::iequals(name, "discard_post"))
+	if (sirf::iequals(name, "discard_post"))
 		return dataHandle((int)acq.discard_post());
-	if (boost::iequals(name, "center_sample"))
+	if (sirf::iequals(name, "center_sample"))
 		return dataHandle((int)acq.center_sample());
-	if (boost::iequals(name, "encoding_space_ref"))
+	if (sirf::iequals(name, "encoding_space_ref"))
 		return dataHandle((int)acq.encoding_space_ref());
-	if (boost::iequals(name, "trajectory_dimensions"))
+	if (sirf::iequals(name, "trajectory_dimensions"))
 		return dataHandle((int)acq.trajectory_dimensions());
-	if (boost::iequals(name, "idx_kspace_encode_step_1"))
+	if (sirf::iequals(name, "idx_kspace_encode_step_1"))
 		return dataHandle((int)acq.idx().kspace_encode_step_1);
-	if (boost::iequals(name, "idx_kspace_encode_step_2"))
+	if (sirf::iequals(name, "idx_kspace_encode_step_2"))
 		return dataHandle((int)acq.idx().kspace_encode_step_2);
-	if (boost::iequals(name, "idx_average"))
+	if (sirf::iequals(name, "idx_average"))
 		return dataHandle((int)acq.idx().average);
-	if (boost::iequals(name, "idx_slice"))
+	if (sirf::iequals(name, "idx_slice"))
 		return dataHandle((int)acq.idx().slice);
-	if (boost::iequals(name, "idx_contrast"))
+	if (sirf::iequals(name, "idx_contrast"))
 		return dataHandle((int)acq.idx().contrast);
-	if (boost::iequals(name, "idx_phase"))
+	if (sirf::iequals(name, "idx_phase"))
 		return dataHandle((int)acq.idx().phase);
-	if (boost::iequals(name, "idx_repetition"))
+	if (sirf::iequals(name, "idx_repetition"))
 		return dataHandle((int)acq.idx().repetition);
-	if (boost::iequals(name, "idx_set"))
+	if (sirf::iequals(name, "idx_set"))
 		return dataHandle((int)acq.idx().set);
-	if (boost::iequals(name, "idx_segment"))
+	if (sirf::iequals(name, "idx_segment"))
 		return dataHandle((int)acq.idx().segment);
-	if (boost::iequals(name, "physiology_time_stamp"))
+	if (sirf::iequals(name, "physiology_time_stamp"))
 		return dataHandle(acq.physiology_time_stamp());
-	if (boost::iequals(name, "channel_mask"))
+	if (sirf::iequals(name, "channel_mask"))
 		return dataHandle(acq.channel_mask());
-	if (boost::iequals(name, "sample_time_us"))
+	if (sirf::iequals(name, "sample_time_us"))
 		return dataHandle((float)acq.sample_time_us());
-	if (boost::iequals(name, "position"))
+	if (sirf::iequals(name, "position"))
 		return dataHandle((float*)acq.position());
-	if (boost::iequals(name, "read_dir"))
+	if (sirf::iequals(name, "read_dir"))
 		return dataHandle((float*)acq.read_dir());
-	if (boost::iequals(name, "phase_dir"))
+	if (sirf::iequals(name, "phase_dir"))
 		return dataHandle((float*)acq.phase_dir());
-	if (boost::iequals(name, "slice_dir"))
+	if (sirf::iequals(name, "slice_dir"))
 		return dataHandle((float*)acq.slice_dir());
-	if (boost::iequals(name, "patient_table_position"))
+	if (sirf::iequals(name, "patient_table_position"))
 		return dataHandle((float*)acq.patient_table_position());
 	return parameterNotFound(name, __FILE__, __LINE__);
 }
@@ -741,13 +870,75 @@ cGT_acquisitionsParameter(void* ptr_acqs, const char* name)
 		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
 		MRAcquisitionData& acqs =
 			objectFromHandle<MRAcquisitionData>(h_acqs);
-		if (boost::iequals(name, "undersampled"))
+		if (sirf::iequals(name, "undersampled"))
 			return dataHandle((int)acqs.undersampled());
-		if (boost::iequals(name, "sorted"))
+		if (sirf::iequals(name, "sorted"))
 			return dataHandle((int)acqs.sorted());
-		if (boost::iequals(name, "info"))
+		if (sirf::iequals(name, "info"))
 			return charDataHandleFromCharData(acqs.acquisitions_info().c_str());
 		return parameterNotFound(name, __FILE__, __LINE__);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_acquisitionParameterInfo(void* ptr_acqs, const char* name,
+	int* info)
+{
+	try {
+		MRAcquisitionData& acqs =
+			objectFromHandle<MRAcquisitionData>(ptr_acqs);
+		acqs.ismrmrd_par_info(name, info);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_acquisitionParameterValuesInt(void* ptr_acqs, const char* name,
+	int from, int till, int n, unsigned long long int* values)
+{
+	try {
+		MRAcquisitionData& acqs =
+			objectFromHandle<MRAcquisitionData>(ptr_acqs);
+		int na = acqs.number();
+		if (na < 1)
+			return new DataHandle;
+		if (till < 0)
+			till = na;
+		for (int a = from; a < till; a++) {
+			ISMRMRD::Acquisition acq;
+			acqs.get_acquisition(a, acq);
+			acqs.ismrmrd_par_value(acq, name, values);
+			values += n;
+		}
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_acquisitionParameterValuesFloat(void* ptr_acqs, const char* name,
+	int from, int till, int n, float* values)
+{
+	try {
+		MRAcquisitionData& acqs =
+			objectFromHandle<MRAcquisitionData>(ptr_acqs);
+		int na = acqs.number();
+		if (na < 1)
+			return new DataHandle;
+		if (till < 0)
+			till = na;
+		for (int a = from; a < till; a++) {
+			ISMRMRD::Acquisition acq;
+			acqs.get_acquisition(a, acq);
+			acqs.ismrmrd_par_value(acq, name, values);
+			values += n;
+		}
+		return new DataHandle;
 	}
 	CATCH;
 }
@@ -769,58 +960,220 @@ cGT_setAcquisitionsInfo(void* ptr_acqs, const char* info)
 
 extern "C"
 void*
+cGT_setGRPETrajectory(void* ptr_acqs)
+{
+    try {
+        CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+        MRAcquisitionData& acqs =
+            objectFromHandle<MRAcquisitionData>(h_acqs);
+
+        GRPETrajectoryPrep rpe_prep;
+        rpe_prep.set_trajectory(acqs);
+
+        return new DataHandle;
+    }
+    CATCH;
+
+}
+
+
+extern "C"
+void*
+cGT_setRadial2DTrajectory(void* ptr_acqs)
+{
+    try {
+        CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+        MRAcquisitionData& acqs =
+            objectFromHandle<MRAcquisitionData>(h_acqs);
+
+        Radial2DTrajprep radial2D_prep;
+        radial2D_prep.set_trajectory(acqs);
+
+        return new DataHandle;
+    }
+    CATCH;
+}
+
+
+extern "C"
+void*
+cGT_setGoldenAngle2DTrajectory(void* ptr_acqs)
+{
+    try {
+        CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+        MRAcquisitionData& acqs =
+            objectFromHandle<MRAcquisitionData>(h_acqs);
+
+        GoldenAngle2DTrajprep ga2D_prep;
+        ga2D_prep.set_trajectory(acqs);
+
+        return new DataHandle;
+    }
+    CATCH;
+}
+
+extern "C"
+void*
+cGT_getDataTrajectory(void* ptr_acqs, size_t ptr_traj)
+{
+    try {
+        CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+        MRAcquisitionData& acqs =
+            objectFromHandle<MRAcquisitionData>(h_acqs);
+
+        float* fltptr_traj = (float*) ptr_traj;
+		
+		if(acqs.get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
+		{
+			auto traj = sirf::CartesianTrajectoryPrep::get_trajectory(acqs);
+			memcpy(fltptr_traj,&(*traj.begin()), traj.size()*sizeof(TrajectoryPreparation2D::TrajPointType));
+		}
+    	else if(acqs.get_trajectory_type() == ISMRMRD::TrajectoryType::OTHER)
+		{
+			sirf::GRPETrajectoryPrep tp;
+			auto traj = tp.get_trajectory(acqs);
+			memcpy(fltptr_traj,&(*traj.begin()), traj.size()*sizeof(GRPETrajectoryPrep::TrajPointType));
+		}
+		else if(acqs.get_trajectory_type() == ISMRMRD::TrajectoryType::RADIAL)
+		{
+			sirf::Radial2DTrajprep tp;
+			auto traj = tp.get_trajectory(acqs);
+			memcpy(fltptr_traj,&(*traj.begin()), traj.size()*sizeof(Radial2DTrajprep::TrajPointType));
+		}
+		else if(acqs.get_trajectory_type() == ISMRMRD::TrajectoryType::GOLDENANGLE)
+		{
+			sirf::GoldenAngle2DTrajprep tp;
+			auto traj = tp.get_trajectory(acqs);
+			memcpy(fltptr_traj,&(*traj.begin()), traj.size()*sizeof(GoldenAngle2DTrajprep::TrajPointType));
+		}
+	
+        return new DataHandle;
+    }
+    CATCH;
+}
+
+extern "C"
+void*
+cGT_setDataTrajectory(void* ptr_acqs, int const traj_dim, size_t ptr_traj)
+{
+    try {
+        CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+        MRAcquisitionData& acqs =
+            objectFromHandle<MRAcquisitionData>(h_acqs);
+
+        float* fltptr_traj = (float*) ptr_traj;
+		acqs.set_trajectory(traj_dim, fltptr_traj);
+	
+        return new DataHandle;
+    }
+    CATCH;
+}
+
+extern "C"
+void* 
+cGT_setEncodingLimits(void* ptr_acqs, const char* name, const int min, const int max, const int ctr)
+{
+	try {
+        CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+        MRAcquisitionData& acqs =
+            objectFromHandle<MRAcquisitionData>(h_acqs);
+
+		std::string name_as_string(name);
+		std::tuple<unsigned short, unsigned short, unsigned short> limit{min, max, ctr};
+		acqs.set_encoding_limits(name_as_string, limit);
+
+        return new DataHandle;
+    }
+    CATCH;
+}
+
+extern "C"
+void*
+cGT_setTrajectoryType(void* ptr_acqs, int const traj_type)
+{
+    try {
+        CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+        MRAcquisitionData& acqs =
+            objectFromHandle<MRAcquisitionData>(h_acqs);
+		
+		const ISMRMRD::TrajectoryType type = static_cast<ISMRMRD::TrajectoryType>(traj_type);
+		acqs.set_trajectory_type(type);
+			
+        return new DataHandle;
+    }
+    CATCH;
+}
+
+extern "C"
+void* cGT_setAcquisitionUserFloat(void* ptr_acqs, size_t ptr_floats, int idx)
+{
+    try {
+        CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+        MRAcquisitionData& acqs =
+            objectFromHandle<MRAcquisitionData>(h_acqs);
+
+        float* user_data = (float*) ptr_floats;
+        acqs.set_user_floats(user_data, idx);
+
+        return new DataHandle;
+    }
+    CATCH;
+}
+
+extern "C"
+void*
 cGT_imageParameter(void* ptr_im, const char* name)
 {
 	try {
 		ImageWrap& im = objectFromHandle<ImageWrap>(ptr_im);
 		ISMRMRD::ImageHeader& head = im.head();
-		if (boost::iequals(name, "version"))
+		if (sirf::iequals(name, "version"))
 			return dataHandle((int)head.version);
-		if (boost::iequals(name, "flags"))
+		if (sirf::iequals(name, "flags"))
 			return dataHandle((int)head.flags);
-		if (boost::iequals(name, "data_type"))
+		if (sirf::iequals(name, "data_type"))
 			return dataHandle((int)head.data_type);
-		if (boost::iequals(name, "measurement_uid"))
+		if (sirf::iequals(name, "measurement_uid"))
 			return dataHandle((int)head.measurement_uid);
-		if (boost::iequals(name, "channels"))
+		if (sirf::iequals(name, "channels"))
 			return dataHandle((int)head.channels);
-		if (boost::iequals(name, "average"))
+		if (sirf::iequals(name, "average"))
 			return dataHandle((int)head.average);
-		if (boost::iequals(name, "slice"))
+		if (sirf::iequals(name, "slice"))
 			return dataHandle((int)head.slice);
-		if (boost::iequals(name, "contrast"))
+		if (sirf::iequals(name, "contrast"))
 			return dataHandle((int)head.contrast);
-		if (boost::iequals(name, "phase"))
+		if (sirf::iequals(name, "phase"))
 			return dataHandle((int)head.phase);
-		if (boost::iequals(name, "repetition"))
+		if (sirf::iequals(name, "repetition"))
 			return dataHandle((int)head.repetition);
-		if (boost::iequals(name, "set"))
+		if (sirf::iequals(name, "set"))
 			return dataHandle((int)head.set);
-		if (boost::iequals(name, "acquisition_time_stamp"))
+		if (sirf::iequals(name, "acquisition_time_stamp"))
 			return dataHandle((int)head.acquisition_time_stamp);
-		if (boost::iequals(name, "image_type"))
+		if (sirf::iequals(name, "image_type"))
 			return dataHandle((int)head.image_type);
-		if (boost::iequals(name, "image_index"))
+		if (sirf::iequals(name, "image_index"))
 			return dataHandle((int)head.image_index);
-		if (boost::iequals(name, "image_series_index"))
+		if (sirf::iequals(name, "image_series_index"))
 			return dataHandle((int)head.image_series_index);
-		if (boost::iequals(name, "attribute_string_len"))
+		if (sirf::iequals(name, "attribute_string_len"))
 			return dataHandle((int)head.attribute_string_len);
-		if (boost::iequals(name, "matrix_size"))
+		if (sirf::iequals(name, "matrix_size"))
 			return dataHandle(head.matrix_size);
-		if (boost::iequals(name, "physiology_time_stamp"))
+		if (sirf::iequals(name, "physiology_time_stamp"))
 			return dataHandle(head.physiology_time_stamp);
-		if (boost::iequals(name, "field_of_view"))
+		if (sirf::iequals(name, "field_of_view"))
 			return dataHandle((float*)head.field_of_view);
-		if (boost::iequals(name, "position"))
+		if (sirf::iequals(name, "position"))
 			return dataHandle((float*)head.position);
-		if (boost::iequals(name, "read_dir"))
+		if (sirf::iequals(name, "read_dir"))
 			return dataHandle((float*)head.read_dir);
-		if (boost::iequals(name, "phase_dir"))
+		if (sirf::iequals(name, "phase_dir"))
 			return dataHandle((float*)head.phase_dir);
-		if (boost::iequals(name, "slice_dir"))
+		if (sirf::iequals(name, "slice_dir"))
 			return dataHandle((float*)head.slice_dir);
-		if (boost::iequals(name, "patient_table_position"))
+		if (sirf::iequals(name, "patient_table_position"))
 			return dataHandle((float*)head.patient_table_position);
 		return parameterNotFound(name, __FILE__, __LINE__);
 	}
@@ -829,16 +1182,16 @@ cGT_imageParameter(void* ptr_im, const char* name)
 
 extern "C"
 void*
-cGT_reconstructImages(void* ptr_recon, void* ptr_input)
+cGT_reconstructImages(void* ptr_recon, void* ptr_input, const char* dcm_prefix)
 {
 	try {
 		CAST_PTR(DataHandle, h_recon, ptr_recon);
 		CAST_PTR(DataHandle, h_input, ptr_input);
 		ImagesReconstructor& recon = objectFromHandle<ImagesReconstructor>(h_recon);
 		MRAcquisitionData& input = objectFromHandle<MRAcquisitionData>(h_input);
+		recon.set_dcm_prefix(dcm_prefix);
 		recon.process(input);
-		shared_ptr<GadgetronImageData> sptr_img = recon.get_output();
-		return newObjectHandle<GadgetronImageData>(sptr_img);
+		return new DataHandle;
 	}
 	CATCH;
 
@@ -868,6 +1221,20 @@ cGT_readImages(const char* file)
 		shared_ptr<GadgetronImageData> sptr_img(new GadgetronImagesVector);
 		sptr_img->read(file);
 		return newObjectHandle<GadgetronImageData>(sptr_img);
+	}
+	CATCH;
+}
+
+extern "C"
+void *
+cGT_ImageFromAcquisitiondata(void* ptr_acqs)
+{
+	try {
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		MRAcquisitionData& acqs =
+			objectFromHandle<MRAcquisitionData>(h_acqs);
+		auto sptr_iv = std::make_shared<GadgetronImagesVector>(acqs);
+		return newObjectHandle<GadgetronImageData>(sptr_iv);
 	}
 	CATCH;
 }
@@ -944,6 +1311,7 @@ cGT_getImageDim(void* ptr_img, size_t ptr_dim)
 	int* dim = (int*)ptr_dim;
 	ImageWrap& image = objectFromHandle<ImageWrap>(ptr_img);
 	image.get_dim(dim);
+//	image.show_attributes();
 }
 
 extern "C"
@@ -953,6 +1321,18 @@ cGT_imageType(const void* ptr_img)
 	try {
 		ImageWrap& image = objectFromHandle<ImageWrap>(ptr_img);
 		return dataHandle(image.type());
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_setImageType(const void* ptr_img, int image_type)
+{
+	try {
+		GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(ptr_img);
+		imgs.set_image_type(image_type);
+		return new DataHandle;
 	}
 	CATCH;
 }
@@ -1009,6 +1389,21 @@ cGT_setImageDataFromCmplxArray(void* ptr_imgs, size_t ptr_z)
 		GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(h_imgs);
 		imgs.set_data(z);
 		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_realImageData(void* ptr_imgs, const char* way)
+{
+	try {
+		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+		GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(h_imgs);
+		if (sirf::iequals(way, "real"))
+			return newObjectHandle<GadgetronImageData>(imgs.real());
+		else
+			return newObjectHandle<GadgetronImageData>(imgs.abs());
 	}
 	CATCH;
 }
@@ -1315,7 +1710,7 @@ cGT_sendAcquisitions(void* ptr_con, void* ptr_dat)
 		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
 		GadgetronClientConnector& con = conn();
 		Mutex mutex;
-		boost::mutex& mtx = mutex();
+		std::mutex& mtx = mutex();
 		mtx.lock();
 		ISMRMRD::Dataset& ismrmrd_dataset = 
 			objectFromHandle<ISMRMRD::Dataset>(h_dat);
@@ -1333,8 +1728,10 @@ cGT_sendAcquisitions(void* ptr_con, void* ptr_dat)
 		ISMRMRD::Acquisition acq_tmp;
 		for (uint32_t i = 0; i < acquisitions; i++) {
 			{
-				boost::mutex::scoped_lock scoped_lock(mtx);
+				//boost::mutex::scoped_lock scoped_lock(mtx);
+				mtx.lock();
 				ismrmrd_dataset.readAcquisition(i, acq_tmp);
+				mtx.unlock();
 			}
 			con.send_ismrmrd_acquisition(acq_tmp);
 		}
@@ -1381,16 +1778,16 @@ cGT_disconnect(void* ptr_con)
 	return (void*)new DataHandle;
 }
 
-extern "C"
-void*
-parameter(void* ptr, const char* obj, const char* name)
-{
-	return cGT_parameter(ptr, obj, name);
-}
-
-extern "C"
-void*
-setParameter(void* ptr, const char* obj, const char* par, const void* val)
-{
-	return cGT_setParameter(ptr, obj, par, val);
-}
+//extern "C"
+//void*
+//parameter(void* ptr, const char* obj, const char* name)
+//{
+//	return cGT_parameter(ptr, obj, name);
+//}
+//
+//extern "C"
+//void*
+//setParameter(void* ptr, const char* obj, const char* par, const void* val)
+//{
+//	return cGT_setParameter(ptr, obj, par, val);
+//}

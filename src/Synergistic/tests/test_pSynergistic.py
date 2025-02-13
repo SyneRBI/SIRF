@@ -25,9 +25,7 @@ import sirf.STIR as pet
 import sirf.Gadgetron as mr
 import sirf.Reg as reg
 from sirf.Utilities import error
-
-# Paths
-SIRF_PATH = os.environ.get('SIRF_PATH')
+from sirf.Utilities import examples_data_path
 
 
 def try_stirtonifti(nifti_filename):
@@ -50,7 +48,7 @@ def try_stirtonifti(nifti_filename):
         raise AssertionError("Conversion from STIR to Nifti failed.")
 
     # Resample and then check that voxel values match
-    resample = reg.NiftyResample()
+    resample = reg.NiftyResampler()
     resample.set_floating_image(image_stir) 
     resample.set_reference_image(image_nifti) 
     resample.set_interpolation_type_to_nearest_neighbour()
@@ -107,7 +105,8 @@ def try_complex_resample(raw_mr_filename):
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
 
-    raw_mr = mr.AcquisitionData(raw_mr_filename)
+    raw_mr = mr.AcquisitionData(raw_mr_filename, False)
+    print('%d acquisitions read...' % raw_mr.number())
 
     recon_gadgets = ['NoiseAdjustGadget',
                      'AsymmetricEchoAdjustROGadget',
@@ -122,6 +121,7 @@ def try_complex_resample(raw_mr_filename):
     recon.process()
 
     ismrmrd_im = recon.get_output()
+    print('%d images reconstructed...' % ismrmrd_im.number())
 
     if ismrmrd_im.is_real():
         raise AssertionError("Expected output of reconstruction to be complex")
@@ -143,7 +143,7 @@ def try_complex_resample(raw_mr_filename):
     tm = reg.AffineTransformation(tm_)
 
     # Resample the complex data
-    res_complex = reg.NiftyResample()
+    res_complex = reg.NiftyResampler()
     res_complex.set_reference_image(ismrmrd_im)
     res_complex.set_floating_image(ismrmrd_im)
     res_complex.set_interpolation_type_to_linear()
@@ -163,7 +163,7 @@ def try_complex_resample(raw_mr_filename):
     adjoint_cplx_imag.write("results/adjoint_cplx_imag")
 
     # Now resample each of the components individually
-    res_real = reg.NiftyResample()
+    res_real = reg.NiftyResampler()
     res_real.set_reference_image(real)
     res_real.set_floating_image(real)
     res_real.set_interpolation_type_to_linear()
@@ -171,7 +171,7 @@ def try_complex_resample(raw_mr_filename):
     forward_real = res_real.forward(real)
     adjoint_real = res_real.adjoint(real)
 
-    res_imag = reg.NiftyResample()
+    res_imag = reg.NiftyResampler()
     res_imag.set_reference_image(imag)
     res_imag.set_floating_image(imag)
     res_imag.set_interpolation_type_to_linear()
@@ -187,9 +187,9 @@ def try_complex_resample(raw_mr_filename):
     # Compare that the real and imaginary parts match regardless
     # of whether they were resampled separately or together.
     if forward_real != forward_cplx_real or forward_imag != forward_cplx_imag:
-        raise AssertionError("NiftyResample::forward failed for complex data")
+        raise AssertionError("NiftyResampler::forward failed for complex data")
     if adjoint_real != adjoint_cplx_real or adjoint_imag != adjoint_cplx_imag:
-        raise AssertionError("NiftyResample::adjoint failed for complex data")
+        raise AssertionError("NiftyResampler::adjoint failed for complex data")
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
@@ -199,13 +199,15 @@ def try_complex_resample(raw_mr_filename):
 
 
 def test():
-    raw_mr_filename = SIRF_PATH + "/data/examples/MR/grappa2_1rep.h5"
-    if os.path.isfile(SIRF_PATH + "/data/examples/MR/zenodo/dicom_as_nifti.nii"):
-        nifti_filename = SIRF_PATH + "/data/examples/MR/zenodo/dicom_as_nifti.nii"
-        mr_recon_h5_filename = SIRF_PATH + "/data/examples/MR/zenodo/SIRF_recon.h5"
-    else:
-        nifti_filename = SIRF_PATH + "/data/examples/Registration/test2.nii.gz"
 
+    mr_data_path = examples_data_path('MR')
+    reg_data_path = examples_data_path('Registration')
+    raw_mr_filename = mr_data_path + "/simulated_MR_2D_cartesian.h5"
+    if os.path.isfile(mr_data_path + "/zenodo/dicom_as_nifti.nii"):
+        nifti_filename = mr_data_path + "/zenodo/dicom_as_nifti.nii"
+        mr_recon_h5_filename = mr_data_path + "/zenodo/SIRF_recon.h5"
+    else:
+        nifti_filename = reg_data_path + "/test2.nii.gz"
     try_stirtonifti(nifti_filename)
     if mr_recon_h5_filename:
         try_gadgetrontonifti(nifti_filename, mr_recon_h5_filename)

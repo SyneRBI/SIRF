@@ -54,11 +54,13 @@ try
     [filename, pathname] = uigetfile...
         ('*.hs', 'Select raw data file to be used as a template', default_path);
     tmpl_file = fullfile(pathname, filename);
+    acq_templ = PET.AcquisitionData(tmpl_file);
     
     % set input, output and template files
     lm2sino.set_input(list_file)
     lm2sino.set_output_prefix('sinograms')
-    lm2sino.set_template(tmpl_file)
+    lm2sino.set_template(acq_templ)
+%    lm2sino.set_template(tmpl_file)
 
     % set interval
     lm2sino.set_time_interval(0, 10)

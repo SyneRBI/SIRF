@@ -20,7 +20,7 @@ limitations under the License.
 
 /*!
 \file
-\ingroup STIR Tests
+\ingroup PET
 
 \author Evgueni Ovtchinnikov
 \author SyneRBI

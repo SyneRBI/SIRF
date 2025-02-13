@@ -12,7 +12,7 @@ Options:
   -a <attn>, --attn=<attn>     attenuation image file file [default: mu_map.hv]
   -n <norm>, --norm=<norm>     ECAT8 bin normalization file [default: norm.n.hdr]
   -I <int>, --interval=<int>   scanning time interval to convert as string '(a,b)'
-                               (no space after comma) [default: (0,50)]
+                               (no space after comma) [default: (0,100)]
   -d <nxny>, --nxny=<nxny>     image x and y dimensions as string '(nx,ny)'
                                (no space after comma) [default: (127,127)]
   -S <subs>, --subs=<subs>     number of subsets [default: 7]
@@ -23,13 +23,12 @@ Options:
   -C <cnts>, --counts=<cnts>   account for delay between injection and acquisition start by shifting interval to start when counts exceed given threshold.
   --visualisations             show visualisations
   --nifti                      save output as nifti
-  --gpu                        use gpu
   --non-interactive            do not show plots
 '''
 
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2018 - 2019 Rutherford Appleton Laboratory STFC
-## Copyright 2018 - 2020 University College London.
+## Copyright 2018 - 2020 Rutherford Appleton Laboratory STFC
+## Copyright 2018 - 2021 University College London.
 ##
 ## This is software developed for the Collaborative Computational
 ## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -45,17 +44,27 @@ Options:
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
 
-__version__ = '1.0.0'
+__version__ = '1.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
 from ast import literal_eval
 import os
 
-from pUtilities import show_2D_array
+from sirf.Utilities import error, examples_data_path, existing_filepath
+from sirf.Utilities import show_2D_array
+import sirf.Reg as reg
+import PET_plot_functions
+try:
+    import pylab
+    HAVE_PYLAB = True
+except RuntimeWarning:
+    HAVE_PYLAB = False
 
 # import engine module
-exec('from sirf.' + args['--engine'] + ' import *')
+import importlib
+engine = args['--engine']
+pet = importlib.import_module('sirf.' + engine)
 
 
 # process command-line options
@@ -96,20 +105,13 @@ else:
 if args['--non-interactive']:
     visualisations = False
 
-if args['--gpu']:
-    use_gpu = True
-    import sirf.Reg
-else:
-    use_gpu = False
-
-
 def main():
 
     # engine's messages go to files, except error messages, which go to stdout
-    msg_red = MessageRedirector('info.txt', 'warn.txt')
+    _ = pet.MessageRedirector('info.txt', 'warn.txt')
 
     # select acquisition data storage scheme
-    AcquisitionData.set_storage_scheme(storage)
+    pet.AcquisitionData.set_storage_scheme(storage)
 
     # First step is to create AcquisitionData ("sinograms") from the
     # listmode file.
@@ -117,7 +119,7 @@ def main():
 
     # create listmode-to-sinograms converter object
     # See also the listmode_to_sinograms demo
-    lm2sino = ListmodeToSinograms()
+    lm2sino = pet.ListmodeToSinograms()
 
     # set input, output and template files
     lm2sino.set_input(list_file)
@@ -162,57 +164,63 @@ def main():
     # create initial image estimate of dimensions and voxel sizes
     # compatible with the scanner geometry (included in the AcquisitionData
     # object acq_data) and initialize each voxel to 1.0
-    if not use_gpu:
-        image = acq_data.create_uniform_image(1.0, nxny)
-    # If using GPU, need to make sure that image is right size.
-    else:
-        image.initialise(dim=(127,320,320), vsize=(2.03125,2.08626,2.08626))
-        image.fill(1.0)
+    image = acq_data.create_uniform_image(1.0, nxny)
 
     # read attenuation image
-    attn_image = ImageData(attn_file)
+    attn_image = pet.ImageData(attn_file)
     if visualisations:
         attn_image_as_array = attn_image.as_array()
         show_2D_array('Attenuation image', attn_image_as_array[z,:,:])
-    # If gpu, make sure that attn. image dimensions match image
-    if use_gpu:
-        resampler = sirf.Reg.NiftyResample()
-        resampler.set_reference_image(image)
-        resampler.set_floating_image(attn_image)
-        resampler.set_interpolation_type_to_linear()
-        set_padding_value(0.0)
-        resampler.forward(attn_image, image)
-
-    if not use_gpu:
-        # select acquisition model that implements the geometric
-        # forward projection by a ray tracing matrix multiplication
-        acq_model = AcquisitionModelUsingRayTracingMatrix()
-        acq_model.set_num_tangential_LORs(10)
-    else:
-        acq_model = AcquisitionModelUsingNiftyPET()
+    # select acquisition model that implements the geometric
+    # forward projection by a ray tracing matrix multiplication
+    acq_model = pet.AcquisitionModelUsingRayTracingMatrix()
+    acq_model.set_num_tangential_LORs(10)
 
     # create acquisition sensitivity model from ECAT8 normalisation data
-    asm_norm = AcquisitionSensitivityModel(norm_file)
+    asm_norm = pet.AcquisitionSensitivityModel(norm_file)
 
-    asm_attn = AcquisitionSensitivityModel(attn_image, acq_model)
-    # temporary fix pending attenuation offset fix in STIR:
-    # converting attenuation into 'bin efficiency'
+    # create attenuation factors
+    asm_attn = pet.AcquisitionSensitivityModel(attn_image, acq_model)
+    # converting attenuation image into attenuation factors (one for every bin)
     asm_attn.set_up(acq_data)
-    bin_eff = AcquisitionData(acq_data)
-    bin_eff.fill(1.0)
+    ac_factors = acq_data.get_uniform_copy(value=1)
     print('applying attenuation (please wait, may take a while)...')
-    asm_attn.unnormalise(bin_eff)
-    asm_attn = AcquisitionSensitivityModel(bin_eff)
+    asm_attn.unnormalise(ac_factors)
+    asm_attn = pet.AcquisitionSensitivityModel(ac_factors)
+
+    # scatter estimation
+    print('estimating scatter (this will take a while!)')
+    scatter_estimator = pet.ScatterEstimator()
+
+    scatter_estimator.set_input(acq_data)
+    scatter_estimator.set_attenuation_image(attn_image)
+    scatter_estimator.set_randoms(randoms)
+    scatter_estimator.set_asm(asm_norm)
+    # invert attenuation factors to get the correction factors,
+    # as this is unfortunately what a ScatterEstimator needs
+    acf_factors=acq_data.get_uniform_copy()
+    acf_factors.fill(1/ac_factors.as_array())
+    scatter_estimator.set_attenuation_correction_factors(acf_factors)
+    scatter_estimator.set_output_prefix(sino_file + '_scatter')
+    scatter_estimator.set_num_iterations(3)
+    scatter_estimator.set_up()
+    scatter_estimator.process()
+    scatter_estimate = scatter_estimator.get_output()
+    if visualisations:
+        scatter_estimate_as_array = scatter_estimate.as_array()
+        show_2D_array('Scatter estimate (first sinogram)', scatter_estimate_as_array[0, 0, :, :])
+        PET_plot_functions.plot_sinogram_profile(acq_data, randoms=randoms, scatter=scatter_estimate)
 
     # chain attenuation and ECAT8 normalisation
-    asm = AcquisitionSensitivityModel(asm_norm, asm_attn)
+    asm = pet.AcquisitionSensitivityModel(asm_norm, asm_attn)
+    asm.set_up(acq_data)
 
     acq_model.set_acquisition_sensitivity(asm)
-    acq_model.set_background_term(randoms)
+    acq_model.set_background_term(randoms + scatter_estimate)
 
     # define objective function to be maximized as
     # Poisson logarithmic likelihood (with linear model for mean)
-    obj_fun = make_Poisson_loglikelihood(acq_data)
+    obj_fun = pet.make_Poisson_loglikelihood(acq_data)
     obj_fun.set_acquisition_model(acq_model)
 
     # select Ordered Subsets Maximum A-Posteriori One Step Late as the
@@ -221,7 +229,7 @@ def main():
     # this algorithm does not converge to the maximum of the objective function
     # but is used in practice to speed-up calculations
     # See the reconstruction demos for more complicated examples
-    recon = OSMAPOSLReconstructor()
+    recon = pet.OSMAPOSLReconstructor()
     recon.set_objective_function(obj_fun)
     recon.set_num_subsets(num_subsets)
     recon.set_num_subiterations(num_subiterations)
@@ -243,9 +251,9 @@ def main():
     if not args['--nifti']:
         out.write(outp_file)
     else:
-        sirf.Reg.NiftiImageData(out).write(outp_file)
+        reg.NiftiImageData(out).write(outp_file)
 
-    if visualisations:
+    if visualisations and HAVE_PYLAB:
         # show reconstructed image
         image_array = out.as_array()
         show_2D_array('Reconstructed image', image_array[z,:,:])

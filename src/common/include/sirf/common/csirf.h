@@ -35,18 +35,47 @@ extern "C" {
 // New SIRF objects
 void* cSIRF_newObject(const char* name);
 
+// path to the examples data folder
+void* cSIRF_examples_data_path(const char* data_type);
+
 // Data container methods
 void* cSIRF_dataItems(const void* ptr_x);
+void* cSIRF_isComplex(const void* ptr_x);
+void* cSIRF_bits(const void* ptr_x);
+void* cSIRF_conjugate(void* ptr);
+void* cSIRF_conjugated(void* ptr);
 void* cSIRF_norm(const void* ptr_x);
-void* cSIRF_dot(const void* ptr_x, const void* ptr_y);
+void* cSIRF_compute_dot(const void* ptr_x, const void* ptr_y, PTR_FLOAT ptr_z);
+void* cSIRF_compute_sum(const void* ptr_x, PTR_FLOAT ptr_z);
+void* cSIRF_compute_max(const void* ptr_x, PTR_FLOAT ptr_z);
+void* cSIRF_compute_min(const void* ptr_x, PTR_FLOAT ptr_z);
 void* cSIRF_axpby(const PTR_FLOAT ptr_a, const void* ptr_x,
 	const PTR_FLOAT ptr_b, const void* ptr_y);
 void* cSIRF_axpbyAlt(const PTR_FLOAT ptr_a, const void* ptr_x,
 	const PTR_FLOAT ptr_b, const void* ptr_y, void* ptr_z);
-void* cSIRF_multiply(const void* ptr_x, const void* ptr_y, const void* ptr_z);
-void* cSIRF_product(const void* ptr_x, const void* ptr_y);
-void* cSIRF_divide(const void* ptr_x, const void* ptr_y, const void* ptr_z);
-void* cSIRF_ratio(const void* ptr_x, const void* ptr_y);
+void* cSIRF_xapyb(
+	const void* ptr_x, const void* ptr_a,
+	const void* ptr_y, const void* ptr_b);
+void* cSIRF_xapybAlt(
+	const void* ptr_x, const void* ptr_a,
+	const void* ptr_y, const void* ptr_b,
+	void* ptr_z);
+void* cSIRF_XapYB(
+	const void* ptr_x, const PTR_FLOAT ptr_a,
+	const void* ptr_y, const void* ptr_b);
+void* cSIRF_XapYBAlt(
+	const void* ptr_x, const PTR_FLOAT ptr_a,
+	const void* ptr_y, const void* ptr_b,
+	void* ptr_z);
+void* cSIRF_add(const void* ptr_x, PTR_FLOAT ptr_y, const void* ptr_z);
+void* cSIRF_sum(const void* ptr_x, PTR_FLOAT ptr_y);
+void* cSIRF_binary(const void* ptr_x, const void* ptr_y, const char* f);
+void* cSIRF_compute_binary(const void* ptr_x, const void* ptr_y, const char* f, const void* ptr_z);
+void* cSIRF_semibinary(const void* ptr_x, PTR_FLOAT ptr_y, const char* f);
+void* cSIRF_compute_semibinary(const void* ptr_x, PTR_FLOAT ptr_y, const char* f, const void* ptr_z);
+void* cSIRF_unary(const void* ptr_x, const char* f);
+void* cSIRF_compute_unary(const void* ptr_x, const char* f, const void* ptr_z);
+
 void* cSIRF_write(const void* ptr, const char* filename);
 void* cSIRF_clone(void* ptr_x);
 
@@ -61,7 +90,7 @@ void* cSIRF_DataHandleVector_push_back(void* self, void* to_append);
 
 // Geom info
 void* cSIRF_ImageData_get_geom_info(const void* ptr_geom);
-void* cSIRF_GeomInfo_print(const void* ptr_geom);
+void* cSIRF_GeomInfo_get(const void* ptr_geom);
 void* cSIRF_GeomInfo_get_offset(const void* ptr_geom, PTR_FLOAT ptr_arr);
 void* cSIRF_GeomInfo_get_spacing(const void* ptr_geom, PTR_FLOAT ptr_arr);
 void* cSIRF_GeomInfo_get_size(const void* ptr_geom, PTR_INT ptr_arr);

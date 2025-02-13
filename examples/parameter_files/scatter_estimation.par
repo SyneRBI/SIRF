@@ -1,0 +1,66 @@
+Scatter Estimation Parameters :=
+; Example STIR parameter file for running scatter estimation
+; The scatter estimation demo sets important parameters itself, and uses
+; default settings for the rest.
+; This file illustrates how you can set some of the variables via a parameter file.
+; There are many parameters that STIR supports. You could have a look in
+; the STIR/examples/samples/scatter_estimation_par_files if you want to see more of them...
+
+;; If enabling the following, a new folder called extras will be created, in which many
+; extra files will be stored which can be used for debugging
+run in debug mode := 0
+
+
+; could read reconstruction parameters from a file, but we will incorporate them here below
+; (careful, the sample file distributed with STIR will default to using EM with 1 iteration, which isn't enough)
+;reconstruction parameter filename := .../STIR/examples/samples/scatter_estimation_par_files/run_reconstruction.par
+
+; just use OSEM here (not much point in doing anything more sophisticated)
+; reconstruct at large voxel size to save time and add postfiltering
+reconstruction type := OSMAPOSL
+OSMAPOSLParameters :=
+objective function type:= PoissonLogLikelihoodWithLinearModelForMeanAndProjData
+PoissonLogLikelihoodWithLinearModelForMeanAndProjData Parameters:=
+projector pair type := Matrix
+  Projector Pair Using Matrix Parameters :=
+  Matrix type := Ray Tracing
+  Ray tracing matrix parameters :=
+   number of rays in tangential direction to trace for each bin:= 5
+  End Ray tracing matrix parameters :=
+  End Projector Pair Using Matrix Parameters :=
+
+;recompute sensitivity := 0
+;subset sensitivity filenames := scatter_subset_sens_%d.hv
+zoom := 0.2
+
+end PoissonLogLikelihoodWithLinearModelForMeanAndProjData Parameters:=
+number of subsets:= 21
+; no need to run too many subiterations per recon, as they will accumulate over scatter iterations
+number of subiterations:=14
+
+; smooth a bit as we use a down-sampled scanner (during the scatter estimation resolution can be low)
+post-filter type :=  Separable Gaussian
+Separable Gaussian Filter Parameters :=
+  x-dir filter FWHM (in mm):= 15
+  y-dir filter FWHM (in mm):= 15
+  z-dir filter FWHM (in mm):= 15
+END Separable Gaussian Filter Parameters :=
+;
+; Disable output reconstruction output to disk
+disable output := 1
+End OSMAPOSLParameters:=
+End reconstruction Parameters:=
+
+;
+; This is the number of times which the Scatter Estimation will iterate. Default is 5
+; can be set from Python etc
+; number of scatter iterations := 3
+
+; output filename. Currently disabled here as it is set in the example script
+;output scatter estimate name prefix := SIRF_scatter
+
+; STIR can also output the "additive term", which could be convenient as you then don't have to add randoms
+; it's disabled in this example
+;output additive estimate name prefix:= total_additive_acqdata
+
+End Scatter Estimation Parameters :=

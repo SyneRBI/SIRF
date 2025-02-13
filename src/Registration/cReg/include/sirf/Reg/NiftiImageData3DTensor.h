@@ -75,7 +75,7 @@ public:
     /// Create from 3 individual components
     NiftiImageData3DTensor(const NiftiImageData3D<dataType> &x, const NiftiImageData3D<dataType> &y, const NiftiImageData3D<dataType> &z);
 
-    /// Create from 3D image.
+    /// Create from 3D image (fill with zeroes).
     virtual void create_from_3D_image(const NiftiImageData<dataType> &image);
 
     /// Get tensor component (x, y or z)
@@ -89,6 +89,15 @@ public:
 
     /// Flip component of nu
     void flip_component(const int dim);
+
+    /// Tensor component maths
+    void tensor_component_maths(const int dim, const std::shared_ptr<const ImageData> &scalar_im_sptr, const typename NiftiImageData<dataType>::MathsType maths_type);
+
+    /// Multiply tensor component by image
+    void multiply_tensor_component(const int dim, const std::shared_ptr<const ImageData> &scalar_im_sptr);
+
+    /// Add image to tensor component
+    void add_to_tensor_component(const int dim, const std::shared_ptr<const ImageData> &scalar_im_sptr);
 
     virtual ObjectHandle<DataContainer>* new_data_container_handle() const
     {

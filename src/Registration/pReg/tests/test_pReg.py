@@ -21,13 +21,19 @@ import sys
 import time
 
 import numpy as np
-import nibabel as nib
+try:
+    import nibabel as nib
+    have_nibabel = True
+except ImportError:
+    have_nibabel = False
+    print('WARNING: nibabel is not installed, so not running corresponding tests')
+
 import sirf.Reg
-from pUtilities import *
+from sirf.Utilities import examples_data_path
+from sirf.Utilities import is_operator_adjoint
 
 # Paths
-SIRF_PATH = os.environ.get('SIRF_PATH')
-examples_path = SIRF_PATH + '/data/examples/Registration'
+examples_path = examples_data_path('Registration')
 output_prefix = os.getcwd() + '/results/python_'
 
 # Input filenames
@@ -232,10 +238,11 @@ def try_niftiimage():
         raise AssertionError('NiftiImageData::fill() failed for C- or F-style numpy arrays.')
 
     # Compare between sirf.Reg.NiftiImageData::as_array() and nibabel
-    arr1 = sirf.Reg.NiftiImageData(ref_aladin_filename).as_array()
-    arr2 = nib.load(ref_aladin_filename).get_fdata()
-    if not np.array_equal(arr1,arr2):
-        raise AssertionError("NiftiImageData as_array() failed.")
+    if have_nibabel:
+        arr1 = sirf.Reg.NiftiImageData(ref_aladin_filename).as_array()
+        arr2 = nib.load(ref_aladin_filename).get_fdata()
+        if not np.array_equal(arr1,arr2):
+            raise AssertionError("NiftiImageData as_array() failed.")
 
     # Test geom info
     geom_info = im.get_geometrical_info()
@@ -341,9 +348,30 @@ def try_niftiimage3d():
     # Deep copy
     d = b.deep_copy()
     if d.handle == b.handle:
-        raise AssertionError('NiftiImageData3D deep_copy failed.')
+        raise AssertionError('NiftiImageData3D deep_copy failed (handle).')
     if d != b:
         raise AssertionError("NiftiImageData3D deep_copy failed.")
+
+    # Constructor
+    dd = sirf.Reg.NiftiImageData3D(b)
+    if dd.handle == b.handle:
+        raise AssertionError('NiftiImageData3D constructor failed (handle).')
+    if dd != b:
+        raise AssertionError("NiftiImageData3D constructor failed.")
+
+    try:
+        sirf.Reg.NiftiImageData3DDeformation(ref_f3d_filename)
+        raise AssertionError('NiftiImageData3DDeformation constructor should have thrown with filename for 3D image')
+    except:
+        pass # ok
+
+    ddd = sirf.Reg.NiftiImageData3DDeformation()
+    ddd.create_from_3D_image(ref_aladin)
+    try:
+        dddd = sirf.Reg.NiftiImageData3D(ddd)
+        raise AssertionError('NiftiImageData3D constructor should have thrown with 4D image')
+    except:
+        pass # ok
 
     # Addition
     e = d + d
@@ -739,14 +767,18 @@ def try_niftyaladin():
     sirf.Reg.NiftiImageData.print_headers([ref_aladin, flo_aladin, def_inverse, def_fwd_then_inv])
 
     # Reference forward with def_inv
-    resample = sirf.Reg.NiftyResample()
+    resample = sirf.Reg.NiftyResampler()
     resample.set_reference_image(flo_aladin)
     resample.set_floating_image(ref_aladin)
     resample.set_padding_value(0.)
     resample.set_interpolation_type_to_linear()
     resample.add_transformation(def_inverse)
-    out1 = resample.forward(ref_aladin)
 
+    print('=============== computing resampler norm...')
+    res_norm = resample.norm(num_iter=16, verb=1)
+    print('=============== resampler norm: %f' % res_norm)
+
+    out1 = resample.forward(ref_aladin)
     # Reference forward with def_fwd_then_inv
     resample.clear_transformations()
     resample.add_transformation(def_fwd_then_inv)
@@ -813,16 +845,17 @@ def try_niftyf3d():
     disp_inverse.write_split_xyz_components(f3d_disp_inverse)
 
     # Compare between sirf.Reg.NiftiImageData3DDefofmation::as_array() and nibabel
-    deff_arr = def_forward.as_array()
-    deff_nib_arr = nib.load(f3d_def_forward).get_fdata()
-    if not np.array_equal(deff_arr, deff_nib_arr):
-        raise AssertionError("NiftiImageData3DDeformation as_array() failed.")
+    if have_nibabel:
+        deff_arr = def_forward.as_array()
+        deff_nib_arr = nib.load(f3d_def_forward).get_fdata()
+        if not np.array_equal(deff_arr, deff_nib_arr):
+            raise AssertionError("NiftiImageData3DDeformation as_array() failed.")
 
-    # Check as_array and fill for deformation fields
-    deff2 = def_forward.clone()
-    deff2.fill(deff_arr)
-    if deff2 != def_forward:
-        raise AssertionError("NiftiImageData3DDeformation::as_array()/fill() failed.")
+        # Check as_array and fill for deformation fields
+        deff2 = def_forward.clone()
+        deff2.fill(deff_arr)
+        if deff2 != def_forward:
+            raise AssertionError("NiftiImageData3DDeformation::as_array()/fill() failed.")
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
@@ -889,7 +922,7 @@ def try_resample(na):
     padding_value = -20
 
     sys.stderr.write('Testing rigid resample...\n')
-    nr1 = sirf.Reg.NiftyResample()
+    nr1 = sirf.Reg.NiftyResampler()
     nr1.set_reference_image(ref_aladin)
     nr1.set_floating_image(flo_aladin)
     nr1.set_interpolation_type_to_cubic_spline()  # try different interpolations
@@ -902,7 +935,7 @@ def try_resample(na):
     nr1.get_output().write(rigid_resample)
 
     sys.stderr.write('Testing non-rigid displacement...\n')
-    nr2 = sirf.Reg.NiftyResample()
+    nr2 = sirf.Reg.NiftyResampler()
     nr2.set_reference_image(ref_aladin)
     nr2.set_floating_image(flo_aladin)
     nr2.set_interpolation_type_to_sinc()  # try different interpolations
@@ -913,10 +946,10 @@ def try_resample(na):
     nr2.get_output().write(nonrigid_resample_disp)
 
     if nr2.get_output().get_min() != padding_value:
-        raise AssertionError('NiftyResample:set_padding_value failed')
+        raise AssertionError('NiftyResampler:set_padding_value failed')
 
     sys.stderr.write('Testing non-rigid deformation...\n')
-    nr3 = sirf.Reg.NiftyResample()
+    nr3 = sirf.Reg.NiftyResampler()
     nr3.set_reference_image(ref_aladin)
     nr3.set_floating_image(flo_aladin)
     nr3.set_interpolation_type_to_linear()  # try different interpolations
@@ -932,7 +965,7 @@ def try_resample(na):
     out2 = ref_aladin.deep_copy()
     nr3.forward(out=out2, x=flo_aladin)
     if out1 != out2:
-        raise AssertionError('out = NiftyResample::forward(in) and NiftyResample::forward(out, in) do not give same result.')
+        raise AssertionError('out = NiftyResampler::forward(in) and NiftyResampler::forward(out, in) do not give same result.')
 
     # TODO this doesn't work. For some reason (even with NiftyReg directly), resampling with the TM from the registration
     # doesn't give the same result as the output from the registration itself (even with same interpolations). Even though
@@ -976,7 +1009,7 @@ def try_niftymomo(na):
     y.crop(min_idx, max_idx)
 
     sys.stderr.write('Testing adjoint resample...\n')
-    nr = sirf.Reg.NiftyResample()
+    nr = sirf.Reg.NiftyResampler()
     nr.set_reference_image(x)
     nr.set_floating_image(y)
     nr.set_interpolation_type_to_linear()
@@ -984,7 +1017,7 @@ def try_niftymomo(na):
 
     # Check the adjoint is truly the adjoint with: |<x, Ty> - <y, Tsx>| / 0.5*(|<x, Ty>|+|<y, Tsx>|) < epsilon
     if not is_operator_adjoint(nr):
-        raise AssertionError("NiftyResample::adjoint() failed")
+        raise AssertionError("NiftyResampler::adjoint() failed")
 
     # Check that the following give the same result
     #       out = resample.adjoint(in)
@@ -994,7 +1027,7 @@ def try_niftymomo(na):
     nr.backward(out=out2, x=x)
     if out1 != out2:
         raise AssertionError(
-            'out = NiftyResample::adjoint(in) and NiftyResample::adjoint(out, in) do not give same result.')
+            'out = NiftyResampler::adjoint(in) and NiftyResampler::adjoint(out, in) do not give same result.')
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')

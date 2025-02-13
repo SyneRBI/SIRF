@@ -72,11 +72,11 @@ public:
     /// Get inverse transformation matrix
     virtual const std::shared_ptr<const AffineTransformation<float> > get_transformation_matrix_inverse_sptr(const unsigned idx = 0) const { return _TMs_inv.at(idx); }
 
-    /// Get forward displacement field image
-    virtual const std::shared_ptr<const Transformation<dataType> > get_displacement_field_forward_sptr(const unsigned idx = 0) const;
+    /// Get forward deformation field image
+    virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_forward_sptr(const unsigned idx = 0) const;
 
-    /// Get inverse displacement field image
-    virtual const std::shared_ptr<const Transformation<dataType> > get_displacement_field_inverse_sptr(const unsigned idx = 0) const;
+    /// Get inverse deformation field image
+    virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_inverse_sptr(const unsigned idx = 0) const;
 
 protected:
 

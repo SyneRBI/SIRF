@@ -97,12 +97,7 @@ def main():
     flo_args = args['--flo']
     # if using the default for any, need to get the examples folder
     if ref_args is None or flo_args is None:
-        SIRF_PATH = os.environ.get('SIRF_PATH')
-        if SIRF_PATH is not None:
-            examples_path = SIRF_PATH + '/data/examples/Registration'
-        else:
-            errorMsg = 'You need to set the SIRF_PATH environment variable to allow finding the raw data.'
-            raise error(errorMsg)
+        examples_path = examples_data_path('Registration')
     # Ref
     if ref_args is None:
         ref_args = examples_path + '/test.nii.gz,Reg'

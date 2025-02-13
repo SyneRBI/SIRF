@@ -139,12 +139,19 @@ classdef IterativeReconstructor < sirf.STIR.Reconstructor
         end
         function set_current_estimate(self, image)
 %***SIRF*** Sets the current image estimate.
+%
+%         image will be cloned.
             sirf.Utilities.assert_validity(image, 'ImageData')
-            self.image = image;
+            self.image = image.clone();
         end
+%        function set_estimate(self, image)
+%%***SIRF*** Sets image estimate as a variable that will be updated.
+%            sirf.Utilities.assert_validity(image, 'ImageData')
+%            self.image = image;
+%        end
         function image = get_current_estimate(self)
 %***SIRF*** Returns the current image estimate.
-            image = self.image;
+            image = self.image.clone();
         end
         function update_current_estimate(self)
 %***SIRF*** Updates the current image estimate.

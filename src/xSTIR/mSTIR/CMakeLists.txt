@@ -28,7 +28,7 @@ if(BUILD_MATLAB)
   # Generate m-files on the fly
   add_custom_command(
     OUTPUT ${mstir_c} ${mstir_h}
-    COMMAND gmi_xstir ${CMAKE_CURRENT_BINARY_DIR}
+    COMMAND gmi_xstir ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR}
     DEPENDS ${CMAKE_SOURCE_DIR}/src/xSTIR/cSTIR/include/sirf/STIR/cstir.h
     COMMENT "Generating mstir.c/.h"
     VERBATIM

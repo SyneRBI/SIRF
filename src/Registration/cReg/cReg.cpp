@@ -28,11 +28,12 @@ limitations under the License.
 #include "sirf/Reg/NiftiImageData3DDeformation.h"
 #include "sirf/Reg/NiftyAladinSym.h"
 #include "sirf/Reg/NiftyF3dSym.h"
-#include "sirf/Reg/NiftyResample.h"
+#include "sirf/Reg/NiftyResampler.h"
 #include "sirf/Reg/ImageWeightedMean.h"
 #include "sirf/Reg/Transformation.h"
 #include "sirf/Reg/AffineTransformation.h"
 #include "sirf/Reg/Quaternion.h"
+#include <_reg_tools.h>
 #ifdef SIRF_SPM
 #include "sirf/Reg/SPMRegistration.h"
 #endif
@@ -72,8 +73,8 @@ void* cReg_newObject(const char* name)
             return newObjectHandle(std::shared_ptr<NiftyAladinSym<float> >(new NiftyAladinSym<float>));
         if (strcmp(name, "NiftyF3dSym") == 0)
             return newObjectHandle(std::shared_ptr<NiftyF3dSym<float> >(new NiftyF3dSym<float>));
-        if (strcmp(name, "NiftyResample") == 0)
-            return newObjectHandle(std::shared_ptr<NiftyResample<float> >(new NiftyResample<float>));
+        if (strcmp(name, "NiftyResampler") == 0)
+            return newObjectHandle(std::shared_ptr<NiftyResampler<float> >(new NiftyResampler<float>));
         if (strcmp(name, "ImageWeightedMean") == 0)
             return newObjectHandle(std::shared_ptr<ImageWeightedMean<float> >(new ImageWeightedMean<float>));
         if (strcmp(name, "AffineTransformation") == 0)
@@ -103,8 +104,8 @@ void* setParameter
 #endif
         if (strcmp(obj, "NiftyF3dSym") == 0)
             return cReg_setNiftyF3dSymParameter(ptr_s, name, ptr_v);
-        if (strcmp(obj, "NiftyResample") == 0)
-            return cReg_setNiftyResampleParameter(ptr_s, name, ptr_v);
+        if (strcmp(obj, "NiftyResampler") == 0)
+            return cReg_setNiftyResamplerParameter(ptr_s, name, ptr_v);
 		return unknownObject("object", obj, __FILE__, __LINE__);
 	}
 	CATCH;
@@ -118,8 +119,8 @@ void* parameter(const void* ptr, const char* obj, const char* name)
 		CAST_PTR(DataHandle, handle, ptr);
         if (strcmp(obj, "NiftiImageData") == 0)
             return cReg_NiftiImageDataParameter(handle, name);
-        if (strcmp(obj, "NiftyResample") == 0)
-            return cReg_NiftyResampleParameter(handle, name);
+        if (strcmp(obj, "NiftyResampler") == 0)
+            return cReg_NiftyResamplerParameter(handle, name);
         if (strcmp(obj, "ImageWeightedMean") == 0)
             return cReg_ImageWeightedMeanParameter(handle, name);
         if (strcmp(obj, "AffineTransformation") == 0)
@@ -183,6 +184,19 @@ void* cReg_NiftiImageData_print_headers(const void* handle_vector_ptr)
         return new DataHandle;
     }
     CATCH;
+}
+extern "C"
+void* cReg_NiftiImageData_get_headers(const void* handle_vector_ptr)
+{
+	try {
+		const DataHandleVector handle_vector = objectFromHandle<const DataHandleVector>(handle_vector_ptr);
+		std::vector<const NiftiImageData<float>*> vec;
+		for (unsigned i = 0; i < handle_vector.size(); ++i)
+			vec.push_back(&objectFromHandle<const NiftiImageData<float> >(handle_vector.at(i)));
+		std::string str = NiftiImageData<float>::get_headers(vec);
+		return charDataHandleFromCharData(str.c_str());
+	}
+	CATCH;
 }
 extern "C"
 void* cReg_NiftiImageData_write(const void* ptr, const char* filename, const int datatype)
@@ -327,8 +341,10 @@ void* cReg_NiftiImageData_maths_im(const void *res_ptr, const void* im1_ptr, con
 
         if      (maths_type == 0) res = im1 + im2;
         else if (maths_type == 1) res = im1 - im2;
+        else if (maths_type == 2) res = im1 * im2;
+        else if (maths_type == 3) res = im1 / im2; 
         else
-            throw std::runtime_error("cReg_NiftiImageData_maths_im: Bad maths type (0=add, 1=subtract).");
+            throw std::runtime_error("cReg_NiftiImageData_maths_im: Bad maths type (0=add, 1=subtract, 2=multiply, 3=divide).");
         return new DataHandle;
     }
     CATCH;
@@ -343,8 +359,9 @@ void* cReg_NiftiImageData_maths_num(const void *res_ptr, const void* im1_ptr, co
         if      (maths_type == 0) res = im1 + val;
         else if (maths_type == 1) res = im1 - val;
         else if (maths_type == 2) res = im1 * val;
+        else if (maths_type == 3) res = im1 / val; 
         else
-            throw std::runtime_error("cReg_NiftiImageData_maths_val: Bad maths type (0=add, 1=subtract, 2=multiply.");
+            throw std::runtime_error("cReg_NiftiImageData_maths_num: Bad maths type (0=add, 1=subtract, 2=multiply, 3=divide");
         return new DataHandle;
     }
     CATCH;
@@ -446,13 +463,15 @@ void* cReg_NiftiImageData_get_inner_product(const void* im1_ptr, const void* im2
     CATCH;
 }
 extern "C"
-void* cReg_NiftiImageData_from_SIRFImageData(void* ptr)
+void* cReg_NiftiImageData_from_SIRFImageData(void* ptr, const int is_3D)
 {
-	try {
+    try {
         ImageData& sirf_im = objectFromHandle<ImageData>(ptr);
-        std::shared_ptr<NiftiImageData<float> >
-            sptr(new NiftiImageData<float>(sirf_im));
-        return newObjectHandle(sptr);
+
+        if (is_3D)
+          return newObjectHandle(std::make_shared<NiftiImageData3D<float>>(sirf_im));
+        else
+          return newObjectHandle(std::make_shared<NiftiImageData<float>>(sirf_im));
     }
 	CATCH;
 }
@@ -490,10 +509,23 @@ void* cReg_NiftiImageData_are_equal_to_given_accuracy(void* im1_ptr, void* im2_p
         std::shared_ptr<NiftiImageData<float> > im1_sptr, im2_sptr;
         getObjectSptrFromHandle<NiftiImageData<float> >(im1_ptr, im1_sptr);
         getObjectSptrFromHandle<NiftiImageData<float> >(im2_ptr, im2_sptr);
-        return dataHandle<int>(NiftiImageData<float>::are_equal_to_given_accuracy(im1_sptr, im2_sptr, accuracy));
+        return dataHandle<int>(NiftiImageData<float>::are_equal_to_given_accuracy(*im1_sptr, *im2_sptr, accuracy));
     }
 	CATCH;
 }
+
+extern "C"
+void* cReg_NiftiImageData_kernel_convolution(void* im_ptr, const float sigma, const int type)
+{
+    try {
+        std::shared_ptr<NiftiImageData<float> > im_sptr;
+        getObjectSptrFromHandle<NiftiImageData<float> >(im_ptr, im_sptr);
+        im_sptr->kernel_convolution(sigma, static_cast<NREG_CONV_KERNEL_TYPE>(type));
+        return new DataHandle;
+    }
+	CATCH;
+}
+
 // -------------------------------------------------------------------------------- //
 //      NiftiImageData3DTensor
 // -------------------------------------------------------------------------------- //
@@ -772,13 +804,13 @@ void* cReg_SPMRegistration_get_TM(const void* ptr, const char* dir, const int id
     CATCH;
 }
 // -------------------------------------------------------------------------------- //
-//      NiftyResample
+//      NiftyResampler
 // -------------------------------------------------------------------------------- //
 extern "C"
-void* cReg_NiftyResample_add_transformation(void* self, const void* trans, const char *type)
+void* cReg_NiftyResampler_add_transformation(void* self, const void* trans, const char *type)
 {
     try {
-        NiftyResample<float>& res = objectFromHandle<NiftyResample<float> >(self);
+        NiftyResampler<float>& res = objectFromHandle<NiftyResampler<float> >(self);
         if (strcmp(type, "affine") == 0)
             res.add_transformation(std::make_shared<const AffineTransformation<float> >(objectFromHandle<AffineTransformation<float> >(trans)));
         else if (strcmp(type, "displacement") == 0)
@@ -792,10 +824,10 @@ void* cReg_NiftyResample_add_transformation(void* self, const void* trans, const
     CATCH;
 }
 extern "C"
-void* cReg_NiftyResample_clear_transformations(void* self)
+void* cReg_NiftyResampler_clear_transformations(void* self)
 {
     try {
-        NiftyResample<float>& res = objectFromHandle<NiftyResample<float> >(self);
+        NiftyResampler<float>& res = objectFromHandle<NiftyResampler<float> >(self);
         res.clear_transformations();
         return new DataHandle;
     }
@@ -803,22 +835,22 @@ void* cReg_NiftyResample_clear_transformations(void* self)
 }
 
 extern "C"
-void* cReg_NiftyResample_process(void* ptr)
+void* cReg_NiftyResampler_process(void* ptr)
 {
     try {
-        NiftyResample<float>& res = objectFromHandle<NiftyResample<float> >(ptr);
+        NiftyResampler<float>& res = objectFromHandle<NiftyResampler<float> >(ptr);
         res.process();
         return new DataHandle;
     }
     CATCH;
 }
 extern "C"
-void* cReg_NiftyResample_forward(const void* output_ptr, const void * const input_ptr, const void * resampler_ptr)
+void* cReg_NiftyResampler_forward(const void* output_ptr, const void * const input_ptr, const void * resampler_ptr)
 {
     try {
         // Get resampler
-        std::shared_ptr<NiftyResample<float> > resampler_sptr;
-        getObjectSptrFromHandle<NiftyResample<float> >(resampler_ptr, resampler_sptr);
+        std::shared_ptr<NiftyResampler<float> > resampler_sptr;
+        getObjectSptrFromHandle<NiftyResampler<float> >(resampler_ptr, resampler_sptr);
 
         // Get input and output images
         std::shared_ptr<const ImageData> input_sptr;
@@ -834,12 +866,12 @@ void* cReg_NiftyResample_forward(const void* output_ptr, const void * const inpu
     CATCH;
 }
 extern "C"
-void* cReg_NiftyResample_adjoint(const void* output_ptr, const void * const input_ptr, const void * resampler_ptr)
+void* cReg_NiftyResampler_adjoint(const void* output_ptr, const void * const input_ptr, const void * resampler_ptr)
 {
     try {
         // Get resampler
-        std::shared_ptr<NiftyResample<float> > resampler_sptr;
-        getObjectSptrFromHandle<NiftyResample<float> >(resampler_ptr, resampler_sptr);
+        std::shared_ptr<NiftyResampler<float> > resampler_sptr;
+        getObjectSptrFromHandle<NiftyResampler<float> >(resampler_ptr, resampler_sptr);
 
         // Get input and output images
         std::shared_ptr<const ImageData> input_sptr;
@@ -854,6 +886,17 @@ void* cReg_NiftyResample_adjoint(const void* output_ptr, const void * const inpu
     }
     CATCH;
 }
+
+extern "C"
+void* cReg_NiftyResampler_norm(const void* ptr_res, int num_iter, int verb)
+{
+    try {
+        NiftyResampler<float>& res = objectFromHandle<NiftyResampler<float> >(ptr_res);
+        return dataHandle(res.norm(num_iter, verb));
+    }
+    CATCH;
+}
+
 // -------------------------------------------------------------------------------- //
 //      ImageWeightedMean
 // -------------------------------------------------------------------------------- //

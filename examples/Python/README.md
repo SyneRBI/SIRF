@@ -1,14 +1,22 @@
-This folder's subfolders contain Python demo scripts for PET and MR reconstruction.
+This folder's subfolders contains Python demo scripts.
 
-Note that the SIRF Python utilities should be in your `PYTHONPATH` (see the
-installation instructions).
+For a brief description of each script's purpose and usage type
+```sh
+python <script_name>.py --help
+```
+(on the VM use `python3` instead of `python`).
 
-To run the demo scripts, please create an environment variable 
-`SIRF_PATH` with as value the location of your SIRF source, e.g. 
-`/home/sirfuser/devel/SIRF`.
-If you do not do this, you can still run the non-interactive demos but
-you will have to give full path to raw data files via 
-command-line options `-p` or `--path`.
+Note that the SIRF Python utilities should be in your `PYTHONPATH` (see the installation instructions).
 
-NOTE: on Windows, you must use / in paths, not \\.
+See [the main README section](../README.md#environment-variables) for information
+on environment variables.
+If you do not set the environment variables that allow SIRF to find the example data,
+you can still run most demos but you will have to give full path to raw data files via command-line options `-p` or `--path`.
+
+## Subfolders:
+- [MR](MR#readme)
+- [PET](PET#readme)
+- [PETMR](PETMR#readme)
+- [Registration](Registration#readme)
+- [SPECT](SPECT#readme)
 

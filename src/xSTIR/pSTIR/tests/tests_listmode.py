@@ -14,6 +14,7 @@ Options:
 {licence}
 """
 import sirf.STIR as pet
+import os
 from sirf.Utilities import runner, RE_PYEXT, __license__
 __version__ = "0.2.3"
 __author__ = "Richard Brown"
@@ -23,7 +24,7 @@ def test_main(rec=False, verb=False, throw=True):
     msg_red = pet.MessageRedirector()
 
     data_path = pet.examples_data_path('PET')
-    raw_data_file = pet.existing_filepath(data_path, 'mMR/list.l.hdr')
+    raw_data_file = pet.existing_filepath(os.path.join(data_path, 'mMR'),'list.l.hdr')
 
     lm2sino = pet.ListmodeToSinograms()
     lm2sino.set_input(raw_data_file)

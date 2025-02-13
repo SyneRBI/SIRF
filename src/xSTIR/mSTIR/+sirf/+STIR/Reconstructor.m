@@ -54,7 +54,10 @@ classdef Reconstructor < handle
             sirf.Utilities.delete(h)
         end
         function image = get_output(self)
-            image = self.image;
+            if isempty(self.image)
+                error('Reconstructor:get_output', 'current estimate not set (did you run a reconstruction already?')
+            end
+            image = self.image.clone();
         end
         function reconstruct(self, image)
 %***SIRF*** Reconstruct the image 

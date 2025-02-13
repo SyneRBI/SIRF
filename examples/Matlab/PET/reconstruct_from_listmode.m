@@ -115,6 +115,7 @@ try
 
     % create acquisition sensitivity model from ECAT8 normalization data
     asm_norm = PET.AcquisitionSensitivityModel(norm_file);
+    asm_norm.set_up(acq_data);
     % create acquisition sensitivity model for attenuation
     asm_attn = PET.AcquisitionSensitivityModel(attn_image, acq_model);
     asm_attn.set_up(acq_data);
@@ -125,9 +126,11 @@ try
     asm_attn.unnormalise(bin_eff);
     %store these in a new acquisition sensitivity model
     asm_beff = PET.AcquisitionSensitivityModel(bin_eff);
+    asm_beff.set_up(acq_data);
 
     % chain attenuation and ECAT8 normalisation
     asm = PET.AcquisitionSensitivityModel(asm_norm, asm_beff);
+    asm.set_up(acq_data);
 
     acq_model.set_acquisition_sensitivity(asm);
     acq_model.set_background_term(randoms);

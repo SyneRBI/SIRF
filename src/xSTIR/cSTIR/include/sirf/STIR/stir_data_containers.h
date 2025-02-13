@@ -1,7 +1,7 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC
-Copyright 2018 - 2020 University College London
+Copyright 2015 - 2023 Rutherford Appleton Laboratory STFC
+Copyright 2018 - 2024 University College London
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -21,7 +21,7 @@ limitations under the License.
 
 /*!
 \file
-\ingroup STIR Extensions
+\ingroup PET
 \brief Specification file for data handling types not present in STIR.
 
 \author Evgueni Ovtchinnikov
@@ -37,15 +37,23 @@ limitations under the License.
 #include <chrono>
 #include <fstream>
 #include <exception>
-
+#include <iterator>
+#include "sirf/STIR/stir_types.h"
 #include "sirf/iUtilities/LocalisedException.h"
 #include "sirf/iUtilities/DataHandle.h"
+#include "sirf/common/iequals.h"
+#include "sirf/common/JacobiCG.h"
 #include "sirf/common/DataContainer.h"
 #include "sirf/common/ANumRef.h"
-#include "sirf/common/PETImageData.h"
-#include "sirf/STIR/stir_types.h"
+#include "sirf/common/ImageData.h"
 #include "sirf/common/GeometricalInfo.h"
 #include "stir/ZoomOptions.h"
+
+#if STIR_VERSION < 050000
+#define SPTR_WRAP(X) X->create_shared_clone()
+#else
+#define SPTR_WRAP(X) X
+#endif
 
 namespace sirf {
 
@@ -69,7 +77,7 @@ namespace sirf {
 	};
 
 	/*!
-	\ingroup STIR Extensions
+	\ingroup PET
 	\brief STIR ProjDataInterfile wrapper with additional file managing features.
 
 	This derived class has additional capability of deleting the file it handles
@@ -86,10 +94,10 @@ namespace sirf {
 			_filename(filename),
 			_owns_file(owns_file)
 		{}
-		ProjDataFile(stir::shared_ptr<stir::ExamInfo> sptr_exam_info,
+		ProjDataFile(stir::shared_ptr<const stir::ExamInfo> sptr_exam_info,
 			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info,
 			const std::string& filename, bool owns_file = true) :
-			stir::ProjDataInterfile(sptr_exam_info, sptr_proj_data_info,
+			stir::ProjDataInterfile(SPTR_WRAP(sptr_exam_info), SPTR_WRAP(sptr_proj_data_info),
 			filename, std::ios::in | std::ios::out | std::ios::trunc),
 			_filename(filename),
 			_owns_file(owns_file)
@@ -127,45 +135,87 @@ namespace sirf {
 		std::string _filename;
 	};
 
+#if 0
+        // not used yet. See also https://github.com/SyneRBI/SIRF/pull/1103
 	/*!
-	\ingroup STIR Extensions
+	\ingroup PET
+	\brief Abstract base class for PET scanner data
+	*/
+	class STIRScanData: public virtual ContainerBase {
+	public:
+		virtual ~STIRScanData() {}
+		virtual stir::shared_ptr<stir::ExamData> data_sptr() const = 0;
+		//virtual void set_data_sptr(stir::shared_ptr<stir::ExamData> data) = 0;
+	};
+#endif
+	/*!
+	\ingroup PET
 	\brief STIR ProjData wrapper with added functionality.
 
 	This class enjoys some features of STIR ProjData and, additionally,
 	implements the linear algebra functionality specified by the
-	abstract base class aDatacontainer, and provides means for the data
+	abstract base class DataContainer, and provides means for the data
 	storage mode (file/memory) selection.
 	*/
 
-	class PETAcquisitionData : public DataContainer {
+	class STIRAcquisitionData : /*public STIRScanData, */public DataContainer {
 	public:
-		virtual ~PETAcquisitionData() {}
 
 		// virtual constructors
-		virtual PETAcquisitionData* same_acquisition_data
+		virtual STIRAcquisitionData* same_acquisition_data
 			(stir::shared_ptr<const stir::ExamInfo> sptr_exam_info,
 			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info) const = 0;
-		virtual stir::shared_ptr<PETAcquisitionData> new_acquisition_data() const = 0;
+		virtual std::shared_ptr<STIRAcquisitionData> new_acquisition_data() const = 0;
 
-		stir::shared_ptr<PETAcquisitionData> single_slice_rebinned_data(
+                std::string get_info() const
+                {
+                        return this->data()->get_exam_info_sptr()->parameter_info() +
+                          this->data()->get_proj_data_info_sptr()->parameter_info();
+                 }
+
+		virtual bool is_complex() const
+		{
+			return false;
+		}
+
+		virtual std::unique_ptr<STIRAcquisitionData> get_subset(const std::vector<int>& views) const = 0;
+
+		//! rebin the data to lower resolution by adding
+		/*!
+		  \param num_segments_to_combine combines multiple oblique 'segments' together. If set to the
+		    total number of segments, this corresponds to SSRB. Another example is if the input data
+			has 'span=1', the output span will be equal to the \c num_segments_to_combine.
+		  \param num_views_to_combine combines neighbouring views. Needs to be a divisor of the total
+		    number of views in the data.
+		  \param num_tang_poss_to_trim removes a number of tangential positions (horizontal direction
+		    in the sinogram) at each end
+		  \param do_normalisation if \c true, averages the data, otherwise it adds the data. Often
+		    the latter is required for emission data (as it preserves Poisson statistics),
+			while the former should be used for corrected data (or for attenuation correction factors).
+		  \param max_in_segment_num_to_process by default all input data are used. If set to a non-negative
+		    number, it will remove the most oblique segments.
+		*/
+		std::shared_ptr<STIRAcquisitionData> single_slice_rebinned_data(
 			const int num_segments_to_combine,
 			const int num_views_to_combine = 1,
 			const int num_tang_poss_to_trim = 0,
 			const bool do_normalisation = true,
-			const int max_in_segment_num_to_process = -1
-			)
+			const int max_in_segment_num_to_process = -1,
+			const int num_tof_bins_to_combine = 1
+		)
 		{
 			stir::shared_ptr<stir::ProjDataInfo> out_proj_data_info_sptr(
 				stir::SSRB(*data()->get_proj_data_info_sptr(),
 				num_segments_to_combine,
 				num_views_to_combine,
 				num_tang_poss_to_trim,
-				max_in_segment_num_to_process
-				));
-			stir::shared_ptr<PETAcquisitionData> 
+				max_in_segment_num_to_process,
+				num_tof_bins_to_combine
+			));
+			std::shared_ptr<STIRAcquisitionData> 
 				sptr(same_acquisition_data
                                      (this->get_exam_info_sptr(), out_proj_data_info_sptr));
-			SSRB(*sptr, *data(), do_normalisation);
+			stir::SSRB(*sptr, *data(), do_normalisation);
 			return sptr;
 		}
 
@@ -178,8 +228,10 @@ namespace sirf {
 			}
 			return _storage_scheme;
 		}
-		static stir::shared_ptr<PETAcquisitionData> storage_template()
+		static std::shared_ptr<STIRAcquisitionData> storage_template()
 		{
+			if (!_template)
+                          error("storage_template error. You probably need to call set_storage_scheme() first");
 			return _template;
 		}
 
@@ -187,10 +239,22 @@ namespace sirf {
 		{
 			return _data;
 		}
+/*		virtual stir::shared_ptr<stir::ExamData> data_sptr()
+		{
+			return _data;
+			//return stir::shared_ptr<stir::ExamData>(_data);
+		}*/
 		const stir::shared_ptr<stir::ProjData> data() const
+		//stir::shared_ptr<const stir::ProjData> data() const // causes lots of problems
 		{
 			return _data;
 		}
+                #if 1
+		virtual stir::shared_ptr<stir::ExamData> data_sptr() const
+		{
+			return _data;
+		}
+                #endif
 		void set_data(stir::shared_ptr<stir::ProjData> data)
 		{
 			_data = data;
@@ -198,29 +262,132 @@ namespace sirf {
 
 		// data import/export
 		virtual void fill(const float v) { data()->fill(v); }
-		virtual void fill(const PETAcquisitionData& ad)
+		virtual void fill(const STIRAcquisitionData& ad)
 		{
-			stir::shared_ptr<stir::ProjData> sptr = ad.data();
+			if (ad.is_empty())
+				THROW("The source of STIRAcquisitionData::fill is empty");
+			stir::shared_ptr<const stir::ProjData> sptr = ad.data();
 			data()->fill(*sptr);
 		}
 		virtual void fill_from(const float* d) { data()->fill_from(d); }
 		virtual void copy_to(float* d) const { data()->copy_to(d); }
-		std::unique_ptr<PETAcquisitionData> clone() const
+		std::unique_ptr<STIRAcquisitionData> clone() const
 		{
-			return std::unique_ptr<PETAcquisitionData>(clone_impl());
+			return std::unique_ptr<STIRAcquisitionData>(clone_impl());
 		}
 
 		// data container methods
-		unsigned int items() const { return 1; }
+		unsigned int items() const {
+			if (_is_empty != -1)
+				return _is_empty ? 0 : 1;
+			try {
+#ifdef STIR_TOF
+                          get_segment_by_sinogram(0,0);
+#else
+                          get_segment_by_sinogram(0);
+#endif
+			}
+			catch (...) {
+				_is_empty = 1;
+				return 0; // no data found - this must be a template
+			}
+			_is_empty = 0;
+			return 1; // data ok
+		}
 		virtual float norm() const;
+		/// below all void* are actually float*
+		virtual void sum(void* ptr) const;
+		virtual void max(void* ptr) const;
+		virtual void min(void* ptr) const;
 		virtual void dot(const DataContainer& a_x, void* ptr) const;
+		float dot(const DataContainer& a_x) const
+		{
+			float s;
+			dot(a_x, &s);
+			return s;
+		}
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& a_x,
 			const void* ptr_b, const DataContainer& a_y);
-		virtual void multiply
-			(const DataContainer& x, const DataContainer& y);
-		virtual void divide
-			(const DataContainer& x, const DataContainer& y);
+		virtual void xapyb(
+			const DataContainer& a_x, const void* ptr_a,
+			const DataContainer& a_y, const void* ptr_b);	
+		virtual void xapyb(
+			const DataContainer& a_x, const DataContainer& a_a,
+			const DataContainer& a_y, const DataContainer& a_b);
+		virtual void xapyb(
+			const DataContainer& a_x, const void* ptr_a,
+			const DataContainer& a_y, const DataContainer& a_b);
+		virtual void abs(const DataContainer& x)
+		{
+			unary_op(x, std::abs);
+		}
+		virtual void exp(const DataContainer& x)
+		{
+			unary_op(x, std::exp);
+		}
+		virtual void log(const DataContainer& x)
+		{
+			unary_op(x, std::log);
+		}
+		virtual void sqrt(const DataContainer& x)
+		{
+			unary_op(x, std::sqrt);
+		}
+		virtual void sign(const DataContainer& x)
+		{
+			unary_op(x, DataContainer::sign);
+		}
+		virtual void multiply(const DataContainer& x, const void* ptr_y)
+		{
+			float y = *static_cast<const float*>(ptr_y);
+			semibinary_op(x, y, DataContainer::product<float>);
+		}
+		virtual void add(const DataContainer& x, const void* ptr_y)
+		{
+			float y = *static_cast<const float*>(ptr_y);
+			semibinary_op(x, y, DataContainer::sum<float>);
+		}
+		virtual void divide(const DataContainer& x, const void* ptr_y)
+		{
+			float y = *static_cast<const float*>(ptr_y);
+			semibinary_op(x, y, DataContainer::ratio<float>);
+		}
+		virtual void maximum(const DataContainer& x, const void* ptr_y)
+		{
+			float y = *static_cast<const float*>(ptr_y);
+			semibinary_op(x, y, DataContainer::maximum<float>);
+		}
+		virtual void minimum(const DataContainer& x, const void* ptr_y)
+		{
+			float y = *static_cast<const float*>(ptr_y);
+			semibinary_op(x, y, DataContainer::minimum<float>);
+		}
+		virtual void power(const DataContainer& x, const void* ptr_y)
+		{
+			float y = *static_cast<const float*>(ptr_y);
+			semibinary_op(x, y, std::pow);
+		}
+		virtual void multiply(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op(x, y, DataContainer::product<float>);
+		}
+		virtual void divide(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op(x, y, DataContainer::ratio<float>);
+		}
+		virtual void maximum(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op(x, y, DataContainer::maximum<float>);
+		}
+		virtual void minimum(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op(x, y, DataContainer::minimum<float>);
+		}
+		virtual void power(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op(x, y, std::pow);
+		}
 		virtual void inv(float a, const DataContainer& x);
 		virtual void write(const std::string &filename) const
 		{
@@ -237,31 +404,73 @@ namespace sirf {
 		{
 			return data()->get_num_views();
 		}
-		int get_num_sinograms()
+		//! total number of (2D) sinograms
+		/*! note that for TOF data, this includes the TOF bins.
+		    \see get_num_non_TOF_sinograms()
+	    */
+		int get_num_sinograms() const
 		{
 			return data()->get_num_sinograms();
+        }
+		//! total number of (2D) sinograms ignoring time-of-flight
+		/*! This does include the oblique data as well. */
+		int get_num_non_TOF_sinograms() const
+		{
+			return data()->get_num_non_tof_sinograms();
 		}
+
 		int get_num_TOF_bins()
 		{
-			return 1;
+			return data()->get_num_tof_poss();
+		}
+
+		int get_tof_mash_factor() const
+		{
+			return data()->get_proj_data_info_sptr()->get_tof_mash_factor();
+		}
+
+		size_t get_dimensions(int* dim)
+		{
+			dim[0] = get_num_tangential_poss();
+			dim[1] = get_num_views();
+			dim[2] = get_num_non_TOF_sinograms();
+			dim[3] = get_num_TOF_bins();
+			return static_cast<size_t>(dim[0] * dim[1] * dim[2] * dim[3]);
 		}
 		int get_max_segment_num() const
 		{
 			return data()->get_max_segment_num();
 		}
+#ifdef STIR_TOF
 		stir::SegmentBySinogram<float>
-			get_segment_by_sinogram(const int segment_num) const
+                  get_segment_by_sinogram(const int segment_num, const int timing_pos_num) const
 		{
-			return data()->get_segment_by_sinogram(segment_num);
-		}
+                  return data()->get_segment_by_sinogram(segment_num, timing_pos_num);
+                }
+#else
 		stir::SegmentBySinogram<float>
-			get_empty_segment_by_sinogram(const int segment_num) const
+                  get_segment_by_sinogram(const int segment_num) const
 		{
-			return data()->get_empty_segment_by_sinogram(segment_num);
-		}
-		virtual stir::Succeeded set_segment(const stir::SegmentBySinogram<float>& s)
+                  return data()->get_segment_by_sinogram(segment_num);
+                }
+#endif
+#ifdef STIR_TOF
+		stir::SegmentBySinogram<float>
+                  get_empty_segment_by_sinogram(const int segment_num, const int timing_pos_num) const
 		{
-			return data()->set_segment(s);
+                  return data()->get_empty_segment_by_sinogram(segment_num, false, timing_pos_num);
+                }
+#else
+		stir::SegmentBySinogram<float>
+                  get_empty_segment_by_sinogram(const int segment_num) const
+		{
+                  return data()->get_empty_segment_by_sinogram(segment_num);
+                }
+#endif
+		void set_segment(const stir::SegmentBySinogram<float>& s)
+		{
+			if (data()->set_segment(s) != stir::Succeeded::yes)
+				THROW("stir::ProjData set segment failed");
 		}
 		stir::shared_ptr<const stir::ExamInfo> get_exam_info_sptr() const
 		{
@@ -270,6 +479,11 @@ namespace sirf {
 		stir::shared_ptr<const stir::ProjDataInfo> get_proj_data_info_sptr() const
 		{
 			return data()->get_proj_data_info_sptr();
+		}
+		std::string modality() const
+		{
+			const ExamInfo& ex_info = *get_exam_info_sptr();
+			return ex_info.imaging_modality.get_name();
 		}
 
 		// ProjData casts
@@ -284,7 +498,7 @@ namespace sirf {
 			stir::shared_ptr<stir::Scanner> 
 				sptr_s(stir::Scanner::get_scanner_from_name(scanner_name));
 			//std::cout << "scanner: " << sptr_s->get_name().c_str() << '\n';
-			if (boost::iequals(sptr_s->get_name(), "unknown")) {
+			if (sirf::iequals(sptr_s->get_name(), "unknown")) {
 				throw LocalisedException("Unknown scanner", __FILE__, __LINE__);
 			}
 			int num_views = sptr_s->get_num_detectors_per_ring() / 2 / view_mash_factor;
@@ -295,62 +509,87 @@ namespace sirf {
 				(sptr_s, span, max_ring_diff, num_views, num_tang_pos, false));
 		}
 
+		void unary_op(const DataContainer& a_x, float(*f)(float));
+		void semibinary_op(const DataContainer& a_x, float y, float(*f)(float, float));
+		void binary_op(const DataContainer& a_x, const DataContainer& a_y, float(*f)(float, float));
+
 	protected:
 		static std::string _storage_scheme;
-		static stir::shared_ptr<PETAcquisitionData> _template;
+		static std::shared_ptr<STIRAcquisitionData> _template;
 		stir::shared_ptr<stir::ProjData> _data;
-		virtual PETAcquisitionData* clone_impl() const = 0;
-		PETAcquisitionData* clone_base() const
+		virtual STIRAcquisitionData* clone_impl() const = 0;
+		STIRAcquisitionData* clone_base() const
 		{
-			stir::shared_ptr<stir::ProjDataInfo> sptr_pdi = get_proj_data_info_sptr()->create_shared_clone();
-			PETAcquisitionData* ptr = 
+			stir::shared_ptr<stir::ProjDataInfo> sptr_pdi = this->get_proj_data_info_sptr()->create_shared_clone();
+			STIRAcquisitionData* ptr = 
 				_template->same_acquisition_data(this->get_exam_info_sptr(), sptr_pdi);
-			ptr->fill(*this);
+			if (!this->is_empty())
+				ptr->fill(*this);
 			return ptr;
 		}
 
+	private:
+		mutable int _is_empty = -1;
 	};
 
 	/*!
-	\ingroup STIR Extensions
-	\brief In-file implementation of PETAcquisitionData.
+	\ingroup PET
+	\brief In-file implementation of STIRAcquisitionData.
 
 	*/
 
-	class PETAcquisitionDataInFile : public PETAcquisitionData {
+	class STIRAcquisitionDataInFile : public STIRAcquisitionData {
 	public:
-		PETAcquisitionDataInFile() : _owns_file(false) {}
-		PETAcquisitionDataInFile(const char* filename) : _owns_file(false)
+		STIRAcquisitionDataInFile() : _owns_file(false) {}
+		STIRAcquisitionDataInFile(const char* filename) : _owns_file(false)
 		{
 			_data = stir::ProjData::read_from_file(filename);
 		}
-		PETAcquisitionDataInFile(stir::shared_ptr<const stir::ExamInfo> sptr_exam_info,
+		STIRAcquisitionDataInFile(stir::shared_ptr<const stir::ExamInfo> sptr_exam_info,
 			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info)
 		{
 			_data.reset(new ProjDataFile
                                     (MAKE_SHARED<stir::ExamInfo>(*sptr_exam_info), sptr_proj_data_info,
                                      _filename = SIRFUtilities::scratch_file_name()));
 		}
-		PETAcquisitionDataInFile(const stir::ProjData& pd) : _owns_file(true)
+		STIRAcquisitionDataInFile(const stir::ProjData& pd) : _owns_file(true)
 		{
 			_data.reset(new ProjDataFile
 				(pd, _filename = SIRFUtilities::scratch_file_name()));
 		}
-		PETAcquisitionDataInFile
+		STIRAcquisitionDataInFile
 			(stir::shared_ptr<stir::ExamInfo> sptr_ei, std::string scanner_name,
 			int span = 1, int max_ring_diff = -1, int view_mash_factor = 1)
 		{
 			stir::shared_ptr<stir::ProjDataInfo> sptr_pdi =
-				PETAcquisitionData::proj_data_info_from_scanner
+				STIRAcquisitionData::proj_data_info_from_scanner
 				(scanner_name, span, max_ring_diff, view_mash_factor);
 			ProjDataFile* ptr = new ProjDataFile(sptr_ei, sptr_pdi,
 				_filename = SIRFUtilities::scratch_file_name());
 			ptr->fill(0.0f);
 			_data.reset(ptr);
 		}
-		stir::shared_ptr<PETAcquisitionData> new_acquisition_data(std::string filename)
+		STIRAcquisitionDataInFile(std::unique_ptr<stir::ProjData> uptr_pd) : _owns_file(true)
 		{
-			stir::shared_ptr<PETAcquisitionDataInFile> sptr_ad(new PETAcquisitionDataInFile);
+//			auto *pd_ptr = dynamic_cast<stir::ProjDataInterfile*>(uptr_pd.get());
+			auto pd_ptr = dynamic_cast<stir::ProjDataInterfile*>(uptr_pd.get());
+			if (pd_ptr)
+				_data = std::move(uptr_pd);
+			else {
+				stir::ProjData& pd = *uptr_pd;
+				stir::shared_ptr<const stir::ExamInfo> sptr_exam_info =
+					pd.get_exam_info_sptr();
+				stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info =
+					pd.get_proj_data_info_sptr()->create_shared_clone();
+				_data.reset(new ProjDataFile
+                                    (MAKE_SHARED<stir::ExamInfo>(*sptr_exam_info), sptr_proj_data_info,
+					_filename = SIRFUtilities::scratch_file_name()));
+				_data->fill(pd);
+			}
+		}
+		std::shared_ptr<STIRAcquisitionData> new_acquisition_data(std::string filename)
+		{
+			std::shared_ptr<STIRAcquisitionDataInFile> sptr_ad(new STIRAcquisitionDataInFile);
 			sptr_ad->_data.reset(new ProjDataFile(*data(), filename, false));
 			return sptr_ad;
 		}
@@ -359,24 +598,24 @@ namespace sirf {
 			static bool initialized = false;
 			if (!initialized) {
 				_storage_scheme = "file";
-				_template.reset(new PETAcquisitionDataInFile());
+				_template.reset(new STIRAcquisitionDataInFile());
 				initialized = true;
-				PETAcquisitionData::storage_scheme();
+				STIRAcquisitionData::storage_scheme();
 			}
 		}
 		static void set_as_template()
 		{
 			init();
 			_storage_scheme = "file";
-			_template.reset(new PETAcquisitionDataInFile);
+			_template.reset(new STIRAcquisitionDataInFile);
 		}
 
-		virtual PETAcquisitionData* same_acquisition_data
+		virtual STIRAcquisitionData* same_acquisition_data
 			(stir::shared_ptr<const stir::ExamInfo> sptr_exam_info,
 			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info) const
 		{
-			PETAcquisitionData* ptr_ad =
-				new PETAcquisitionDataInFile(sptr_exam_info, sptr_proj_data_info);
+			STIRAcquisitionData* ptr_ad =
+				new STIRAcquisitionDataInFile(sptr_exam_info, sptr_proj_data_info);
 			return ptr_ad;
 		}
 		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
@@ -386,83 +625,110 @@ namespace sirf {
                                 this->get_exam_info_sptr(),
 				this->get_proj_data_info_sptr()->create_shared_clone());
 			return new ObjectHandle<DataContainer>
-				(stir::shared_ptr<DataContainer>(ptr));
+				(std::shared_ptr<DataContainer>(ptr));
 		}
-		virtual stir::shared_ptr<PETAcquisitionData> new_acquisition_data() const
+		virtual std::shared_ptr<STIRAcquisitionData> new_acquisition_data() const
 		{
 			init();
-			return stir::shared_ptr < PETAcquisitionData >
+			return std::shared_ptr < STIRAcquisitionData >
 				(_template->same_acquisition_data(this->get_exam_info_sptr(),
 				this->get_proj_data_info_sptr()->create_shared_clone()));
 		}
+		virtual std::unique_ptr<STIRAcquisitionData> get_subset(const std::vector<int>& views) const;
 
 	private:
 		bool _owns_file;
 		std::string _filename;
-		virtual PETAcquisitionDataInFile* clone_impl() const
+		virtual STIRAcquisitionDataInFile* clone_impl() const
 		{
 			init();
-			return (PETAcquisitionDataInFile*)clone_base();
+			return (STIRAcquisitionDataInFile*)clone_base();
 		}
 	};
 
 	/*!
-	\ingroup STIR Extensions
-	\brief In-memory implementation of PETAcquisitionData.
+	\ingroup PET
+	\brief In-memory implementation of STIRAcquisitionData.
 
 	*/
 
-	class PETAcquisitionDataInMemory : public PETAcquisitionData {
+	class STIRAcquisitionDataInMemory : public STIRAcquisitionData {
 	public:
-		PETAcquisitionDataInMemory() {}
-		PETAcquisitionDataInMemory(stir::shared_ptr<const stir::ExamInfo> sptr_exam_info,
-			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info)
+		STIRAcquisitionDataInMemory() {}
+		STIRAcquisitionDataInMemory(stir::shared_ptr<const stir::ExamInfo> sptr_exam_info,
+			stir::shared_ptr<const stir::ProjDataInfo> sptr_proj_data_info)
 		{
 			_data = stir::shared_ptr<stir::ProjData>
-                          (new stir::ProjDataInMemory(MAKE_SHARED<stir::ExamInfo>(*sptr_exam_info), sptr_proj_data_info));
+				(new stir::ProjDataInMemory(SPTR_WRAP(sptr_exam_info), SPTR_WRAP(sptr_proj_data_info)));
 		}
-		PETAcquisitionDataInMemory(const stir::ProjData& pd)
+		STIRAcquisitionDataInMemory(const stir::ProjData& templ)
 		{
 			_data = stir::shared_ptr<stir::ProjData>
-				(new stir::ProjDataInMemory(pd.get_exam_info_sptr(),
-				pd.get_proj_data_info_sptr()->create_shared_clone()));
+				(new stir::ProjDataInMemory(templ.get_exam_info_sptr(),
+					templ.get_proj_data_info_sptr()->create_shared_clone()));
 		}
-		PETAcquisitionDataInMemory
+		STIRAcquisitionDataInMemory
 			(stir::shared_ptr<stir::ExamInfo> sptr_ei, std::string scanner_name,
 			int span = 1, int max_ring_diff = -1, int view_mash_factor = 1)
 		{
 			stir::shared_ptr<stir::ProjDataInfo> sptr_pdi =
-				PETAcquisitionData::proj_data_info_from_scanner
+				STIRAcquisitionData::proj_data_info_from_scanner
 				(scanner_name, span, max_ring_diff, view_mash_factor);
 			stir::ProjDataInMemory* ptr = new stir::ProjDataInMemory(sptr_ei, sptr_pdi);
 			ptr->fill(0.0f);
 			_data.reset(ptr);
 		}
-        /// Constructor for PETAcquisitionDataInMemory from filename
-        PETAcquisitionDataInMemory(const char* filename)
+		STIRAcquisitionDataInMemory(std::unique_ptr<stir::ProjData> uptr_pd)
+		{
+//			auto *pd_ptr = dynamic_cast<stir::ProjDataInMemory*>(uptr_pd.get());
+			auto pd_ptr = dynamic_cast<stir::ProjDataInMemory*>(uptr_pd.get());
+			if (pd_ptr)
+				_data = std::move(uptr_pd);
+			else {
+				std::cout << "copying ProjData to ProjDataInMemory...\n";
+				const stir::ProjData& pd = *uptr_pd;
+				auto exam_info_sptr = SPTR_WRAP(pd.get_exam_info_sptr());
+				auto proj_data_info_sptr =
+					SPTR_WRAP(pd.get_proj_data_info_sptr()->create_shared_clone());
+				_data.reset(new stir::ProjDataInMemory(exam_info_sptr, proj_data_info_sptr));
+				_data->fill(pd);
+			}
+		}
+        /// Constructor for STIRAcquisitionDataInMemory from filename
+        STIRAcquisitionDataInMemory(const char* filename)
         {
             auto pd_sptr = stir::ProjData::read_from_file(filename);
-			_data = stir::shared_ptr<stir::ProjData>
-                (new stir::ProjDataInMemory(*pd_sptr));
+			bool is_empty = false;
+			try {
+				pd_sptr->get_segment_by_sinogram(0);
+			}
+			catch (...) {
+				is_empty = true;
+			}
+			if (is_empty)
+				_data = stir::shared_ptr<stir::ProjData>
+					(new stir::ProjDataInMemory(pd_sptr->get_exam_info_sptr(),
+						pd_sptr->get_proj_data_info_sptr()->create_shared_clone()));
+			else
+				_data = stir::shared_ptr<stir::ProjData>
+				(new stir::ProjDataInMemory(*pd_sptr));
         }
 
-		static void init() 
-		{ 
-			PETAcquisitionDataInFile::init(); 
-		}
+		static void init();
+
 		static void set_as_template()
 		{
 			init();
 			_storage_scheme = "memory";
-			_template.reset(new PETAcquisitionDataInMemory);
+			_template.reset(new STIRAcquisitionDataInMemory);
 		}
 
-		virtual PETAcquisitionData* same_acquisition_data
+		virtual STIRAcquisitionData* same_acquisition_data
 			(stir::shared_ptr<const stir::ExamInfo> sptr_exam_info,
 			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info) const
 		{
-			PETAcquisitionData* ptr_ad =
-				new PETAcquisitionDataInMemory(sptr_exam_info, sptr_proj_data_info);
+			STIRAcquisitionData* ptr_ad =
+				new STIRAcquisitionDataInMemory(sptr_exam_info, sptr_proj_data_info);
 			return ptr_ad;
 		}
 		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
@@ -472,38 +738,40 @@ namespace sirf {
 				(this->get_exam_info_sptr(),
                                  this->get_proj_data_info_sptr()->create_shared_clone());
 			return new ObjectHandle<DataContainer>
-				(stir::shared_ptr<DataContainer>(ptr));
+				(std::shared_ptr<DataContainer>(ptr));
 		}
-		virtual stir::shared_ptr<PETAcquisitionData> new_acquisition_data() const
+		virtual std::shared_ptr<STIRAcquisitionData> new_acquisition_data() const
 		{
 			init();
-			return stir::shared_ptr < PETAcquisitionData >
+			return std::shared_ptr < STIRAcquisitionData >
 				(_template->same_acquisition_data
 				(this->get_exam_info_sptr(),
                                  this->get_proj_data_info_sptr()->create_shared_clone()));
 		}
+		virtual std::unique_ptr<STIRAcquisitionData> get_subset(const std::vector<int>& views) const;
+
         /// fill with single value
         virtual void fill(const float v)
         {
             stir::ProjDataInMemory *pd_ptr = dynamic_cast<stir::ProjDataInMemory*>(data().get());
             // If cast failed, fall back to general method
             if (is_null_ptr(pd_ptr))
-                return this->PETAcquisitionData::fill(v);
+                return this->STIRAcquisitionData::fill(v);
 
             // do it
             auto iter = pd_ptr->begin();
             while (iter != pd_ptr->end())
                 *iter++ = v;
         }
-        /// fill from another PETAcquisitionData
-        virtual void fill(const PETAcquisitionData& ad)
+        /// fill from another STIRAcquisitionData
+        virtual void fill(const STIRAcquisitionData& ad)
         {
-            // Can only do this if both are PETAcquisitionDataInMemory
+            // Can only do this if both are STIRAcquisitionDataInMemory
             stir::ProjDataInMemory *pd_ptr = dynamic_cast<stir::ProjDataInMemory*>(data().get());
             const stir::ProjDataInMemory *pd2_ptr = dynamic_cast<const stir::ProjDataInMemory*>(ad.data().get());
             // If either cast failed, fall back to general method
             if (is_null_ptr(pd_ptr) || is_null_ptr(pd2_ptr))
-                return this->PETAcquisitionData::fill(ad);
+                return this->STIRAcquisitionData::fill(ad);
 
             // do it
             auto iter = pd_ptr->begin();
@@ -517,7 +785,7 @@ namespace sirf {
             stir::ProjDataInMemory *pd_ptr = dynamic_cast<stir::ProjDataInMemory*>(data().get());
             // If cast failed, fall back to general method
             if (is_null_ptr(pd_ptr))
-                return this->PETAcquisitionData::fill_from(d);
+                return this->STIRAcquisitionData::fill_from(d);
 
             // do it
             auto iter = pd_ptr->begin();
@@ -530,63 +798,64 @@ namespace sirf {
             const stir::ProjDataInMemory *pd_ptr = dynamic_cast<const stir::ProjDataInMemory*>(data().get());
             // If cast failed, fall back to general method
             if (is_null_ptr(pd_ptr))
-                return this->PETAcquisitionData::copy_to(d);
+                return this->STIRAcquisitionData::copy_to(d);
 
             // do it
             auto iter = pd_ptr->begin();
             while (iter != pd_ptr->end())
                 *d++ = *iter++;
         }
-        /// Calculate the norm
         virtual float norm() const
         {
             const stir::ProjDataInMemory *pd_ptr = dynamic_cast<const stir::ProjDataInMemory*>(data().get());
             // If cast failed, fall back to general method
             if (is_null_ptr(pd_ptr))
-                return this->PETAcquisitionData::norm();
+                return this->STIRAcquisitionData::norm();
 
             // do it
+#if STIR_VERSION <= 060100
             double t = 0.0;
             auto iter = pd_ptr->begin();
-            while (iter != pd_ptr->end())
-                t += (*iter) * (*iter++);
-            return sqrt((float)t);
+			for (; iter != pd_ptr->end(); ++iter)
+				t += (*iter) * (*iter);
+			return std::sqrt((float)t);
+#else
+                        return static_cast<float>(pd_ptr->norm());
+#endif
         }
-        /// Dot between "this" and "other"
         virtual void dot(const DataContainer& a_x, void* ptr) const
         {
-            auto x = dynamic_cast<const PETAcquisitionData*>(&a_x);
-            // Can only do this if both are PETAcquisitionDataInMemory
+            auto x = dynamic_cast<const STIRAcquisitionData*>(&a_x);
+            // Can only do this if both are STIRAcquisitionDataInMemory
             stir::ProjDataInMemory *pd_ptr = dynamic_cast<stir::ProjDataInMemory*>(data().get());
             const stir::ProjDataInMemory *pd2_ptr = dynamic_cast<const stir::ProjDataInMemory*>(x->data().get());
             // If either cast failed, fall back to general method
             if (is_null_ptr(pd_ptr) || is_null_ptr(pd2_ptr))
-                return this->PETAcquisitionData::dot(a_x,ptr);
+                return this->STIRAcquisitionData::dot(a_x,ptr);
 
             // do it
             double t = 0.0;
             auto iter = pd_ptr->begin();
             auto iter_other = pd2_ptr->begin();
             while (iter != pd_ptr->end())
-                t += (*iter++) * (*iter_other++);
+                t += (*iter++) * double(*iter_other++);
 
-            float* ptr_t = (float*)ptr;
-            *ptr_t = (float)t;
+			float* ptr_t = static_cast<float*>(ptr);
+			*ptr_t = (float)t;
         }
-        /// Element-wise multiplication of x and y. Store result in "this"
         virtual void multiply(const DataContainer& x, const DataContainer& y)
         {
-            auto a_x = dynamic_cast<const PETAcquisitionData*>(&x);
-            auto a_y = dynamic_cast<const PETAcquisitionData*>(&y);
+            auto a_x = dynamic_cast<const STIRAcquisitionData*>(&x);
+            auto a_y = dynamic_cast<const STIRAcquisitionData*>(&y);
 
-            // Can only do this if all are PETAcquisitionDataInMemory
+            // Can only do this if all are STIRAcquisitionDataInMemory
             auto *pd_ptr   = dynamic_cast<stir::ProjDataInMemory*>(data().get());
             auto *pd_x_ptr = dynamic_cast<const stir::ProjDataInMemory*>(a_x->data().get());
             auto *pd_y_ptr = dynamic_cast<const stir::ProjDataInMemory*>(a_y->data().get());
 
             // If either cast failed, fall back to general method
             if (is_null_ptr(pd_ptr) || is_null_ptr(pd_x_ptr) || is_null_ptr(pd_x_ptr))
-                return this->PETAcquisitionData::multiply(x,y);
+                return this->STIRAcquisitionData::multiply(x,y);
 
             // do it
             auto iter = pd_ptr->begin();
@@ -595,20 +864,19 @@ namespace sirf {
             while (iter != pd_ptr->end())
                 *iter++ = (*iter_x++) * (*iter_y++);
         }
-        /// Element-wise division of x and y. Store result in "this"
         virtual void divide(const DataContainer& x, const DataContainer& y)
         {
-            auto a_x = dynamic_cast<const PETAcquisitionData*>(&x);
-            auto a_y = dynamic_cast<const PETAcquisitionData*>(&y);
+            auto a_x = dynamic_cast<const STIRAcquisitionData*>(&x);
+            auto a_y = dynamic_cast<const STIRAcquisitionData*>(&y);
 
-            // Can only do this if all are PETAcquisitionDataInMemory
+            // Can only do this if all are STIRAcquisitionDataInMemory
             auto *pd_ptr   = dynamic_cast<stir::ProjDataInMemory*>(data().get());
             auto *pd_x_ptr = dynamic_cast<const stir::ProjDataInMemory*>(a_x->data().get());
             auto *pd_y_ptr = dynamic_cast<const stir::ProjDataInMemory*>(a_y->data().get());
 
             // If either cast failed, fall back to general method
             if (is_null_ptr(pd_ptr) || is_null_ptr(pd_x_ptr) || is_null_ptr(pd_x_ptr))
-                return this->PETAcquisitionData::divide(x,y);
+                return this->STIRAcquisitionData::divide(x,y);
 
             // do it
             auto iter = pd_ptr->begin();
@@ -619,34 +887,95 @@ namespace sirf {
         }
 
 	private:
-		virtual PETAcquisitionDataInMemory* clone_impl() const
+		virtual STIRAcquisitionDataInMemory* clone_impl() const
 		{
 			init();
-			return (PETAcquisitionDataInMemory*)clone_base();
+			return (STIRAcquisitionDataInMemory*)clone_base();
 		}
 	};
 
+        /*! container for STIR PET or SPECT list-mode data
+          \ingroup PET
+
+          This class contains a stir::ListModeData object and has a few methods to access it.
+        */
+	class STIRListmodeData : public ContainerBase /*STIRScanData*/ {
+	public:
+		STIRListmodeData(std::string lmdata_filename)
+		{
+			_data = stir::read_from_file<stir::ListModeData>(lmdata_filename);
+		}
+                virtual ~STIRListmodeData() {}
+
+                // TODO remove
+		virtual stir::shared_ptr<stir::ExamData> data_sptr() const {
+			return _data;
+		}
+		virtual stir::shared_ptr<stir::ListModeData> data() const {
+			return _data;
+		}
+#if 0
+		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
+		{
+			THROW("ListmodeData::new_data_container_handle not implemented");
+			return 0;
+		}
+#endif
+                //! Construct an AcquisitionData object corresponding to the listmode data
+                /*! no additional compression (such as as mashing, or rebinning) is used.*/
+                std::shared_ptr<STIRAcquisitionData> acquisition_data_template() const
+                {
+			return std::shared_ptr < STIRAcquisitionData >
+                          (STIRAcquisitionData::storage_template()->same_acquisition_data(this->data()->get_exam_info_sptr(),
+                                                                                          this->data()->get_proj_data_info_sptr()->create_shared_clone()));
+                }
+          std::string get_info() const
+                {
+                  return this->data()->get_exam_info_sptr()->parameter_info() +
+                          this->data()->get_proj_data_info_sptr()->parameter_info();
+                 }
+	protected:
+		stir::shared_ptr<stir::ListModeData> _data;
+		virtual DataContainer* clone_impl() const
+		{
+			THROW("ListmodeData::clone not implemented");
+		}
+	};
+
+#if SIRF_VERSION_MAJOR < 4
+	///
+	///  Backward compatibility - to be removed in SIRF 4
+	///
+	typedef STIRAcquisitionData PETAcquisitionData;
+	typedef STIRAcquisitionDataInFile PETAcquisitionDataInFile;
+	typedef STIRAcquisitionDataInMemory PETAcquisitionDataInMemory;
+#endif
+
+	typedef Image3DF::full_iterator Image3DFIterator;
+	typedef Image3DF::const_full_iterator Image3DFIterator_const;
+
 	/*!
-	\ingroup STIR Extensions
+	\ingroup PET
 	\brief STIR DiscretisedDensity<3, float> wrapper with added functionality.
 
 	This class enjoys some features of STIR DiscretisedDensity<3, float> and,
 	additioanally, implements the linear algebra functionality specified by the
 	abstract base class aDatacontainer.
 	*/
-
-	typedef Image3DF::full_iterator Image3DFIterator;
-	typedef Image3DF::const_full_iterator Image3DFIterator_const;
-
-	//class STIRImageData : public aDataContainer < float > {
-	class STIRImageData : public PETImageData { //<Iterator, Iterator_const> {
+	class STIRImageData : public ImageData {
 	public:
-		//typedef PETImageData<Iterator, Iterator_const>::Iter BaseIter;
-		//typedef PETImageData<Iterator, Iterator_const>::Iter_const BaseIter_const;
 		typedef ImageData::Iterator BaseIter;
 		typedef ImageData::Iterator_const BaseIter_const;
 		class Iterator : public BaseIter {
 		public:
+			//! \name typedefs for std::iterator_traits
+			//@{
+			typedef Image3DFIterator::difference_type difference_type;
+			typedef Image3DFIterator::value_type value_type;
+			typedef Image3DFIterator::reference reference;
+			typedef Image3DFIterator::pointer pointer;
+			typedef std::forward_iterator_tag iterator_category;
+			//@}
 			Iterator(const Image3DFIterator& iter) : _iter(iter)
 			{}
 			Iterator& operator=(const Iterator& iter)
@@ -732,94 +1061,196 @@ namespace sirf {
 			std::shared_ptr<Iterator_const> _sptr_iter;
 		};
 		STIRImageData() {}
-        STIRImageData(const ImageData& id);
+		STIRImageData(const ImageData& id);
 		STIRImageData(const STIRImageData& image)
 		{
 			_data.reset(image.data().clone());
-            this->set_up_geom_info();
+			this->set_up_geom_info();
 		}
-		STIRImageData(const PETAcquisitionData& ad)
+		STIRImageData(const STIRAcquisitionData& ad)
 		{
-                  _data.reset(new Voxels3DF(MAKE_SHARED<stir::ExamInfo>(*ad.get_exam_info_sptr()),*ad.get_proj_data_info_sptr()));
-            this->set_up_geom_info();
+			_data.reset(new Voxels3DF(MAKE_SHARED<stir::ExamInfo>(*ad.get_exam_info_sptr()), *ad.get_proj_data_info_sptr()));
+			this->set_up_geom_info();
 		}
 		STIRImageData(const Image3DF& image)
 		{
 			_data.reset(image.clone());
-            this->set_up_geom_info();
+			this->set_up_geom_info();
 		}
 		STIRImageData(const Voxels3DF& v)
 		{
 			_data.reset(v.clone());
-            this->set_up_geom_info();
+			this->set_up_geom_info();
 		}
 		STIRImageData(const stir::ProjDataInfo& pdi)
 		{
 			_data.reset(new Voxels3DF(pdi));
-            this->set_up_geom_info();
+			this->set_up_geom_info();
 		}
 		STIRImageData(stir::shared_ptr<Image3DF> ptr)
 		{
 			_data = ptr;
-            this->set_up_geom_info();
+			this->set_up_geom_info();
 		}
 		STIRImageData(std::string filename)
 		{
 			_data = stir::read_from_file<Image3DF>(filename);
-            this->set_up_geom_info();
+			this->set_up_geom_info();
 		}
 		STIRImageData* same_image_data() const
 		{
 			STIRImageData* ptr_image = new STIRImageData;
 			ptr_image->_data.reset(_data->get_empty_copy());
-            ptr_image->set_up_geom_info();
+			ptr_image->set_up_geom_info();
 			return ptr_image;
 		}
-		stir::shared_ptr<STIRImageData> new_image_data()
+		std::shared_ptr<STIRImageData> new_image_data()
 		{
-			return stir::shared_ptr<STIRImageData>(same_image_data());
+			return std::shared_ptr<STIRImageData>(same_image_data());
 		}
 		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
 			return new ObjectHandle<DataContainer>
-				(stir::shared_ptr<DataContainer>(same_image_data()));
+				(std::shared_ptr<DataContainer>(same_image_data()));
+		}
+                std::string get_info() const
+                {
+                        return this->data().get_exam_info_sptr()->parameter_info();
+                        // TODO geometric info, although that's handled separately in SIRF
+                 }
+		virtual bool is_complex() const
+		{
+			return false;
 		}
 		unsigned int items() const
 		{
 			return 1;
 		}
-        /// Write to file
-        virtual void write(const std::string &filename) const;
-        /// Write to file using format file.
-        /*! This allows speciyfing the output file format used by STIR using a text file.
-            Keywords are specified by STIR.
 
-            If "" is passed as argument for format_file, the default format will be used.
+		std::string modality() const
+		{
+			ExamInfo ex_info = data().get_exam_info();
+			return ex_info.imaging_modality.get_name();
+		}
+		void set_modality(const std::string& mod)
+		{
+			ExamInfo ex_info = data().get_exam_info();
+			ex_info.imaging_modality = ImagingModality(mod);
+			data().set_exam_info(ex_info);
+		}
 
-            An example is given below for writing the image in the nifti format. STIR uses
-            ITK to do this, so ensure that STIR is built with ITK if you wish to use it.
-            \verbatim
-            OutputFileFormat Parameters:=
-                output file format type := ITK
-                ITK Output File Format Parameters:=
-                number format := float
-                number_of_bytes_per_pixel:=4
-                default extension:=.nii
-                End ITK Output File Format Parameters:=
-           End:=
-           \endverbatim
-        */
-        virtual void write(const std::string &filename, const std::string &format_file) const;
+		/// Write to file
+		virtual void write(const std::string& filename) const;
+		/// Write to file using format file.
+		/*! This allows speciyfing the output file format used by STIR using a text file.
+			Keywords are specified by STIR.
+
+			If "" is passed as argument for format_file, the default format will be used.
+
+			An example is given below for writing the image in the nifti format (when using the
+                        `.nii` extension or when not specifying an extension). STIR uses
+			ITK to do this, so ensure that STIR is built with ITK if you wish to use it.
+			\verbatim
+			Output File Format Parameters:=
+				output file format type := ITK
+				ITK Output File Format Parameters:=
+				number format := float
+				number_of_bytes_per_pixel:=4
+				default extension:=.nii
+				End ITK Output File Format Parameters:=
+		        End:=
+		   \endverbatim
+		*/
+		virtual void write(const std::string& filename, const std::string& format_file) const;
 
 		virtual float norm() const;
+		/// below all void* are actually float*
+		virtual void sum(void* ptr) const;
+		virtual void max(void* ptr) const;
+		virtual void min(void* ptr) const;
 		virtual void dot(const DataContainer& a_x, void* ptr) const;
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& a_x,
 			const void* ptr_b, const DataContainer& a_y);
-		virtual void multiply(const DataContainer& x,
-			const DataContainer& y);
-		virtual void divide(const DataContainer& x,
-			const DataContainer& y);
+		virtual void xapyb(
+			const DataContainer& a_x, const void* ptr_a,
+			const DataContainer& a_y, const void* ptr_b);
+		virtual void xapyb(
+			const DataContainer& a_x, const DataContainer& a_a,
+			const DataContainer& a_y, const DataContainer& a_b);
+		virtual void xapyb(
+			const DataContainer& a_x, const void* ptr_a,
+			const DataContainer& a_y, const DataContainer& a_b);
+		virtual void abs(const DataContainer& x)
+		{
+			unary_op(x, std::abs);
+		}
+		virtual void exp(const DataContainer& x)
+		{
+			unary_op(x, std::exp);
+		}
+		virtual void log(const DataContainer& x)
+		{
+			unary_op(x, std::log);
+		}
+		virtual void sqrt(const DataContainer& x)
+		{
+			unary_op(x, std::sqrt);
+		}
+		virtual void sign(const DataContainer& x)
+		{
+			unary_op(x, DataContainer::sign);
+		}
+		virtual void multiply(const DataContainer& x, const void* ptr_y)
+		{
+			float y = *static_cast<const float*>(ptr_y);
+			semibinary_op(x, y, DataContainer::product<float>);
+		}
+		virtual void add(const DataContainer& x, const void* ptr_y)
+		{
+			float y = *static_cast<const float*>(ptr_y);
+			semibinary_op(x, y, DataContainer::sum<float>);
+		}
+		virtual void divide(const DataContainer& x, const void* ptr_y)
+		{
+			float y = *static_cast<const float*>(ptr_y);
+			semibinary_op(x, y, DataContainer::ratio<float>);
+		}
+		virtual void maximum(const DataContainer& x, const void* ptr_y)
+		{
+			float y = *static_cast<const float*>(ptr_y);
+			semibinary_op(x, y, DataContainer::maximum<float>);
+		}
+		virtual void minimum(const DataContainer& x, const void* ptr_y)
+		{
+			float y = *static_cast<const float*>(ptr_y);
+			semibinary_op(x, y, DataContainer::minimum<float>);
+		}
+		virtual void power(const DataContainer& x, const void* ptr_y)
+		{
+			float y = *static_cast<const float*>(ptr_y);
+			semibinary_op(x, y, std::pow);
+		}
+		virtual void multiply(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op(x, y, DataContainer::product<float>);
+		}
+		virtual void divide(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op(x, y, DataContainer::ratio<float>);
+		}
+		virtual void maximum(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op(x, y, DataContainer::maximum<float>);
+		}
+		virtual void minimum(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op(x, y, DataContainer::minimum<float>);
+		}
+		virtual void power(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op(x, y, std::pow);
+		}
 
 		Image3DF& data()
 		{
@@ -841,13 +1272,41 @@ namespace sirf {
 		{
 			return _data;
 		}
+		stir::shared_ptr<const Image3DF> data_sptr() const
+		{
+			return _data;
+		}
 		void set_data_sptr(stir::shared_ptr<Image3DF> sptr_data)
 		{
 			_data = sptr_data;
 		}
+
 		void fill(float v)
 		{
 			_data->fill(v);
+		}
+		void scale(float s);
+		float dot(const DataContainer& a_x) const
+		{
+			float s;
+			dot(a_x, &s);
+			return s;
+		}
+		void axpby(
+			float a, const DataContainer& a_x,
+			float b, const DataContainer& a_y)
+		{
+			axpby(&a, a_x, &b, a_y);
+		}
+		void xapyb(
+			const DataContainer& a_x, float a,
+			const DataContainer& a_y, float b)
+		{
+			xapyb(a_x, &a, a_y, &b);
+		}
+		size_t size() const
+		{
+			return _data->size_all();
 		}
 		virtual Dimensions dimensions() const
 		{
@@ -884,46 +1343,49 @@ namespace sirf {
 			return *_end_const;
 		}
 
-        /// Clone and return as unique pointer.
-        std::unique_ptr<STIRImageData> clone() const
-        {
-            return std::unique_ptr<STIRImageData>(this->clone_impl());
-        }
+		/// Clone and return as unique pointer.
+		std::unique_ptr<STIRImageData> clone() const
+		{
+			return std::unique_ptr<STIRImageData>(this->clone_impl());
+		}
 
-        /// Zoom the image (modifies itself).
-        /// All indices and coordinates should be (z,y,x) order.
-        /// To leave the size unchanged in any dimension, set the corresponding size to -1.
-        void zoom_image(const Coord3DF &zooms={1.f,1.f,1.f}, const Coord3DF &offsets_in_mm={0.f,0.f,0.f},
-                        const Coord3DI &new_sizes={-1,-1,-1}, const char * const zoom_options_str="preserve_sum");
+		/// Zoom the image (modifies itself).
+		/// All indices and coordinates should be (z,y,x) order.
+		/// To leave the size unchanged in any dimension, set the corresponding size to -1.
+		void zoom_image(const Coord3DF& zooms = { 1.f,1.f,1.f }, const Coord3DF& offsets_in_mm = { 0.f,0.f,0.f },
+			const Coord3DI& new_sizes = { -1,-1,-1 }, const char* const zoom_options_str = "preserve_sum");
 
-        /// Zoom the image (modifies itself).
-        /// All indices and coordinates should be (z,y,x) order.
-        /// To leave the size unchanged in any dimension, set the corresponding size to -1.
-        void zoom_image(const Coord3DF &zooms={1.f,1.f,1.f}, const Coord3DF &offsets_in_mm={0.f,0.f,0.f},
-                        const Coord3DI &new_sizes={-1,-1,-1},
-                        const stir::ZoomOptions zoom_options=stir::ZoomOptions::preserve_sum);
+		/// Zoom the image (modifies itself).
+		/// All indices and coordinates should be (z,y,x) order.
+		/// To leave the size unchanged in any dimension, set the corresponding size to -1.
+		void zoom_image(const Coord3DF& zooms = { 1.f,1.f,1.f }, const Coord3DF& offsets_in_mm = { 0.f,0.f,0.f },
+			const Coord3DI& new_sizes = { -1,-1,-1 },
+			const stir::ZoomOptions zoom_options = stir::ZoomOptions::preserve_sum);
 
-        /// Move to scanner centre. The acquisition needs to be supplied such that in the future,
-        /// bed offset etc can be taken into account.
-        void move_to_scanner_centre(const PETAcquisitionData &);
+		/// Move to scanner centre. The acquisition needs to be supplied such that in the future,
+		/// bed offset etc can be taken into account.
+		void move_to_scanner_centre(const STIRAcquisitionData&);
 
-        /// Populate the geometrical info metadata (from the image's own metadata)
-        virtual void set_up_geom_info();
+		/// Populate the geometrical info metadata (from the image's own metadata)
+		virtual void set_up_geom_info();
 
-    private:
-        /// Clone helper function. Don't use.
-        virtual STIRImageData* clone_impl() const
-        {
-            return new STIRImageData(*this);
-        }
+		void unary_op(const DataContainer& a_x, float(*f)(float));
+		void semibinary_op(const DataContainer& a_x, float y, float(*f)(float, float));
+		void binary_op(const DataContainer& a_x, const DataContainer& a_y, float(*f)(float, float));
+
+	private:
+		/// Clone helper function. Don't use.
+		virtual STIRImageData* clone_impl() const
+		{
+			return new STIRImageData(*this);
+		}
 
 	protected:
-
 		stir::shared_ptr<Image3DF> _data;
-		mutable stir::shared_ptr<Iterator> _begin;
-		mutable stir::shared_ptr<Iterator> _end;
-		mutable stir::shared_ptr<Iterator_const> _begin_const;
-		mutable stir::shared_ptr<Iterator_const> _end_const;
+		mutable std::shared_ptr<Iterator> _begin;
+		mutable std::shared_ptr<Iterator> _end;
+		mutable std::shared_ptr<Iterator_const> _begin_const;
+		mutable std::shared_ptr<Iterator_const> _end_const;
 	};
 
 }  // namespace sirf

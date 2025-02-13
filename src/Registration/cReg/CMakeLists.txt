@@ -15,27 +15,16 @@
 
 set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
-# Configure the aladin/f3d files dependent on NIFTYREG version number
-include(${CMAKE_CURRENT_SOURCE_DIR}/../callable_NR_methods.cmake)
-get_parser_methods("../callable_NR_aladin_methods.txt" "reg_aladin_sym" "${NIFTYREG_VERSION}" NR_aladin_parser_methods)
-get_parser_methods("../callable_NR_f3d_methods.txt"    "reg_f3d"    "${NIFTYREG_VERSION}" NR_f3d_parser_methods   )
-get_runtime_methods("../callable_NR_aladin_methods.txt" "${NIFTYREG_VERSION}" NR_aladin_runtime_methods)
-get_runtime_methods("../callable_NR_f3d_methods.txt"    "${NIFTYREG_VERSION}" NR_f3d_runtime_methods   )
-get_list_of_wrapped_methods("../callable_NR_aladin_methods.txt" "${NIFTYREG_VERSION}" NR_aladin_list_methods)
-get_list_of_wrapped_methods("../callable_NR_f3d_methods.txt"    "${NIFTYREG_VERSION}" NR_f3d_list_methods   )
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/NiftyAladinSym.cpp.in" "${CMAKE_CURRENT_BINARY_DIR}/NiftyAladinSym.cpp")
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/NiftyF3dSym.cpp.in"    "${CMAKE_CURRENT_BINARY_DIR}/NiftyF3dSym.cpp"   )
-
 # Add in the common files
 SET(SOURCES
   "Registration.cpp"
   "NiftiBasedRegistration.cpp"
   "NiftyRegistration.cpp"
-  "${CMAKE_CURRENT_BINARY_DIR}/NiftyAladinSym.cpp"
-  "${CMAKE_CURRENT_BINARY_DIR}/NiftyF3dSym.cpp"
+  "NiftyAladinSym.cpp"
+  "NiftyF3dSym.cpp"
   "ImageWeightedMean.cpp"
   "Resample.cpp"
-  "NiftyResample.cpp"
+  "NiftyResampler.cpp"
   "Transformation.cpp"
   "AffineTransformation.cpp"
   "Quaternion.cpp"
@@ -85,17 +74,7 @@ if (NIFTYREG_BUILT_WITH_OPENCL)
 endif()
 
 # Add boost library dependencies
-if((CMAKE_VERSION VERSION_LESS 3.5.0) OR (NOT _Boost_IMPORTED_TARGETS))
-  # This is harder than it should be on older CMake versions to be able to cope with
-  # spaces in filenames.
-  foreach(C SYSTEM FILESYSTEM)
-    target_link_libraries(Reg PUBLIC optimized "${Boost_${C}_LIBRARY_RELEASE}")
-    target_link_libraries(Reg PUBLIC debug  "${Boost_${C}_LIBRARY_DEBUG}")
-  endforeach()
-else()
-  # Nice and simple for recent CMake (which knows about your Boost version)
-  target_link_libraries(Reg PUBLIC Boost::system Boost::filesystem)
-endif()
+target_link_libraries(Reg PUBLIC Boost::system Boost::filesystem)
 
 # Link Matlab for SPM
 IF(SPM_FOUND)
@@ -109,14 +88,20 @@ IF(VTK_FOUND)
   if(TARGET VTK::IOImage AND TARGET VTK::FiltersHybrid)
     TARGET_LINK_LIBRARIES(Reg INTERFACE VTK::IOImage VTK::FiltersHybrid)
   else()
+    message(WARNING "old VTK found, which does not seem to be using CMake targets. Manually adding include dirs : ${vtkFiltersHybrid_INCLUDE_DIRS} and ${VTK_INCLUDE_DIRS}")
     target_link_libraries(Reg INTERFACE ${VTK_LIBRARIES})
-    target_include_directories(Reg INTERFACE ${vtkFiltersHybrid_INCLUDE_DIRS})
+    target_include_directories(Reg INTERFACE "${vtkFiltersHybrid_INCLUDE_DIRS}" "${VTK_INCLUDE_DIRS}")
   endif()
   target_compile_definitions(Reg PUBLIC SIRF_VTK)
 ENDIF()
 
 # Install
-INSTALL(TARGETS Reg  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+  COMPONENT Development
+  DESTINATION include)
+install(TARGETS Reg EXPORT SIRFTargets
+  COMPONENT Development
+  DESTINATION lib)
 
 SET(REG_executables
     sirf_affine_to_disp
@@ -130,7 +115,8 @@ SET(REG_executables
     )
 
 FOREACH(elem ${REG_executables})
-    ADD_EXECUTABLE(${elem} ${elem}.cpp)
+    # Note: adding STIR_REGISTRIES to avoid linking errors (and give extra IO capabilities)
+    ADD_EXECUTABLE(${elem} ${elem}.cpp ${STIR_REGISTRIES})
     TARGET_LINK_LIBRARIES(${elem} LINK_PUBLIC Reg)
     INSTALL(TARGETS ${elem} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 ENDFOREACH(elem ${REG_executables})

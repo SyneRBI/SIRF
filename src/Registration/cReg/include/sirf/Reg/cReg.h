@@ -40,8 +40,9 @@ extern "C" {
     void* parameter(const void* ptr, const char* obj, const char* name);
 
     // NiftiImageData
-    void* cReg_NiftiImageData_print_headers(const void *handle_vector_ptr);
-    void* cReg_NiftiImageData_write(const void* ptr, const char* filename, const int datatype);
+	void* cReg_NiftiImageData_get_headers(const void *handle_vector_ptr);
+	void* cReg_NiftiImageData_print_headers(const void *handle_vector_ptr);
+	void* cReg_NiftiImageData_write(const void* ptr, const char* filename, const int datatype);
     void* cReg_NiftiImageData_fill(const void* ptr, const float val);
     void* cReg_NiftiImageData_fill_arr(const void* ptr, PTR_FLOAT val);
     void* cReg_NiftiImageData_deep_copy(const void* copy_ptr, const void *orig_ptr);
@@ -59,10 +60,13 @@ extern "C" {
     void* cReg_NiftiImageData_normalise_zero_and_one(const void* im_ptr);
     void* cReg_NiftiImageData_standardise(const void* im_ptr);
     void* cReg_NiftiImageData_get_inner_product(const void* im1_ptr, const void* im2_ptr);
-    void* cReg_NiftiImageData_from_SIRFImageData(void* ptr);
+    //!  create NiftiImage or NiftiImageData3D
+    //! Use an \c int as \c bool to create a 3D image (running 3D checks)
+    void* cReg_NiftiImageData_from_SIRFImageData(void* ptr, const int is_3D);
     void* cReg_NiftiImageData_from_complex_ImageData_real_component(void* in_ptr);
     void* cReg_NiftiImageData_from_complex_ImageData_imag_component(void* in_ptr);
     void* cReg_NiftiImageData_are_equal_to_given_accuracy(void* im1_ptr, void* im2_ptr, const float accuracy);
+    void* cReg_NiftiImageData_kernel_convolution(void* im_ptr, const float sigma, const int type);
 
     // NiftiImageData3D
 
@@ -100,12 +104,13 @@ extern "C" {
     // SPM methods
     void* cReg_SPMRegistration_get_TM(const void* ptr, const char* dir, const int idx);
 
-    // NiftyResample
-    void* cReg_NiftyResample_add_transformation(void* self, const void* trans, const char* type);
-    void* cReg_NiftyResample_clear_transformations(void* self);
-    void* cReg_NiftyResample_process(void* ptr);
-    void* cReg_NiftyResample_forward(const void *output_ptr, const void * const input_ptr, const void *resampler_ptr);
-    void* cReg_NiftyResample_adjoint(const void *output_ptr, const void * const input_ptr, const void *resampler_ptr);
+    // NiftyResampler
+    void* cReg_NiftyResampler_add_transformation(void* self, const void* trans, const char* type);
+    void* cReg_NiftyResampler_clear_transformations(void* self);
+    void* cReg_NiftyResampler_process(void* ptr);
+    void* cReg_NiftyResampler_forward(const void *output_ptr, const void * const input_ptr, const void *resampler_ptr);
+    void* cReg_NiftyResampler_adjoint(const void *output_ptr, const void * const input_ptr, const void *resampler_ptr);
+    void* cReg_NiftyResampler_norm(const void* ptr_res, int num_iter, int verb);
 
     // ImageWeightedMean
     void* cReg_ImageWeightedMean_add_image(void* ptr, const void* obj, const float weight);
@@ -135,6 +140,14 @@ extern "C" {
     void* cReg_Quaternion_construct_from_AffineTransformation(const void* ptr);
     void* cReg_Quaternion_get_average(const void *handle_vector_ptr);
     void* cReg_Quaternion_as_array(const void* ptr, PTR_FLOAT arr);
+
+    // TextWriter methods
+    void* newTextPrinter(const char* stream);
+    void* newTextWriter(const char* stream);
+    void openChannel(int channel, void* ptr_w);
+    void closeChannel(int channel, void* ptr_w);
+    void* deleteTextPrinter(void* ptr);
+    void* deleteTextWriter(void* ptr_w);
 
 #ifndef CREG_FOR_MATLAB
 }

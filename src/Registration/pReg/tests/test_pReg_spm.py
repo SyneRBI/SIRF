@@ -30,11 +30,16 @@ import sys
 import time
 import numpy as np
 import sirf.Reg
-from pUtilities import *
+import unittest
+
+from sirf.Utilities import examples_data_path
+
+has_spm = hasattr(sirf.Reg, 'SPMRegistration')
+
+
 
 # Paths
-SIRF_PATH = os.environ.get('SIRF_PATH')
-examples_path = SIRF_PATH + '/data/examples/Registration'
+examples_path = examples_data_path('Registration')
 output_prefix = os.getcwd() + '/results/python_'
 
 # Input filenames
@@ -54,7 +59,7 @@ def try_spm():
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
 
-    # Resample an image with NiftyResample. Register SPM, check the result
+    # Resample an image with NiftyResampler. Register SPM, check the result
 
     # TM
     translations = np.array([5.,  4., -5.], dtype=np.float32)
@@ -62,7 +67,7 @@ def try_spm():
 
     tm = sirf.Reg.AffineTransformation(translations, euler_angles)
 
-    niftyreg_resampler = sirf.Reg.NiftyResample()
+    niftyreg_resampler = sirf.Reg.NiftyResampler()
     niftyreg_resampler.set_padding_value(0.)
     niftyreg_resampler.set_reference_image(ref_aladin)
     niftyreg_resampler.set_floating_image(ref_aladin)
@@ -136,7 +141,7 @@ def try_spm():
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
 
-
+@unittest.skipUnless(has_spm, "SPM not available")
 def test():
     try_spm()
 

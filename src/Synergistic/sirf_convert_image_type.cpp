@@ -112,7 +112,7 @@ void print_usage(const std::string &app_name)
 }
 
 /// throw error
-void err(const std::string message)
+void err(const std::string &message)
 {
     std::cerr << "\n" << message << "\n";
     exit(EXIT_FAILURE);
@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
         }
 
         // Check number of inputs
-        if(argc < 5 && argc < 7) {
+        if (argc < 5) {
             print_usage(argv[0]);
             exit(EXIT_FAILURE);
         }

@@ -134,6 +134,12 @@ void Transformation::GetImageGradientWRTDVF( nifti_image* sourceImage, nifti_ima
                         this->interpolation, 
                         this->warpedPaddingValue, 0 );
 
+  // Need to reorientate from index gradient to real-world gradient
+  // Note: Performing the reorientation here is way more efficient, since
+  //       only the transformation parameters need to be touched (and not)
+  //       the complete DVF
+  this->ReorientateVectorImage( outWarpedGradientImage, sourceImage->sto_ijk );
+
   return;
 }
 

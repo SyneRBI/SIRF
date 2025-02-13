@@ -270,6 +270,7 @@ errr.txt
 output.txt
 
 .coverage
+.coverage-*
 coverage.xml
 
 *_out.txt
@@ -281,3 +282,5 @@ coverage.xml
 
 # Ignore files created by VS Code
 .vscode/
+
+results/

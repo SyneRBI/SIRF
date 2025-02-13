@@ -67,25 +67,29 @@ void NiftiImageData3DDeformation<dataType>::create_from_cpp(NiftiImageData3DTens
 }
 
 template<class dataType>
-NiftiImageData3DDeformation<dataType> NiftiImageData3DDeformation<dataType>::get_as_deformation_field(const NiftiImageData<dataType> &ref) const
+NiftiImageData3DDeformation<dataType> NiftiImageData3DDeformation<dataType>::get_as_deformation_field(const NiftiImageData<dataType> &ref, const bool use_ref) const
 {
-    NiftiImageData3DDeformation<dataType> output_def;
-    output_def.create_from_3D_image(ref);
-    nifti_image * def_ptr = output_def.get_raw_nifti_sptr().get();
+    if (!use_ref)
+        return *this;
+    else {
+        NiftiImageData3DDeformation<dataType> output_def;
+        output_def.create_from_3D_image(ref);
+        nifti_image * def_ptr = output_def.get_raw_nifti_sptr().get();
 
-    // Initialise the deformation field with an identity transformation
-    reg_tools_multiplyValueToImage(def_ptr,def_ptr,0.f);
-    reg_getDeformationFromDisplacement(def_ptr);
-    def_ptr->intent_p1=DEF_FIELD;
+        // Initialise the deformation field with an identity transformation
+        reg_tools_multiplyValueToImage(def_ptr,def_ptr,0.f);
+        reg_getDeformationFromDisplacement(def_ptr);
+        def_ptr->intent_p1=DEF_FIELD;
 
-    // Not marked const so have to copy unfortunately
-    std::shared_ptr<NiftiImageData3DDeformation<dataType> > copy_of_input_def_sptr =
-            this->clone();
+        // Not marked const so have to copy unfortunately
+        std::shared_ptr<NiftiImageData3DDeformation<dataType> > copy_of_input_def_sptr =
+                this->clone();
 
-    reg_defField_compose(copy_of_input_def_sptr->get_raw_nifti_sptr().get(),
-                         def_ptr,
-                         nullptr);
-    return output_def;
+        reg_defField_compose(copy_of_input_def_sptr->get_raw_nifti_sptr().get(),
+                            def_ptr,
+                            nullptr);
+        return output_def;
+    }
 }
 
 template<class dataType>
@@ -97,7 +101,7 @@ NiftiImageData3DDeformation<dataType> NiftiImageData3DDeformation<dataType>::com
     NiftiImageData3DDeformation def = transformations.at(0)->get_as_deformation_field(ref);
 
     for (unsigned i=1; i<transformations.size(); ++i) {
-        NiftiImageData3DDeformation temp = transformations.at(i)->get_as_deformation_field(ref);
+        NiftiImageData3DDeformation temp = transformations.at(i)->get_as_deformation_field(ref, false);
         reg_defField_compose(temp.get_raw_nifti_sptr().get(),def.get_raw_nifti_sptr().get(),nullptr);
     }
     return def;

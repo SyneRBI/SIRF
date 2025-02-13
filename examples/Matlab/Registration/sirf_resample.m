@@ -4,7 +4,7 @@ function resample(varargin)
 %   --eng_flo <eng>              engine for floating image [default: Reg]
 %   --ref <file>                 reference image (default: test.nii.gz)
 %   --flo <file>                 floating image (default: test2.nii.gz)
-%   --algo <algo>                resampling algorithm [default: NiftyResample]
+%   --algo <algo>                resampling algorithm [default: NiftyResampler]
 %   --output <file>              output image filename [default: output]
 %   --intrp <intrp>              interpolation order, defaults to cubic [default: 3]
 %   --trans_filenames ...        transformation filenames, (with quotations): "filename1,filename2,filename3"
@@ -78,7 +78,7 @@ if ~exist('eng_ref','var')  eng_ref  = 'Reg'; end
 if ~exist('eng_flo','var')  eng_flo  = 'Reg'; end
 if ~exist('ref_file','var') ref_file = fullfile(examples_path, 'test.nii.gz');  end
 if ~exist('flo_file','var') flo_file = fullfile(examples_path, 'test2.nii.gz'); end
-if ~exist('algo','var')     algo     = 'NiftyResample'; end
+if ~exist('algo','var')     algo     = 'NiftyResampler'; end
 if ~exist('output','var')   output   = 'output'; end
 if ~exist('intrp','var')    intrp    = 3; end
 

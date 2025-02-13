@@ -44,7 +44,7 @@ try
     recon.set_input(acq_data);
     recon.reconstruct();
     image = recon.get_output();
-    dim = image.size();
+    dim = image.dimensions();
     fprintf('image size: %d x %d x %d\n', dim(1), dim(2), dim(3));
     z = idivide(2*dim(3), 3);
     % display the reconstructed image

@@ -51,6 +51,7 @@ public:
 
     /// Print multiple AffineTransformation
     static void print(const std::vector<AffineTransformation<dataType> > &mats);
+	static std::string get(const std::vector<AffineTransformation<dataType> > &mats);
 
     /// Default constructor - identity matrix
     AffineTransformation();
@@ -98,8 +99,12 @@ public:
     /// Destructor
     virtual ~AffineTransformation() {}
 
-    /// Get as deformation field
-    virtual NiftiImageData3DDeformation<dataType> get_as_deformation_field(const NiftiImageData<dataType> &ref) const;
+    /// Get as deformation field.
+    ///
+    /// Reference image **must** be used when converting a transformation matrix to a deformation.
+    /// For displacements and deformations, the reference can be used optionally. It **should** be used when composing transformations to be used for resampling
+    /// But is probably unnecessary for simply concatenating deformations.
+    virtual NiftiImageData3DDeformation<dataType> get_as_deformation_field(const NiftiImageData<dataType> &ref, const bool use_ref = true) const;
 
     /// Deep copy
     virtual AffineTransformation deep_copy() const;

@@ -21,7 +21,7 @@ limitations under the License.
 
 /*!
 \file
-\ingroup Gadgets Library
+\ingroup MR
 \brief Specification file for the library of SIRF generators of xml-definitions
        of Gadgetron gadgets.
 
@@ -33,7 +33,9 @@ limitations under the License.
 #define GADGETS_LIBRARY
 
 #include <map>
-#include <boost/algorithm/string.hpp>
+//#include <boost/algorithm/string.hpp>
+
+#include "sirf/common/iequals.h"
 
 namespace sirf {
 
@@ -181,13 +183,15 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Base class for generators of xml-definitions of image writer gadgets.
+	*/
 	class ImageMessageWriter : public aGadget {
-
 	};
+
 	/**
 	\brief Class for MRIImageWriter gadget xml-definition generator.
 	*/
-	//class IsmrmrdImgMsgWriter : public aGadget {
 	class IsmrmrdImgMsgWriter : public ImageMessageWriter {
 	public:
 		static const char* class_name()
@@ -233,6 +237,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of NoiseAdjustGadget.
+	*/
 	class NoiseAdjustGadget : public Gadget {
 	public:
 		NoiseAdjustGadget() :
@@ -244,6 +251,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of PCACoilGadget.
+	*/
 	class PCACoilGadget : public Gadget {
 	public:
 		PCACoilGadget() :
@@ -255,6 +265,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of CoilReductionGadget.
+	*/
 	class CoilReductionGadget : public Gadget {
 	public:
 		CoilReductionGadget() :
@@ -269,6 +282,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of AsymmetricEchoAdjustROGadget.
+	*/
 	class AsymmetricEchoAdjustROGadget : public Gadget {
 	public:
 		AsymmetricEchoAdjustROGadget() :
@@ -281,6 +297,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of RemoveROOversamplingGadget.
+	*/
 	class RemoveROOversamplingGadget : public Gadget {
 	public:
 		RemoveROOversamplingGadget() :
@@ -293,6 +312,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of AcquisitionAccumulateTriggerGadget.
+	*/
 	class AcquisitionAccumulateTriggerGadget : public Gadget {
 	public:
 		AcquisitionAccumulateTriggerGadget() :
@@ -307,6 +329,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of BucketToBufferGadget.
+	*/
 	class BucketToBufferGadget : public Gadget {
 	public:
 		BucketToBufferGadget() :
@@ -324,6 +349,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of GenericReconCartesianReferencePrepGadget.
+	*/
 	class GenericReconCartesianReferencePrepGadget : public Gadget {
 	public:
 		GenericReconCartesianReferencePrepGadget() :
@@ -343,6 +371,86 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of GenericReconEigenChannelGadget.
+	*/
+	class GenericReconEigenChannelGadget : public Gadget {
+	public:
+		GenericReconEigenChannelGadget() :
+			Gadget("EigenChannel", "gadgetron_mricore",
+			"GenericReconEigenChannelGadget")
+		{
+			add_property("debug_folder", "");
+        	add_property("perform_timing", "true");
+        	add_property("verbose", "true");
+        	add_property("average_all_ref_N", "true");
+        	add_property("average_all_ref_S", "true");
+        	add_property("upstream_coil_compression", "true");
+        	add_property("upstream_coil_compression_thres", "0.002");
+        	add_property("upstream_coil_compression_num_modesKept", "0");
+		}
+		static const char* class_name()
+		{
+			return "GenericReconEigenChannelGadget";
+		}
+	};
+
+	/**
+	\brief Class for the generator of xml definition of GenericReconPartialFourierHandlingFilterGadget.
+	*/
+	class GenericReconPartialFourierHandlingFilterGadget : public Gadget {
+	public:
+		GenericReconPartialFourierHandlingFilterGadget() :
+			Gadget("PartialFourier", "gadgetron_mricore",
+			"GenericReconPartialFourierHandlingFilterGadget")
+		{
+        	add_property("debug_folder", "");
+        	add_property("perform_timing", "false");
+        	add_property("verbose", "false");
+        	add_property("skip_processing_meta_field", "Skip_processing_after_recon");
+        	add_property("partial_fourier_filter_RO_width", "0.15");
+        	add_property("partial_fourier_filter_E1_width", "0.15");
+        	add_property("partial_fourier_filter_E2_width", "0.15");
+        	add_property("partial_fourier_filter_densityComp", "false");
+		}
+		static const char* class_name()
+		{
+			return "GenericReconPartialFourierHandlingFilterGadget";
+		}
+	};
+
+	/**
+	\brief Class for the generator of xml definition of GenericReconKSpaceFilteringGadget.
+	*/
+	class GenericReconKSpaceFilteringGadget : public Gadget {
+	public:
+		GenericReconKSpaceFilteringGadget() :
+			Gadget("ReconKSpaceFiltering", "gadgetron_mricore",
+			"GenericReconKSpaceFilteringGadget")
+		{
+			add_property("debug_folder", "");
+			add_property("perform_timing", "false" );
+			add_property("verbose", "false" );
+			add_property("skip_processing_meta_field", "Skip_processing_after_recon" );
+			add_property("filterRO", "Gaussian" );
+			add_property("filterRO_sigma", "1.0" );
+			add_property("filterRO_width", "0.15" );
+			add_property("filterE1", "Gaussian" );
+			add_property("filterE1_sigma", "1.0" );
+			add_property("filterE1_width", "0.15" );
+			add_property("filterE2", "Gaussian" );
+			add_property("filterE2_sigma", "1.0" );
+			add_property("filterE2_width", "0.15" );
+		}
+		static const char* class_name()
+		{
+			return "GenericReconKSpaceFilteringGadget";
+		}
+	};
+
+	/**
+	\brief Class for the generator of xml definition of SimpleReconGadget.
+	*/
 	class SimpleReconGadget : public Gadget {
 	public:
 		SimpleReconGadget() :
@@ -354,7 +462,38 @@ namespace sirf {
 		}
 	};
 
-    class GenericReconCartesianFFTGadget : public Gadget {
+	/**
+	\brief Class for the generator of xml definition of FFTGadget.
+	*/
+	class FFTGadget : public Gadget {
+	public:
+		FFTGadget() :
+			Gadget("FFT", "gadgetron_mricore", "FFTGadget")
+		{}
+		static const char* class_name()
+		{
+			return "FFTGadget";
+		}
+	};
+
+	/**
+	\brief Class for the generator of xml definition of CombineGadget.
+	*/
+	class CombineGadget : public Gadget {
+	public:
+		CombineGadget() :
+			Gadget("Combine", "gadgetron_mricore", "CombineGadget")
+		{}
+		static const char* class_name()
+		{
+			return "CombineGadget";
+		}
+	};
+
+	/**
+	\brief Class for the generator of xml definition of GenericReconCartesianFFTGadget.
+	*/
+	class GenericReconCartesianFFTGadget : public Gadget {
 	public:
 		GenericReconCartesianFFTGadget() :
 			Gadget("Recon", "gadgetron_mricore", "GenericReconCartesianFFTGadget")
@@ -371,6 +510,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of GenericReconCartesianGrappaGadget.
+	*/
 	class GenericReconCartesianGrappaGadget : public Gadget {
 	public:
 		GenericReconCartesianGrappaGadget() :
@@ -393,6 +535,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of GenericReconFieldOfViewAdjustmentGadget.
+	*/
 	class GenericReconFieldOfViewAdjustmentGadget : public Gadget {
 	public:
 		GenericReconFieldOfViewAdjustmentGadget() :
@@ -409,6 +554,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of GenericReconImageArrayScalingGadget.
+	*/
 	class GenericReconImageArrayScalingGadget : public Gadget {
 	public:
 		GenericReconImageArrayScalingGadget() :
@@ -430,6 +578,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of FatWaterGadget.
+	*/
 	class FatWaterGadget : public Gadget {
 	public:
 		FatWaterGadget() :
@@ -441,6 +592,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of ImageArraySplitGadget.
+	*/
 	class ImageArraySplitGadget : public Gadget {
 	public:
 		ImageArraySplitGadget() :
@@ -452,6 +606,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of PhysioInterpolationGadget.
+	*/
 	class PhysioInterpolationGadget : public Gadget {
 	public:
 		PhysioInterpolationGadget() :
@@ -468,6 +625,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of GPURadialPrepGadget.
+	*/
 	class GPURadialPrepGadget : public Gadget {
 	public:
 		GPURadialPrepGadget(std::string name, std::string dll, std::string cl) :
@@ -495,6 +655,9 @@ namespace sirf {
 */
 	};
 
+	/**
+	\brief Class for the generator of xml definition of GPURadialSensePrepGadget.
+	*/
 	class GPURadialSensePrepGadget : public GPURadialPrepGadget {
 	public:
 		GPURadialSensePrepGadget() :
@@ -506,6 +669,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of GPUSenseGadget.
+	*/
 	class GPUSenseGadget : public Gadget {
 	public:
 		GPUSenseGadget(std::string name, std::string dll, std::string cl) :
@@ -529,6 +695,9 @@ namespace sirf {
 */
 	};
 
+	/**
+	\brief Class for the generator of xml definition of GPUCGSenseGadget.
+	*/
 	class GPUCGSenseGadget : public GPUSenseGadget {
 	public:
 		GPUCGSenseGadget() : 
@@ -544,6 +713,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of ExtractGadget.
+	*/
 	class ExtractGadget : public Gadget {
 	public:
 		ExtractGadget() :
@@ -561,6 +733,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of AutoScaleGadget.
+	*/
 	class AutoScaleGadget : public Gadget {
 	public:
 		AutoScaleGadget() :
@@ -572,6 +747,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of ComplexToFloatGadget.
+	*/
 	class ComplexToFloatGadget : public Gadget {
 	public:
 		ComplexToFloatGadget() :
@@ -583,6 +761,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of FloatToFixPointGadget.
+	*/
 	class FloatToFixPointGadget : public Gadget {
 	public:
 		FloatToFixPointGadget(std::string name, // = "FloatToFixPoint", 
@@ -603,6 +784,9 @@ namespace sirf {
 */
 	};
 
+	/**
+	\brief Class for the generator of xml definition of FloatToUShortGadget.
+	*/
 	class FloatToUShortGadget : public FloatToFixPointGadget {
 	public:
 		FloatToUShortGadget() :
@@ -614,6 +798,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of FloatToShortGadget.
+	*/
 	class FloatToShortGadget : public FloatToFixPointGadget {
 	public:
 		FloatToShortGadget() :
@@ -642,6 +829,9 @@ namespace sirf {
 		}
 	};
 */
+	/**
+	\brief Class for the generator of xml definition of ImageFinishGadget.
+	*/
 	class ImageFinishGadget : public Gadget {
 	public:
 		ImageFinishGadget() :
@@ -653,6 +843,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of DicomFinishGadget.
+	*/
 	class DicomFinishGadget : public Gadget {
 	public:
 		DicomFinishGadget() :
@@ -664,6 +857,9 @@ namespace sirf {
 		}
 	};
 
+	/**
+	\brief Class for the generator of xml definition of AcquisitionFinishGadget.
+	*/
 	class AcquisitionFinishGadget : public Gadget {
 	public:
 		AcquisitionFinishGadget() :
@@ -687,24 +883,24 @@ namespace sirf {
 		}
 		virtual void set_property(const char* prop, const char* value)
 		{
-			if (boost::iequals(prop, "trigger_dimension") ||
-				boost::iequals(prop, "sorting_dimension"))
+			if (sirf::iequals(prop, "trigger_dimension") ||
+				sirf::iequals(prop, "sorting_dimension"))
 				aat_.set_property(prop, value);
-			else if (boost::iequals(prop, "n_dimension") ||
-				boost::iequals(prop, "s_dimension") ||
-				boost::iequals(prop, "split_slices"))
+			else if (sirf::iequals(prop, "n_dimension") ||
+				sirf::iequals(prop, "s_dimension") ||
+				sirf::iequals(prop, "split_slices"))
 				bb_.set_property(prop, value);
 			else
 				THROW("unknown gadget parameter");
 		}
 		virtual std::string value_of(const char* prop)
 		{
-			if (boost::iequals(prop, "trigger_dimension") ||
-				boost::iequals(prop, "sorting_dimension"))
+			if (sirf::iequals(prop, "trigger_dimension") ||
+				sirf::iequals(prop, "sorting_dimension"))
 				return aat_.value_of(prop);
-			else if (boost::iequals(prop, "n_dimension") ||
-				boost::iequals(prop, "s_dimension") ||
-				boost::iequals(prop, "split_slices"))
+			else if (sirf::iequals(prop, "n_dimension") ||
+				sirf::iequals(prop, "s_dimension") ||
+				sirf::iequals(prop, "split_slices"))
 				return bb_.value_of(prop);
 			THROW("unknown gadget parameter");
 		}

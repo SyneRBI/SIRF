@@ -11,6 +11,8 @@ Options:
   -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
                               subfolder of SIRF root folder
   -s <slcs>, --slices=<slcs>  max number of slices to display [default: 8]
+  -i <flag>, --ignore=<flag>  ignore acquisitions with non-zero value of <flag>
+                              (try e.g. --ignore=19 and --file=grappa2_6rep.h5)
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
   --non-interactive           do not show plots
 '''
@@ -38,10 +40,12 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
-from ast import literal_eval
+import ast
+from sirf.Utilities import error, examples_data_path, existing_filepath
 
-# import engine module
-exec('from sirf.' + args['--engine'] + ' import *')
+# import MR engine module
+import importlib
+mr = importlib.import_module('sirf.' + args['--engine'])
 
 # process command-line options
 data_file = args['--file']
@@ -49,11 +53,11 @@ data_path = args['--path']
 if data_path is None:
     data_path = examples_data_path('MR')
 slcs = int(args['--slices'])
+to_be_ignored = args['--ignore']
+ignore_mask = mr.IgnoreMask(0)
+if to_be_ignored is not None:
+    ignore_mask.ignore(ast.literal_eval(to_be_ignored))
 show_plot = not args['--non-interactive']
-
-#AcquisitionData.set_storage_scheme('memory')
-scheme = AcquisitionData.get_storage_scheme()
-print('storage scheme: %s' % repr(scheme))
 
 def main():
 
@@ -61,7 +65,7 @@ def main():
     input_file = existing_filepath(data_path, data_file)
 
     # acquisition data will be read from an HDF file input_file
-    acq_data = AcquisitionData(input_file)
+    acq_data = mr.AcquisitionData(input_file)
 
     # the raw k-space data is a list of different readouts
     # of different data type (e.g. noise correlation data, navigator data,
@@ -72,11 +76,7 @@ def main():
     ni = acq_data.number_of_readouts()
     print('readouts: total %d, image data %d' % (na, ni))
 
-    # sort acquisition data;
-    # currently performed with respect to (in this order):
-    #    - repetition
-    #    - slice
-    #    - kspace encode step 1
+    # sort acquisition data with respect to the acquisition times
     print('sorting...')
     acq_data.sort()
 
@@ -85,39 +85,41 @@ def main():
     where = range(first, last + 1)
 
     # retrieve readouts flags
-    flags = acq_data.get_info('flags', where)
+    flags = acq_data.get_ISMRMRD_info('flags', where)
 
     # inspect the first readout flag
-    flags0 = acq_data.get_info('flags', range(1))
-    if flags0 & IMAGE_DATA_MASK:
+    flags0 = acq_data.get_ISMRMRD_info('flags', range(1))
+    if flags0 & mr.IMAGE_DATA_MASK:
         print('first readout is image data')
     else:
-        # should see this if input data file is test_2D_2x.h5
+        # should see this if input data file is e.g. grappa2_6rep.h5
         print('first readout is not image data')
         a0 = acq_data.as_array(0)
         print('first readout shape: %dx%d' % a0.shape)
         
+    print('Checking acquisitions %d to %d...' % (first, last))
+
     # display flags
-    print('Flags'),
+    print('Flags')
     print(flags)
     
     # inspect some kspace_encode_step_1 counters
-    encode_step_1 = acq_data.get_info('kspace_encode_step_1', where)
+    encode_step_1 = acq_data.get_ISMRMRD_info('kspace_encode_step_1', where)
     print('Ky/PE - encoding'),
     print(encode_step_1)
     
     # inspect some slice counters
-    slice = acq_data.get_info('slice', where)
+    slice = acq_data.get_ISMRMRD_info('slice', where)
     print('Slices'),
     print(slice)
     
     # inspect some repetition counters
-    repetition = acq_data.get_info('repetition', where)
+    repetition = acq_data.get_ISMRMRD_info('repetition', where)
     print('Repetitions'),
     print(repetition)
 
     # inspect some physiology time stamps
-    pts = acq_data.get_info('physiology_time_stamp', where)
+    pts = acq_data.get_ISMRMRD_info('physiology_time_stamp', where)
     print('Physiology time stamps'),
     print(pts)
 
@@ -147,7 +149,12 @@ def main():
     # direction. So far only the removal of readout oversampling and noise and
     # asymmetric echo adjusting is implemented
     print('pre-processing acquisition data...')
-    processed_acq_data = preprocess_acquisition_data(acq_data)
+    processed_acq_data = mr.preprocess_acquisition_data(acq_data).abs()
+    acq_max = processed_acq_data.maximum(processed_acq_data*10)
+    acq_min = processed_acq_data.minimum(processed_acq_data*10)
+    print('norm of acq_data: %f' % processed_acq_data.norm())
+    print('norm of max(acq_data, acq_data*10): %f' % acq_max.norm())
+    print('norm of min(acq_data, acq_data*10): %f' % acq_min.norm())
 
     # by removing the oversampling factor of 2 along the readout direction, the
     # number of readout samples was halfed
@@ -164,3 +171,4 @@ try:
 except error as err:
     # display error information
     print('??? %s' % err.value)
+    exit(1)

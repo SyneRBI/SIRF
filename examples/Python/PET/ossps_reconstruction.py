@@ -39,8 +39,19 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
+try:
+    import pylab
+    HAVE_PYLAB = True
+except RuntimeWarning:
+    HAVE_PYLAB = False
+
+from sirf.Utilities import error, examples_data_path, existing_filepath
+from sirf.Utilities import show_2D_array
+
 # import engine module
-exec('from sirf.' + args['--engine'] + ' import *')
+import importlib
+engine = args['--engine']
+pet = importlib.import_module('sirf.' + engine)
 
 
 # process command-line options
@@ -53,42 +64,42 @@ if data_path is None:
     data_path = examples_data_path('PET')
 raw_data_file = existing_filepath(data_path, data_file)
 init_file = args['--init']
-show_plot = not args['--non-interactive']
+show_plot = not args['--non-interactive'] and HAVE_PYLAB
 
 
 def main():
 
     # no info printing from the engine, warnings and errors sent to stdout
-    msg_red = MessageRedirector()
+    _ = pet.MessageRedirector()
     # all engine's printing goes to files
-##    msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
+##    msg_red = pet.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
-    acq_model = AcquisitionModelUsingRayTracingMatrix()
+    acq_model = pet.AcquisitionModelUsingRayTracingMatrix()
 
     # PET acquisition data to be read from the file specified by --file option
     print('raw data: %s' % raw_data_file)
-    acq_data = AcquisitionData(raw_data_file)
+    acq_data = pet.AcquisitionData(raw_data_file)
 
     # read an initial estimate for the reconstructed image from the file
     # specified by --init option
     init_image_file = existing_filepath(data_path, init_file)
-    image = ImageData(init_image_file)
+    image = pet.ImageData(init_image_file)
     image_array = image.as_array()
     if show_plot:
         show_2D_array('Initial image', image_array[10,:,:])
 
     # define objective function to be maximized as
     # Poisson logarithmic likelihood (with linear model for mean)
-    obj_fun = make_Poisson_loglikelihood(acq_data)
+    obj_fun = pet.make_Poisson_loglikelihood(acq_data)
     obj_fun.set_acquisition_model(acq_model)
     fact = float(pen_factor)
-    obj_fun.set_prior(QuadraticPrior().set_penalisation_factor(fact))
+    obj_fun.set_prior(pet.QuadraticPrior().set_penalisation_factor(fact))
 
     # select Ordered Subsets Separable Paraboloidal Surrogate
     # as the reconstruction algorithm
-    recon = OSSPSReconstructor()
+    recon = pet.OSSPSReconstructor()
     recon.set_num_subsets(num_subsets)
     recon.set_num_subiterations(num_subiterations)
     recon.set_objective_function(obj_fun)

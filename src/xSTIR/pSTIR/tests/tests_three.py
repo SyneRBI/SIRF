@@ -15,7 +15,7 @@ Options:
 """
 from sirf.STIR import *
 from sirf.Utilities import runner, RE_PYEXT, __license__
-__version__ = "0.2.3"
+__version__ = "0.2.4"
 __author__ = "Evgueni Ovtchinnikov, Casper da Costa-Luis"
 
 
@@ -46,6 +46,12 @@ def test_main(rec=False, verb=False, throw=True):
     recon.set_num_subiterations(2)
     recon.set_objective_function(obj_fun)
     recon.set_input(acq_data)
+    recon.set_relaxation_parameter(2)
+    recon.set_relaxation_gamma(.3)
+    recon.set_upper_bound(4e5)
+    test.check_if_equal_within_tolerance(2, recon.get_relaxation_parameter(), rel_tol=1e-5)
+    test.check_if_equal_within_tolerance(.3, recon.get_relaxation_gamma(), rel_tol=1e-5)
+    test.check_if_equal_within_tolerance(4e5, recon.get_upper_bound(), rel_tol=1e-5)
     if verb:
         print('setting up, please wait...')
     recon.set_up(image_data)
@@ -55,6 +61,16 @@ def test_main(rec=False, verb=False, throw=True):
     recon.process()
     image_data = recon.get_output()
     test.check(image_data.norm())
+
+    # Check openmp
+    max_num_threads = get_default_num_omp_threads() - 1
+    if max_num_threads > 0:
+        set_max_omp_threads(max_num_threads)
+        if get_max_omp_threads() != max_num_threads:
+            raise AssertionError("Max num omp threads failed (pt. 1)")
+        set_default_num_omp_threads()
+        if get_max_omp_threads() != get_default_num_omp_threads():
+            raise AssertionError("Max num omp threads failed (pt. 2)")
 
     return test.failed, test.ntest
 

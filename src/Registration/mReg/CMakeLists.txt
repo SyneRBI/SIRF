@@ -28,7 +28,7 @@ if(BUILD_MATLAB)
   # Generate m-files on the fly
   add_custom_command(
     OUTPUT ${mreg_c} ${mreg_h}
-    COMMAND gmi_xreg ${CMAKE_CURRENT_BINARY_DIR}
+    COMMAND gmi_xreg ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR}
     DEPENDS ${CMAKE_SOURCE_DIR}/src/Registration/cReg/include/sirf/Reg/cReg.h
     COMMENT "Generating mreg.c/.h"
     VERBATIM
@@ -38,7 +38,7 @@ if(BUILD_MATLAB)
     "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/Transformation.m"
     "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/Registration.m"
     "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/setParameter.m"
-    "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/NiftyResample.m"
+    "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/NiftyResampler.m"
     "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/parameter.m"
     "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/Quaternion.m"
     "${CMAKE_CURRENT_SOURCE_DIR}/+sirf/+Reg/NiftiImageData3DTensor.m"

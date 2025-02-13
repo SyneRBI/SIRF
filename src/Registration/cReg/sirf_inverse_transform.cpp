@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
                 print_usage_and_exit(program_name, EXIT_SUCCESS);
 
         // Check for all compulsory arguments
-        if (argc<5)
+        if (argc<4)
             print_usage_and_exit(program_name, EXIT_FAILURE);
         // Output image
         const std::string output_filename = argv[1];

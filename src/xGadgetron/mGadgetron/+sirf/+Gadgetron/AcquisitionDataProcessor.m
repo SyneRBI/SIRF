@@ -53,7 +53,8 @@ classdef AcquisitionDataProcessor < sirf.Gadgetron.GadgetChain
         function set_input(self, input)
 %***SIRF*** Sets the input data.
             %assert(isa(input, 'sirf.Gadgetron.AcquisitionData'))
-            assert(strcmp(input.class_name(), 'AcquisitionData'))
+            %assert(strcmp(input.class_name(), 'AcquisitionData'))
+            sirf.Utilities.assert_validity(input, 'AcquisitionData')
             self.input_ = input;
         end
         function acqs = process(self, input_data)

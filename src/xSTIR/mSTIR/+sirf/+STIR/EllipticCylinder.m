@@ -35,15 +35,15 @@ classdef EllipticCylinder < sirf.STIR.Shape
             end
         end
         function set_length(self, value)
-%***SIRF*** Sets the length (height) of the cylinder.
+%***SIRF*** Sets the length (height) of the cylinder in mm.
             sirf.STIR.setParameter(self.handle_, self.name, 'length', value, 'f')
         end
         function value = get_length(self)
-%***SIRF*** Returns the length (height) of the cylinder.
+%***SIRF*** Returns the length (height) of the cylinder in mm.
             value = sirf.STIR.parameter(self.handle_, self.name, 'length', 'f');
         end
         function set_radii(self, r)
-%***SIRF*** Sets the radii of the cylinder.
+%***SIRF*** Sets the radii of the cylinder in mm.
             sirf.STIR.setParameter(self.handle_, self.name, 'radius_x', r(1), 'f')
             sirf.STIR.setParameter(self.handle_, self.name, 'radius_y', r(2), 'f')
         end

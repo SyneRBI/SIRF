@@ -21,7 +21,7 @@ limitations under the License.
 
 /*!
 \file
-\ingroup STIR Tests
+\ingroup PET
 
 \author Evgueni Ovtchinnikov
 \author Richard Brown
@@ -36,6 +36,8 @@ limitations under the License.
 
 #include "sirf/STIR/stir_x.h"
 #include "sirf/common/getenv.h"
+#include "sirf/common/iequals.h"
+#include "sirf/common/utilities.h"
 
 using namespace stir;
 using namespace ecat;
@@ -43,27 +45,31 @@ using namespace sirf;
 
 int test4()
 {
+	std::cout << "running test4.cpp...\n";
 	try {
 
-		std::string SIRF_path = sirf::getenv("SIRF_PATH");
-		if (SIRF_path.length() < 1) {
-			std::cout << "SIRF_PATH not defined, cannot find data" << std::endl;
-			return 1;
-		}
+        std::string SIRF_data_path = examples_data_path("PET");
+        if (SIRF_data_path.length() < 1) {
+            std::cout << "cannot find data" << std::endl;
+            return 1;
+        }
+        std::string path = append_path(SIRF_data_path, "mMR");
+        std::string f_listmode = append_path(path, "list.l.hdr");
+        std::string f_template = append_path(path, "mMR_template_span11_small.hs");
 
-		std::string path = SIRF_path + "/data/examples/PET/mMR/";
-
-		string f_listmode = path + "list.l.hdr";
-		string f_template = path + "mMR_template_span11_small.hs";
+		STIRAcquisitionDataInFile acq_data_template(f_template.c_str());
 
 		// Listmode to sinograms
 		ListmodeToSinograms converter;
 		converter.set_input(f_listmode);
 		converter.set_output("proj_data");
-		converter.set_template(f_template);
+		converter.set_template(acq_data_template);
+		//// old way (now just an alternative option):
+		//converter.set_template(f_template);
 		converter.set_time_interval(0, 10);
 		converter.set_up();
 		converter.estimate_randoms();
+		converter.save_randoms();
 
         // Check count rates - for the particular dataset,
         // we know that 73036 is exceeded at 22s. You can
@@ -104,9 +110,9 @@ int test4()
         std::cout << "\nTesting NiftyPET projection...\n";
         // Load mMR sinogram
         const std::string f_mMR_template = f_template = path + "mMR_template_span11.hs";
-        PETAcquisitionDataInFile mMR_template(f_mMR_template.c_str());
-        std::shared_ptr<PETAcquisitionDataInMemory> acq_data_mMR_sptr(
-                    new PETAcquisitionDataInMemory(mMR_template));
+        STIRAcquisitionDataInFile mMR_template(f_mMR_template.c_str());
+        std::shared_ptr<STIRAcquisitionDataInMemory> acq_data_mMR_sptr(
+                    new STIRAcquisitionDataInMemory(mMR_template));
         acq_data_mMR_sptr->fill(1.f);
 
         // Create mMR image
@@ -127,24 +133,17 @@ int test4()
         acq_model.set_up(acq_data_mMR_sptr, im_mMR_sptr);
         std::cout << "\nForward projecting with NiftyPET acquisition model...\n";
 
-        std::shared_ptr<PETAcquisitionData> prj_sptr = acq_model.forward(*im_mMR_sptr);
+        std::shared_ptr<STIRAcquisitionData> prj_sptr = acq_model.forward(*im_mMR_sptr);
         std::cout << "\nBack projecting with NiftyPET acquisition model...\n";
         im_mMR_sptr = acq_model.backward(*prj_sptr);
         std::cout << "\nNiftyPET test succeeded.\n";
 #endif
 
+		std::cout << "done with test4.cpp...\n";
 		return 0;
 	}
 	catch (...)
 	{
 		return 1;
 	}
-}
-
-//int test5();
-
-int main()
-{
-	return test4();
-	//return test5();
 }

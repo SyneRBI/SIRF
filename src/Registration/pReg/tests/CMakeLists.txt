@@ -1,6 +1,5 @@
 #========================================================================
-# Author: Richard Brown
-# Copyright 2016-2020 University College London
+# Copyright 2016-2022 University College London
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -15,12 +14,6 @@
 #  limitations under the License.
 #
 #=========================================================================
-
-if (NOT SPM_FOUND)
-	set(exclude_test "--exclude=test_pReg_spm.py")
-endif()
-
-# Make into test
-ADD_TEST(NAME REG_TEST_PYTHON
-  COMMAND ${PYTHON_EXECUTABLE} -m nose --with-coverage --cover-package=sirf.Reg --cover-erase -d -v ${CMAKE_SOURCE_DIR}/src/Registration/pReg ${exclude_test}
-  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+ADD_TEST(NAME REG_TESTS_PYTHON
+  COMMAND ${Python_EXECUTABLE} -m pytest --cov=sirf.Reg --cov-config=.coveragerc-Reg src/Registration/pReg
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

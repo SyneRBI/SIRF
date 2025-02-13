@@ -5,7 +5,7 @@ Usage:
 
 Options:
   -d <file>, --file=<file>    raw data file
-                              [default: my_forward_projection.hs]
+                              [default: simulated_data.hs]
   -p <path>, --path=<path>    path to data files, defaults to data/examples/PET
                               subfolder of SIRF root folder
   -e <engn>, --engine=<engn>  reconstruction engine [default: STIR]
@@ -34,8 +34,12 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
+from sirf.Utilities import error, examples_data_path, existing_filepath
+
 # import engine module
-exec('from sirf.' + args['--engine'] + ' import *')
+import importlib
+engine = args['--engine']
+pet = importlib.import_module('sirf.' + engine)
 
 
 # process command-line options
@@ -50,32 +54,32 @@ show_plot = not args['--non-interactive']
 def main():
 
     # no info printing from the engine, warnings and errors sent to stdout
-    msg_red = MessageRedirector()
+    _ = pet.MessageRedirector()
 
     # PET acquisition data to be read from the file specified by --file option
     print('raw data: %s' % raw_data_file)
-    acq_data = AcquisitionData(raw_data_file)
+    acq_data = pet.AcquisitionData(raw_data_file)
 
     # create reconstructor object
-    recon = FBP2DReconstructor()
+    recon = pet.FBP2DReconstructor()
     # specify the acquisition data
     recon.set_input(acq_data)
 
     # reconstruct with default settings
     recon.process()
     image = recon.get_output()
-    image_array = image.as_array()
-    z = int(image_array.shape[0]*2/3)
-    print('--------\n xy-size %d' % image_array.shape[1])
+    nz, ny, nx = image.dimensions()
+    print('--------\n dimensions: nx = %d, ny = %d, nz = %d' % (nx, ny, nz))
+    z = int(nz*2/3)
     if show_plot:
         image.show(z)
 
     # change image size
-    recon.set_output_image_size_xy(image_array.shape[1]*2)
+    recon.set_output_image_size_xy(nx*2)
     recon.process()
     image = recon.get_output()
-    image_array = image.as_array()
-    print('--------\n xy-size %d' % image_array.shape[1])
+    nz, ny, nx = image.dimensions()
+    print('--------\n dimensions: nx = %d, ny = %d, nz = %d' % (nx, ny, nz))
     if show_plot:
         image.show(z)
 
@@ -107,8 +111,8 @@ def main():
         image.show(z)
 
     # alternative way to set the output image parameters (via image template)
-    image1 = acq_data.create_uniform_image() # image template
-    recon.set_up(image1) # use image template to create the output image
+    image_tmpl = acq_data.create_uniform_image() # image template
+    recon.set_up(image_tmpl) # use image template to create the output image
     recon.process()
     image = recon.get_output()
     print('--------\n alternative setup')

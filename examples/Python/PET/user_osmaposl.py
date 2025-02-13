@@ -36,10 +36,13 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
+from sirf.Utilities import error, examples_data_path, existing_filepath
 from sirf.Utilities import show_2D_array
 
 # import engine module
-exec('from sirf.' + args['--engine'] + ' import *')
+import importlib
+engine = args['--engine']
+pet = importlib.import_module('sirf.' + engine)
 
 
 # process command-line options
@@ -55,7 +58,7 @@ show_plot = not args['--non-interactive']
 
 # user implementation of Ordered Subset Maximum A Posteriori One Step Late
 # reconstruction algorithm
-def my_osmaposl(image, obj_fun, prior, filter, num_subsets, num_subiterations):
+def my_osmaposl(image, obj_fun, prior, Filter, num_subsets, num_subiterations):
 
     for sub_iter in range(1, num_subiterations + 1):
         print('\n------------- Subiteration %d' % sub_iter) 
@@ -80,7 +83,7 @@ def my_osmaposl(image, obj_fun, prior, filter, num_subsets, num_subiterations):
         image = image*update
 
         # apply filter
-        filter.apply(image)
+        Filter.apply(image)
 
     return image
 
@@ -88,40 +91,40 @@ def my_osmaposl(image, obj_fun, prior, filter, num_subsets, num_subiterations):
 def main():
 
     # output goes to files
-    msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
+    _ = pet.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     # create acquisition model
-    acq_model = AcquisitionModelUsingRayTracingMatrix()
+    acq_model = pet.AcquisitionModelUsingRayTracingMatrix()
 
     # PET acquisition data to be read from the file specified by --file option
     print('raw data: %s' % raw_data_file)
-    acq_data = AcquisitionData(raw_data_file)
+    acq_data = pet.AcquisitionData(raw_data_file)
 
     # create filter that zeroes the image outside a cylinder of the same
     # diameter as the image xy-section size
-    filter = TruncateToCylinderProcessor()
+    Filter = pet.TruncateToCylinderProcessor()
 
     # create initial image estimate
     image_size = (31, 111, 111)
     voxel_size = (3.375, 3, 3) # voxel sizes are in mm
-    image = ImageData()
+    image = pet.ImageData()
     image.initialise(image_size, voxel_size)
     image.fill(1.0)
 
     # create prior
-    prior = QuadraticPrior()
+    prior = pet.QuadraticPrior()
     prior.set_penalisation_factor(0.5)
     prior.set_up(image)
 
     # create objective function
-    obj_fun = make_Poisson_loglikelihood(acq_data)
+    obj_fun = pet.make_Poisson_loglikelihood(acq_data)
     obj_fun.set_acquisition_model(acq_model)
     obj_fun.set_num_subsets(num_subsets)
     obj_fun.set_up(image)
 
     # reconstruct using your own SIRF-based implementation of OSMAPOSL
     image = my_osmaposl \
-        (image, obj_fun, prior, filter, num_subsets, num_subiterations)
+        (image, obj_fun, prior, Filter, num_subsets, num_subiterations)
 
     if show_plot:
         # show reconstructed image at z = 20

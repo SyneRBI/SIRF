@@ -38,7 +38,7 @@ if try_spm
     disp('%                  Starting SPM test...')
     disp('%------------------------------------------------------------------------ %')
 
-    % Resample an image with NiftyResample. Register SPM, check the result
+    % Resample an image with NiftyResampler. Register SPM, check the result
 
     % TM
     translations = [5,  4, -5];
@@ -46,7 +46,7 @@ if try_spm
 
     tm = sirf.Reg.AffineTransformation(translations, euler_angles);
 
-    niftyreg_resampler = sirf.Reg.NiftyResample();
+    niftyreg_resampler = sirf.Reg.NiftyResampler();
     niftyreg_resampler.set_padding_value(0.);
     niftyreg_resampler.set_reference_image(g.ref_aladin);
     niftyreg_resampler.set_floating_image(g.ref_aladin);

@@ -21,7 +21,7 @@ limitations under the License.
 
 /*!
 \file
-\ingroup SIRF C++ Synergistic Utilities
+\ingroup Synergistic
 \brief C++ synergistic utilities.
 
 \author Richard Brown
