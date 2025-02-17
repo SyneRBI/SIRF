@@ -160,3 +160,4 @@ else()
 endif()
 
 ADD_SUBDIRECTORY(common)
+ADD_SUBDIRECTORY(torch)
