@@ -73,7 +73,7 @@ if (BUILD_PYTHON)
   INSTALL(TARGETS ${SWIG_MODULE_pysirf_REAL_NAME} DESTINATION "${PYTHON_DEST}/sirf")
   INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/pysirf.py" DESTINATION "${PYTHON_DEST}/sirf")
   #file(GLOB PythonFiles "${CMAKE_CURRENT_LIST_DIR}/*.py")
-  set(PythonFiles select_module.py  show_image.py  SIRF.py  Utilities.py  SIRF_torch.py)
+  set(PythonFiles select_module.py  show_image.py  SIRF.py  Utilities.py)
   INSTALL(FILES ${PythonFiles} DESTINATION "${PYTHON_DEST}/sirf")
 endif()
 
