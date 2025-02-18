@@ -3,7 +3,7 @@
 
 ## File structure
 
-Currently the source is:
+Currently the source is found here:
 ```md
 SIRF
 ├── src
@@ -20,7 +20,7 @@ INSTALL
 │       └── SIRF_torch.py
 ```
 
-Accessed by as `sirf.SIRF_torch.TheClass`.
+The classes are accessed as `sirf.SIRF_torch.TheClass`.
 
 ## What is within `SIRF_torch`?
 
@@ -142,11 +142,11 @@ class _AcquisitionModelBackward(torch.autograd.Function):
 
 ---
 
-Next are the classes meant for the user, these subclass `torch.nn.Module`s. These use the aforementioned `Function`s. Now herein requires some discussion.
+Next are the classes meant for the user, these subclass `torch.nn.Module`s, and use the aforementioned `Function`s.
 
 There are a few issues. 
 - Take for example `torch.nn.conv2d`, there the input/output shape is assumed to be `[N, C, H, W]` or `[C, H, W]`, where the letters correspond to batch (N)umber, (C)hannel, (H)eight, and (W)idth. This needs to integrate into sirf image shape which is just `[z, y, x]`. For `torch.nn.conv3d` this would be `[N, C, D, H, W]` or `[C, D, H, W]`.
-- For the measurements this is more complicated, and I am not certain which `torch.nn` operations are even fitting - what does using a trainable 
+- For the measurements this is more complicated, and I am not certain which `torch.nn` operations are even fitting - for example. what does using a trainable convolution on reshaped listmode data really mean...
 - The forward operator could be dependent on `N`, i.e. the dataset sample, meaning we'd have to integrate a way of swapping out components of acquisition model (scatter, coil maps, attenuation etc).
 
 Perhaps rather than trying to account for every use case I can make a **simple** `torch.nn.Module` that shows how to manipulate the dimensions to use the `torch.autograd.Function`?
@@ -170,3 +170,9 @@ class AcquisitionModelForward(torch.nn.Module):
         return _AcquisitionModelForward.apply(torch_image, self.torch_measurements_template, self.sirf_image_template, self.acq_mdl).squeeze()
 ```
 
+---
+## General notes
+
+What are your thoughts of keeping the `torch.autograd.Function`s follow SIRF's data structure? I think it is more generalisable if we enforce that torch and sirf arrays have the same number of singleton dimensions etc...
+
+Also this means that we can use the `torch.nn.Module`s to do all the data manipulations within the forward pass that is traced. This I think is preferable as messing up something within `torch.autograd.Function` may not cause errors.
