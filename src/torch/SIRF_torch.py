@@ -101,11 +101,35 @@ class _AcquisitionModelBackward(torch.autograd.Function):
         grad = sirf_to_torch(sirf_measurements, ctx.torch_measurements, requires_grad=True)
         return grad, None, None, None, None
 
+class AcquisitionModelForward(torch.nn.Module):
+    def __init__(self, acq_mdl, sirf_image_template, sirf_measurements_template, device = "cpu", ):
+        super(AcquisitionModelForward, self).__init__()
+        # get the shape of image and measurements
+        self.acq_mdl = acq_mdl
+        self.sirf_image_shape = sirf_image_template.as_array().shape
+        self.sirf_measurements_shape = sirf_measurements_template.as_array().shape
+        self.sirf_image_template = sirf_image_template
+        self.sirf_measurements_template = sirf_measurements_template
+        
+        self.torch_measurements_template = torch.tensor(sirf_measurements_template.as_array(), requires_grad=False).to(device)*0
+
+    def forward(self, torch_image):
+        # view as torch sometimes doesn't like singleton dimensions
+        torch_image = torch_image.view(self.sirf_image_shape)
+        return _AcquisitionModelForward.apply(torch_image, self.torch_measurements_template, self.sirf_image_template, self.acq_mdl).squeeze()
+
 
 if __name__ == '__main__':
     import os
     import numpy
+    # Import the PET reconstruction engine
     import sirf.STIR as pet
+    # Set the verbosity
+    #pet.set_verbosity(1)
+    # Store temporary sinograms in RAM
+    pet.AcquisitionData.set_storage_scheme("memory")
+    import sirf
+    msg = sirf.STIR.MessageRedirector(info=None, warn=None, errr=None)
     from sirf.Utilities import examples_data_path
 
     print("2D PET TEST")
@@ -132,14 +156,15 @@ if __name__ == '__main__':
     
     print("Comparing the forward projected")
     torch_measurements = _AcquisitionModelForward.apply(torch_image, torch_measurements_template, sirf_image_template, sirf_acq_mdl)
-    print("Sum of torch: ", torch_measurements.detach().cpu().numpy().sum(), "Sum of sirf: ", sirf_measurements.sum(), "Sum of Differences: ", (torch_measurements.detach().cpu().numpy() - sirf_measurements.as_array()).sum())
+    print("Sum of torch: ", torch_measurements.detach().cpu().numpy().sum(), "Sum of sirf: ", sirf_measurements.sum(), "Sum of Differences: ", numpy.abs(torch_measurements.detach().cpu().numpy() - sirf_measurements.as_array()).sum())
     print("Comparing the backward of forward projected")
     # TO TEST THAT WE ARE BACKWARDING CORRECTLY RETAIN GRAD AND SUM THEN BACKWARD
     torch_image.retain_grad()
     torch_measurements.sum().backward()
     # grad sum(Ax) = A^T 1
     comparison = acq_mdl.backward(sirf_measurements.get_uniform_copy(1))
-    print("Sum of torch: ", torch_image.grad.sum(), "Sum of sirf: ", comparison.sum(), "Sum of Differences: ", (torch_image.grad.detach().cpu().numpy() - comparison.as_array()).sum())
+    print("Sum of torch: ", torch_image.grad.sum(), "Sum of sirf: ", comparison.sum(), "Sum of Differences: ", \
+        numpy.abs(torch_image.grad.detach().cpu().numpy() - comparison.as_array()).sum())
 
 
     torch_measurements = torch.tensor(sirf_measurements.as_array(), requires_grad=True).to(device)
@@ -149,15 +174,17 @@ if __name__ == '__main__':
 
     print("Comparing the backward projected")
     torch_image = _AcquisitionModelBackward.apply(torch_measurements, torch_image_template, sirf_measurements_template, sirf_acq_mdl)
-    print("Sum of torch: ", torch_image.detach().cpu().numpy().sum(), "Sum of sirf: ", bp_sirf_measurements.sum(), "Sum of Differences: ", (torch_image.detach().cpu().numpy() - bp_sirf_measurements.as_array()).sum())
+    print("Sum of torch: ", torch_image.detach().cpu().numpy().sum(), "Sum of sirf: ", bp_sirf_measurements.sum(), \
+        "Sum of Differences: ", numpy.abs(torch_image.detach().cpu().numpy() - bp_sirf_measurements.as_array()).sum())
     torch_measurements.retain_grad()
     torch_image.sum().backward()
     # grad sum(A^Tx) = A 1
     comparison = acq_mdl.forward(bp_sirf_measurements.get_uniform_copy(1))
-    print("Sum of torch: ", torch_measurements.grad.sum(), "Sum of sirf: ", comparison.sum(), "Sum of Differences: ", (torch_measurements.grad.detach().cpu().numpy() - comparison.as_array()).sum())
+    print("Sum of torch: ", torch_measurements.grad.sum(), "Sum of sirf: ", comparison.sum(), "Sum of Differences: ", \
+        numpy.abs(torch_measurements.grad.detach().cpu().numpy() - comparison.as_array()).sum())
 
 
-    # form objective function
+    """ # form objective function
     print("Objective Function Test")
     obj_fun = pet.make_Poisson_loglikelihood(sirf_measurements)
     obj_fun.set_acquisition_model(acq_mdl)
@@ -173,8 +200,34 @@ if __name__ == '__main__':
     # grad sum(f(x)) = f'(x)
     comparison = obj_fun.gradient(sirf_image_template)
     print("Sum of torch: ", torch_image.grad.sum(), "Sum of sirf: ", comparison.sum(), "Sum of Differences: ", (torch_image.grad.detach().cpu().numpy() - comparison.as_array()).sum())
+    """
+    from sirf.Gadgetron import *
+    print("2D MRI TEST")
+    data_path = examples_data_path('MR')
+    AcquisitionData.set_storage_scheme('memory')
+    input_data = AcquisitionData(
+            data_path + '/simulated_MR_2D_cartesian_Grappa2.h5')
+    input_norm = input_data.norm()
 
+    prep_gadgets = ['RemoveROOversamplingGadget']
+    processed_data = input_data.process(prep_gadgets)
+    test.check(processed_data.norm() / input_norm, rel_tol=0.01)
 
+    recon = CartesianGRAPPAReconstructor()
+    recon.compute_gfactors(False)
+    recon.set_input(processed_data)
+    recon.process()
+    complex_images = recon.get_output()
+    test.check(complex_images.norm() / input_norm, rel_tol=0.01)
+
+    csms = CoilSensitivityData()
+
+    processed_data.sort()
+    csms.calculate(processed_data)
+
+    am = AcquisitionModel(processed_data, complex_images)
+    am.set_coil_sensitivity_maps(csms)
+    print(am)
 
 # Objective function
 # Acquistion model
