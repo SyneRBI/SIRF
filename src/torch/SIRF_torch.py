@@ -8,17 +8,17 @@ except ModuleNotFoundError:
 # https://github.com/educating-dip/pet_deep_image_prior/blob/main/src/deep_image_prior/torch_wrapper.py
 
 
-def sirf_to_torch(sirf_src, torch_dest, requires_grad=False):
+def sirf_to_torch(sirf_src, device, requires_grad=False):
     if requires_grad:
-        return torch.tensor(sirf_src.as_array(), requires_grad=True).to(torch_dest.device)
+        return torch.tensor(sirf_src.as_array(), requires_grad=True).to(device)
     else:
-        return torch.tensor(sirf_src.as_array()).to(torch_dest.device)
+        return torch.tensor(sirf_src.as_array()).to(device)
 
 def torch_to_sirf(torch_src, sirf_dest): 
     return sirf_dest.fill(torch_src.detach().cpu().numpy())
 
 
-class _ObjectiveFunctionModule(torch.autograd.Function):
+class _ObjectiveFunction(torch.autograd.Function):
     @staticmethod
     def forward(ctx,
             torch_image,
@@ -26,11 +26,12 @@ class _ObjectiveFunctionModule(torch.autograd.Function):
             sirf_obj_func
             ):
 
+        device = torch_image.device
         sirf_image_template = torch_to_sirf(torch_image, sirf_image_template)
         value_np = sirf_obj_func.get_value(sirf_image_template).as_array()
         if torch_image.requires_grad:
-            ctx.save_for_backward(torch_image, sirf_image_template, sirf_obj_func)
-            return torch.tensor(value_np, requires_grad=True).to(torch_image.device)
+            ctx.save_for_backward(device, sirf_image_template, sirf_obj_func)
+            return torch.tensor(value_np, requires_grad=True).to(device)
         else:
             return torch.tensor(value_np).to(torch_image.device)
 
@@ -39,37 +40,37 @@ class _ObjectiveFunctionModule(torch.autograd.Function):
             grad_output
             ):
 
-        torch_image, sirf_image_template, sirf_obj_func = ctx.saved_tensors
+        device, sirf_image_template, sirf_obj_func = ctx.saved_tensors
         tmp_grad = sirf_obj.get_gradient(sirf_image_template)
-        grad = sirf_to_torch(tmp_grad, torch_image, requires_grad=True)
+        grad = sirf_to_torch(tmp_grad, device, requires_grad=True)
         return grad_output*grad, None, None, None
 
 class _AcquisitionModelForward(torch.autograd.Function):
     @staticmethod
     def forward(ctx,
             torch_image,
-            torch_measurements_template,
             sirf_image_template,
             sirf_acq_mdl
             ):
         
+        device = torch_image.device
         sirf_image_template = torch_to_sirf(torch_image, sirf_image_template)
         sirf_forward_projected = sirf_acq_mdl.forward(sirf_image_template)
         if torch_image.requires_grad:
-            ctx.torch_image = torch_image
-            ctx.sirf_forward_projected = sirf_forward_projected
+            ctx.device = device
+            ctx.sirf_measurements = sirf_measurements
             ctx.sirf_acq_mdl = sirf_acq_mdl
-            return sirf_to_torch(sirf_forward_projected, torch_measurements_template, requires_grad=True)
+            return sirf_to_torch(sirf_forward_projected, device, requires_grad=True)
         else:
-            return sirf_to_torch(sirf_forward_projected, torch_measurements_template)
+            return sirf_to_torch(sirf_forward_projected, device)
 
     @staticmethod
     def backward(ctx,
             grad_output
             ):
         sirf_image = ctx.sirf_acq_mdl.backward(torch_to_sirf(grad_output, ctx.sirf_forward_projected))
-        grad = sirf_to_torch(sirf_image, ctx.torch_image, requires_grad=True)
-        return grad, None, None, None, None
+        grad = sirf_to_torch(sirf_image, ctx.device, requires_grad=True)
+        return grad, None, None, None
 
 
 
@@ -77,20 +78,20 @@ class _AcquisitionModelBackward(torch.autograd.Function):
     @staticmethod
     def forward(ctx,
             torch_measurements,
-            torch_image_template,
             sirf_measurements_template,
             sirf_acq_mdl
             ):
         
+        device = torch_measurements.device
         sirf_measurements_template = torch_to_sirf(torch_measurements, sirf_measurements_template)
         sirf_backward_projected = sirf_acq_mdl.backward(sirf_measurements_template)
-        if torch_image_template.requires_grad:
-            ctx.torch_measurements = torch_measurements
+        if torch_measurements.requires_grad:
+            ctx.device = device
             ctx.sirf_backward_projected = sirf_backward_projected
             ctx.sirf_acq_mdl = sirf_acq_mdl
-            return sirf_to_torch(sirf_backward_projected, torch_image_template, requires_grad=True)
+            return sirf_to_torch(sirf_backward_projected, device, requires_grad=True)
         else:
-            return sirf_to_torch(sirf_backward_projected, torch_image_template)
+            return sirf_to_torch(sirf_backward_projected, device)
 
     @staticmethod
     def backward(ctx,
@@ -98,7 +99,7 @@ class _AcquisitionModelBackward(torch.autograd.Function):
             ):
 
         sirf_measurements = ctx.sirf_acq_mdl.forward(torch_to_sirf(grad_output, ctx.sirf_backward_projected))
-        grad = sirf_to_torch(sirf_measurements, ctx.torch_measurements, requires_grad=True)
+        grad = sirf_to_torch(sirf_measurements, ctx.device, requires_grad=True)
         return grad, None, None, None, None
 
 class AcquisitionModelForward(torch.nn.Module):
@@ -111,8 +112,6 @@ class AcquisitionModelForward(torch.nn.Module):
         self.sirf_image_template = sirf_image_template
         self.sirf_measurements_template = sirf_measurements_template
         
-        self.torch_measurements_template = torch.tensor(sirf_measurements_template.as_array(), requires_grad=False).to(device)*0
-
     def forward(self, torch_image):
         # view as torch sometimes doesn't like singleton dimensions
         torch_image = torch_image.view(self.sirf_image_shape)
