@@ -10,6 +10,7 @@ except ModuleNotFoundError:
 
 def sirf_to_torch(sirf_src, device, requires_grad=False):
     if requires_grad:
+        # use torch.tensor to infer data type
         return torch.tensor(sirf_src.as_array(), requires_grad=True).to(device)
     else:
         return torch.tensor(sirf_src.as_array()).to(device)
@@ -58,7 +59,7 @@ class _AcquisitionModelForward(torch.autograd.Function):
         sirf_forward_projected = sirf_acq_mdl.forward(sirf_image_template)
         if torch_image.requires_grad:
             ctx.device = device
-            ctx.sirf_measurements = sirf_measurements
+            ctx.sirf_forward_projected = sirf_forward_projected
             ctx.sirf_acq_mdl = sirf_acq_mdl
             return sirf_to_torch(sirf_forward_projected, device, requires_grad=True)
         else:
@@ -103,7 +104,12 @@ class _AcquisitionModelBackward(torch.autograd.Function):
         return grad, None, None, None, None
 
 class AcquisitionModelForward(torch.nn.Module):
-    def __init__(self, acq_mdl, sirf_image_template, sirf_measurements_template, device = "cpu", ):
+    def __init__(self,
+            acq_mdl, 
+            sirf_image_template, 
+            sirf_measurements_template, 
+            device = "cpu", 
+            ):
         super(AcquisitionModelForward, self).__init__()
         # get the shape of image and measurements
         self.acq_mdl = acq_mdl
@@ -112,19 +118,49 @@ class AcquisitionModelForward(torch.nn.Module):
         self.sirf_image_template = sirf_image_template
         self.sirf_measurements_template = sirf_measurements_template
         
-    def forward(self, torch_image):
-        # view as torch sometimes doesn't like singleton dimensions
-        torch_image = torch_image.view(self.sirf_image_shape)
-        return _AcquisitionModelForward.apply(torch_image, self.torch_measurements_template, self.sirf_image_template, self.acq_mdl).squeeze()
+    def forward(self, image, **kwargs):
+        # PyTorch image (2D) is size [batch, channel, height, width] or [batch, height, width]
+        # PyTorch volume (3D) is size [batch, channel, depth, height, width] or [batch, depth, height, width]
+        # check keys of kwargs
+        if not set(kwargs.keys()).issubset({'attenuation', 'background', 'sensitivity','norm','csm'}):
+            raise ValueError("Invalid keyword arguments, only 'attenuation', 'background', 'sensitivity','norm','csm' are allowed. Assumes lists of same length.")
 
+        n_batch = image.shape[0]
+        if self.sirf_image_shape[0] == 1:
+            # if 2D
+            if len(image.shape) == 3:
+                # if 2D and no channel then add singleton
+                # add singleton for SIRF
+                image = image.unsqueeze(1)
+        else:
+            # if 3D
+            if len(image.shape) == 4:
+                # if 3D and no channel then add singleton
+                image = image.unsqueeze(1)
+        n_channel = image.shape[1]
 
+        # This looks horrible, but PyTorch should be able to trace.
+        batch_images = []
+        for batch in n_batch:
+            channel_images = []
+            for channel in n_channel:
+                torch_image = image[batch, channel]
+                torch_image = torch_image.view(self.sirf_image_shape)
+                # if there are kwargs then raise error
+                if kwargs:
+                    raise NotImplementedError("Keyword arguments are not implemented yet.")
+                channel_images.append(_AcquisitionModelForward.apply(torch_image, self.sirf_image_template, self.sirf_measurements_template, self.acq_mdl))
+            batch_images.append(torch.stack(channel_images, dim=0))
+        # [batch, channel, *forward_projected.shape]
+        return torch.stack(batch_images, dim=0) 
+                
 if __name__ == '__main__':
     import os
     import numpy
     # Import the PET reconstruction engine
     import sirf.STIR as pet
     # Set the verbosity
-    #pet.set_verbosity(1)
+    pet.set_verbosity(1)
     # Store temporary sinograms in RAM
     pet.AcquisitionData.set_storage_scheme("memory")
     import sirf
@@ -154,7 +190,7 @@ if __name__ == '__main__':
 
     
     print("Comparing the forward projected")
-    torch_measurements = _AcquisitionModelForward.apply(torch_image, torch_measurements_template, sirf_image_template, sirf_acq_mdl)
+    torch_measurements = _AcquisitionModelForward.apply(torch_image, sirf_image_template, sirf_acq_mdl)
     print("Sum of torch: ", torch_measurements.detach().cpu().numpy().sum(), "Sum of sirf: ", sirf_measurements.sum(), "Sum of Differences: ", numpy.abs(torch_measurements.detach().cpu().numpy() - sirf_measurements.as_array()).sum())
     print("Comparing the backward of forward projected")
     # TO TEST THAT WE ARE BACKWARDING CORRECTLY RETAIN GRAD AND SUM THEN BACKWARD
@@ -172,7 +208,7 @@ if __name__ == '__main__':
     bp_sirf_measurements = acq_mdl.backward(sirf_measurements)
 
     print("Comparing the backward projected")
-    torch_image = _AcquisitionModelBackward.apply(torch_measurements, torch_image_template, sirf_measurements_template, sirf_acq_mdl)
+    torch_image = _AcquisitionModelBackward.apply(torch_measurements, sirf_measurements_template, sirf_acq_mdl)
     print("Sum of torch: ", torch_image.detach().cpu().numpy().sum(), "Sum of sirf: ", bp_sirf_measurements.sum(), \
         "Sum of Differences: ", numpy.abs(torch_image.detach().cpu().numpy() - bp_sirf_measurements.as_array()).sum())
     torch_measurements.retain_grad()
@@ -183,11 +219,14 @@ if __name__ == '__main__':
         numpy.abs(torch_measurements.grad.detach().cpu().numpy() - comparison.as_array()).sum())
 
 
-    """ # form objective function
+    # form objective function
     print("Objective Function Test")
     obj_fun = pet.make_Poisson_loglikelihood(sirf_measurements)
-    obj_fun.set_acquisition_model(acq_mdl)
+    print("Made poisson loglikelihood")
+    obj_fun.set_acquisition_model(sirf_acq_mdl)
+    print("Set acquisition model")
     obj_fun.set_up(sirf_image_template)
+    print("Set up")
 
     torch_image = torch.tensor(image.as_array(), requires_grad=True).to(device)
     sirf_image_template = image.get_uniform_copy(0)
@@ -199,8 +238,8 @@ if __name__ == '__main__':
     # grad sum(f(x)) = f'(x)
     comparison = obj_fun.gradient(sirf_image_template)
     print("Sum of torch: ", torch_image.grad.sum(), "Sum of sirf: ", comparison.sum(), "Sum of Differences: ", (torch_image.grad.detach().cpu().numpy() - comparison.as_array()).sum())
-    """
-    from sirf.Gadgetron import *
+   
+    """ from sirf.Gadgetron import *
     print("2D MRI TEST")
     data_path = examples_data_path('MR')
     AcquisitionData.set_storage_scheme('memory')
@@ -226,7 +265,7 @@ if __name__ == '__main__':
 
     am = AcquisitionModel(processed_data, complex_images)
     am.set_coil_sensitivity_maps(csms)
-    print(am)
+    print(am) """
 
 # Objective function
 # Acquistion model
