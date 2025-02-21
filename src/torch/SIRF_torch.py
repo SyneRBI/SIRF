@@ -58,8 +58,8 @@ class _ObjectiveFunction(torch.autograd.Function):
         sirf_image_template = ctx.sirf_image_template
         device = ctx.device
         # Negative for Gradient Descent
-        tmp_grad = -sirf_obj.get_gradient(sirf_image_template)
-        grad = sirf_to_torch(tmp_grad, device, requires_grad=True)
+        sirf_grad = -sirf_obj.get_gradient(sirf_image_template)
+        grad = sirf_to_torch(sirf_grad, device, requires_grad=True)
         return grad_output*grad, None, None, None
 
 class _AcquisitionModelForward(torch.autograd.Function):
