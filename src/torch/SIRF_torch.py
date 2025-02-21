@@ -17,11 +17,8 @@ def sirf_to_torch(
         requires_grad: bool = False
         ) -> torch.Tensor:
 
-    if requires_grad:
-        # use torch.tensor to infer data type
-        return torch.tensor(sirf_src.as_array(), requires_grad=True).to(device)
-    else:
-        return torch.tensor(sirf_src.as_array()).to(device)
+    # use torch.tensor to infer data type
+    return torch.tensor(sirf_src.as_array(), requires_grad=True).to(device)
 
 def torch_to_sirf(
         torch_src: torch.Tensor,
@@ -41,6 +38,7 @@ class _ObjectiveFunction(torch.autograd.Function):
 
         device = torch_image.device
         sirf_image_template = torch_to_sirf(torch_image, sirf_image_template)
+        # Negative for Gradient Descent
         value = torch.tensor(-sirf_obj_func.get_value(sirf_image_template)).to(device)
         if torch_image.requires_grad:
             ctx.device = device
@@ -59,6 +57,7 @@ class _ObjectiveFunction(torch.autograd.Function):
         sirf_obj = ctx.sirf_obj_func
         sirf_image_template = ctx.sirf_image_template
         device = ctx.device
+        # Negative for Gradient Descent
         tmp_grad = -sirf_obj.get_gradient(sirf_image_template)
         grad = sirf_to_torch(tmp_grad, device, requires_grad=True)
         return grad_output*grad, None, None, None
@@ -86,6 +85,7 @@ class _AcquisitionModelForward(torch.autograd.Function):
     def backward(ctx,
             grad_output
             ):
+
         sirf_image = ctx.sirf_acq_mdl.backward(torch_to_sirf(grad_output, ctx.sirf_forward_projected))
         grad = sirf_to_torch(sirf_image, ctx.device, requires_grad=True)
         return grad, None, None, None
