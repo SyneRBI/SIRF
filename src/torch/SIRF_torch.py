@@ -64,6 +64,57 @@ class _ObjectiveFunction(torch.autograd.Function):
         grad = sirf_to_torch(sirf_grad, device, requires_grad=True)
         return grad_output*grad, None, None, None
 
+
+class _ObjectiveGradient(torch.autograd.Function):
+    @staticmethod
+    def forward(ctx, x, obj_fnc):
+        # We consider the objective function f(x): R^n -> R (maps n-dimensional input to a scalar).
+        # This forward pass computes the gradient of f(x) with respect to x.
+        # g(x) = ∇f(x) = J^T  (where J is the Jacobian of f(x)).  g(x) is a row vector.
+        # The VJP is [1] * J = ∇f(x), where [1] is a scalar (or a 1x1 tensor).
+        # We use [1] because we're computing the full gradient of the scalar output f(x).
+        # The result of the VJP is the gradient itself.  The "upstream gradient"
+        # is implicitly [1] because there are no prior operations.
+        # Here we pass this gradient.
+        raise NotImplementedError
+
+    @staticmethod
+    def backward(ctx, grad_output):
+        # Compute the Hessian-vector product (HVP).
+        # Explanation:
+        # v = grad_output = ∂L/∂g(x), where L is the loss function and g(x) is the
+        # *conceptual* output of this Function (the gradient of f(x)).  v is a vector.
+        # The Hessian is ∇²f(x) = H|x, evaluated at the input point x.
+        # The HVP is v^T * H|x.
+        # This HVP computes ∂L/∂x, the gradient of the loss with respect to the *input* (x)
+        # of the forward pass, by applying the chain rule: ∂L/∂x = (∂L/∂g(x)) * (∂g(x)/∂x) = v^T * H.
+        raise NotImplementedError
+
+
+class _ObjectiveGradient(torch.autograd.Function):
+    @staticmethod
+    def forward(ctx, x, obj_fnc):
+        # We consider the objective function f(x): R^n -> R (maps n-dimensional input to a scalar).
+        # This forward pass represent* the computation of the Vector-Jacobian Product (VJP).
+        # g(x) = ∇f(x) = J^T  (where J is the Jacobian of f(x) at point x).  g(x) is a row vector.
+        # The VJP, in general, is v^T * J.  Within this forward pass, we are
+        # computing the full gradient, so v = [1] (a scalar or 1x1 tensor).
+        # The result of this VJP *is* the gradient itself: [1] * J = ∇f(x).
+        raise NotImplementedError
+
+    @staticmethod
+    def backward(ctx, grad_output):
+        # This backward pass represents the computation of the Hessian-Vector Product (HVP).
+        # Explanation:
+        # v = grad_output = ∂L/∂g(x), where L is the loss function and g(x) is the
+        # *conceptual* output of the forward pass (the gradient of f(x)). v is a vector.
+        # The Hessian, H, is ∇²f(x) = H|x, evaluated at the input point x.
+        # The HVP is v^T * H|x.
+        # This HVP computes ∂L/∂x, the gradient of the loss with respect to the *input* (x)
+        # of the forward pass, by applying the chain rule: ∂L/∂x = (∂L/∂g(x)) * (∂g(x)/∂x) = v^T * H.
+        raise NotImplementedError
+
+
 class _OperatorForward(torch.autograd.Function):
     @staticmethod
     def forward(ctx,
