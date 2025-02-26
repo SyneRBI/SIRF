@@ -20,11 +20,13 @@ def sirf_to_torch(
     # use torch.tensor to infer data type
     return torch.tensor(sirf_src.as_array(), requires_grad=True).to(device)
 
-def torch_to_sirf(
+def torch_to_sirf_(
         torch_src: torch.Tensor,
         sirf_dest: object,
         ) -> object:
 
+    # This is an in-place operation - CAREFUL
+    # Only really to be used within torch.autograd.Function
     return sirf_dest.fill(torch_src.detach().cpu().numpy())
 
 
@@ -37,7 +39,7 @@ class _ObjectiveFunction(torch.autograd.Function):
             ):
 
         device = torch_image.device
-        sirf_image_template = torch_to_sirf(torch_image, sirf_image_template)
+        sirf_image_template = torch_to_sirf_(torch_image, sirf_image_template)
         # Negative for Gradient Descent
         value = torch.tensor(-sirf_obj_func.get_value(sirf_image_template)).to(device)
         if torch_image.requires_grad:
@@ -62,21 +64,21 @@ class _ObjectiveFunction(torch.autograd.Function):
         grad = sirf_to_torch(sirf_grad, device, requires_grad=True)
         return grad_output*grad, None, None, None
 
-class _AcquisitionModelForward(torch.autograd.Function):
+class _OperatorForward(torch.autograd.Function):
     @staticmethod
     def forward(ctx,
             torch_image,
             sirf_image_template,
-            sirf_acq_mdl
+            sirf_operator
             ):
-        
+
         device = torch_image.device
-        sirf_image_template = torch_to_sirf(torch_image, sirf_image_template)
-        sirf_forward_projected = sirf_acq_mdl.forward(sirf_image_template)
+        sirf_image_template = torch_to_sirf_(torch_image, sirf_image_template)
+        sirf_forward_projected = sirf_operator.forward(sirf_image_template)
         if torch_image.requires_grad:
             ctx.device = device
             ctx.sirf_forward_projected = sirf_forward_projected
-            ctx.sirf_acq_mdl = sirf_acq_mdl
+            ctx.sirf_operator = sirf_operator
             return sirf_to_torch(sirf_forward_projected, device, requires_grad=True)
         else:
             return sirf_to_torch(sirf_forward_projected, device)
@@ -86,27 +88,27 @@ class _AcquisitionModelForward(torch.autograd.Function):
             grad_output
             ):
 
-        sirf_image = ctx.sirf_acq_mdl.backward(torch_to_sirf(grad_output, ctx.sirf_forward_projected))
+        sirf_image = ctx.sirf_operator.backward(torch_to_sirf_(grad_output, ctx.sirf_forward_projected))
         grad = sirf_to_torch(sirf_image, ctx.device, requires_grad=True)
         return grad, None, None, None
 
 
 
-class _AcquisitionModelBackward(torch.autograd.Function):
+class _OperatorBackward(torch.autograd.Function):
     @staticmethod
     def forward(ctx,
             torch_measurements,
             sirf_measurements_template,
-            sirf_acq_mdl
+            sirf_operator
             ):
         
         device = torch_measurements.device
-        sirf_measurements_template = torch_to_sirf(torch_measurements, sirf_measurements_template)
-        sirf_backward_projected = sirf_acq_mdl.backward(sirf_measurements_template)
+        sirf_measurements_template = torch_to_sirf_(torch_measurements, sirf_measurements_template)
+        sirf_backward_projected = sirf_operator.backward(sirf_measurements_template)
         if torch_measurements.requires_grad:
             ctx.device = device
             ctx.sirf_backward_projected = sirf_backward_projected
-            ctx.sirf_acq_mdl = sirf_acq_mdl
+            ctx.sirf_operator = sirf_operator
             return sirf_to_torch(sirf_backward_projected, device, requires_grad=True)
         else:
             return sirf_to_torch(sirf_backward_projected, device)
@@ -116,31 +118,24 @@ class _AcquisitionModelBackward(torch.autograd.Function):
             grad_output
             ):
 
-        sirf_measurements = ctx.sirf_acq_mdl.forward(torch_to_sirf(grad_output, ctx.sirf_backward_projected))
+        sirf_measurements = ctx.sirf_operator.forward(torch_to_sirf_(grad_output, ctx.sirf_backward_projected))
         grad = sirf_to_torch(sirf_measurements, ctx.device, requires_grad=True)
         return grad, None, None, None, None
 
-class SIRFAcquisitionModelForward(torch.nn.Module):
+class SIRFOperatorForward(torch.nn.Module):
     def __init__(self,
-            acq_mdl, 
-            sirf_image_template, 
-            sirf_measurements_template, 
-            device = "cpu", 
+            operator, 
+            sirf_image_template
             ):
-        super(SIRFAcquisitionModelForward, self).__init__()
+        super(SIRFOperatorForward, self).__init__()
         # get the shape of image and measurements
-        self.acq_mdl = acq_mdl
+        self.operator = operator
         self.sirf_image_shape = sirf_image_template.as_array().shape
-        self.sirf_measurements_shape = sirf_measurements_template.as_array().shape
         self.sirf_image_template = sirf_image_template
-        self.sirf_measurements_template = sirf_measurements_template
         
-    def forward(self, image, **kwargs):
+    def forward(self, image):
         # PyTorch image (2D) is size [batch, channel, height, width] or [batch, height, width]
         # PyTorch volume (3D) is size [batch, channel, depth, height, width] or [batch, depth, height, width]
-        # check keys of kwargs
-        if not set(kwargs.keys()).issubset({'attenuation', 'background', 'sensitivity','norm','csm'}):
-            raise ValueError("Invalid keyword arguments, only 'attenuation', 'background', 'sensitivity','norm','csm' are allowed. Assumes lists of same length.")
 
         n_batch = image.shape[0]
         if self.sirf_image_shape[0] == 1:
@@ -163,62 +158,47 @@ class SIRFAcquisitionModelForward(torch.nn.Module):
             for channel in range(n_channel):
                 torch_image = image[batch, channel]
                 torch_image = torch_image.view(self.sirf_image_shape)
-                # if there are kwargs then raise error
-                if kwargs:
-                    raise NotImplementedError("Keyword arguments are not implemented yet.")
-                channel_images.append(_AcquisitionModelForward.apply(torch_image, self.sirf_image_template, self.acq_mdl))
+                channel_images.append(_OperatorForward.apply(torch_image, self.sirf_image_template, self.operator))
             batch_images.append(torch.stack(channel_images, dim=0))
         # [batch, channel, *forward_projected.shape]
         return torch.stack(batch_images, dim=0) 
-
-class SIRFAcquisitionModelBackward(torch.nn.Module):
+       
+class SIRFOperatorBackward(torch.nn.Module):
     def __init__(self,
-            acq_mdl, 
-            sirf_image_template, 
-            sirf_measurements_template, 
-            device = "cpu", 
+            operator, 
+            sirf_measurements_template
             ):
-        super(SIRFAcquisitionModelBackward, self).__init__()
+        super(SIRFOperatorBackward, self).__init__()
         # get the shape of image and measurements
-        self.acq_mdl = acq_mdl
-        self.sirf_image_shape = sirf_image_template.as_array().shape
+        self.operator = operator
         self.sirf_measurements_shape = sirf_measurements_template.as_array().shape
-        self.sirf_image_template = sirf_image_template
         self.sirf_measurements_template = sirf_measurements_template
         
-    def forward(self, measurements, **kwargs):
+    def forward(self, measurements):
         raise NotImplementedError("Backward is not implemented yet.")
-        # PyTorch image (2D) is size [batch, channel, height, width] or [batch, height, width]
-        # PyTorch volume (3D) is size [batch, channel, depth, height, width] or [batch, depth, height, width]
-        # check keys of kwargs
-        if not set(kwargs.keys()).issubset({'attenuation', 'background', 'sensitivity','norm','csm'}):
-            raise ValueError("Invalid keyword arguments, only 'attenuation', 'background', 'sensitivity','norm','csm' are allowed. Assumes lists of same length.")
+        # PyTorch measurements are size [batch, channel, *measurements_shape] or [batch, *measurements_shape]
 
-        n_batch = measurements.shape[0]
-        if self.sirf_measurements_shape[0] == 1:
-            # if 2D
-            if len(measurements.shape) == 3:
-                # if 2D and no channel then add singleton
-                # add singleton for SIRF
-                image = image.unsqueeze(1)
-        else:
-            # if 3D
-            if len(image.shape) == 4:
-                # if 3D and no channel then add singleton
-                image = image.unsqueeze(1)
-        n_channel = image.shape[1]
+        # check the measurmements shape
+        torch_measurements_shape = measurements.shape
+        if len(torch_measurements_shape) == self.sirf_measurements_shape:
+            raise ValueError(f"Invalid shape of measurements. Expected batched measurements but got {torch_measurements_shape}.")
+        elif len(torch_measurements_shape) == self.sirf_measurements_shape + 1:
+            if self.sirf_measurements_shape != torch_measurements_shape[1:]:
+                raise ValueError(f"Invalid shape of measurements. Expected {self.sirf_measurements_shape} but got {torch_measurements_shape[1:]}")
+            else:
+                measurements = measurements.unsqueeze(1) # add channel dimension
+        elif len(torch_measurements_shape) == self.sirf_measurements_shape + 2:
+            if self.sirf_measurements_shape != torch_measurements_shape[2:]:
+                raise ValueError(f"Invalid shape of measurements. Expected {self.sirf_measurements_shape} but got {torch_measurements_shape}")
 
         # This looks horrible, but PyTorch should be able to trace.
+        # This runs each of the operators serially
         batch_images = []
         for batch in range(n_batch):
             channel_images = []
             for channel in range(n_channel):
                 torch_image = image[batch, channel]
-                torch_image = torch_image.view(self.sirf_image_shape)
-                # if there are kwargs then raise error
-                if kwargs:
-                    raise NotImplementedError("Keyword arguments are not implemented yet.")
-                channel_images.append(_AcquisitionModelForward.apply(torch_image, self.sirf_image_template, self.acq_mdl))
+                channel_images.append(_OperatorForward.apply(torch_image, self.sirf_measurements_template, self.operator))
             batch_images.append(torch.stack(channel_images, dim=0))
         # [batch, channel, *forward_projected.shape]
         return torch.stack(batch_images, dim=0) 
@@ -290,12 +270,12 @@ if __name__ == '__main__':
     # 2D PET example
     data_path = os.path.join(examples_data_path('PET'), 'thorax_single_slice')
     image = pet.ImageData(os.path.join(data_path,'emission.hv'))
-    acq_mdl = pet.AcquisitionModelUsingRayTracingMatrix()
-    acq_mdl.set_num_tangential_LORs(5)
+    operator = pet.OperatorUsingRayTracingMatrix()
+    operator.set_num_tangential_LORs(5)
     tmp = pet.AcquisitionData(os.path.join(data_path,'template_sinogram.hs'))
-    acq_mdl.set_background_term(tmp.get_uniform_copy(0) + 1.5)
-    acq_mdl.set_up(tmp,image)
-    sirf_measurements = acq_mdl.forward(image)
+    operator.set_background_term(tmp.get_uniform_copy(0) + 1.5)
+    operator.set_up(tmp,image)
+    sirf_measurements = operator.forward(image)
     # Forward test - check if forward is same between torch and sirf
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     # torch_image,
@@ -304,15 +284,15 @@ if __name__ == '__main__':
     torch_measurements_template = torch.tensor(sirf_measurements.as_array(), requires_grad=False).to(device)*0
     # sirf_image_template,
     sirf_image_template = image.get_uniform_copy(0)
-    # sirf_acq_mdl
-    sirf_acq_mdl = acq_mdl
+    # sirf_operator
+    sirf_operator = operator
 
     
     print("Comparing the forward projected")
-    forward_acq_mdl = AcquisitionModelForward(acq_mdl, sirf_image_template, sirf_measurements, device)
+    forward_operator = OperatorForward(operator, sirf_image_template, sirf_measurements, device)
     
-    torch_measurements = forward_acq_mdl(torch_image)
-    #torch_measurements = _AcquisitionModelForward.apply(torch_image, sirf_image_template, sirf_acq_mdl)
+    torch_measurements = forward_operator(torch_image)
+    #torch_measurements = _OperatorForward.apply(torch_image, sirf_image_template, sirf_operator)
     print("Sum of torch: ", torch_measurements.detach().cpu().numpy().sum(), "Sum of sirf: ", sirf_measurements.sum(), "Sum of Differences: ", numpy.abs(torch_measurements.detach().cpu().numpy() - sirf_measurements.as_array()).sum())
     print("Comparing the backward of forward projected")
 
@@ -320,7 +300,7 @@ if __name__ == '__main__':
     torch_image.retain_grad()
     torch_measurements.sum().backward()
     # grad sum(Ax) = A^T 1
-    comparison = acq_mdl.backward(sirf_measurements.get_uniform_copy(1))
+    comparison = operator.backward(sirf_measurements.get_uniform_copy(1))
     print(torch_image.grad.shape)
     print(torch_measurements.shape)
     print("Sum of torch: ", torch_image.grad.sum().detach().cpu().numpy(), "Sum of sirf: ", comparison.sum(), "Sum of Differences: ", \
@@ -329,17 +309,17 @@ if __name__ == '__main__':
 
     torch_measurements = torch.tensor(sirf_measurements.as_array(), requires_grad=True).to(device)
     torch_image_template = torch.tensor(image.as_array(), requires_grad=True).to(device)
-    sirf_measurements_template = acq_mdl.forward(image).get_uniform_copy(0)
-    bp_sirf_measurements = acq_mdl.backward(sirf_measurements)
+    sirf_measurements_template = operator.forward(image).get_uniform_copy(0)
+    bp_sirf_measurements = operator.backward(sirf_measurements)
 
     print("Comparing the backward projected")
-    torch_image = _AcquisitionModelBackward.apply(torch_measurements, sirf_measurements_template, sirf_acq_mdl)
+    torch_image = _OperatorBackward.apply(torch_measurements, sirf_measurements_template, sirf_operator)
     print("Sum of torch: ", torch_image.detach().cpu().numpy().sum(), "Sum of sirf: ", bp_sirf_measurements.sum(), \
         "Sum of Differences: ", numpy.abs(torch_image.detach().cpu().numpy() - bp_sirf_measurements.as_array()).sum())
     torch_measurements.retain_grad()
     torch_image.sum().backward()
     # grad sum(A^Tx) = A 1
-    comparison = acq_mdl.forward(bp_sirf_measurements.get_uniform_copy(1))
+    comparison = operator.forward(bp_sirf_measurements.get_uniform_copy(1))
     print("Sum of torch: ", torch_measurements.grad.sum(), "Sum of sirf: ", comparison.sum(), "Sum of Differences: ", \
         numpy.abs(torch_measurements.grad.detach().cpu().numpy() - comparison.as_array()).sum())
 
@@ -348,7 +328,7 @@ if __name__ == '__main__':
     # print("Objective Function Test")
     # obj_fun = pet.make_Poisson_loglikelihood(sirf_measurements)
     # print("Made poisson loglikelihood")
-    # obj_fun.set_acquisition_model(sirf_acq_mdl)
+    # obj_fun.set_acquisition_model(sirf_operator)
     # print("Set acquisition model")
     # obj_fun.set_up(sirf_image_template)
     # print("Set up")
@@ -373,24 +353,24 @@ if __name__ == '__main__':
     init_image_file = existing_filepath(data_path, 'test_image_PM_QP_6.hv')
     image_data = ImageData(init_image_file)
 
-    acq_model = AcquisitionModelUsingRayTracingMatrix()
-    acq_model.set_num_tangential_LORs(5)
-    acq_model.set_up(acq_data, image_data)
-    acq_mdl_forward_pet_3d = AcquisitionModelForward(acq_model, image_data, acq_data, device)
+    operator = OperatorUsingRayTracingMatrix()
+    operator.set_num_tangential_LORs(5)
+    operator.set_up(acq_data, image_data)
+    operator_forward_pet_3d = OperatorForward(operator, image_data, acq_data, device)
     print(" 3D PET TEST")
     # 3D PET example
     print("Comparing the forward projected")
     torch_image = torch.tensor(image_data.as_array(), requires_grad=True).to(device).unsqueeze(0)
     torch_measurements_template = torch.tensor(fwd_proj.as_array(), requires_grad=False).to(device)*0
     sirf_image_template = image_data.get_uniform_copy(0)
-    sirf_measurements = acq_model.forward(image_data)
-    torch_measurements = acq_mdl_forward_pet_3d(torch_image) 
+    sirf_measurements = operator.forward(image_data)
+    torch_measurements = operator_forward_pet_3d(torch_image) 
     print("Sum of torch: ", torch_measurements.detach().cpu().numpy().sum(), "Sum of sirf: ", sirf_measurements.sum(), "Sum of Differences: ", numpy.abs(torch_measurements.detach().cpu().numpy() - sirf_measurements.as_array()).sum())
 
 
 
     obj_fun = make_Poisson_loglikelihood(acq_data)
-    obj_fun.set_acquisition_model(acq_model)
+    obj_fun.set_acquisition_model(operator)
     obj_fun.set_prior(QuadraticPrior().set_penalisation_factor(0.5))
 
 
@@ -418,7 +398,7 @@ if __name__ == '__main__':
     processed_data.sort()
     csms.calculate(processed_data)
 
-    am = AcquisitionModel(processed_data, complex_images)
+    am = Operator(processed_data, complex_images)
     am.set_coil_sensitivity_maps(csms)
     print(am) """
 
