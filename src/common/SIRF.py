@@ -810,3 +810,24 @@ class GeometricalInfo(object):
         arr = numpy.ndarray((4,4), dtype = numpy.float32)
         try_calling (pysirf.cSIRF_GeomInfo_get_index_to_physical_point_matrix(self.handle, arr.ctypes.data))
         return arr
+
+class AdjointOperator(Object):
+    """
+    Returns the adjoint operator of the operator, where the adjoint operator
+    is the forward method and the forward operator is the backward method.
+    """
+    def __init__(self, operator):
+        self.operator = operator
+
+    def forward(self, x):
+        """Swaps the forward and adjoint operators"""
+        # By applying the adjoint operator the error catching is done by SIRF
+        # as operators without adjoint will throw an error, and these operators
+        # are not supported by the adjoint operator
+        return self.operator.adjoint(x)
+
+    def backward(self, x):
+        """Swaps the backward and forward operators"""
+        # As the adjoint is called when forward is called the forward will be
+        # correct.
+        return self.operator.forward(x)

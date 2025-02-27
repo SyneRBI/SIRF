@@ -115,7 +115,7 @@ class _ObjectiveGradient(torch.autograd.Function):
         raise NotImplementedError
 
 
-class _OperatorForward(torch.autograd.Function):
+class _Operator(torch.autograd.Function):
     @staticmethod
     def forward(ctx,
             torch_src: torch.Tensor,
@@ -143,37 +143,6 @@ class _OperatorForward(torch.autograd.Function):
         grad = sirf_to_torch(sirf_src, ctx.device, requires_grad=True)
         return grad, None, None, None
 
-
-
-class _OperatorBackward(torch.autograd.Function):
-    @staticmethod
-    def forward(ctx,
-            torch_src: torch.Tensor,
-            sirf_src_template: object,
-            sirf_operator: object
-            ):
-        
-        device = torch_src.device
-        sirf_src_template = torch_to_sirf_(torch_src, sirf_src_template)
-        sirf_dest = sirf_operator.backward(sirf_src_template)
-        if torch_src.requires_grad:
-            ctx.device = device
-            ctx.sirf_dest = sirf_dest
-            ctx.sirf_operator = sirf_operator
-            return sirf_to_torch(sirf_dest, device, requires_grad=True)
-        else:
-            return sirf_to_torch(sirf_dest, device)
-
-    @staticmethod
-    def backward(ctx,
-            grad_output
-            ):
-
-        sirf_src = ctx.sirf_operator.forward(torch_to_sirf_(grad_output, ctx.sirf_dest))
-        grad = sirf_to_torch(sirf_src, ctx.device, requires_grad=True)
-        return grad, None, None, None, None
-
-
 def check_shapes(torch_shape, sirf_shape):
     if torch_shape != sirf_shape:
         raise ValueError(f"Invalid shape. Expected sirf shape {sirf_shape} but \
@@ -190,12 +159,6 @@ class SIRFOperator(torch.nn.Module):
         self.sirf_src_shape = sirf_src_template.as_array().shape
         self.sirf_src_template = sirf_src_template
         self.channel = False
-
-    def use_jacobian_adjoint(self):
-        # check if self.operator has get_linear method
-        if hasattr(self.operator, 'get_linear_acquisition_model'):
-            self.operator = self.operator.get_linear_acquisition_model()
-        self._operator = _OperatorBackward
         
     def forward(self, torch_src):
         # PyTorch src is size [batch, channel, *src_shape] or
@@ -221,7 +184,7 @@ class SIRFOperator(torch.nn.Module):
         for batch in range(n_batch):
             channel_dest = []
             for channel in range(n_channel):
-                channel_dest.append(self._operator.apply(torch_src[batch, channel], 
+                channel_dest.append(_Operator.apply(torch_src[batch, channel], 
                     self.sirf_src_template, self.operator))
             batch_dest.append(torch.stack(channel_dest, dim=0))
         if self.channel:
