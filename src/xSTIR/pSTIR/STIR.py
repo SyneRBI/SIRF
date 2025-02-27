@@ -1702,7 +1702,7 @@ class AcquisitionSensitivityModel(object):
         assert_validity(ad, AcquisitionData)
         if ad.read_only:
             raise error(
-                'Cannot normalise a read-only object, consider using method forward instead')
+                'Cannot unnormalise a read-only object, consider using method forward instead')
         try_calling(pystir.cSTIR_applyAcquisitionSensitivityModel(
             self.handle, ad.handle, 'unnormalise'))
 
