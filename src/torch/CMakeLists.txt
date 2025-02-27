@@ -1,4 +1,4 @@
 if (BUILD_PYTHON)
-  set(PythonFiles SIRF_torch.py)
+  set(PythonFiles torch.py)
   INSTALL(FILES ${PythonFiles} DESTINATION "${PYTHON_DEST}/sirf")
 endif()
