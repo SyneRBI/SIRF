@@ -176,10 +176,8 @@ void* cSTIR_newObject(const char* name)
 			return NEW_OBJECT_HANDLE(RayTracingMatrix);
 		if (sirf::iequals(name, "SPECTUBMatrix"))
 			return NEW_OBJECT_HANDLE(SPECTUBMatrix);
-#if STIR_VERSION >= 050100
 		if (sirf::iequals(name, "PinholeSPECTUBMatrix"))
 			return NEW_OBJECT_HANDLE(PinholeSPECTUBMatrix);
-#endif
 		if (sirf::iequals(name, "QuadraticPrior"))
 			return NEW_OBJECT_HANDLE(QuadPrior3DF);
 		if (sirf::iequals(name, "LogcoshPrior"))
@@ -1507,6 +1505,22 @@ void* cSTIR_ImageData_zoom_image(void* ptr_im, const size_t zooms_ptr_raw, const
         id.zoom_image(zooms, offsets_in_mm, new_sizes, zoom_options);
 
 		return static_cast<void*>(new DataHandle);
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_ImageData_zoom_image_as_template(void* zoomed_image_ptr, const void* template_image_ptr, 
+                                                const char *const zoom_options) 
+{
+    try {
+        STIRImageData& zoomed_id = objectFromHandle<STIRImageData>(zoomed_image_ptr);
+        STIRImageData& template_id = objectFromHandle<STIRImageData>(template_image_ptr);
+
+        // Use the in_id image as the template for zooming
+        zoomed_id.zoom_image_as_template(template_id, zoom_options);
+
+        return static_cast<void*>(new DataHandle);
 	}
 	CATCH;
 }

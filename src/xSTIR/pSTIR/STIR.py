@@ -681,6 +681,24 @@ class ImageData(SIRF.ImageData):
             np_offsets_in_mm.ctypes.data, np_size.ctypes.data, scaling))
 
         return zoomed_im
+    
+    def zoom_image_as_template(self, template_image, scaling='preserve_sum'):
+        """
+        Returns a zoomed image based on a template image's geometry.
+
+        Supported scaling options are: 'preserve_sum', 'preserve_values' and
+        'preserve_projections'
+        """
+        zoomed_image = template_image.clone()
+
+        if not isinstance(template_image, ImageData):
+            raise error('zoom_image_as_template: template should be ImageData')
+
+        ### because of a bug somewherre
+        try_calling(pystir.cSTIR_ImageData_zoom_image_as_template(
+            zoomed_image.handle, self.handle, scaling))
+        
+        return zoomed_image
 
     def move_to_scanner_centre(self, proj_data):
         """Moves the image to the scanner centre.
@@ -3461,7 +3479,6 @@ class KOSMAPOSLReconstructor(IterativeReconstructor):
             (self.handle, self.name, 'objective_function')
         check_status(obj_fun.handle)
         return obj_fun
-
 
 class SingleScatterSimulator():
     '''

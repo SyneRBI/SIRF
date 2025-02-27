@@ -3,8 +3,8 @@
 
 * SIRF/STIR
   - `ScatterEstimation` has extra methods that allow setting masks for the tail-fitting
+  - `ImageData` has extra method to zoom image using information from a template image, `zoom_image_as_template`.
   - Error raised in `AcquisitionSensitivityModel.[un]normalise` methods applied to a read-only object.
-
 
 
 ## v3.8.1
