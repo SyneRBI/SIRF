@@ -830,7 +830,7 @@ class GeometricalInfo(object):
         try_calling (pysirf.cSIRF_GeomInfo_get_index_to_physical_point_matrix(self.handle, arr.ctypes.data))
         return arr
 
-class AdjointOperator(Object):
+class AdjointOperator:
     """
     Returns the adjoint operator of the operator, where the adjoint operator
     is the forward method and the forward operator is the backward method.
