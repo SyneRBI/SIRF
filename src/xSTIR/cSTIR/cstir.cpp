@@ -1510,7 +1510,7 @@ void* cSTIR_ImageData_zoom_image(void* ptr_im, const size_t zooms_ptr_raw, const
 }
 
 extern "C"
-void* cSTIR_ImageData_zoom_image_as_template(void* zoomed_image_ptr, void* template_image_ptr, 
+void* cSTIR_ImageData_zoom_image_as_template(void* zoomed_image_ptr, const void* template_image_ptr, 
                                                 const char *const zoom_options) 
 {
     try {
