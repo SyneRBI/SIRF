@@ -182,8 +182,7 @@ def check_shapes(torch_shape, sirf_shape):
 class SIRFOperator(torch.nn.Module):
     def __init__(self,
             operator, 
-            sirf_src_template,
-            forward = True
+            sirf_src_template
             ):
         super(SIRFOperator, self).__init__()
         # get the shape of src
@@ -191,10 +190,12 @@ class SIRFOperator(torch.nn.Module):
         self.sirf_src_shape = sirf_src_template.as_array().shape
         self.sirf_src_template = sirf_src_template
         self.channel = False
-        if forward:
-            self._operator = _OperatorForward
-        else:
-            self._operator = _OperatorBackward
+
+    def use_jacobian_adjoint(self):
+        # check if self.operator has get_linear method
+        if hasattr(self.operator, 'get_linear_acquisition_model'):
+            self.operator = self.operator.get_linear_acquisition_model()
+        self._operator = _OperatorBackward
         
     def forward(self, torch_src):
         # PyTorch src is size [batch, channel, *src_shape] or
