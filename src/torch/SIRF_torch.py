@@ -133,27 +133,28 @@ class SIRFOperator(torch.nn.Module):
         self.operator = operator
         self.sirf_src_shape = sirf_src_template.as_array().shape
         self.sirf_src_template = sirf_src_template
-        self.channel = False
         
     def forward(self, torch_src):
         # PyTorch src is size [batch, channel, *src_shape] or
         #  [batch, *src_shape]
 
-        # check the src shape
         torch_src_shape = torch_src.shape
         if len(torch_src_shape) == len(self.sirf_src_shape):
             raise ValueError(f"Invalid shape of src. Expected batch dim.")
         elif len(torch_src_shape) == len(self.sirf_src_shape) + 1:
             check_shapes(torch_src_shape[1:], self.sirf_src_shape)
             if self.sirf_src_shape == torch_src_shape[1:]:
+                self.has_channel = False
                 torch_src = torch_src.unsqueeze(1) # add channel dimension
-                self.channel = True
         elif len(torch_src_shape) == self.sirf_src_shape + 2:
             check_shapes(torch_src_shape[2:], self.sirf_src_shape)
-
+            self.has_channel = True
+        else:
+            raise ValueError(f"Invalid shape of src. Expected batch (+ channel)\
+                dim, and {self.sirf_image_shape}")
+            
         n_batch = torch_src.shape[0]
         n_channel = torch_src.shape[1]
-
         # This looks horrible, but PyTorch will be able to trace.
         batch_dest = []
         for batch in range(n_batch):
@@ -162,10 +163,16 @@ class SIRFOperator(torch.nn.Module):
                 channel_dest.append(_Operator.apply(torch_src[batch, channel], 
                     self.sirf_src_template, self.operator))
             batch_dest.append(torch.stack(channel_dest, dim=0))
-        if self.channel:
-            return torch.stack(batch_dest, dim=0).squeeze(1)
-        # [batch, channel, *sirf_dest.shape]
-        return torch.stack(batch_dest, dim=0)
+        out = torch.stack(batch_dest, dim=0)
+        
+        if self.has_channel:
+            # [batch, channel, *sirf_dest.shape]
+            # remove channel dimension
+            return out
+        else:
+            # [batch, *sirf_dest.shape]
+            # remove channel dimension
+            return out.squeeze(1)
 
 
 class SIRFObjectiveFunction(torch.nn.Module):
@@ -189,9 +196,13 @@ class SIRFObjectiveFunction(torch.nn.Module):
             check_shapes(torch_image_shape[1:], self.sirf_image_shape)
             if self.sirf_image_shape == torch_image_shape[1:]:
                 torch_image = torch_image.unsqueeze(1) # add channel dimension
-                self.channel = True
+                self.channel = False
         elif len(torch_image_shape) == len(self.sirf_image_shape) + 2:
             check_shapes(torch_image_shape[2:], self.sirf_image_shape)
+            self.channel = True
+        else:
+            raise ValueError(f"Invalid shape of src. Expected batch (+ channel)\
+                dim, and {self.sirf_image_shape}")
 
         n_batch = torch_image.shape[0]
         n_channel = torch_image.shape[1]
@@ -201,8 +212,16 @@ class SIRFObjectiveFunction(torch.nn.Module):
         for batch in range(n_batch):
             channel_values = []
             for channel in range(n_channel):
-                channel_values.append(_ObjectiveFunction.apply(torch_image[batch, channel], self.sirf_image_template, self.sirf_obj_func))
+                channel_values.append(_ObjectiveFunction.apply(torch_image[batch, channel],
+                self.sirf_image_template.clone(), self.sirf_obj_func))
             batch_values.append(torch.stack(channel_values, dim=0))
         # [batch, channel, *forward_projected.shape]
-        return torch.stack(batch_values, dim=0) 
+
+        out = torch.stack(batch_values, dim=0)
+        if self.channel:
+            # [batch, channel, *forward_projected.shape]
+            return out
+        else:
+            # [batch, *forward_projected.shape]
+            return out.squeeze(1)
 
