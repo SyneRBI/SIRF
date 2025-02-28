@@ -17,9 +17,9 @@
     2. [Library components](#library_components)
         1. [Getting help on SIRF library modules](#getting_help_on_SIRF_library_modules)
         2. [General structure of the classes](#general_structure_of_the_classes)
-        3. [Basic classes](#gasic_classes)
+        3. [Basic classes](#basic_classes)
         4. [Other classes](#other_classes)
-        5. [Functions](#Functions)
+        5. [Functions](#functions)
 5. [Compatibility with CCPi CIL](#cil_compatibility)
 6. [Appendix](#appendix)
     1. [Acquisition data storage scheme management](#storage_management)
@@ -986,7 +986,7 @@ class will effectively use 1 for all kappa values.
     set_only_2D             Use the penalty in 2D only.
     get_only_2D             Get the value of only_2D
 
-### Functions <a name="Functions"></a>
+### Functions <a name="functions"></a>
 
     preprocess_acquisition_data (MR)  Preprocesses the MR acquisition data. 
 
@@ -994,7 +994,7 @@ class will effectively use 1 for all kappa values.
     set_verbosity (STIR)              Set output verbosity
     get_verbosity (STIR)              Get output verbosity
 
-## Compatibility with CCPi CIL <a name="CIL_compatibility"></a>
+## Compatibility with CCPi CIL <a name="cil_compatibility"></a>
 
 The CCPi [`CIL Python Framework`](https://github.com/TomographicImaging/CIL) for development of novel
 reconstruction algorithms can be used with SIRF classes such as
@@ -1054,7 +1054,7 @@ Below the list of methods currently implemented on CCPi that have been added to 
     1. `norm(self)`
     1. `squared_norm(self)`, returns the square of the call of `norm()`
 
-# Appendix <a name="Appendix"></a>
+# Appendix <a name="appendix"></a>
 
 ## Acquisition data storage scheme management <a name="storage_management"></a>
 
