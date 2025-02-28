@@ -1,4 +1,11 @@
 # ChangeLog
+## vx.x.x
+
+* SIRF/STIR
+  - `ScatterEstimation` has extra methods that allow setting masks for the tail-fitting
+  - Error raised in `AcquisitionSensitivityModel.[un]normalise` methods applied to a read-only object.
+
+
 
 ## v3.8.1
 

@@ -1685,6 +1685,9 @@ class AcquisitionSensitivityModel(object):
         if self.handle is None:
             raise AssertionError()
         assert_validity(ad, AcquisitionData)
+        if ad.read_only:
+            raise error(
+                'Cannot normalise a read-only object, consider using method invert instead')
         try_calling(pystir.cSTIR_applyAcquisitionSensitivityModel(
             self.handle, ad.handle, 'normalise'))
 
@@ -1697,6 +1700,9 @@ class AcquisitionSensitivityModel(object):
         if self.handle is None:
             raise AssertionError()
         assert_validity(ad, AcquisitionData)
+        if ad.read_only:
+            raise error(
+                'Cannot unnormalise a read-only object, consider using method forward instead')
         try_calling(pystir.cSTIR_applyAcquisitionSensitivityModel(
             self.handle, ad.handle, 'unnormalise'))
 
@@ -3607,6 +3613,15 @@ class ScatterEstimator():
     def set_attenuation_correction_factors(self, arg):
         assert_validity(arg, AcquisitionData)
         parms.set_parameter(self.handle, self.name, 'setAttenuationCorrectionFactors', arg.handle)
+
+    def set_mask_image(self, image):
+        assert_validity(image, ImageData)
+        parms.set_parameter(self.handle, self.name, 'setMaskImage', image.handle)
+
+    def set_mask_acq_data(self, arg):
+        assert_validity(arg, AcquisitionData)
+        parms.set_parameter(self.handle, self.name, 'setMaskAcqData', arg.handle)
+
 
     def set_input(self, acq_data):
         assert_validity(acq_data, AcquisitionData)
