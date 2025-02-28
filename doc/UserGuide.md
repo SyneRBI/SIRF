@@ -1,13 +1,13 @@
 # Table of Contents
 
-1. [Overview](#Overview)
-    1. [General architecture](#General_architecture)
-	2. [Supported scanners and file formats](#Supported_scanners_and_file_formats)
-	    1. [MRI](#MRI)
-		2. [PET](#PET)
-2. [Where to find further information](#Further_information)
-3. [General notes of usage](#General_notes)
-4. [Framework basic functionality](#Basic_functionality)
+1. [Overview](#overview)
+    1. [General architecture](#general_architecture)
+    2. [Supported scanners and file formats](#supported_scanners_and_file_formats)
+	 1. [MRI](#mri)
+	 2. [PET](#pet)
+2. [Where to find further information](#further_information)
+3. [General notes of usage](#general_notes)
+4. [Framework basic functionality](#basic_functionality)
     1. [General conventions](#General_conventions)
 	    1. [Object-oriented paradigm](#Object-oriented_paradigm)
 	    2. [Error handling](#Error_handling)
@@ -28,21 +28,21 @@
         2. [SIRF gadget library](#SIRF_gadget_library)
     3. [Using the C++ libraries](#using_the_c++_libraries)
 
-# Overview <a name="Overview"></a>
+# Overview <a name="overview"></a>
 
 The SIRF (Synergistic Image Reconstruction Framework) software is an Open Source toolkit for the reconstruction of PET and MRI raw data. The aim is to provide code simple enough to easily perform a reconstruction, yet powerful enough to be able to handle real, full-size datasets. Our strategy in achieving this aim is to employ available Open Source reconstruction software written in advanced programming languages such as C++ and provide basic-user-friendly interfaces to it written in script languages, primarily Matlab and Python. The interface style permits a reconstruction to be performed in stages, allowing the user to inspect or modify data, or insert their own code. 
 
 This User’s Guide describes version 3.8 of SIRF. The software can be found on [https://github.com/SyneRBI](https://github.com/SyneRBI).
 
-## General architecture <a name="General_architecture"></a>
+## General architecture <a name="general_architecture"></a>
 
 The code builds upon existing Open Source software packages for medical image reconstruction. At the outset, these packages are STIR for PET reconstruction, Gadgetron for MRI and NiftyReg for registration/resampling. SIRF provides MATLAB and Python interfaces to these underlying reconstruction engines. This is done by wrapping the engines in a C++ layer, and then placing a C-interface between the wrapped C++ engines and the MATLAB and Python interfaces. 
 
 At present, you should only use the C++, MATLAB and Python interfaces. The underlying C library is internal and likely to change over the next few releases.
 
-## Supported scanners and file formats <a name="Supported_scanners_and_file_formats"></a>
+## Supported scanners and file formats <a name="supported_scanners_and_file_formats"></a>
 
-### MRI <a name="MRI"></a>
+### MRI <a name="mri"></a>
 
 SIRF expects raw MR data in the ISMRMRD format. We use [siemens_to_ismrmrd](https://github.com/ismrmrd/siemens_to_ismrmrd) for this. This enables raw data from Siemens mMR Biograph PET-MR scanners to be converted to ISMRMRD format. For more details of how to export the raw MR data from Siemens PET-MR scanners and how to convert the data to ISMRMRD please see the wiki: [https://github.com/SyneRBI/SIRF/wiki/MR-raw-data](https://github.com/SyneRBI/SIRF/wiki/MR-raw-data).
 
@@ -50,11 +50,11 @@ Converters for data from other scanners are available from [https://github.com/i
 
 SIRF currently supports sequences that use 2D and 3D cartesian sampling. If the Gadgetron toolboxes were found during building, it supports radial, golden-angle radial and radial-phase-encoding trajectories.
 
-### PET <a name="PET"></a>
+### PET <a name="pet"></a>
 
 STIR can handle data from the Siemens mMR Biograph with progress being made for the GE Signa PET/MR.
 
-# Where to find further information <a name="Further_information"></a>
+# Where to find further information <a name="further_information"></a>
 
 - SyneRBI website [http://www.SyneRBI.ac.uk](http://www.SyneRBI.ac.uk) for links to project overview, meeting notes, design documents etc 
 
@@ -71,13 +71,13 @@ version is on [github](https://github.com/SyneRBI/SIRF/blob/master/doc/SIRFLongT
 
 - Installation instructions can be found on our Wiki at [https://github.com/SyneRBI/SIRF/wiki/Installation-instructions](https://github.com/SyneRBI/SIRF/wiki/Installation-instructions). Note that on the [Virtual machine](https://github.com/SyneRBI/SyneRBI_VM/wiki), this has all has been done for you and you can just use SIRF. 
 
-# General notes of usage <a name="General_notes"></a>
+# General notes of usage <a name="general_notes"></a>
 
 Please note that with the installation set-up, you will normally have two copies of the Matlab/Python module files: the original ones in the SIRF clone and the installed ones. This only matters if you want to debug or modify the files. The installation instructions point Python and Matlab to the “installed” files. 
 
 The MR module and the demos create temporary files during operation. They are normally created in the same folder as the input data, but are cleaned up afterwards. Therefore,  the data cannot reside in a read-only folder. 
 	
-# Framework basic functionality <a name="Basic_functionality"></a>
+# Framework basic functionality <a name="basic_functionality"></a>
 
 This section mostly describes the Python/MATLAB interface of SIRF, although a lot of the text applies to the underlying C++ library as well. See the [appendix on using SIRF C++](#using_the_c++_libraries) for additional information if you use C++.
 
