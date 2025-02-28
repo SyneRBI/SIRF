@@ -13,7 +13,7 @@
     4. [Illustration](#illustration)
         1. [Python](#Illustration_Python)
         2. [Matlab](#Illustration_Matlab)
-3. [Adding new functionality to SIRF](#adding_functionality)
+3. [Adding new functionality to SIRF](#adding_new_functionality)
 	1. [Step 1: create C wrappers](#create_wrappers)
 	2. [Step 2: create Matlab and Python Object-Oriented interface for your additions](#Create_OO_interface)
 4. [Adding a gadget to SIRF gadget library](#adding_gadget)
