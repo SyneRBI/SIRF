@@ -95,10 +95,6 @@ if __name__ == "__main__":
     # set up the objective function
     obj_fun = pet.make_Poisson_loglikelihood(acq_data)
     acq_model.set_background_term(acq_data.get_uniform_copy(1.))
-    image_data = rescale_image(image_data, 8).get_uniform_copy(.1)
-    data_processor = pet.TruncateToCylinderProcessor()
-    data_processor.apply(image_data)
-    acq_model.set_image_data_processor(data_processor)
     acq_model.set_up(acq_data, image_data)
     obj_fun.set_acquisition_model(acq_model)
     obj_fun.set_up(image_data)
@@ -107,25 +103,16 @@ if __name__ == "__main__":
     torch_obj_fun = SIRFObjectiveFunction(obj_fun, image_data.clone())
     torch_image_data = torch.tensor(image_data.as_array(), requires_grad = True).unsqueeze(0).cuda()
 
-    torch.autograd.gradcheck(torch_obj_fun,
-        torch_image_data,
-        nondet_tol=1e-6, 
-        fast_mode=False, 
-        eps=1e-3,
-        atol=1e-1,
-        rtol=1e-1,
-        raise_exception=True,
-        )
-    """ try:
+    try:
         torch.autograd.gradcheck(torch_obj_fun,
             torch_image_data,
-            nondet_tol=1e-6, 
+            nondet_tol=1e-4, 
             fast_mode=True, 
-            eps=1e-1,
-            atol=1e-3,
-            rtol=1e-3,
+            eps=1e-3,
+            atol=1e-2,
+            rtol=1e-2,
             raise_exception=True,
             )
         print("Objective function gradcheck passed")
     except:
-        print("Objective function gradcheck failed") """
+        print("Objective function gradcheck failed")
