@@ -3,27 +3,27 @@
 1. [Overview](#overview)
     1. [General architecture](#general_architecture)
     2. [Supported scanners and file formats](#supported_scanners_and_file_formats)
-	 1. [MRI](#mri)
-	 2. [PET](#pet)
+	    1. [MRI](#mri)
+	    2. [PET](#pet)
 2. [Where to find further information](#further_information)
 3. [General notes of usage](#general_notes)
 4. [Framework basic functionality](#basic_functionality)
-    1. [General conventions](#General_conventions)
-	    1. [Object-oriented paradigm](#Object-oriented_paradigm)
-	    2. [Error handling](#Error_handling)
-	    3. [Naming conventions](#Naming_conventions)
-	    4. [Units and index ordering](#Units_and_index_ordering)
-	    5. [Handles](#Handles)
-    2. [Library components](#Library_components)
-        1. [Getting help on SIRF library modules](#Getting_help_on_SIRF_library_modules)
-        2. [General structure of the classes](#General_structure_of_the_classes)
-        3. [Basic classes](#Basic_classes)
-        4. [Other classes](#Other_classes)
+    1. [General conventions](#general_conventions)
+	    1. [Object-oriented paradigm](#object-oriented_paradigm)
+	    2. [Error handling](#error_handling)
+	    3. [Naming conventions](#naming_conventions)
+	    4. [Units and index ordering](#units_and_index_ordering)
+	    5. [Handles](#handles)
+    2. [Library components](#library_components)
+        1. [Getting help on SIRF library modules](#getting_help_on_SIRF_library_modules)
+        2. [General structure of the classes](#general_structure_of_the_classes)
+        3. [Basic classes](#gasic_classes)
+        4. [Other classes](#other_classes)
         5. [Functions](#Functions)
-5. [Compatibility with CCPi CIL](#CIL_compatibility)
-6. [Appendix](#Appendix)
+5. [Compatibility with CCPi CIL](#cil_compatibility)
+6. [Appendix](#appendix)
     1. [Acquisition data storage scheme management](#storage_management)
-    2. [Programming chains of Gadgetron gadgets](#programming_Gadgetron_chains)
+    2. [Programming chains of Gadgetron gadgets](#programming_gadgetron_chains)
         1. [Creating and running gadget chains by SIRF script](#creating_and_running_gadget_chains)
         2. [SIRF gadget library](#SIRF_gadget_library)
     3. [Using the C++ libraries](#using_the_c++_libraries)
@@ -81,9 +81,9 @@ The MR module and the demos create temporary files during operation. They are no
 
 This section mostly describes the Python/MATLAB interface of SIRF, although a lot of the text applies to the underlying C++ library as well. See the [appendix on using SIRF C++](#using_the_c++_libraries) for additional information if you use C++.
 
-## General conventions <a name="General_conventions"></a> 
+## General conventions <a name="general_conventions"></a> 
 
-### Object-oriented paradigm <a name="Object-oriented_paradigm"></a>
+### Object-oriented paradigm <a name="object-oriented_paradigm"></a>
 
 SIRF Python/MATLAB modules are interfaces to object-oriented C++, which makes it reasonable for them to follow the object-oriented programming paradigm as well. This means that instead of having data containers (arrays, files etc.) and functions that operate on them, we employ objects, which contain data and come with sets of functions, called their _methods_, that operate on data. Each object contains a special method called constructor, which has the same name as the object class name and must be called to create that object. For example, to create an object of class `ImageData` that handles MR image data and fill it with data stored in the HDF5 file 'my_image.h5' one needs to do assignment 
 
@@ -105,27 +105,27 @@ The mutators are also responsible for basic error checking.
 
 Some classes are _derived_ from other classes, which means that they have (_inherit_) all the methods of the classes they are derived from. If class B derives from class A, then A is called its _base_ class. <!-- we say that these _derived_ class methods are _inherited_ from the _base_ class.--> For example, class `AcquisitionModelUsingRayTracingMatrix` is derived from `AcquisitionModelUsingMatrix`, which in turn is derived from `AcquisitionModel`, and so it inherits all the methods of the latter two base classes.
 
-### Error handling <a name="Error_handling"></a>
+### Error handling <a name="error_handling"></a>
 
 Error handling is via exceptions, i.e. functions do not return an error status, but throw an error if something did not work. The user can catch these exceptions if required as illustrated in the demos. 
 
-### Naming conventions <a name="Naming_conventions"></a>
+### Naming conventions <a name="naming_conventions"></a>
 
 - Types/classes start with capitals, every word is capitalised, no underscores, e.g. `AcquisitionModel`. 
 
 - Class methods are lower case, underscores between different words, e.g. `get_voxel_size()`. 
 
-- Methods indicating  
+- Methods indicating
 
     - a number of things start with `num`, e.g. `num_gates`. 
 
     - the number of an item in a sequence end with `num`, e.g. `gate_num`. 
 
-### Units and index ordering <a name="Units_and_index_ordering"></a>
+### Units and index ordering <a name="units_and_index_ordering"></a>
 
 Distances are expressed in mm. 
 
-For arrays in the target language, we use “native” ordering of indices in Python and Matlab. These are unfortunately opposite, so we would write  
+For arrays in the target language, we use “native” ordering of indices in Python and Matlab. These are unfortunately opposite, so we would write
 
     image_array[z,y,x] # Python 
 
@@ -134,22 +134,22 @@ For arrays in the target language, we use “native” ordering of indices in Py
 For images, the meaning of `x`, `y` and `z` is currently acquisition dependent. You *cannot* rely that this order is related
 to the patient orientation in a fixed manner. Use the methods for getting geometrical information to know how these indices are related to LPS coordinates.
 
-### Handles <a name="Handles"></a>
+### Handles <a name="handles"></a>
 
 In both Matlab and Python, SIRF operates with handles to objects, which affects the meaning of the assignment `x = y`: instead of creating a separate copy of `y` stored in `x`, `x` simply points to the same underlying data. As the result, any changes in `x` simultaneously change `y`. 
 
 In order to have a true (i.e. independent) copy of a SIRF object, the user must call the object methods that create copies of them (see below). 
 	
-## Library components <a name="Library_components"></a>
+## Library components <a name="library_components"></a>
 
 At present, the SIRF library provides Python package `sirf` containing modules `sirf.STIR` and `sirf.Gadgetron` implementing Python interfaces to STIR and Gadgetron respectively and module `sirf.SIRF` containing base classes specifying functionality that is common to all reconstruction engines. Respective Matlab interface package and modules have the same names.
 <!--`sirf.STIR` and `sirf.Gadgetron`.--> 
 
-### Getting help on SIRF library modules <a name="Getting_help_on_SIRF_library_modules"></a>
+### Getting help on SIRF library modules <a name="getting_help_on_sirf_library_modules"></a>
 
-We remind that to see the contents of a Python module, the user needs to import it and use Python's help, and in Matlab one needs to use doc. For example,  
+We remind that to see the contents of a Python module, the user needs to import it and use Python's help, and in Matlab one needs to use doc. For example,
 
-    # Python  
+    # Python
     import sirf.STIR 
     help(sirf.STIR) 
 
@@ -172,7 +172,7 @@ on the `sirf.STIR.AcquisitionData` class. Regrettably, help and doc show all met
 
 In order to understand the functionality of a derived class (see [Object-oriented paradigm](#Object-oriented_paradigm)), you are advised to first get help on the classes it is derived from. In Python, you can see that a class is derived by the presence of "Method resolution order" section in Python help output, which lists all classes it is derived from. You are advised to get help on all these classes except Python's class `builtins.object`. In Matlab, look at "Superclasses" item in "Class Details", and get help on the classes listed there except Matlab's class `handle`.
 
-### General structure of the classes <a name="General_structure_of_the_classes"></a>
+### General structure of the classes <a name="general_structure_of_the_classes"></a>
 
 Most classes have a constructor to create an object from a file 
 
@@ -197,7 +197,7 @@ In what follows we use PET instead of `sirf.STIR` and MR instead of `sirf.Gadget
 
 In the rest of the document we give basic information on the SIRF classes, including brief descriptions of the methods that are of interest to the user. Please use the inline help facility discussed above for more information. Descriptions are given for Python modules, which usually contain more functionality.
 
-### Basic classes <a name="Basic_classes"></a>
+### Basic classes <a name="basic_classes"></a>
 
 #### Data Containers 
 
@@ -273,7 +273,7 @@ An engine-specific acquisition data container class for acquisition data objects
                         files or in RAM (see Acquisition data storage scheme 
                         management in Appendix).
     get_storage_scheme  Returns currently used storage scheme. 
-    create_uniform_image  
+    create_uniform_image
                   (PET) Returns new compatible ImageData object. 
     as_array            Returns the object data as an array. 
     fill                Replaces the object data with user-supplied data. 
@@ -301,7 +301,7 @@ An engine-specific image data container class for data representing 3D objects. 
     get_info      (PET) Returns information on the data as a string. 
     get_ISMRMRD_info
                   (MR)  Returns information on the image data as an array.
-    get_uniform_copy   
+    get_uniform_copy
                  (PET)  Returns a copy of this image filled with a constant value. 
     add_shape    (PET)  Adds a shape to the image. 
     show                Displays the image as a set of 2D xy-slices. 
@@ -379,7 +379,7 @@ Class for objects that process `AcquisitionData` objects.
 
 ###### Methods:
 
-    AcquisitionDataProcessor  
+    AcquisitionDataProcessor
                     Constructor. Creates new processor object (a chain of gadgets,
                     see section Programming chains of Gadgetron gadgets) defined by 
                     the argument. 
@@ -392,11 +392,11 @@ Class for objects that process `AcquisitionData` objects.
     filter = TruncateToCylinderProcessor(); 
     filter.apply(PET_image); 
     img_proc = ImageDataProcessor({'ExtractGadget'}); % Python: ['ExtractGadget'] 
-    img_proc.set_input(MR_image);  
-    img_proc.process();  
+    img_proc.set_input(MR_image);
+    img_proc.process();
     MR_image_magnitude = img_proc.get_output(); 
-    acq_proc.set_input(MR_acquired_data);  
-    acq_proc.process();  
+    acq_proc.set_input(MR_acquired_data);
+    acq_proc.process();
     preprocessed_data = acq_proc.get_output(); 
 
 #### Reconstructors 
@@ -410,7 +410,7 @@ A base class for a generic image reconstructor.
     set_input           Sets the input (AquisitionData object). 
     process             Runs the reconstruction. 
     get_output          Returns the output (ImageData object). 
-    set_output_filename_prefix  
+    set_output_filename_prefix
                  (PET)  Specifies the naming for the output files.  
 
 ##### FBP2DReconstructor (PET)
@@ -454,7 +454,7 @@ Class for PET reconstruction algorithms that use Ordered Subsets technique where
     set_objective_function     Specifies the objective function. 
     set_up                     Prepares the reconstructor for use. 
     set_current_estimate       Sets the current image estimate. 
-    get_current_estimate       Returns the current image estimate.  
+    get_current_estimate       Returns the current image estimate.
     update_current_estimate    Updates the current image estimate. 
     set_current_subset_num     Specifies the current subset number. 
     get_subset_sensitivity     Returns sensitivity image for the current subset. 
@@ -468,7 +468,7 @@ Class for reconstructor objects using Ordered Subsets Maximum A Posteriori One S
 
 ###### Methods: 
 
-    OSMAPOSLReconstructor  Constructor. Creates new OSMAPOSL reconstructor object.  
+    OSMAPOSLReconstructor  Constructor. Creates new OSMAPOSL reconstructor object. 
     set_maximum_relative_change         The multiplicative update image will be thresholded from above
                                         with this value (at every subiteration except the first)
                                         i.e., before multiplying it with the old image to get the new
@@ -525,7 +525,7 @@ is the part coming from the emission iterative update. Here, the Gaussian kernel
 
 ##### OSSPSReconstructor (PET) 
 
-Class for reconstructor objects using Ordered Subsets Separable Paraboloidal Surrogate reconstruction algorithm, see [http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1OSSPSReconstruction.html](http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1OSSPSReconstruction.html). Inherits the methods of `IterativeReconstructor`.  
+Class for reconstructor objects using Ordered Subsets Separable Paraboloidal Surrogate reconstruction algorithm, see [http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1OSSPSReconstruction.html](http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1OSSPSReconstruction.html). Inherits the methods of `IterativeReconstructor`. 
 
 ###### Methods: 
 
@@ -539,7 +539,7 @@ Class for a reconstructor from fully sampled Cartesian raw data. Inherits the me
 
 ###### Methods: 
 
-    FullySampledReconstructor  Constructor. Creates new reconstructor object.  
+    FullySampledReconstructor  Constructor. Creates new reconstructor object. 
 
 ##### CartesianGRAPPAReconstructor (MR) 
 
@@ -645,7 +645,7 @@ Below examples are given for rigid/affine and non-rigid registrations, as well a
 	# Backwards/adjoint
 	out2 = res.adjoint(ref)
 
-### Other classes <a name="Other_classes"></a>
+### Other classes <a name="other_classes"></a>
 
 ##### ListmodeToSinograms (PET)
 
@@ -705,7 +705,7 @@ For PET, `F(x)` is the right-hand side of the following equation:
 
     (F_pet)    y = S(G P x + a) + b
 
-where  
+where 
 
 `P` is `ImageDataProcessor`, allowing for instance smoothing the image first to model some resolution effects.
 
@@ -747,14 +747,14 @@ where `T'` is the complex transpose of `T`, i.e. the inverse Fourier transform.
                               by the argument. 
     backward                  Returns B(y) for the acquisition data y specified 
                               by the argument. 
-    set_up                    Sets up the model based on acquisition and image data  
+    set_up                    Sets up the model based on acquisition and image data 
                               templates provided by the arguments. 
     set_additive_term   (PET) Sets term a in (F). 
-    set_acquisition_sensitivity   
+    set_acquisition_sensitivity 
                         (PET) Defines AcquisitionSensitivityModel S (see below). 
     set_image_data_processor
                         (PET) Defines the ImageDataProcessor P
-    set_coil_sensitivity_maps  
+    set_coil_sensitivity_maps 
                          (MR) Sets coil sensitivity maps to be used.  
     norm                      Returns the operator norm of F(x) (in PET case -
                               its linear part S G P)
@@ -771,7 +771,7 @@ Class for the PET acquisition process model that uses (implicitly) a sparse matr
 
 ###### Methods: 
 
-    AcquisitionModelUsingRayTracingMatrix  
+    AcquisitionModelUsingRayTracingMatrix 
                           Constructor. Creates an acquisition model. 
 
     set_num_tangential_LORs(int)
@@ -879,7 +879,7 @@ voxel) for each prior is presented below.
 
     Prior                    Constructor. Creates a new empty object.
     set_penalisation_factor  Specifies the prior's scaling factor. 
-    get_gradient             Returns the prior gradient.  
+    get_gradient             Returns the prior gradient. 
 
 ##### QuadraticPrior (PET)
 
@@ -988,7 +988,7 @@ class will effectively use 1 for all kappa values.
 
 ### Functions <a name="Functions"></a>
 
-    preprocess_acquisition_data (MR)  Preprocesses the MR acquisition data.  
+    preprocess_acquisition_data (MR)  Preprocesses the MR acquisition data. 
 
     make_Poisson_loglikelihood (PET)  Returns Poisson objective function.
     set_verbosity (STIR)              Set output verbosity
@@ -1068,7 +1068,7 @@ where `scheme` is either `"memory"` or `"file"`. To see which scheme is currentl
     
 A particular setting of storage scheme by a Matlab script or a Python script run from Spyder is persistent: any script run afterwards will use the same storage scheme unless a different storage scheme is explicitly set by `set_storage_scheme` or Matlab/Spyder is re-started.
 
-## Programming chains of Gadgetron gadgets <a name="programming_Gadgetron_chains"></a>
+## Programming chains of Gadgetron gadgets <a name="programming_gadgetron_chains"></a>
 
 [Gadgetron](https://github.com/gadgetron/gadgetron/wiki/What-Is-The-Gadgetron) is an MR reconstruction framework which was designed to process a datastream, i.e. rather than waiting for a complete 3D k-space to be acquired, each readout (frequency encoding line) is processed immediately (if possible - e.g. Fourier transform along phase encoding can only be applied once all phase encoding lines have been acquired). The reconstruction is performed by a chain of gadgets, i.e. pieces of code implementing specific tasks. The chain of gadgets runs on the server, which can be just a command line window, or it can be another computer or a VM. In order to set up the chain, the server needs to receive an xml text describing it from the client, which again can be another command line window on the same or another computer. The first gadget in the chain then starts waiting for acquisition data to arrive from the client in chunks of certain size. Having processed a chunk of data, the first gadget passes the result to the second and starts processing the next chunk and so on. The last gadget sends the reconstructed images back to the client.
 
@@ -1137,7 +1137,7 @@ While the way to use Gadgetron just described is the most efficient performance-
     real_image_data = img_proc.get_output()
 
 
-### SIRF gadget library <a name="SIRF_gadget_library"></a>
+### SIRF gadget library <a name="sirf_gadget_library"></a>
 
 This section provides a concise description of Gadgetron gadgets that can be used by current SIRF release scripts in a way described in the previous section. For further information consult Gadgetron documentation.
 
