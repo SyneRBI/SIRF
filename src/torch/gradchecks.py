@@ -54,7 +54,6 @@ if __name__ == "__main__":
     acq_data, image_data, acq_model = get_pet_2d()
     acq_data = acq_data.get_uniform_copy(1.)
     image_data = image_data.get_uniform_copy(1.)
-    #image_data = rescale_image(image_data, 12)
     acq_model.set_up(acq_data, image_data)
 
     torch_forward = SIRFOperator(acq_model, image_data.clone())
@@ -92,10 +91,29 @@ if __name__ == "__main__":
     except:
         print("Adjointness gradcheck failed")
 
-    # set up the objective function
-    obj_fun = pet.make_Poisson_loglikelihood(acq_data)
     acq_model.set_background_term(acq_data.get_uniform_copy(1.))
     acq_model.set_up(acq_data, image_data)
+
+    loss = torch.nn.PoissonNLLLoss(log_input=False, full=False, size_average=None, eps=1e-08, reduce=None, reduction='sum')
+    torch_acq_data = sirf_to_torch(acq_data, device = torch_image_data.device)  
+    torch_acq_model_obj = lambda x: loss(torch_forward(x), torch_acq_data)
+
+    try:
+        torch.autograd.gradcheck(torch_acq_model_obj,
+            torch_image_data,
+            nondet_tol=1e-4, 
+            fast_mode=True, 
+            eps=1e-3,
+            atol=1e-2,
+            rtol=1e-2,
+            raise_exception=True
+            )
+        print("Objective function with wrapped aquisition model gradcheck passed")
+    except:
+        print("Objective function with wrapped aquisition model gradcheck failed")
+
+    # set up the objective function
+    obj_fun = pet.make_Poisson_loglikelihood(acq_data)
     obj_fun.set_acquisition_model(acq_model)
     obj_fun.set_up(image_data)
 
@@ -116,3 +134,23 @@ if __name__ == "__main__":
         print("Objective function gradcheck passed")
     except:
         print("Objective function gradcheck failed")
+
+    
+    # test the objective function
+    torch_obj_fun_grad = SIRFObjectiveFunctionGradient(obj_fun, image_data.clone())
+    torch_image_data = torch.tensor(image_data.as_array(), requires_grad = True).unsqueeze(0).cuda()
+
+    
+    try:
+        torch.autograd.gradcheck(torch_obj_fun_grad,
+            torch_image_data,
+            nondet_tol=1e-6, 
+            fast_mode=True, 
+            eps=1e-3,
+            atol=1e-4,
+            rtol=1e-4,
+            raise_exception=True,
+                )
+        print("Objective function gradient gradcheck passed")
+    except:
+        print("Objective function gradient gradcheck failed")
