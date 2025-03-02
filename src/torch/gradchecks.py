@@ -27,8 +27,6 @@ def get_pet_2d():
     pet_2d_acq_model = AcquisitionModelUsingParallelproj()
     """ pet_2d_acq_model = AcquisitionModelUsingRayTracingMatrix()
     pet_2d_acq_model.set_num_tangential_LORs(5) """
-    pet_2d_acq_model.set_up(pet_2d_acq_data, pet_2d_image_data)
-    pet_2d_acq_model.adjoint(pet_2d_acq_data)
     return pet_2d_acq_data, pet_2d_image_data, pet_2d_acq_model
 
 def get_pet_3d():
@@ -40,7 +38,6 @@ def get_pet_3d():
     pet_3d_acq_model = AcquisitionModelUsingParallelproj()
     """ pet_3d_acq_model = AcquisitionModelUsingRayTracingMatrix()
     pet_3d_acq_model.set_num_tangential_LORs(5) """
-    pet_3d_acq_model.set_background_term(pet_2d_acq_data.get_uniform_copy(0) + 1.5)
     return pet_3d_acq_data, pet_3d_image_data, pet_3d_acq_model
 
 def rescale_image(image_data, scale = 8):
@@ -51,7 +48,7 @@ def rescale_image(image_data, scale = 8):
 
 if __name__ == "__main__":
     # https://pytorch.org/docs/stable/notes/gradcheck.html
-    acq_data, image_data, acq_model = get_pet_2d()
+    acq_data, image_data, acq_model = get_pet_3d()
     acq_data = acq_data.get_uniform_copy(1.)
     image_data = image_data.get_uniform_copy(1.)
     acq_model.set_up(acq_data, image_data)
