@@ -48,12 +48,12 @@ def rescale_image(image_data, scale = 8):
 
 if __name__ == "__main__":
     # https://pytorch.org/docs/stable/notes/gradcheck.html
-    acq_data, image_data, acq_model = get_pet_3d()
+    acq_data, image_data, acq_model = get_pet_2d()
     acq_data = acq_data.get_uniform_copy(1.)
     image_data = image_data.get_uniform_copy(1.)
     acq_model.set_up(acq_data, image_data)
 
-    torch_forward = SIRFOperator(acq_model, image_data.clone())
+    torch_forward = SIRFTorchOperator(acq_model, image_data.clone())
     torch_image_data = torch.tensor(image_data.as_array(), requires_grad = True).unsqueeze(0).cuda()
 
     try:
@@ -71,7 +71,7 @@ if __name__ == "__main__":
         print("Forward gradcheck failed")
 
     adj_acq_model = sirf.SIRF.AdjointOperator(acq_model)
-    torch_adjoint = SIRFOperator(adj_acq_model, acq_data.clone())
+    torch_adjoint = SIRFTorchOperator(adj_acq_model, acq_data.clone())
     torch_acq_data = torch.tensor(acq_data.as_array(), requires_grad = True).unsqueeze(0).cuda()
     
     try:
@@ -115,7 +115,7 @@ if __name__ == "__main__":
     obj_fun.set_up(image_data)
 
     # test the objective function
-    torch_obj_fun = SIRFObjectiveFunction(obj_fun, image_data.clone())
+    torch_obj_fun = SIRFTorchObjectiveFunction(obj_fun, image_data.clone())
     torch_image_data = torch.tensor(image_data.as_array(), requires_grad = True).unsqueeze(0).cuda()
 
     try:
@@ -133,11 +133,10 @@ if __name__ == "__main__":
         print("Objective function gradcheck failed")
 
     
-    # test the objective function
-    torch_obj_fun_grad = SIRFObjectiveFunctionGradient(obj_fun, image_data.clone())
+    # test the objective function gradient
+    torch_obj_fun_grad = SIRFTorchObjectiveFunctionGradient(obj_fun, image_data.clone())
     torch_image_data = torch.tensor(image_data.as_array(), requires_grad = True).unsqueeze(0).cuda()
 
-    
     try:
         torch.autograd.gradcheck(torch_obj_fun_grad,
             torch_image_data,
