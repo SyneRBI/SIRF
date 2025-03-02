@@ -1,7 +1,7 @@
 try:
     import torch
     import sirf
-    
+    import numpy
     from sirf.STIR import *
 except ModuleNotFoundError:
     raise ModuleNotFoundError('Failed to import torch. Please install PyTorch first.')
@@ -17,7 +17,11 @@ def sirf_to_torch(
         ) -> torch.Tensor:
 
     # use torch.tensor to infer data type
-    return torch.tensor(sirf_src.as_array(), requires_grad=True).to(device)
+    # if not float then convert to numpy array
+    # to catch the case of objective function passing back a float
+    if not isinstance(sirf_src, float):
+        sirf_src = sirf_src.as_array()
+    return torch.tensor(sirf_src, requires_grad=requires_grad).to(device)
 
 def torch_to_sirf_(
         torch_src: torch.Tensor,
@@ -67,16 +71,14 @@ class _ObjectiveFunction(torch.autograd.Function):
         device = torch_image.device
         sirf_image = torch_to_sirf_(torch_image, sirf_image_template)
         # Negative for Gradient Descent as per torch convention
-        # HERE WE ARE COPYING THE VALUE
-        value = torch.tensor(-sirf_obj_func.get_value(sirf_image)).to(device)
         if torch_image.requires_grad:
             ctx.device = device
             ctx.sirf_image = sirf_image
             ctx.sirf_obj_func = sirf_obj_func
             # ensure value is a tensor with requires_grad=True
-            return value.requires_grad_(True)
+            return sirf_to_torch(-sirf_obj_func.get_value(sirf_image), device, requires_grad=True)
         else:
-            return value
+            return sirf_to_torch(-sirf_obj_func.get_value(sirf_image), device)
 
     @staticmethod
     def backward(ctx,
@@ -184,12 +186,12 @@ def apply_wrapped_sirf(wrapped_sirf_func, torch_src, sirf_src_shape):
         # [batch, *value.shape]
         return out.squeeze(1)
 
-class SIRFOperator(torch.nn.Module):
+class SIRFTorchOperator(torch.nn.Module):
     def __init__(self,
             operator, 
             sirf_src_template
             ):
-        super(SIRFOperator, self).__init__()
+        super(SIRFTorchOperator, self).__init__()
         # get the shape of src
         self.wrapped_sirf_operator = lambda x: _Operator.apply(x, sirf_src_template, operator)
         self.sirf_src_shape = sirf_src_template.shape
@@ -200,12 +202,12 @@ class SIRFOperator(torch.nn.Module):
         return apply_wrapped_sirf(self.wrapped_sirf_operator, torch_src, self.sirf_src_shape)
 
 
-class SIRFObjectiveFunction(torch.nn.Module):
+class SIRFTorchObjectiveFunction(torch.nn.Module):
     def __init__(self,
             sirf_obj_func: object,
             sirf_image_template: object
             ):
-        super(SIRFObjectiveFunction, self).__init__()
+        super(SIRFTorchObjectiveFunction, self).__init__()
         self.wrapped_sirf_obj_func = lambda x: _ObjectiveFunction.apply(x, sirf_image_template, sirf_obj_func) 
         self.sirf_image_shape = sirf_image_template.shape
 
@@ -214,12 +216,12 @@ class SIRFObjectiveFunction(torch.nn.Module):
         # output dim: [batch, channel] or [batch]
         return apply_wrapped_sirf(self.wrapped_sirf_obj_func, torch_image, self.sirf_image_shape)
 
-class SIRFObjectiveFunctionGradient(torch.nn.Module):
+class SIRFTorchObjectiveFunctionGradient(torch.nn.Module):
     def __init__(self,
             sirf_obj_func: object,
             sirf_image_template: object
             ):
-        super(SIRFObjectiveFunctionGradient, self).__init__()
+        super(SIRFTorchObjectiveFunctionGradient, self).__init__()
         self.wrapper_sirf_obj_func = lambda x: _ObjectiveFunctionGradient.apply(x, sirf_image_template, sirf_obj_func)
         self.sirf_image_shape = sirf_image_template.shape
 
