@@ -275,9 +275,8 @@ class _ObjectiveFunctionGradient(torch.autograd.Function):
         sirf_image = ctx.sirf_image
         device = ctx.device
 
-        #grad_output.clamp_(min=0)
         sirf_grad = torch_to_sirf_(grad_output, sirf_image.clone())
-        # arguements current estimate and input_ (i.e. the vector)
+        # arguments current estimate and input_ (i.e. the vector)
         sirf_HVP = -sirf_obj_func.multiply_with_Hessian(sirf_image, sirf_grad)
         
         torch_HVP = sirf_to_torch(sirf_grad, device, requires_grad=True)
@@ -495,7 +494,7 @@ class SIRFTorchObjectiveFunctionGradient(torch.nn.Module):
             _ObjectiveFunctionGradient.apply(x, sirf_image_template, 
             sirf_obj_func
             )
-            
+
         self.sirf_image_shape = sirf_image_template.shape
 
     def forward(self, torch_image):
@@ -518,6 +517,7 @@ class SIRFTorchObjectiveFunctionGradient(torch.nn.Module):
             ValueError: If the input tensor has an invalid shape.
         """
         return apply_wrapped_sirf(self.wrapper_sirf_obj_func, torch_image, 
-            self.sirf_image_shap)
+            self.sirf_image_shape
+            )
 
 
