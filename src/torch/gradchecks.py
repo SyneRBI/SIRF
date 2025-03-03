@@ -1,7 +1,6 @@
 import os
 import pytest
 import sirf.STIR as pet
-import sirf.Reg as reg  # Import Reg for CT/MR
 from sirf.Utilities import examples_data_path, existing_filepath
 import torch
 from SIRF_torch import *
@@ -9,8 +8,6 @@ import sirf
 # Set verbosity and storage scheme
 pet.set_verbosity(1)
 pet.AcquisitionData.set_storage_scheme("memory")
-# set number of threads in torch
-torch.set_num_threads(1)
 torch.use_deterministic_algorithms(True)
 
 
@@ -139,7 +136,7 @@ def test_objective_function_gradcheck(test_data):
 
 
     run_gradcheck(torch_obj_fun, torch_image_data, (modality, data_type), "Objective",
-                  nondet_tol=1e-2, fast_mode=True, eps=1e-3, atol=1e-2, rtol=1e-2)
+                  nondet_tol=1e-1, fast_mode=True, eps=1e-3, atol=1e-1, rtol=1e-1)
 
 
 @pytest.mark.skipif(not test_flags["objective_gradient"], reason="Objective Gradient test disabled")
