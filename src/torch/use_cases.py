@@ -5,6 +5,8 @@ import sirf.STIR as pet
 pet.set_verbosity(1)
 # Store temporary sinograms in RAM
 pet.AcquisitionData.set_storage_scheme("memory")
+# set threads
+pet.set_max_omp_threads(12)
 import sirf
 msg = sirf.STIR.MessageRedirector(info=None, warn=None, errr=None)
 from sirf.Utilities import examples_data_path
@@ -12,11 +14,11 @@ import matplotlib.pyplot as plt
 
 def get_pet_2d():
     pet_data_path = examples_data_path('PET')
-    pet_2d_raw_data_file = existing_filepath(pet_data_path, 'thorax_single_slice/template_sinogram.hs')
-    pet_2d_acq_data = AcquisitionData(pet_2d_raw_data_file)
-    pet_2d_init_image_file = existing_filepath(pet_data_path, 'thorax_single_slice/emission.hv')
-    pet_2d_image_data = ImageData(pet_2d_init_image_file)
-    pet_2d_acq_model = AcquisitionModelUsingParallelproj()
+    pet_2d_raw_data_file = pet.existing_filepath(pet_data_path, 'thorax_single_slice/template_sinogram.hs')
+    pet_2d_acq_data = pet.AcquisitionData(pet_2d_raw_data_file)
+    pet_2d_init_image_file = pet.existing_filepath(pet_data_path, 'thorax_single_slice/emission.hv')
+    pet_2d_image_data = pet.ImageData(pet_2d_init_image_file)
+    pet_2d_acq_model = pet.AcquisitionModelUsingParallelproj()
     pet_2d_acq_model.set_up(pet_2d_acq_data, pet_2d_image_data)
     pet_2d_acq_data = pet_2d_acq_model.forward(pet_2d_image_data) + 1.5
     pet_2d_acq_model.set_background_term(pet_2d_acq_data.get_uniform_copy(0) + 1.5)
@@ -25,12 +27,13 @@ def get_pet_2d():
 
 def get_pet_3d():
     pet_data_path = examples_data_path('PET')
-    pet_3d_raw_data_file = existing_filepath(pet_data_path, 'Utahscat600k_ca_seg4.hs')
-    pet_3d_acq_data = AcquisitionData(pet_3d_raw_data_file)
-    pet_3d_init_image_file = existing_filepath(pet_data_path, 'test_image_PM_QP_6.hv')
-    pet_3d_image_data = ImageData(pet_3d_init_image_file)
-    pet_3d_acq_model = AcquisitionModelUsingRayTracingMatrix()
+    pet_3d_raw_data_file = pet.existing_filepath(pet_data_path, 'Utahscat600k_ca_seg4.hs')
+    pet_3d_acq_data = pet.AcquisitionData(pet_3d_raw_data_file)
+    pet_3d_init_image_file = pet.existing_filepath(pet_data_path, 'test_image_PM_QP_6.hv')
+    pet_3d_image_data = pet.ImageData(pet_3d_init_image_file)
+    pet_3d_acq_model = pet.AcquisitionModelUsingRayTracingMatrix()
     pet_3d_acq_model.set_num_tangential_LORs(5)
+    pet_2d_acq_model = pet.AcquisitionModelUsingParallelproj()
     pet_3d_acq_model.set_up(pet_3d_acq_data, pet_3d_image_data)
     return pet_3d_acq_data, pet_3d_image_data, pet_3d_acq_model
 
@@ -47,11 +50,11 @@ def get_pet_3d():
 
 
 class ConvBlock(torch.nn.Module):
-    def __init__(self, in_channels=2, out_channels=1, kernel_size=3, padding=1):
+    def __init__(self, in_channels=2, out_channels=1, kernel_size=3, padding=1, hidden_channels=10):
         super(ConvBlock, self).__init__()
-        self.conv1 = torch.nn.Conv2d(in_channels, in_channels, kernel_size, padding=padding)
-        self.conv2 = torch.nn.Conv2d(in_channels, in_channels, kernel_size, padding=padding)
-        self.conv3 = torch.nn.Conv2d(in_channels, out_channels, kernel_size, padding=padding)
+        self.conv1 = torch.nn.Conv2d(in_channels, hidden_channels, kernel_size, padding=padding)
+        self.conv2 = torch.nn.Conv2d(hidden_channels, hidden_channels, kernel_size, padding=padding)
+        self.conv3 = torch.nn.Conv2d(hidden_channels, out_channels, kernel_size, padding=padding)
         self.relu = torch.nn.ReLU()
 
     def forward(self, x):
@@ -64,14 +67,14 @@ class ConvBlock(torch.nn.Module):
 class PETVarNet(torch.nn.Module):
     def __init__(self, ConvBlocks, ObjectiveFunctionGradient):
         super(PETVarNet, self).__init__()
-        self.ConvBlocks = ConvBlocks
+        self.ConvBlocks = torch.nn.ModuleList(ConvBlocks)
         self.ObjectiveFunctionGradient = ObjectiveFunctionGradient
         self.relu = torch.nn.ReLU()
 
     def forward(self, x):
         for i in range(len(self.ConvBlocks)):
-            filtered_x = self.ConvBlocks[i](x)
-            x = filtered_x - self.relu(self.ObjectiveFunctionGradient(filtered_x))
+            filtered_x = self.relu(self.ConvBlocks[i](x))
+            x = filtered_x + self.relu(self.ObjectiveFunctionGradient(filtered_x))
         return x
 
 class PETLearnedPrimalDual(torch.nn.Module):
@@ -122,10 +125,10 @@ class UseCases:
             elif dim == '3D':
                 self.acq_data, self.image, self.acq_model = get_pet_3d()
         if test_name == 'all':
-            self.compare_gradient_descents()
             if dim == '2D':
+                self.pet_varnet()
                 self.learned_primal_dual()
-                #self.pet_varnet()
+            self.compare_gradient_descents()
         elif test_name == 'gradient_descent':
             self.compare_gradient_descents()
         elif test_name == 'unrolled_backward':
@@ -137,11 +140,10 @@ class UseCases:
 
     def learned_primal_dual(self):
         # use seed for reproducibility
-        torch.manual_seed(42)
 
         # set up learned primal dual network
-        PrimalConvBlocks = [ConvBlock() for i in range(6)]
-        DualConvBlocks = [ConvBlock() for i in range(6)]
+        PrimalConvBlocks = [ConvBlock() for i in range(3)]
+        DualConvBlocks = [ConvBlock() for i in range(3)]
         # set up the forward and adjoint operators
         sirf_image_template = self.image.get_uniform_copy(1)
         FwdOperator = SIRFTorchOperator(self.acq_model, self.image.get_uniform_copy(1))
@@ -157,8 +159,8 @@ class UseCases:
         torch_obj_func = lambda x: loss(FwdOperator(relu(net(x))), torch_input)
 
         # set up the optimizer
-        optimizer = torch.optim.Adam(net.parameters(), lr=1e-3)
-        for i in range(50):
+        optimizer = torch.optim.Adam(net.parameters(), lr=2e-3)
+        for i in range(5):
             optimizer.zero_grad()
             loss_val = torch_obj_func(torch_input)
             loss_val.backward()
@@ -174,7 +176,7 @@ class UseCases:
         torch.manual_seed(42)
 
         # set up pet varnet network
-        ConvBlocks = [ConvBlock() for i in range(6)]
+        ConvBlocks = [ConvBlock(in_channels=1) for i in range(3)]
         # set up the Objective Function Gradient
         obj_fun = pet.make_Poisson_loglikelihood(self.acq_data)
         print("Made poisson loglikelihood")
@@ -182,26 +184,27 @@ class UseCases:
         print("Set acquisition model")
         obj_fun.set_up(self.image.get_uniform_copy(1))
         print("Set up")
-        ObjectiveFunctionGradient = SIRFObjectiveFunctionGradient(obj_fun, self.image.get_uniform_copy(1))
+        ObjectiveFunctionGradient = SIRFTorchObjectiveFunctionGradient(obj_fun, self.image.get_uniform_copy(1))
         print("Made objective function gradient")
         net = PETVarNet(ConvBlocks, ObjectiveFunctionGradient)
         net.to(self.device)
 
 
         # build the objective function
-        ObjectiveFunction = SIRFObjectiveFunction(obj_fun, self.image.get_uniform_copy(1))
+        ObjectiveFunction = SIRFTorchObjectiveFunction(obj_fun, self.image.get_uniform_copy(1))
         # non-negative image as input
         torch_input = torch.ones_like(self.torch_image, device=self.device)
+        relu = torch.nn.ReLU()
 
         # set up the optimizer
-        optimizer = torch.optim.Adam(net.parameters(), lr=1e-3)
-        for i in range(50):
+        optimizer = torch.optim.Adam(net.parameters(), lr=2e-3)
+        for i in range(20):
             optimizer.zero_grad()
-            loss_val = ObjectiveFunction(torch_input)
+            loss_val = ObjectiveFunction(relu(net(torch_input)))
             loss_val.backward()
             optimizer.step()
             print("Iteration: ", i, "Loss: ", loss_val.item())
-        out = net(torch_input)
+        out = relu(net(torch_input))
         plt.imshow(out.detach().cpu().numpy()[0,0])
         plt.savefig("pet_varnet.png")
 
@@ -247,7 +250,7 @@ class UseCases:
         print("Set acquisition model")
         obj_fun.set_up(self.image.get_uniform_copy(1))
         print("Set up")
-        obj = SIRFObjectiveFunction(obj_fun, self.image.get_uniform_copy(1))
+        obj = SIRFTorchObjectiveFunction(obj_fun, self.image.get_uniform_copy(1))
         relu = torch.nn.ReLU()
         obj_relu = lambda x: obj(relu(x))
         optimizer = torch.optim.Adam([torch_image_params], lr=lr)
@@ -262,4 +265,5 @@ class UseCases:
 
 
 if __name__ == '__main__':
-    uses = UseCases('PET', '3D', 'all')
+    torch.manual_seed(42)
+    uses = UseCases('PET', '2D', 'all')
