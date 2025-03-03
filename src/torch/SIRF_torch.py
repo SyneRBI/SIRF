@@ -159,12 +159,12 @@ def apply_wrapped_sirf(wrapped_sirf_func, torch_src, sirf_src_shape):
         if sirf_src_shape == torch_src_shape[1:]:
             torch_src = torch_src.unsqueeze(1) # add channel dimension
             channel = False
-    elif len(torch_src_shape) == sirf_src_shape + 2:
+    elif len(torch_src_shape) == len(sirf_src_shape) + 2:
         check_shapes(torch_src_shape[2:], sirf_src_shape)
         channel = True
     else:
         raise ValueError(f"Invalid shape of src. Expected batch (+ channel)\
-            dim, and {sirf_src_shape}")
+            dim, and {sirf_src_shape}, got {torch_src_shape}")
 
     n_batch = torch_src.shape[0]
     n_channel = torch_src.shape[1]
