@@ -737,21 +737,17 @@ class GeometricalInfo(object):
 
 class AdjointOperator(object):
     """
-    Returns the adjoint operator of the operator, where the adjoint operator
-    is the forward method and the forward operator is the backward method.
+    Creates the adjoint operator of a linear operator `lin_op`. 
     """
     def __init__(self, operator):
         self.operator = operator
 
     def forward(self, x):
-        """Swaps the forward and adjoint operators"""
-        # By applying the adjoint operator the error catching is done by SIRF
-        # as operators without adjoint will throw an error, and these operators
-        # are not supported by the adjoint operator
+        """Calls the adjoint method of the original linear operator"""
+        # Note: calling `adjoint` will raise an error in SIRF if the operator is not linear.
         return self.operator.adjoint(x)
 
     def backward(self, x):
-        """Swaps the backward and forward operators"""
-        # As the adjoint is called when forward is called the forward will be
-        # correct.
-        return self.operator.forward(x)
+        """Calls the `direct` method of the original linear operator"""
+        # Note: calling `direct` will raise an error in SIRF if the operator is not linear.
+        return self.operator.direct(x)
