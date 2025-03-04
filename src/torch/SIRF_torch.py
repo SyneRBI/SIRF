@@ -5,7 +5,10 @@ except ModuleNotFoundError:
 
 
 import sirf
+import sirf.SIRF
 import numpy
+
+
 
 # This module provides a PyTorch interface for SIRF operators and objective functions.
 # It wraps SIRF objects to enable their use within PyTorch's autograd system.
@@ -18,7 +21,7 @@ import numpy
 
 
 def sirf_to_torch(
-        sirf_src: object,
+        sirf_src: sirf.SIRF.DataContainer | float,
         device: torch.device,
         requires_grad: bool = False
         ) -> torch.Tensor:
@@ -54,8 +57,8 @@ def sirf_to_torch(
 
 def torch_to_sirf_(
         torch_src: torch.Tensor,
-        sirf_dest: object,
-        ) -> object:
+        sirf_dest: sirf.SIRF.DataContainer,
+        ) -> sirf.SIRF.DataContainer:
     """
     Copies data from a PyTorch tensor to a SIRF object in-place.
 
@@ -97,7 +100,7 @@ class _Operator(torch.autograd.Function):
     @staticmethod
     def forward(ctx,
             torch_src: torch.Tensor,
-            sirf_src_template: object,
+            sirf_src_template: sirf.SIRF.DataContainer,
             sirf_operator: object
             ):
         """
@@ -151,7 +154,7 @@ class _ObjectiveFunction(torch.autograd.Function):
     @staticmethod
     def forward(ctx,
             torch_image: torch.Tensor,
-            sirf_image_template: object,
+            sirf_image_template: sirf.SIRF.ImageData,
             sirf_obj_func: object
             ):
         """
@@ -219,7 +222,7 @@ class _ObjectiveFunctionGradient(torch.autograd.Function):
     @staticmethod
     def forward(ctx,
             torch_image: torch.Tensor,
-            sirf_image_template: object,
+            sirf_image_template: sirf.SIRF.ImageData,
             sirf_obj_func: object
             ):
         """
@@ -368,7 +371,7 @@ class SIRFTorchOperator(torch.nn.Module):
     """
     def __init__(self,
             operator, 
-            sirf_src_template
+            sirf_src_template: sirf.SIRF.DataContainer
             ):
         """
         Initializes the SIRFTorchOperator.
@@ -424,7 +427,7 @@ class SIRFTorchObjectiveFunction(torch.nn.Module):
     """
     def __init__(self,
             sirf_obj_func: object,
-            sirf_image_template: object
+            sirf_image_template: sirf.SIRF.ImageData
             ):
         """
         Initializes the SIRFTorchObjectiveFunction.
@@ -477,7 +480,7 @@ class SIRFTorchObjectiveFunctionGradient(torch.nn.Module):
     """
     def __init__(self,
             sirf_obj_func: object,
-            sirf_image_template: object
+            sirf_image_template: sirf.SIRF.ImageData
             ):
         """
         Initializes the SIRFTorchObjectiveFunctionGradient.
