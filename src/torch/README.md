@@ -1,27 +1,27 @@
 # SIRF-PyTorch Wrapper
 This wrapper provides a bridge between the [SIRF](https://github.com/SyneRBI/SIRF) (Synergistic Image Reconstruction Framework) library and PyTorch, enabling the use of SIRF's image reconstruction operators and objective functions within PyTorch's automatic differentiation (autodiff) framework. 
 
-## Core Concepts: Autodiff, Reverse Mode, JVP, VJP, and HVP
+## Forward and backward clarification
 
-This wrapper leverages PyTorch's `torch.autograd.Function` to achieve integration with SIRF.  Understanding the following concepts is crucial for the design:
+The use of the terms forward and backward have different meaning given the context:
+* `torch.autograd.Function`: the `forward` method (forward pass) is the evaluation of the function, and `backward` method (backward pass) computes the (scaled directional) derivative, i.e. the Vector-Jacobian-adjoint-Product (VJP), from output to input.
+* Automatic differentiation: Forward (tangent) mode autodiff computes the (scaled directional) derivative, the Jacobian-Vector-Product (JVP), of the function along with the evaluation - computing derivatives from input to output. Backward (or reverse/adjoint) mode autodiff is the VJP - computing derivatives from output to input.
+* Reverse-mode autodiff: Forward pass evaluates the function saving intermediate values from input to output. Backward pass uses the chain rule and intermediate values computing the derivatives from output to inputs/variables.
+* `SIRFOperator`: For example acquistion models etc. In forward call we apply the operator, and in the backward we apply the Jacobian adjoint of the operator.
 
-*   **Automatic Differentiation (Autodiff):** A technique for numerically evaluating the derivative of a function specified by a computer program.  PyTorch uses a "reverse mode" autodiff system.
+### Importance in the implementation
 
-*   **Reverse Mode Autodiff:**  In reverse mode, the gradients are computed by traversing the computational graph backwards, from the output (typically a scalar loss function) to the inputs.  This is highly efficient for functions with many inputs and a single output, which is common in machine learning.
+The wrapper is currently only for **reverse-mode** autodiff - there are JVP methods (for forward-mode autodiff) of `torch.autograd.Function` that are not used at present.
 
-*   **Jacobian-Vector Product (JVP):**  Let `y = f(x)` be a vector-valued function, where `x` is an input vector and `y` is an output vector. The Jacobian matrix `J` contains all the first-order partial derivatives of `f`.  The JVP is the product `Jv`, where `v` is a vector.  It gives the directional derivative of `f` at `x` in the direction of `v`.  *Forward mode* autodiff computes JVPs.
-
-*   **Vector-Jacobian Product (VJP):** With `y = f(x)` as above, the VJP is the product `w^T J`, where `w` is a vector (often called the "upstream/puput gradient").  The VJP represents the gradient of a scalar-valued function that depends on `y` (e.g., a loss function), with respect to the input `x`.  *Reverse mode* autodiff computes VJPs. 
-
-*   **Hessian-Vector Product (HVP):** The Hessian matrix `H` contains all the second-order partial derivatives of a scalar-valued function `f(x)`. The HVP is the product `Hv`, where `v` is a vector.  It gives the second-order directional derivative of `f` at `x` in the direction of `v`. 
+For `SIRFOperator` we can wrap the adjoint operator with `AdjointOperator`, there quite confusingly the forward is the application of the adjoint, and the backward *is* the linear (Jacobian) component/approximation of the operator.
 
 ## Wrapper Design
 
 The wrapper provides three main classes:
 
-1.  `SIRFTorchOperator`: Wraps a SIRF `Operator` (e.g., a projection operator). Computes the JVP forward and VJP in reverse.
-2.  `SIRFTorchObjectiveFunction`: Wraps a SIRF `ObjectiveFunction` for calculating its value forward, and gradient in reverse mode.
-3.  `SIRFTorchObjectiveFunctionGradient`: Wraps a SIRF `ObjectiveFunction` for calculating its gradient forward and computing the Hessian-vector product in reverse mode.
+1.  `SIRFTorchOperator`: Wraps a SIRF `Operator` (e.g., a projection operator). Applies the operator forward pass, and applies the adjoint in backward pass.
+2.  `SIRFTorchObjectiveFunction`: Wraps a SIRF `ObjectiveFunction` for computes the value in the forward pass, and objective function gradient in backward pass.
+3.  `SIRFTorchObjectiveFunctionGradient`: Wraps a SIRF `ObjectiveFunction` that computes the objective function gradients in the forward pass and the Hessian-vector product in the backward pass. In the backward the Hessian is evaluated at the point which the objective functions gradient was evaluated.
 
 These classes use custom `torch.autograd.Function` implementations (`_Operator`, `_ObjectiveFunction`, and `_ObjectiveFunctionGradient`) to define the forward and backward passes, handling the conversions between PyTorch tensors and SIRF objects.
 
@@ -29,53 +29,43 @@ These classes use custom `torch.autograd.Function` implementations (`_Operator`,
 
 *   **Forward Pass:**
     1.  Converts the input PyTorch tensor to a SIRF object.
-    2.  Applies the SIRF `Operator.forward()` method.  Let's represent the SIRF Operator as `A`.  So, this step computes `y = Ax`, where `x` is the input (SIRF object) and `y` is the output (SIRF object).
+    2.  Applies the SIRF `Operator.forward()` method.
     3.  Converts the result back to a PyTorch tensor.
     4.  If the input tensor requires gradients, it saves relevant information (the output SIRF object and the operator) in the context (`ctx`) for use in the backward pass.
 
 *   **Backward Pass (Adjoint Operation - VJP):**
-    1.  Receives the "upstream gradient" (`grad_output`) – the gradient of the loss `L` with respect to the *output* of the forward pass: `∂L/∂y`.
+    1.  Receives the "upstream gradient" (`grad_output`).
     2.  Converts `grad_output` to a SIRF object.
-    3.  Applies the SIRF `Operator.backward()` method (which computes the adjoint operation). The adjoint operation, `A^T`, effectively computes the VJP.  If the forward pass computes `y = Ax`, the backward pass computes `x̄ = A^T ȳ`, where `A^T` is the adjoint of `A`, `ȳ` is `grad_output = ∂L/∂y`, and `x̄` is the gradient with respect to the input `x`. So, `x̄ = ∂L/∂x = (∂L/∂y)(∂y/∂x) =  ȳ^T J = (A^T)ȳ`. Here, `J` is the Jacobian of the forward operation `y=Ax`, and it is implicitly represented by the operator `A` itself.
-    4.  Converts the resulting SIRF object back to a PyTorch tensor and returns it. This is the gradient with respect to the *input* of the forward pass (`∂L/∂x`).
-
-    **Connection to VJP:** The backward pass directly computes the VJP.  The upstream gradient `grad_output` (which is `∂L/∂y`) acts as the vector `w^T` in the VJP formula `w^T J`. The SIRF `Operator.backward()` method implicitly performs the multiplication by the Jacobian transpose (`J^T`, which is equivalent to the adjoint `A^T`).
+    3.  Applies the SIRF `Operator.backward()` method. This will apply the **Jacobian adjoint** of the operator to upstream gradient (the vector).
+    4.  Converts the resulting SIRF object back to a PyTorch tensor and returns it.
 
 ### `_ObjectiveFunction` (Forward and Backward Passes)
 
 *   **Forward Pass:**
     1.  Converts the input PyTorch tensor (representing an image) to a SIRF object.
-    2.  Calls the SIRF `ObjectiveFunction.get_value()` method. Let `f(x)` represent the SIRF objective function. This step computes `f(x)`.
-    3.  Returns the *negative* of the objective function value as a PyTorch tensor: `-f(x)`. We negate the value because PyTorch optimizers perform *minimization*, and we typically want to maximize an objective function (or minimize its negative) in image reconstruction.
+    2.  Calls the SIRF `ObjectiveFunction.get_value()` method.
+    3.  Returns the *negative* of the objective function value as a PyTorch tensor. We negate the value because PyTorch optimizers perform *minimization*, and we typically want to maximize an objective function (or minimize its negative) in image reconstruction.
     4. Saves relevant information to the `ctx` if gradients are needed.
 
 *   **Backward Pass (VJP):**
-    1.  Receives the upstream gradient (`grad_output`), which is typically a tensor containing the scalar `1` (since the output of the forward pass is a scalar, and `∂L/∂(-f(x)) = 1` if `L = -f(x)`).
-    2.  Gets the gradient of the *negative* objective function using `sirf_obj_func.get_gradient()`, which computes `-∇f(x)`.
+    1.  Receives the upstream gradient (`grad_output`), in this case it is always a scalar.
+    2.  Gets the gradient of the *negative* objective function using `sirf_obj_func.get_gradient()`, which computed at the input and multiplied by the upstream gradient.
     3.  Converts the SIRF gradient to a PyTorch tensor.
     4.  Returns the gradient multiplied by `grad_output`.
 
-    **More on the VJP:** Let `f(x)` be the SIRF objective function. The forward pass computes `-f(x)`.  The backward pass needs to compute `∂L/∂x`, where `L` is the overall loss function (which, in the simplest case, *is* the output of the forward pass, `-f(x)`). Using the chain rule:
-    `∂L/∂x = (∂L/∂(-f(x))) * (∂(-f(x))/∂x) = grad_output * (-∇f(x))`.  Since the forward pass output is a scalar, the Jacobian is simply the gradient `∇f(x)`.  The upstream gradient `grad_output` represents `∂L/∂(-f(x))`, and `sirf_obj_func.get_gradient()` provides `-∇f(x)`.  The multiplication `grad_output * (-∇f(x))` correctly computes the VJP.
 
 ### `_ObjectiveFunctionGradient` (Forward and Backward Passes)
 
-*   **Forward Pass (JVP with v=1):**
+*   **Forward Pass:**
     1.  Converts the input PyTorch tensor to a SIRF object.
-    2.  Computes the *gradient* of the *negative* SIRF objective function using `sirf_obj_func.get_gradient()`, which returns `-∇f(x)`.  This is equivalent to computing a JVP where the input vector `v` is implicitly `1` (because we are taking the full gradient of the *scalar* output of the objective function). The result is a vector, the gradient.
+    2.  Computes the *gradient* of the *negative* SIRF objective function using `sirf_obj_func.get_gradient()`, which is computed on the input.
     3.  Returns the (negative) gradient as a PyTorch tensor.
 
-*   **Backward Pass (Hessian-Vector Product - HVP):**
-    1.  Receives the upstream gradient (`grad_output`), which now represents a *vector* (not a scalar).  This vector corresponds to `∂L/∂g(x)`, where `g(x) = -∇f(x)` is the *output* of the forward pass (the negative gradient of the objective function).
+*   **Backward Pass (JVP):**
+    1.  Receives the upstream gradient (`grad_output`), which now represents a *vector* (not a scalar).
     2.  Converts `grad_output` to a SIRF object.
-    3.  Computes the Hessian-vector product (HVP) using `sirf_obj_func.multiply_with_Hessian()`.  This method takes two arguments: the current estimate (`sirf_image`, where the Hessian is evaluated) and the input vector (`sirf_grad`, which is `grad_output` converted to a SIRF object).
-    4. Returns the (negative) HVP.
-
-    **More on the HVP:**  Let `f(x)` be the SIRF objective function, and let `g(x) = -∇f(x)` be the output of the forward pass. We want to compute `∂L/∂x`, where `L` is the overall loss. The backward pass receives `v = grad_output = ∂L/∂g(x)`.  The Hessian of `f(x)` is `H = ∇²f(x)`. We compute the HVP: `H|x * v`, where `H|x` denotes the Hessian evaluated at point x. Applying the chain rule:
-
-    `∂L/∂x = (∂L/∂g(x)) * (∂g(x)/∂x) = v^T * (∂(-∇f(x))/∂x) = - v^T * ∇²f(x) = -v^T * H|x`.
-
-    The result of `sirf_obj_func.multiply_with_Hessian` is negated in the code, consistent with the negative gradient used throughout. This ensures we're performing gradient *descent*.
+    3.  Multiples the Hessian evaluated as the input with the upstream gradient using `sirf_obj_func.multiply_with_Hessian()`.
+    4. Returns the Hessian multiplied with a vector.
 
 ## Usage and Use Cases
 
