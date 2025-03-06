@@ -13,7 +13,7 @@ The use of the terms forward and backward have different meaning given the conte
 
 The wrapper is currently only for **reverse-mode** autodiff - there are JVP methods (for forward-mode autodiff) of `torch.autograd.Function` that are not used at present.
 
-For `SIRFOperator` we can wrap the adjoint operator with `AdjointOperator`, there quite confusingly the forward is the application of the adjoint, and the backward *is* the linear (Jacobian) component/approximation of the operator.
+Note that in certain cases it can be necessary to use the adjoint of an operator as a forward step, e.g. when adding a gradient-descent step as a layer. This can be achieved by wrapping `sirf.AdjointOperator(sirf_operator)`.
 
 ## Wrapper Design
 
