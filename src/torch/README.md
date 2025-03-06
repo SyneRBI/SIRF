@@ -4,7 +4,7 @@ This wrapper provides a bridge between the [SIRF](https://github.com/SyneRBI/SIR
 ## Forward and backward clarification
 
 The use of the terms forward and backward have different meaning given the context:
-* `torch.autograd.Function`: the `forward` method (forward pass) is the evaluation of the function, and `backward` method (backward pass) computes the (scaled directional) derivative, i.e. the Vector-Jacobian-adjoint-Product (VJP), from output to input.
+* `torch.autograd.Function`: the `forward` method (forward pass) is the evaluation of the function, and `backward` method (backward pass) multiplies its argument with the gradient of the function, i.e. computes the Vector-Jacobian-adjoint-Product (VJP).
 * Automatic differentiation: Forward (tangent) mode autodiff computes the (scaled directional) derivative, the Jacobian-Vector-Product (JVP), of the function along with the evaluation - computing derivatives from input to output. Backward (or reverse/adjoint) mode autodiff is the VJP - computing derivatives from output to input.
 * Reverse-mode autodiff: Forward pass evaluates the function saving intermediate values from input to output. Backward pass uses the chain rule and intermediate values computing the derivatives from output to inputs/variables.
 * `SIRFOperator`: For example acquistion models etc. In forward call we apply the operator, and in the backward we apply the Jacobian adjoint of the operator.
