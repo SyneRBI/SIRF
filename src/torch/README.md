@@ -111,3 +111,4 @@ for i in range(100):  # Number of iterations
 * Extend to subsets in the wrapper
 * Extend objective functions that vary between batch items
 * The negative introduced for PET is not neccessary for MR/CIL
+* Should the use cases just be the exercises?
