@@ -30,7 +30,7 @@ def sirf_to_torch(
 
     Args:
         sirf_src: The SIRF object to convert.  This can be a SIRF 
-          `DataContainer`, `AcquisitionData`, `ImageData`, or a scalar (float).
+          `DataContainer` such as `AcquisitionData`, `ImageData`, or a scalar (float).
         device: The PyTorch device to place the tensor on (e.g., 'cpu' or 
           'cuda').
         requires_grad:  Whether the resulting tensor should track gradients.
