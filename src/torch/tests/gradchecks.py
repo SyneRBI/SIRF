@@ -1,12 +1,13 @@
 import os
 import pytest
+import sirf
 import sirf.STIR as pet
 import sirf.Gadgetron as mr
 from sirf.Utilities import examples_data_path, existing_filepath
 import torch
 torch.use_deterministic_algorithms(True)
 import sirf
-from sirf.SIRF_torch import SIRFTorchOperator, SIRFTorchObjectiveFunction, SIRFTorchObjectiveFunctionGradient, sirf_to_torch
+from sirf.torch import Operator, ObjectiveFunction, ObjectiveFunctionGradient, sirf_to_torch
 
 
 def get_data(modality, data_type):
@@ -99,7 +100,7 @@ def test_forward_gradcheck(test_data):
     else:
         pytest.skip("Tests not set up for other modalities at this time.")
 
-    torch_forward = SIRFTorchOperator(acq_model, image_data.clone())
+    torch_forward = Operator(acq_model, image_data.clone())
     torch_image_data = torch.tensor(image_data.as_array(), requires_grad=True).unsqueeze(0).cuda()
 
     run_gradcheck(torch_forward, torch_image_data, (modality, data_type), "Forward",
@@ -117,7 +118,7 @@ def test_adjoint_gradcheck(test_data):
         pytest.skip("Tests not set up for other modalities at this time.")
 
     adj_acq_model = sirf.SIRF.AdjointOperator(acq_model)
-    torch_adjoint = SIRFTorchOperator(adj_acq_model, acq_data.clone())
+    torch_adjoint = Operator(adj_acq_model, acq_data.clone())
     torch_acq_data = torch.tensor(acq_data.as_array(), requires_grad=True).unsqueeze(0).cuda()
 
     run_gradcheck(torch_adjoint, torch_acq_data, (modality, data_type), "Adjointness",
@@ -134,13 +135,13 @@ def test_objective_function_with_wrapped_acquisition_model_gradcheck(test_data):
         # add constant term to acq_data 
         acq_data_new = acq_data + 1
         acq_model.set_up(acq_data_new, image_data)
-        torch_forward = SIRFTorchOperator(acq_model, image_data.clone())
+        torch_forward = Operator(acq_model, image_data.clone())
         torch_image_data = torch.tensor(image_data.as_array(), requires_grad=True).unsqueeze(0).cuda()
         loss = torch.nn.PoissonNLLLoss(log_input=False, full=False, reduction='sum')
         torch_acq_data = sirf_to_torch(acq_data_new, device=torch_image_data.device)
         torch_acq_model_obj = lambda x: loss(torch_forward(x), torch_acq_data)
     elif modality == "MR":
-        torch_forward = SIRFTorchOperator(acq_model, image_data.clone())
+        torch_forward = Operator(acq_model, image_data.clone())
         torch_image_data = torch.tensor(image_data.as_array(), requires_grad=True).unsqueeze(0).cuda()
         torch_acq_data = sirf_to_torch(acq_data, device=torch_image_data.device)
         torch_acq_model_obj = lambda x: (torch_forward(x) - torch_acq_data).abs().pow(2).sum() # L2 squared loss
@@ -168,7 +169,7 @@ def test_objective_function_gradcheck(test_data):
     obj_fun.set_acquisition_model(acq_model)
     obj_fun.set_up(image_data)
 
-    torch_obj_fun = SIRFTorchObjectiveFunction(obj_fun, image_data.clone())
+    torch_obj_fun = ObjectiveFunction(obj_fun, image_data.clone())
     torch_image_data = torch.tensor(image_data.as_array(), requires_grad=True).unsqueeze(0).cuda()
 
 
@@ -192,7 +193,7 @@ def test_objective_function_gradient_gradcheck(test_data):
     obj_fun.set_up(image_data)
 
 
-    torch_obj_fun_grad = SIRFTorchObjectiveFunctionGradient(obj_fun, image_data.clone())
+    torch_obj_fun_grad = ObjectiveFunctionGradient(obj_fun, image_data.clone())
     torch_image_data = torch.tensor(image_data.as_array(), requires_grad=True).unsqueeze(0).cuda()
 
     run_gradcheck(torch_obj_fun_grad, torch_image_data, (modality, data_type), "Objective Gradient",
