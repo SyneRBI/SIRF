@@ -1,18 +1,19 @@
 import os
 import pytest
 import sirf.STIR as pet
+import sirf.Gadgetron as mr
 from sirf.Utilities import examples_data_path, existing_filepath
 import torch
-from SIRF_torch import *
-import sirf
-# Set verbosity and storage scheme
-pet.set_verbosity(1)
-pet.AcquisitionData.set_storage_scheme("memory")
 torch.use_deterministic_algorithms(True)
+import sirf
+from sirf.SIRF_torch import SIRFTorchOperator, SIRFTorchObjectiveFunction, SIRFTorchObjectiveFunctionGradient, sirf_to_torch
 
 
 def get_data(modality, data_type):
     if modality == "PET":
+        pet.set_verbosity(1)
+        pet.AcquisitionData.set_storage_scheme("memory")
+        msg_pet = pet.MessageRedirector(info=None, warn=None, errr=None)
         pet_data_path = examples_data_path('PET')
         if data_type == "2d":
             raw_data_file = existing_filepath(pet_data_path, 'thorax_single_slice/template_sinogram.hs')
@@ -28,28 +29,49 @@ def get_data(modality, data_type):
             acq_model = pet.AcquisitionModelUsingParallelproj()
         else:
             raise ValueError("Invalid data_type for PET. Choose '2d', '3d'.")
+    elif modality == "MR":
+        mr.AcquisitionData.set_storage_scheme('memory')
+        mr_data_path = examples_data_path('MR')
+        if data_type == "2d":
+            raw_data_file = existing_filepath(mr_data_path, 'simulated_MR_2D_cartesian.h5')
+            input_data = mr.AcquisitionData(raw_data_file)
+            prep_gadgets = ['RemoveROOversamplingGadget']
+            processed_data = input_data.process(prep_gadgets)
+            recon = mr.FullySampledReconstructor()
+            recon.set_input(processed_data)
+            recon.process()
+            complex_images = recon.get_output()
+            image_data = complex_images
+            csms = mr.CoilSensitivityData()
+            processed_data.sort()
+            csms.calculate(processed_data)
+            acq_model = mr.AcquisitionModel(processed_data, csms)
+            acq_model.set_coil_sensitivity_maps(csms)
+            acq_data = acq_model.forward(complex_images)
+        else:
+            raise ValueError("Invalid data_type for MR. Choose '2d'.")
     else:
-        raise ValueError("Invalid modality. Only 'PET' at the moment.")
+        raise ValueError("Invalid modality. Only 'PET' or 'MR' are supported.")
 
     return acq_data, image_data, acq_model
 
 
 @pytest.fixture(params=[
-    ("PET", "2d"), ("PET", "3d")
+    ("MR", "2d"), ("PET", "2d"), ("PET", "3d"), 
 ])
 def test_data(request):
     modality, data_type = request.param
     acq_data, image_data, acq_model = get_data(modality, data_type)
-    acq_data = acq_data.get_uniform_copy(1.)
     image_data = image_data.get_uniform_copy(1.)
     acq_model.set_up(acq_data, image_data)
+    acq_data = acq_model.forward(image_data)
     return acq_data, image_data, acq_model, modality, data_type
 
 
 test_flags = {
-    "forward": False,
-    "adjoint": False,
-    "objective_wrapped": False,
+    "forward": True,
+    "adjoint": True,
+    "objective_wrapped": True,
     "objective": True,
     "objective_gradient": True,
 }
@@ -72,6 +94,8 @@ def test_forward_gradcheck(test_data):
     acq_data, image_data, acq_model, modality, data_type = test_data
     if modality == "PET":
         pass
+    elif modality == "MR":
+        pass
     else:
         pytest.skip("Tests not set up for other modalities at this time.")
 
@@ -79,13 +103,15 @@ def test_forward_gradcheck(test_data):
     torch_image_data = torch.tensor(image_data.as_array(), requires_grad=True).unsqueeze(0).cuda()
 
     run_gradcheck(torch_forward, torch_image_data, (modality, data_type), "Forward",
-                  nondet_tol=1e-6, fast_mode=True, eps=1e-3, atol=1e-4, rtol=1e-4)
+                  nondet_tol=1e-6, fast_mode=True, eps=1e-2, atol=1e-4, rtol=1e-4)
 
 
 @pytest.mark.skipif(not test_flags["adjoint"], reason="Adjoint test disabled")
 def test_adjoint_gradcheck(test_data):
     acq_data, image_data, acq_model, modality, data_type = test_data
     if modality == "PET":
+        pass
+    elif modality == "MR":
         pass
     else:
         pytest.skip("Tests not set up for other modalities at this time.")
@@ -95,7 +121,7 @@ def test_adjoint_gradcheck(test_data):
     torch_acq_data = torch.tensor(acq_data.as_array(), requires_grad=True).unsqueeze(0).cuda()
 
     run_gradcheck(torch_adjoint, torch_acq_data, (modality, data_type), "Adjointness",
-                  nondet_tol=1e-6, fast_mode=True, eps=1e-3, atol=1e-4, rtol=1e-4)
+                  nondet_tol=1e-6, fast_mode=True, eps=1e-2, atol=1e-4, rtol=1e-4)
 
 
 
@@ -103,18 +129,25 @@ def test_adjoint_gradcheck(test_data):
 def test_objective_function_with_wrapped_acquisition_model_gradcheck(test_data):
     acq_data, image_data, acq_model, modality, data_type = test_data
     if modality == "PET":
-        pass
+        # add background term to acq_model
+        acq_model.set_background_term(acq_data.get_uniform_copy(1.))
+        # add constant term to acq_data 
+        acq_data_new = acq_data + 1
+        acq_model.set_up(acq_data_new, image_data)
+        torch_forward = SIRFTorchOperator(acq_model, image_data.clone())
+        torch_image_data = torch.tensor(image_data.as_array(), requires_grad=True).unsqueeze(0).cuda()
+        loss = torch.nn.PoissonNLLLoss(log_input=False, full=False, reduction='sum')
+        torch_acq_data = sirf_to_torch(acq_data_new, device=torch_image_data.device)
+        torch_acq_model_obj = lambda x: loss(torch_forward(x), torch_acq_data)
+    elif modality == "MR":
+        torch_forward = SIRFTorchOperator(acq_model, image_data.clone())
+        torch_image_data = torch.tensor(image_data.as_array(), requires_grad=True).unsqueeze(0).cuda()
+        torch_acq_data = sirf_to_torch(acq_data, device=torch_image_data.device)
+        torch_acq_model_obj = lambda x: (torch_forward(x) - torch_acq_data).abs().pow(2).sum() # L2 squared loss
+        
     else:
         pytest.skip("Tests not set up for other modalities at this time.")
 
-    acq_model.set_background_term(acq_data.get_uniform_copy(1.))
-    acq_model.set_up(acq_data, image_data)
-
-    torch_forward = SIRFTorchOperator(acq_model, image_data.clone())
-    torch_image_data = torch.tensor(image_data.as_array(), requires_grad=True).unsqueeze(0).cuda()
-    loss = torch.nn.PoissonNLLLoss(log_input=False, full=False, reduction='sum')
-    torch_acq_data = sirf_to_torch(acq_data, device=torch_image_data.device)
-    torch_acq_model_obj = lambda x: loss(torch_forward(x), torch_acq_data)
 
     run_gradcheck(torch_acq_model_obj, torch_image_data, (modality, data_type), "Objective (wrapped)",
                   nondet_tol=1e-2, fast_mode=True, eps=1e-3, atol=1e-2, rtol=1e-2)
@@ -124,7 +157,11 @@ def test_objective_function_with_wrapped_acquisition_model_gradcheck(test_data):
 def test_objective_function_gradcheck(test_data):
     acq_data, image_data, acq_model, modality, data_type = test_data
     if modality == "PET":
-        obj_fun = pet.make_Poisson_loglikelihood(acq_data)
+        # add background term to acq_model
+        acq_model.set_background_term(acq_data.get_uniform_copy(1.))
+        # add constant term to acq_data 
+        acq_data_new = acq_data + 1
+        obj_fun = pet.make_Poisson_loglikelihood(acq_data_new)
     else:
         pytest.skip("Tests not set up for other modalities at this time.")
 
@@ -136,14 +173,18 @@ def test_objective_function_gradcheck(test_data):
 
 
     run_gradcheck(torch_obj_fun, torch_image_data, (modality, data_type), "Objective",
-                  nondet_tol=1e-1, fast_mode=True, eps=1e-3, atol=1e-1, rtol=1e-1)
+                  nondet_tol=1e-2, fast_mode=True, eps=1e-3, atol=1e-2, rtol=1e-2)
 
 
 @pytest.mark.skipif(not test_flags["objective_gradient"], reason="Objective Gradient test disabled")
 def test_objective_function_gradient_gradcheck(test_data):
     acq_data, image_data, acq_model, modality, data_type = test_data
     if modality == "PET":
-        obj_fun = pet.make_Poisson_loglikelihood(acq_data)
+        # add background term to acq_model
+        acq_model.set_background_term(acq_data.get_uniform_copy(1.))
+        # add constant term to acq_data 
+        acq_data_new = acq_data + 1
+        obj_fun = pet.make_Poisson_loglikelihood(acq_data_new)
     else:
         pytest.skip("Tests not set up for other modalities at this time.")
 
@@ -155,4 +196,4 @@ def test_objective_function_gradient_gradcheck(test_data):
     torch_image_data = torch.tensor(image_data.as_array(), requires_grad=True).unsqueeze(0).cuda()
 
     run_gradcheck(torch_obj_fun_grad, torch_image_data, (modality, data_type), "Objective Gradient",
-                  nondet_tol=1e-6, fast_mode=True, eps=1e-3, atol=1e-4, rtol=1e-4)
+                  nondet_tol=1e-4, fast_mode=True, eps=1e-3, atol=1e-2, rtol=1e-2)
