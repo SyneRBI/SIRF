@@ -168,22 +168,21 @@ class _ObjectiveFunction(torch.autograd.Function):
             sirf_obj_func: The SIRF objective function.
 
         Returns:
-            A PyTorch scalar tensor representing the (negative) value of the
-            objective function.  The negative is taken for gradient descent.
+            A PyTorch scalar tensor representing the value of the objective
+            function.
         """
 
         device = torch_image.device
         sirf_image = torch_to_sirf_(torch_image, sirf_image_template)
-        # Negative for Gradient Descent as per torch convention
         if torch_image.requires_grad:
             ctx.device = device
             ctx.sirf_image = sirf_image
             ctx.sirf_obj_func = sirf_obj_func
             # ensure value is a tensor with requires_grad=True
-            return sirf_to_torch(-sirf_obj_func.get_value(sirf_image), device, 
+            return sirf_to_torch(sirf_obj_func(sirf_image), device, 
                 requires_grad=True)
         else:
-            return sirf_to_torch(-sirf_obj_func.get_value(sirf_image), device)
+            return sirf_to_torch(sirf_obj_func(sirf_image), device)
 
     @staticmethod
     def backward(ctx,
@@ -207,8 +206,7 @@ class _ObjectiveFunction(torch.autograd.Function):
         sirf_obj_func = ctx.sirf_obj_func
         sirf_image = ctx.sirf_image
         device = ctx.device
-        # Negative for Gradient Descent as per torch convention
-        sirf_grad = -sirf_obj_func.get_gradient(sirf_image)
+        sirf_grad = sirf_obj_func.get_gradient(sirf_image)
         grad = sirf_to_torch(sirf_grad, device, requires_grad=True)
         return grad_output*grad, None, None, None
 
@@ -236,8 +234,7 @@ class _ObjectiveFunctionGradient(torch.autograd.Function):
             sirf_obj_func: The SIRF objective function.
 
         Returns:
-            A PyTorch tensor representing the (negative) gradient of the
-            objective function.
+            A PyTorch tensor representing the gradient of the objective function.
         """
     
         device = torch_image.device
@@ -246,12 +243,11 @@ class _ObjectiveFunctionGradient(torch.autograd.Function):
             ctx.device = device
             ctx.sirf_image = sirf_image
             ctx.sirf_obj_func = sirf_obj_func
-            # Negative for Gradient Descent as per torch convention
-            return sirf_to_torch(-sirf_obj_func.get_gradient(sirf_image), 
+            return sirf_to_torch(sirf_obj_func.get_gradient(sirf_image), 
                 device, requires_grad=True
                 )
         else:
-            return sirf_to_torch(-sirf_obj_func.get_gradient(sirf_image), device)
+            return sirf_to_torch(sirf_obj_func.get_gradient(sirf_image), device)
 
     @staticmethod
     def backward(ctx,
@@ -280,7 +276,7 @@ class _ObjectiveFunctionGradient(torch.autograd.Function):
 
         sirf_grad = torch_to_sirf_(grad_output, sirf_image.clone())
         # arguments current estimate and input_ (i.e. the vector)
-        sirf_HVP = -sirf_obj_func.multiply_with_Hessian(sirf_image, sirf_grad)
+        sirf_HVP = sirf_obj_func.multiply_with_Hessian(sirf_image, sirf_grad)
         
         torch_HVP = sirf_to_torch(sirf_grad, device, requires_grad=True)
         return torch_HVP, None, None, None
@@ -456,10 +452,8 @@ class SIRFTorchObjectiveFunction(torch.nn.Module):
               `[batch, *sirf_image_shape]`.
 
         Returns:
-            A PyTorch tensor representing the (negative) value of the objective
-            function. The output dimensions will be `[batch, channel]` or
-            `[batch]`.  The objective function value is negated for use with
-            PyTorch's gradient descent optimizers.
+            A PyTorch tensor representing the value of the objective function. 
+            The output dimensions will be `[batch, channel]` or `[batch]`.
 
         Raises:
             ValueError: If the input tensor has an invalid shape.
@@ -510,11 +504,9 @@ class SIRFTorchObjectiveFunctionGradient(torch.nn.Module):
               `[batch, *sirf_image_shape]`.
 
         Returns:
-            A PyTorch tensor representing the (negative) gradient of the
-            objective function. Output dimensions match the input dimensions:
-            `[batch, channel, *sirf_image_shape]` or 
-            `[batch, *sirf_image_shape]`. The gradient is negated for use with 
-            gradient descent.
+            A PyTorch tensor representing the gradient of the objective function. 
+            Output dimensions match the input dimensions: `[batch, channel, 
+            *sirf_image_shape]` or `[batch, *sirf_image_shape]`. 
 
         Raises:
             ValueError: If the input tensor has an invalid shape.
