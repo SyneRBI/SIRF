@@ -4,16 +4,11 @@ This wrapper provides a bridge between the [SIRF](https://github.com/SyneRBI/SIR
 ## Forward and backward clarification
 
 The use of the terms forward and backward have different meaning given the context:
-* `torch.autograd.Function`: the `forward` method (forward pass) is the evaluation of the function, and `backward` method (backward pass) multiplies its argument with the gradient of the function, i.e. computes the Vector-Jacobian-adjoint-Product (VJP).
-* Automatic differentiation: Forward (tangent) mode autodiff computes the (scaled directional) derivative, the Jacobian-Vector-Product (JVP), of the function along with the evaluation - computing derivatives from input to output. Backward (or reverse/adjoint) mode autodiff is the VJP - computing derivatives from output to input.
-* Reverse-mode autodiff: Forward pass evaluates the function saving intermediate values from input to output. Backward pass uses the chain rule and intermediate values computing the derivatives from output to inputs/variables.
-* `SIRFOperator`: For example acquistion models etc. In forward call we apply the operator, and in the backward we apply the Jacobian adjoint of the operator.
+* Automatic differentiation: Forward (tangent) mode autodiff computes the Jacobian-Vector-Product (JVP). This propagates derivatives forward along with the function evaluation. Backward (or reverse/adjoint) mode autodiff is the Vector-Jacobian-Product (VJP) that propagates derivative information in the reverse direction of the function's evaluation. 
+* Reverse-mode autodiff: Forward pass evaluates the function saving intermediate values. Backward pass uses the chain rule and intermediate values computing the derivatives in the reverse direction with the VJP.
+* `torch.autograd.Function`: the `forward` method (forward pass) is the function evaluation. The `backward` method (backward pass) computes the VJP. More specifically, the `backward(*grad_output)` method multiplies the `grad_output` which represents the gradient(s) of a subsequent scalar-valued objective function with respect to the output of `forward`, via chain-rule, by the adjoint of the Jacobian of the `forward` method. 
 
-### Importance in the implementation
-
-The wrapper is currently only for **reverse-mode** autodiff - there are JVP methods (for forward-mode autodiff) of `torch.autograd.Function` that are not used at present.
-
-Note that in certain cases it can be necessary to use the adjoint of an operator as a forward step, e.g. when adding a gradient-descent step as a layer. This can be achieved by wrapping `sirf.AdjointOperator(sirf_operator)`.
+This SIRF-PyTorch wrapper is **only** for reverse-mode automatic differentiation via subclassing `torch.autograd.Function`.
 
 ## Wrapper Design
 
@@ -33,7 +28,7 @@ These classes use custom `torch.autograd.Function` implementations (`_Operator`,
     3.  Converts the result back to a PyTorch tensor.
     4.  If the input tensor requires gradients, it saves relevant information (the output SIRF object and the operator) in the context (`ctx`) for use in the backward pass.
 
-*   **Backward Pass (Adjoint Operation - VJP):**
+*   **Backward Pass (VJP):**
     1.  Receives the "upstream gradient" (`grad_output`).
     2.  Converts `grad_output` to a SIRF object.
     3.  Applies the SIRF `Operator.backward()` method. This will apply the **Jacobian adjoint** of the operator to upstream gradient (the vector).
@@ -61,7 +56,7 @@ These classes use custom `torch.autograd.Function` implementations (`_Operator`,
     2.  Computes the *gradient* of the *negative* SIRF objective function using `sirf_obj_func.get_gradient()`, which is computed on the input.
     3.  Returns the (negative) gradient as a PyTorch tensor.
 
-*   **Backward Pass (JVP):**
+*   **Backward Pass (VJP):**
     1.  Receives the upstream gradient (`grad_output`), which now represents a *vector* (not a scalar).
     2.  Converts `grad_output` to a SIRF object.
     3.  Multiples the Hessian evaluated as the input with the upstream gradient using `sirf_obj_func.multiply_with_Hessian()`.
@@ -91,7 +86,7 @@ torch_image_params = torch.nn.Parameter(torch_image) # Make it a trainable param
 torch_measurements = sirf_to_torch(acq_data, device)
 torch_acq_model = SIRFTorchOperator(acq_model, image.get_uniform_copy(1))
 relu = torch.nn.ReLU() # Apply non-negativity
-loss = torch.nn.PoissonNLLLoss(log_input=False, full=False) # Example loss
+loss = torch.nn.PoissonNLLLoss(log_input=False, full=False, size_average=None, eps=1e-08, reduce=None, reduction='sum') # Example loss
 torch_obj_func = lambda x: loss(torch_acq_model(relu(x)), torch_measurements)
 
 optimizer = torch.optim.Adam([torch_image_params], lr=0.1)
@@ -110,5 +105,5 @@ for i in range(100):  # Number of iterations
 
 * Extend to subsets in the wrapper
 * Extend objective functions that vary between batch items
-* The negative introduced for PET is not neccessary for MR/CIL
+* The negative introduced for PET is not neccessary for MR/CIL - but what is a CIL/MR objective? Could be better to focus on the acquisition models.
 * Should the use cases just be the exercises?
