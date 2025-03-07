@@ -5,7 +5,6 @@ except ModuleNotFoundError:
 
 
 import sirf
-import sirf.SIRF
 import numpy
 
 
@@ -21,7 +20,7 @@ import numpy
 
 
 def sirf_to_torch(
-        sirf_src: sirf.SIRF.DataContainer | float,
+        sirf_src: sirf.DataContainer | float,
         device: torch.device,
         requires_grad: bool = False
         ) -> torch.Tensor:
@@ -57,8 +56,8 @@ def sirf_to_torch(
 
 def torch_to_sirf_(
         torch_src: torch.Tensor,
-        sirf_dest: sirf.SIRF.DataContainer,
-        ) -> sirf.SIRF.DataContainer:
+        sirf_dest: sirf.DataContainer,
+        ) -> sirf.DataContainer:
     """
     Copies data from a PyTorch tensor to a SIRF object in-place.
 
@@ -100,7 +99,7 @@ class _Operator(torch.autograd.Function):
     @staticmethod
     def forward(ctx,
             torch_src: torch.Tensor,
-            sirf_src_template: sirf.SIRF.DataContainer,
+            sirf_src_template: sirf.DataContainer,
             sirf_operator: object
             ):
         """
@@ -154,7 +153,7 @@ class _ObjectiveFunction(torch.autograd.Function):
     @staticmethod
     def forward(ctx,
             torch_image: torch.Tensor,
-            sirf_image_template: sirf.SIRF.ImageData,
+            sirf_image_template: sirf.ImageData,
             sirf_obj_func: object
             ):
         """
@@ -220,7 +219,7 @@ class _ObjectiveFunctionGradient(torch.autograd.Function):
     @staticmethod
     def forward(ctx,
             torch_image: torch.Tensor,
-            sirf_image_template: sirf.SIRF.ImageData,
+            sirf_image_template: sirf.ImageData,
             sirf_obj_func: object
             ):
         """
@@ -357,7 +356,7 @@ def apply_wrapped_sirf(wrapped_sirf_func, torch_src, sirf_src_shape):
         # [batch, *value.shape]
         return out.squeeze(1)
 
-class SIRFTorchOperator(torch.nn.Module):
+class Operator(torch.nn.Module):
     """
     A PyTorch Module that wraps a SIRF operator for use in a neural network.
 
@@ -367,10 +366,10 @@ class SIRFTorchOperator(torch.nn.Module):
     """
     def __init__(self,
             operator, 
-            sirf_src_template: sirf.SIRF.DataContainer
+            sirf_src_template: sirf.DataContainer
             ):
         """
-        Initializes the SIRFTorchOperator.
+        Initializes the Operator.
 
         Args:
             operator: The SIRF operator to wrap.
@@ -379,7 +378,7 @@ class SIRFTorchOperator(torch.nn.Module):
               will be used to validate input tensors.  The data in this object
               is *not* used during the forward pass, only its geometry.
         """
-        super(SIRFTorchOperator, self).__init__()
+        super(Operator, self).__init__()
         # get the shape of src
         self.wrapped_sirf_operator = lambda x: _Operator.apply(x, 
             sirf_src_template,
@@ -412,7 +411,7 @@ class SIRFTorchOperator(torch.nn.Module):
             )
 
 
-class SIRFTorchObjectiveFunction(torch.nn.Module):
+class ObjectiveFunction(torch.nn.Module):
     """
     A PyTorch Module that wraps a SIRF objective function.
 
@@ -423,10 +422,10 @@ class SIRFTorchObjectiveFunction(torch.nn.Module):
     """
     def __init__(self,
             sirf_obj_func: object,
-            sirf_image_template: sirf.SIRF.ImageData
+            sirf_image_template: sirf.ImageData
             ):
         """
-        Initializes the SIRFTorchObjectiveFunction.
+        Initializes the ObjectiveFunction.
 
         Args:
             sirf_obj_func: The SIRF objective function to wrap.
@@ -435,7 +434,7 @@ class SIRFTorchObjectiveFunction(torch.nn.Module):
               validation, and during the forward pass, its data will be
               temporarily replaced by the input tensor's data.
         """
-        super(SIRFTorchObjectiveFunction, self).__init__()
+        super(ObjectiveFunction, self).__init__()
         self.wrapped_sirf_obj_func = lambda x: _ObjectiveFunction.apply(x, 
             sirf_image_template, sirf_obj_func
             )
@@ -462,7 +461,7 @@ class SIRFTorchObjectiveFunction(torch.nn.Module):
             self.sirf_image_shape
             )
 
-class SIRFTorchObjectiveFunctionGradient(torch.nn.Module):
+class ObjectiveFunctionGradient(torch.nn.Module):
     """
     A PyTorch Module that wraps the *gradient* of a SIRF objective function.
 
@@ -474,10 +473,10 @@ class SIRFTorchObjectiveFunctionGradient(torch.nn.Module):
     """
     def __init__(self,
             sirf_obj_func: object,
-            sirf_image_template: sirf.SIRF.ImageData
+            sirf_image_template: sirf.ImageData
             ):
         """
-        Initializes the SIRFTorchObjectiveFunctionGradient.
+        Initializes the ObjectiveFunctionGradient.
 
         Args:
             sirf_obj_func: The SIRF objective function.
@@ -486,7 +485,7 @@ class SIRFTorchObjectiveFunctionGradient(torch.nn.Module):
               validation, and during the forward pass, its data will be
               temporarily replaced by the input tensor's data.
         """
-        super(SIRFTorchObjectiveFunctionGradient, self).__init__()
+        super(ObjectiveFunctionGradient, self).__init__()
         self.wrapper_sirf_obj_func = lambda x: \
             _ObjectiveFunctionGradient.apply(x, sirf_image_template, 
             sirf_obj_func
