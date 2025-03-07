@@ -751,3 +751,6 @@ class AdjointOperator(object):
         """Calls the `direct` method of the original linear operator"""
         # Note: calling `direct` will raise an error in SIRF if the operator is not linear.
         return self.operator.direct(x)
+
+
+__all__ = ['DataContainer', 'ImageData', 'GeometricalInfo', 'AdjointOperator']        
