@@ -1,12 +1,8 @@
 
 from SIRF_torch import *
 import sirf.STIR as pet
-# Set the verbosity
 pet.set_verbosity(1)
-# Store temporary sinograms in RAM
 pet.AcquisitionData.set_storage_scheme("memory")
-# set threads
-pet.set_max_omp_threads(12)
 import sirf
 msg = sirf.STIR.MessageRedirector(info=None, warn=None, errr=None)
 from sirf.Utilities import examples_data_path
@@ -36,8 +32,6 @@ def get_pet_3d():
     pet_2d_acq_model = pet.AcquisitionModelUsingParallelproj()
     pet_3d_acq_model.set_up(pet_3d_acq_data, pet_3d_image_data)
     return pet_3d_acq_data, pet_3d_image_data, pet_3d_acq_model
-
-
 
 
 # LEARNED PRIMAL DUAL
@@ -92,7 +86,6 @@ class PETLearnedPrimalDual(torch.nn.Module):
         self.relu = torch.nn.ReLU()
     
     def forward(self, y):
-
         batch_size = y.shape[0]
         h = torch.zeros_like(y, device=y.device)
         dummy_f = self.AdjOperator(y)
@@ -107,7 +100,6 @@ class PETLearnedPrimalDual(torch.nn.Module):
             OpAdj_h = self.AdjOperator(h)
             f = self.PrimalConvBlocks[i](torch.cat([f,OpAdj_h], dim=1)) 
             f = self.relu(f) 
-        
         return f
 
 
@@ -156,7 +148,7 @@ class UseCases:
         relu = torch.nn.ReLU()
         loss = torch.nn.PoissonNLLLoss(log_input=False, full=False, size_average=None, eps=1e-08, reduce=None, reduction='sum')
         torch_input = sirf_to_torch(self.acq_data, self.device)
-        torch_obj_func = lambda x: loss(FwdOperator(relu(net(x))), torch_input)
+        torch_obj_func = lambda x: -loss(FwdOperator(relu(net(x))), torch_input)
 
         # set up the optimizer
         optimizer = torch.optim.Adam(net.parameters(), lr=2e-3)
@@ -200,7 +192,7 @@ class UseCases:
         optimizer = torch.optim.Adam(net.parameters(), lr=2e-3)
         for i in range(20):
             optimizer.zero_grad()
-            loss_val = ObjectiveFunction(relu(net(torch_input)))
+            loss_val = - ObjectiveFunction(relu(net(torch_input)))
             loss_val.backward()
             optimizer.step()
             print("Iteration: ", i, "Loss: ", loss_val.item())
