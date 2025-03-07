@@ -18,5 +18,5 @@
 
 
 if (BUILD_PYTHON)
-  INSTALL(FILES SIRF_torch.py DESTINATION "${PYTHON_DEST}/sirf")
+  INSTALL(FILES torch.py DESTINATION "${PYTHON_DEST}/sirf")
 endif()
