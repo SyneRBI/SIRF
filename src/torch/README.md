@@ -1,5 +1,28 @@
 # SIRF-PyTorch Wrapper
-This wrapper provides a bridge between the [SIRF](https://github.com/SyneRBI/SIRF) (Synergistic Image Reconstruction Framework) library and PyTorch, enabling the use of SIRF's image reconstruction operators and objective functions within PyTorch's automatic differentiation (autodiff) framework. 
+This wrapper provides a bridge between the [SIRF](https://github.com/SyneRBI/SIRF) (Synergistic Image Reconstruction Framework) library and PyTorch, enabling the use of SIRF's image reconstruction operators and objective functions within PyTorch's automatic differentiation (autodiff) framework.
+
+## Dimensions used by the wrapper
+
+The wrapper priorise SIRF's data formats, meaning that the torch arrays must have the shape:
+* [batch, [channel,] *SIRF.DataContainer.shape], where the channel dimension is optional.
+
+This requires the **user** to ensure the dimensionality to match between layers.
+
+### Example dimension manipulation
+For example, a sinogram in SIRF has shape [tof bins, sinograms, views, tang pos]. For a single non-tof sinogram this is [1, 1, views, tang pos]. The expected torch tensor shape for this wrapper is [batch, [channel,] 1, 1, views, tang pos]. On the otherhand a 2D convolution requires [batch, [channel,] height, width].
+
+```python
+conv_1 = torch.nn.Conv2D()
+conv_2 = torch.nn.Conv2D()
+adjoint_operator = sirf.SIRF_torch.Operator(sirf.AdjointOperator(acquisition_model))
+y # sinogram of dimension [batch, [channel,] views, tang pos]
+
+y_filtered = conv_1(y) # filtered sinogram of dimension [batch, [channel,] views, tang pos]
+y_filtered = y_filtered.unsqueeze(-3).unsqueeze(-3) # filtered sinogram of dimension [batch, [channel,] 1, 1, views, tang pos]
+x_bp = adjoint_operator(y_filtered) # back-projected image of dimension [batch, [channel,] 1, height, width]
+x_bp = x_bp.squeeze(-3)  # back-projected image of dimension [batch, [channel,] height, width]
+x_bp_filtered = conv_2(x_bp)  # filtered back-projected image of dimension [batch, [channel,] height, width]
+```
 
 ## Forward and backward clarification
 
@@ -39,12 +62,12 @@ These classes use custom `torch.autograd.Function` implementations (`_Operator`,
 *   **Forward Pass:**
     1.  Converts the input PyTorch tensor (representing an image) to a SIRF object.
     2.  Calls the SIRF `ObjectiveFunction.get_value()` method.
-    3.  Returns the *negative* of the objective function value as a PyTorch tensor. We negate the value because PyTorch optimizers perform *minimization*, and we typically want to maximize an objective function (or minimize its negative) in image reconstruction.
+    3.  Returns the of the objective function value as a PyTorch tensor.
     4. Saves relevant information to the `ctx` if gradients are needed.
 
 *   **Backward Pass (VJP):**
     1.  Receives the upstream gradient (`grad_output`), in this case it is always a scalar.
-    2.  Gets the gradient of the *negative* objective function using `sirf_obj_func.get_gradient()`, which computed at the input and multiplied by the upstream gradient.
+    2.  Gets the gradient of the objective function using `sirf_obj_func.get_gradient()`, which computed at the input and multiplied by the upstream gradient.
     3.  Converts the SIRF gradient to a PyTorch tensor.
     4.  Returns the gradient multiplied by `grad_output`.
 
@@ -53,8 +76,8 @@ These classes use custom `torch.autograd.Function` implementations (`_Operator`,
 
 *   **Forward Pass:**
     1.  Converts the input PyTorch tensor to a SIRF object.
-    2.  Computes the *gradient* of the *negative* SIRF objective function using `sirf_obj_func.get_gradient()`, which is computed on the input.
-    3.  Returns the (negative) gradient as a PyTorch tensor.
+    2.  Computes the *gradient* of the SIRF objective function using `sirf_obj_func.get_gradient()`, which is computed on the input.
+    3.  Returns the gradient as a PyTorch tensor.
 
 *   **Backward Pass (VJP):**
     1.  Receives the upstream gradient (`grad_output`), which now represents a *vector* (not a scalar).
@@ -105,5 +128,4 @@ for i in range(100):  # Number of iterations
 
 * Extend to subsets in the wrapper
 * Extend objective functions that vary between batch items
-* The negative introduced for PET is not neccessary for MR/CIL - but what is a CIL/MR objective? Could be better to focus on the acquisition models.
 * Should the use cases just be the exercises?
