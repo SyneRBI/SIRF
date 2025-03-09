@@ -103,7 +103,7 @@ def test_forward_gradcheck(test_data):
     torch_forward = Operator(acq_model, image_data.clone())
     torch_image_data = torch.tensor(image_data.as_array(), requires_grad=True).unsqueeze(0).cuda()
 
-    run_gradcheck(torch_forward, torch_image_data, (modality, data_type), "Forward",
+    run_gradcheck(torch_forward, torch_image_data, (modality, data_type), "Forward " + modality,
                   nondet_tol=1e-6, fast_mode=True, eps=1e-2, atol=1e-4, rtol=1e-4)
 
 
@@ -121,7 +121,7 @@ def test_adjoint_gradcheck(test_data):
     torch_adjoint = Operator(adj_acq_model, acq_data.clone())
     torch_acq_data = torch.tensor(acq_data.as_array(), requires_grad=True).unsqueeze(0).cuda()
 
-    run_gradcheck(torch_adjoint, torch_acq_data, (modality, data_type), "Adjointness",
+    run_gradcheck(torch_adjoint, torch_acq_data, (modality, data_type), "Adjointness " + modality,
                   nondet_tol=1e-6, fast_mode=True, eps=1e-2, atol=1e-4, rtol=1e-4)
 
 
@@ -150,7 +150,7 @@ def test_objective_function_with_wrapped_acquisition_model_gradcheck(test_data):
         pytest.skip("Tests not set up for other modalities at this time.")
 
 
-    run_gradcheck(torch_acq_model_obj, torch_image_data, (modality, data_type), "Objective (wrapped)",
+    run_gradcheck(torch_acq_model_obj, torch_image_data, (modality, data_type), "Objective (wrapped) " + modality,
                   nondet_tol=1e-2, fast_mode=True, eps=1e-3, atol=1e-2, rtol=1e-2)
 
 
@@ -173,7 +173,7 @@ def test_objective_function_gradcheck(test_data):
     torch_image_data = torch.tensor(image_data.as_array(), requires_grad=True).unsqueeze(0).cuda()
 
 
-    run_gradcheck(torch_obj_fun, torch_image_data, (modality, data_type), "Objective",
+    run_gradcheck(torch_obj_fun, torch_image_data, (modality, data_type), "Objective " + modality,
                   nondet_tol=1e-2, fast_mode=True, eps=1e-3, atol=1e-2, rtol=1e-2)
 
 
@@ -196,5 +196,5 @@ def test_objective_function_gradient_gradcheck(test_data):
     torch_obj_fun_grad = ObjectiveFunctionGradient(obj_fun, image_data.clone())
     torch_image_data = torch.tensor(image_data.as_array(), requires_grad=True).unsqueeze(0).cuda()
 
-    run_gradcheck(torch_obj_fun_grad, torch_image_data, (modality, data_type), "Objective Gradient",
+    run_gradcheck(torch_obj_fun_grad, torch_image_data, (modality, data_type), "Objective Gradient " + modality,
                   nondet_tol=1e-4, fast_mode=True, eps=1e-3, atol=1e-2, rtol=1e-2)
