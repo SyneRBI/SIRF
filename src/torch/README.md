@@ -1,16 +1,19 @@
 # SIRF-PyTorch Wrapper
-This wrapper provides a bridge between the [SIRF](https://github.com/SyneRBI/SIRF) (Synergistic Image Reconstruction Framework) library and PyTorch, enabling the use of SIRF's image reconstruction operators and objective functions within PyTorch's automatic differentiation (autodiff) framework.
+This wrapper provides a bridge between the [SIRF](https://github.com/SyneRBI/SIRF) (Synergistic Image Reconstruction Framework) library and [PyTorch](https://github.com/pytorch/pytorch), enabling the use of SIRF's image reconstruction operators and objective functions within PyTorch's automatic differentiation (autodiff) framework.
 
 ## Usage and Use Cases
 
-The `SIRFTorchOperator`, `SIRFTorchObjectiveFunction`, and `SIRFTorchObjectiveFunctionGradient` classes are designed to be used as standard PyTorch `nn.Module`s.  You would initialise them with the appropriate SIRF objects and then use them in your forward pass like any other PyTorch layer.
+The `sirf.torch.Operator`, `sirf.torch.ObjectiveFunction`, and `sirf.torch.ObjectiveFunctionGradient` classes are designed to be used as standard PyTorch `nn.Module`s.  You would initialise them with the appropriate SIRF objects and then use them in your forward pass like any other PyTorch layer.
 
-TODO: Link to the use cases.
+`tests/use_cases.py` demonstrates `sirf.torch` integration in PyTorch with minimal 2D PET examples:
 
+*   **Learned Primal-Dual:** Implements a learned primal-dual network for PET image reconstruction, showcasing the use of `sirf.torch.Operator` for handling the forward and adjoint projection operations.
+*   **PET Variational Network (PETVarNet):**  Demonstrates a variational network approach, combining convolutional blocks with gradient information from a SIRF objective function using `sirf.torch.ObjectiveFunctionGradient`.
+*   **ADAM Gradient Descent Comparison:**  Compares two gradient descent implementations: one leveraging the `sirf.torch.Operator` for the acquisition model within the loss calculation, and another directly utilising the `sirf.torch.ObjectiveFunction` for a more traditional optimisation approach.  This highlights the flexibility of the wrapper in different optimisation strategies.
 
 ## Dimensions used by the wrapper
 
-The wrappesr prioritise SIRF's data formats, meaning that the torch arrays must have the shape:
+The wrappers prioritise SIRF's data formats, meaning that the torch arrays must have the shape:
 * [batch, [channel,] *SIRF.DataContainer.shape], where the channel dimension is optional.
 
 This requires the **user** to ensure the dimensionality to match between layers.
@@ -44,9 +47,9 @@ This SIRF-PyTorch wrapper is **only** for reverse-mode automatic differentiation
 
 The wrapper provides three main classes:
 
-1.  `SIRFTorchOperator`: Wraps a SIRF `Operator` (e.g., a projection operator). Applies the operator forward pass, and applies the adjoint of the Jacobian in backward pass.
-2.  `SIRFTorchObjectiveFunction`: Wraps a SIRF `ObjectiveFunction` for computing its value in the forward pass, and multiplying with the objective function gradient in the backward pass.
-3.  `SIRFTorchObjectiveFunctionGradient`: Wraps a SIRF `ObjectiveFunction` that computes the objective function gradients in the forward pass and the Hessian-vector product in the backward pass. In the backward the Hessian is evaluated at the point which the objective function's gradient was evaluated.
+1.  `sirf.torch.Operator`: Wraps a SIRF `Operator` (e.g., a projection operator). Applies the operator forward pass, and applies the adjoint of the Jacobian in backward pass.
+2.  `sirf.torch.ObjectiveFunction`: Wraps a SIRF `ObjectiveFunction` for computing its value in the forward pass, and multiplying with the objective function gradient in the backward pass.
+3.  `sirf.torch.ObjectiveFunctionGradient`: Wraps a SIRF `ObjectiveFunction` that computes the objective function gradients in the forward pass and the Hessian-vector product in the backward pass. In the backward the Hessian is evaluated at the point which the objective function's gradient was evaluated.
 
 These classes use custom `torch.autograd.Function` implementations (`_Operator`, `_ObjectiveFunction`, and `_ObjectiveFunctionGradient`) to define the forward and backward passes, handling the conversions between PyTorch tensors and SIRF objects.
 
@@ -96,4 +99,3 @@ These classes use custom `torch.autograd.Function` implementations (`_Operator`,
 
 * Extend to subsets in the wrapper
 * Extend objective functions that vary between batch items
-* Should the use cases just be the exercises?
