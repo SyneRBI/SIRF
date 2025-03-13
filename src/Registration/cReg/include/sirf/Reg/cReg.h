@@ -80,6 +80,7 @@ extern "C" {
     void* cReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const char* types, const void* trans_vector_ptr);
     void* cReg_NiftiImageData3DDeformation_create_from_disp(const void* disp_ptr);
     void* cReg_NiftiImageData3DDeformation_get_inverse(const void* def_ptr, const void* floating_ptr);
+    void* cReg_NiftiImageData3DDeformation_create_from_cpp(const void* def_ptr, const void* cpp_ptr, const void* ref_ptr);
 
     // NiftiImageData3DDisplacement
     void* cReg_NiftiImageData3DDisplacement_create_from_def(const void* def_ptr);
@@ -97,6 +98,10 @@ extern "C" {
     // NiftyReg-based registration
     void* cReg_NiftyRegistration_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2);
     void* cReg_NiftyRegistration_print_all_wrapped_methods(const char* name);
+    
+    //NiftyF3d2
+    void* cReg_NiftyF3d2_get_cpp_image(const void* ptr, const int idx);
+    void* cReg_NiftyF3d2_set_initial_cpp_image(const void* ptr, const void* cpp_ptr);
 
     // Aladin methods
     void* cReg_NiftyAladin_get_TM(const void* ptr, const char* dir);
