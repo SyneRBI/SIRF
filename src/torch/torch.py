@@ -101,7 +101,7 @@ class _Operator(torch.autograd.Function):
             torch_src: torch.Tensor,
             sirf_src_template: sirf.DataContainer,
             sirf_operator: object
-            ):
+            ) -> torch.Tensor:
         """
         Performs the forward pass of the SIRF operator.
 
@@ -133,14 +133,14 @@ class _Operator(torch.autograd.Function):
     @staticmethod
     def backward(ctx,
             grad_output: torch.Tensor
-            ):
+            ) -> tuple[torch.Tensor | None, None, None]:
 
         sirf_src = ctx.sirf_operator.backward(torch_to_sirf_(grad_output, 
                 ctx.sirf_dest
                 )
             )
-        grad = sirf_to_torch(sirf_src, ctx.device, requires_grad=True)
-        return grad, None, None, None
+        grad = sirf_to_torch(sirf_src, ctx.device, requires_grad=False)
+        return grad, None, None
 
 class _ObjectiveFunction(torch.autograd.Function):
     """
@@ -155,7 +155,7 @@ class _ObjectiveFunction(torch.autograd.Function):
             torch_image: torch.Tensor,
             sirf_image_template: sirf.ImageData,
             sirf_obj_func: object
-            ):
+            ) -> torch.Tensor:
         """
         Calculates the value of the SIRF objective function.
 
@@ -186,7 +186,7 @@ class _ObjectiveFunction(torch.autograd.Function):
     @staticmethod
     def backward(ctx,
             grad_output: torch.Tensor
-            ):
+            ) -> tuple[torch.Tensor | None, None, None]:
         """
         Calculates the gradient of the SIRF objective function.
 
@@ -206,8 +206,8 @@ class _ObjectiveFunction(torch.autograd.Function):
         sirf_image = ctx.sirf_image
         device = ctx.device
         sirf_grad = sirf_obj_func.get_gradient(sirf_image)
-        grad = sirf_to_torch(sirf_grad, device, requires_grad=True)
-        return grad_output*grad, None, None, None
+        grad = sirf_to_torch(sirf_grad, device, requires_grad=False)
+        return grad_output*grad, None, None
 
 
 class _ObjectiveFunctionGradient(torch.autograd.Function):
@@ -221,7 +221,7 @@ class _ObjectiveFunctionGradient(torch.autograd.Function):
             torch_image: torch.Tensor,
             sirf_image_template: sirf.ImageData,
             sirf_obj_func: object
-            ):
+            ) -> torch.Tensor:
         """
         Calculates the *gradient* of the SIRF objective function.
 
@@ -251,7 +251,7 @@ class _ObjectiveFunctionGradient(torch.autograd.Function):
     @staticmethod
     def backward(ctx,
             grad_output: torch.Tensor
-            ):
+            ) -> tuple[torch.Tensor | None, None, None]:
         """
         Calculates the Hessian-vector product (HVP) for the SIRF objective
         function.
@@ -277,8 +277,8 @@ class _ObjectiveFunctionGradient(torch.autograd.Function):
         # arguments current estimate and input_ (i.e. the vector)
         sirf_HVP = sirf_obj_func.multiply_with_Hessian(sirf_image, sirf_grad)
         
-        torch_HVP = sirf_to_torch(sirf_grad, device, requires_grad=True)
-        return torch_HVP, None, None, None
+        torch_HVP = sirf_to_torch(sirf_grad, device, requires_grad=False)
+        return torch_HVP, None, None
 
 def check_shapes(torch_shape, sirf_shape):
     """
