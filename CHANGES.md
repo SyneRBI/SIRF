@@ -4,6 +4,17 @@
 * SIRF/STIR
   - `ScatterEstimation` has extra methods that allow setting masks for the tail-fitting
   - Error raised in `AcquisitionSensitivityModel.[un]normalise` methods applied to a read-only object.
+  - Error raised if `AcquisitionModel.adjoint` ran when the model is not linear.
+* SIRF-torch
+  - `torch/torch.py` has wrappers for pytorch objective functions, objective function gradient and operators
+  - `torch/tests/gradchecks.py` has gradchecks for the wrappers 2d/3d PET and 2d MRI.
+  - `torch/tests/use_cases.py` has use cases for 2d PET using all the wrappers.
+  - `torch/README.md` includes user directions for the wrappers.
+  - `torch/CMakeList.txt` installation of sirf.torch
+  - `src/CMakeList.txt` installation of sirf.torch
+* SIRF
+  - `cmake/sirf.__init__.py.in` import sirf.SIRF content into the `sirf` namespace for convenience
+  - `common/SIRF.py` adding adjoint operator
 
 
 
