@@ -309,7 +309,34 @@ class UseCases:
         out_acq_model = self.gradient_descent_with_acq_model(lr=lr, n_iter=n_iter)
 
         print("Gradient Descent with Objective Function")
-        out_obj_func = self.gradient_descent_with_obj_func(lr=lr, n_iter=n_iter)
+        out_obj_func = self.gradient_descent_with_obj_func(lr=lr, n_iter=n_iter)        
+
+        fig = plt.figure(figsize=(12, 4))
+
+        # Subplot 1
+        plt.subplot(1, 3, 1)
+        plt.imshow(self.image.get_uniform_copy(1).as_array()[0])
+        plt.colorbar()
+        plt.title('Initial Image')
+
+        # Subplot 2
+        plt.subplot(1, 3, 2)
+        plt.imshow(out_acq_model)
+        plt.colorbar()
+        plt.title('Acq model wrapped')
+
+        # Subplot 3
+        plt.subplot(1, 3, 3)
+        plt.imshow(out_obj_func)
+        plt.colorbar()
+        plt.title('Obj func wrapped')
+
+        # Adjust layout and show plot
+        plt.tight_layout()
+        plt.show()
+        plt.savefig("gd_comparison.png")
+        plt.close()
+
 
         print("Sum of absolute differences between GD solns: ", np.abs(out_acq_model - out_obj_func).sum())
 
@@ -340,7 +367,7 @@ class UseCases:
             optimizer.step()
             print("Iteration: ", i, "Loss: ", loss_val.item())
 
-        return torch_image_params.data.detach().cpu().numpy()  # Return optimized image
+        return torch_image_params.data.detach().cpu().squeeze().numpy()  # Return optimized image
 
     def gradient_descent_with_obj_func(self, lr, n_iter):
         """
@@ -365,7 +392,7 @@ class UseCases:
             loss.backward()
             optimizer.step()
             print("Iteration: ", i, "Loss: ", loss.item())
-        return torch_image_params.data.detach().cpu().numpy()  # Return optimised image
+        return torch_image_params.data.detach().cpu().squeeze().numpy()  # Return optimised image
         
 
 
