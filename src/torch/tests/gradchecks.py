@@ -151,7 +151,7 @@ def test_objective_function_with_wrapped_acquisition_model_gradcheck(test_data):
 
 
     run_gradcheck(torch_acq_model_obj, torch_image_data, (modality, data_type), "Objective (wrapped) " + modality,
-                  nondet_tol=1e-2, fast_mode=True, eps=1e-3, atol=1e-2, rtol=1e-2)
+                  nondet_tol=1e-4, fast_mode=True, eps=1e-3, atol=1e-2, rtol=1e-2)
 
 
 @pytest.mark.skipif(not test_flags["objective"], reason="Objective test disabled")
@@ -174,7 +174,7 @@ def test_objective_function_gradcheck(test_data):
 
 
     run_gradcheck(torch_obj_fun, torch_image_data, (modality, data_type), "Objective " + modality,
-                  nondet_tol=1e-2, fast_mode=True, eps=1e-3, atol=1e-2, rtol=1e-2)
+                  nondet_tol=1e-4, fast_mode=True, eps=1e-3, atol=1e-2, rtol=1e-2)
 
 
 @pytest.mark.skipif(not test_flags["objective_gradient"], reason="Objective Gradient test disabled")
@@ -197,4 +197,4 @@ def test_objective_function_gradient_gradcheck(test_data):
     torch_image_data = torch.tensor(image_data.as_array(), requires_grad=True).unsqueeze(0).cuda()
 
     run_gradcheck(torch_obj_fun_grad, torch_image_data, (modality, data_type), "Objective Gradient " + modality,
-                  nondet_tol=1e-4, fast_mode=True, eps=1e-3, atol=1e-2, rtol=1e-2)
+                  nondet_tol=1e-6, fast_mode=True, eps=1e-3, atol=1e-2, rtol=1e-2)
