@@ -49,39 +49,6 @@ limitations under the License.
 namespace sirf {
 
 	/*!
-\ingroup PET
-\brief Listmode-to-sinograms converter.
-
-This class reads list mode data and produces corresponding *sinograms*,
-i.e. histogrammed data in the format of STIRAcquisitionData.
-
-It has 2 main functions:
-- process() can be used to read prompts and/or delayed coincidences to produce a single
-STIRAcquisitionData. 2 variables decide what done with 3 possible cases:
-- `store_prompts`=`true`, `store_delayeds`=`false`: only prompts are stored
-- `store_prompts`=`false`, `store_delayeds`=`true`: only delayeds are stored
-- `store_prompts`=`true`, `store_delayeds`=`true`: prompts-delayeds are stored
-Clearly, enabling the `store_delayeds` option only makes sense if the data was
-acquired accordingly.
-- estimate_randoms() can be used to get a relatively noiseless estimate of the
-random coincidences.
-
-Currently, the randoms are estimated from the delayed coincidences using the following
-strategy:
-1. singles (one per detector) are estimated using a Maximum Likelihood estimator
-2. randoms-from-singles are computed per detector-pair via the usual product formula.
-These are then added together for all detector pairs in a certain histogram-bin in the
-data (accommodating for view mashing and axial compression).
-
-The actual algorithm is described in
-
-> D. Hogg, K. Thielemans, S. Mustafovic, and T. J. Spinks,
-> "A study of bias for various iterative reconstruction methods in PET,"
-> in 2002 IEEE Nuclear Science Symposium Conference Record, vol. 3. IEEE, Nov. 2002, pp. 1519-1523.
-> [Online](http://dx.doi.org/10.1109/nssmic.2002.1239610).
-*/
-
-	/*!
 	\ingroup PET
 	\brief Class for PET scanner detector efficiencies model.
 
@@ -574,6 +541,39 @@ The actual algorithm is described in
 		stir::shared_ptr<stir::ForwardProjectorByBin> sptr_forw_projector_;
 	};
 
+
+	/*!
+\ingroup PET
+\brief Listmode-to-sinograms converter.
+
+This class reads list mode data and produces corresponding *sinograms*,
+i.e. histogrammed data in the format of STIRAcquisitionData.
+
+It has 2 main functions:
+- process() can be used to read prompts and/or delayed coincidences to produce a single
+STIRAcquisitionData. 2 variables decide what done with 3 possible cases:
+- `store_prompts`=`true`, `store_delayeds`=`false`: only prompts are stored
+- `store_prompts`=`false`, `store_delayeds`=`true`: only delayeds are stored
+- `store_prompts`=`true`, `store_delayeds`=`true`: prompts-delayeds are stored
+Clearly, enabling the `store_delayeds` option only makes sense if the data was
+acquired accordingly.
+- estimate_randoms() can be used to get a relatively noiseless estimate of the
+random coincidences.
+
+Currently, the randoms are estimated from the delayed coincidences using the following
+strategy:
+1. singles (one per detector) are estimated using a Maximum Likelihood estimator
+2. randoms-from-singles are computed per detector-pair via the usual product formula.
+These are then added together for all detector pairs in a certain histogram-bin in the
+data (accommodating for view mashing and axial compression).
+
+The actual algorithm is described in
+
+> D. Hogg, K. Thielemans, S. Mustafovic, and T. J. Spinks,
+> "A study of bias for various iterative reconstruction methods in PET,"
+> in 2002 IEEE Nuclear Science Symposium Conference Record, vol. 3. IEEE, Nov. 2002, pp. 1519-1523.
+> [Online](http://dx.doi.org/10.1109/nssmic.2002.1239610).
+*/
 
 	class ListmodeToSinograms : public stir::LmToProjData {
 	public:
