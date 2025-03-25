@@ -681,6 +681,24 @@ class ImageData(SIRF.ImageData):
             np_offsets_in_mm.ctypes.data, np_size.ctypes.data, scaling))
 
         return zoomed_im
+    
+    def zoom_image_as_template(self, template_image, scaling='preserve_sum'):
+        """
+        Returns a zoomed image based on a template image's geometry.
+
+        Supported scaling options are: 'preserve_sum', 'preserve_values' and
+        'preserve_projections'
+        """
+        zoomed_image = template_image.clone()
+
+        if not isinstance(template_image, ImageData):
+            raise error('zoom_image_as_template: template should be ImageData')
+
+        ### because of a bug somewherre
+        try_calling(pystir.cSTIR_ImageData_zoom_image_as_template(
+            zoomed_image.handle, self.handle, scaling))
+        
+        return zoomed_image
 
     def move_to_scanner_centre(self, proj_data):
         """Moves the image to the scanner centre.
@@ -1685,6 +1703,9 @@ class AcquisitionSensitivityModel(object):
         if self.handle is None:
             raise AssertionError()
         assert_validity(ad, AcquisitionData)
+        if ad.read_only:
+            raise error(
+                'Cannot normalise a read-only object, consider using method invert instead')
         try_calling(pystir.cSTIR_applyAcquisitionSensitivityModel(
             self.handle, ad.handle, 'normalise'))
 
@@ -1697,6 +1718,9 @@ class AcquisitionSensitivityModel(object):
         if self.handle is None:
             raise AssertionError()
         assert_validity(ad, AcquisitionData)
+        if ad.read_only:
+            raise error(
+                'Cannot unnormalise a read-only object, consider using method forward instead')
         try_calling(pystir.cSTIR_applyAcquisitionSensitivityModel(
             self.handle, ad.handle, 'unnormalise'))
 
@@ -3456,7 +3480,6 @@ class KOSMAPOSLReconstructor(IterativeReconstructor):
         check_status(obj_fun.handle)
         return obj_fun
 
-
 class SingleScatterSimulator():
     '''
     Class for simulating the scatter contribution to PET data.
@@ -3607,6 +3630,15 @@ class ScatterEstimator():
     def set_attenuation_correction_factors(self, arg):
         assert_validity(arg, AcquisitionData)
         parms.set_parameter(self.handle, self.name, 'setAttenuationCorrectionFactors', arg.handle)
+
+    def set_mask_image(self, image):
+        assert_validity(image, ImageData)
+        parms.set_parameter(self.handle, self.name, 'setMaskImage', image.handle)
+
+    def set_mask_acq_data(self, arg):
+        assert_validity(arg, AcquisitionData)
+        parms.set_parameter(self.handle, self.name, 'setMaskAcqData', arg.handle)
+
 
     def set_input(self, acq_data):
         assert_validity(acq_data, AcquisitionData)

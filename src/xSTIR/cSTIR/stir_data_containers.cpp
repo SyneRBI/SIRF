@@ -816,7 +816,6 @@ zoom_image(const Coord3DF &zooms, const Coord3DF &offsets_in_mm,
     // Need to modify the geom info after changing size
     set_up_geom_info();
 }
-
 void
 STIRImageData::
 zoom_image(const Coord3DF &zooms, const Coord3DF &offsets_in_mm,
@@ -836,6 +835,44 @@ zoom_image(const Coord3DF &zooms, const Coord3DF &offsets_in_mm,
 
     // Zoom the image
     voxels = stir::zoom_image(voxels, zooms, offsets_in_mm, new_sizes, zoom_options);
+
+    // Need to modify the geom info after changing size
+    set_up_geom_info();
+}
+
+void 
+STIRImageData::
+zoom_image_as_template(const STIRImageData& template_image, stir::ZoomOptions zoom_options) 
+{
+	SIRF_DYNAMIC_CAST(Voxels3DF, image_voxels, this->data());
+    SIRF_DYNAMIC_CAST(const Voxels3DF, template_voxels, template_image.data());
+
+    // Zoom the image
+	stir::zoom_image(image_voxels, template_voxels, zoom_options);
+
+    // Need to modify the geom info after changing size
+    set_up_geom_info();
+}
+
+void 
+STIRImageData::
+zoom_image_as_template(const STIRImageData& template_image, const char *zoom_options_str) 
+{
+	stir::ZoomOptions zoom_options;
+    if (strcmp(zoom_options_str,"preserve_sum")==0)
+        zoom_options = stir::ZoomOptions::preserve_sum;
+    else if (strcmp(zoom_options_str,"preserve_values")==0)
+        zoom_options = stir::ZoomOptions::preserve_values;
+    else if (strcmp(zoom_options_str,"preserve_projections")==0)
+        zoom_options = stir::ZoomOptions::preserve_projections;
+    else
+        throw std::runtime_error("zoom_image: unknown scaling option - " + std::string(zoom_options_str));
+
+	SIRF_DYNAMIC_CAST(Voxels3DF, zoomed_voxels, this->data());
+    SIRF_DYNAMIC_CAST(const Voxels3DF, template_voxels, template_image.data());
+
+    // Zoom the image
+    stir::zoom_image(zoomed_voxels, template_voxels, zoom_options);
 
     // Need to modify the geom info after changing size
     set_up_geom_info();
