@@ -832,7 +832,7 @@ class GeometricalInfo(object):
 
 class AdjointOperator:
     """
-    Creates the adjoint operator of a linear operator `lin_op`. 
+    Creates the adjoint operator of a linear operator `lin_op`.
     """
     def __init__(self, operator):
         self.operator = operator
@@ -846,6 +846,3 @@ class AdjointOperator:
         """Calls the `direct` method of the original linear operator"""
         # Note: calling `direct` will raise an error in SIRF if the operator is not linear.
         return self.operator.direct(x)
-
-
-__all__ = ['DataContainer', 'ImageData', 'GeometricalInfo', 'AdjointOperator']

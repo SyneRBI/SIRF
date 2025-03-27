@@ -15,7 +15,7 @@ import numpy
 # passes that interact with SIRF's C++ backend.  This allows SIRF operations to be
 # seamlessly integrated into PyTorch computational graphs.
 #
-# based on 
+# based on
 # https://github.com/educating-dip/pet_deep_image_prior/blob/main/src/deep_image_prior/torch_wrapper.py
 
 
@@ -28,9 +28,9 @@ def sirf_to_torch(
     Converts a SIRF object to a PyTorch tensor.
 
     Args:
-        sirf_src: The SIRF object to convert.  This can be a SIRF 
+        sirf_src: The SIRF object to convert.  This can be a SIRF
           `DataContainer` such as `AcquisitionData`, `ImageData`, or a scalar (float).
-        device: The PyTorch device to place the tensor on (e.g., 'cpu' or 
+        device: The PyTorch device to place the tensor on (e.g., 'cpu' or
           'cuda').
         requires_grad:  Whether the resulting tensor should track gradients.
 
@@ -46,7 +46,7 @@ def sirf_to_torch(
         return torch.tensor(sirf_src, requires_grad=requires_grad, \
             device=device
             )
-    elif hasattr(sirf_src, 'as_array'):  
+    elif hasattr(sirf_src, 'as_array'):
         # Check for as_array method (ImageData, AcquisitionData, etc.)
         return torch.tensor(sirf_src.as_array(), requires_grad=requires_grad,
             device=device
@@ -62,14 +62,14 @@ def torch_to_sirf_(
     Copies data from a PyTorch tensor to a SIRF object in-place.
 
     This function *modifies* the `sirf_dest` object. It is crucial that
-    `sirf_dest` is pre-allocated with the correct shape and data type. This 
-    function is primarily intended for use within `torch.autograd.Function` 
+    `sirf_dest` is pre-allocated with the correct shape and data type. This
+    function is primarily intended for use within `torch.autograd.Function`
     where in-place operations are more appropriate.
 
     Args:
         torch_src: The source PyTorch tensor.  It will be detached from the
             computational graph and moved to the CPU before copying.
-        sirf_dest: The destination SIRF object. This object will be modified 
+        sirf_dest: The destination SIRF object. This object will be modified
             in-place.
 
     Returns:
@@ -100,7 +100,7 @@ class _Operator(torch.autograd.Function):
     def forward(ctx,
             torch_src: torch.Tensor,
             sirf_src_template: sirf.DataContainer,
-            sirf_operator: object
+            sirf_operator
             ) -> torch.Tensor:
         """
         Performs the forward pass of the SIRF operator.
@@ -110,7 +110,7 @@ class _Operator(torch.autograd.Function):
               the backward pass.
             torch_src: The input PyTorch tensor.
             sirf_src_template: A SIRF object that serves as a template for the
-              input to the SIRF operator. It will have its data replaced by the 
+              input to the SIRF operator. It will have its data replaced by the
               content of `torch_src`.
             sirf_operator: The SIRF operator to apply (e.g., a projector).
 
@@ -135,7 +135,7 @@ class _Operator(torch.autograd.Function):
             grad_output: torch.Tensor
             ) -> tuple[torch.Tensor | None, None, None]:
 
-        sirf_src = ctx.sirf_operator.backward(torch_to_sirf_(grad_output, 
+        sirf_src = ctx.sirf_operator.backward(torch_to_sirf_(grad_output,
                 ctx.sirf_dest
                 )
             )
@@ -154,7 +154,7 @@ class _ObjectiveFunction(torch.autograd.Function):
     def forward(ctx,
             torch_image: torch.Tensor,
             sirf_image_template: sirf.ImageData,
-            sirf_obj_func: object
+            sirf_obj_func
             ) -> torch.Tensor:
         """
         Calculates the value of the SIRF objective function.
@@ -178,7 +178,7 @@ class _ObjectiveFunction(torch.autograd.Function):
             ctx.sirf_image = sirf_image
             ctx.sirf_obj_func = sirf_obj_func
             # ensure value is a tensor with requires_grad=True
-            return sirf_to_torch(sirf_obj_func(sirf_image), device, 
+            return sirf_to_torch(sirf_obj_func(sirf_image), device,
                 requires_grad=True)
         else:
             return sirf_to_torch(sirf_obj_func(sirf_image), device)
@@ -201,7 +201,7 @@ class _ObjectiveFunction(torch.autograd.Function):
             input image, and None for the other inputs.  The gradient is
             scaled by `grad_output`.
         """
-            
+
         sirf_obj_func = ctx.sirf_obj_func
         sirf_image = ctx.sirf_image
         device = ctx.device
@@ -220,7 +220,7 @@ class _ObjectiveFunctionGradient(torch.autograd.Function):
     def forward(ctx,
             torch_image: torch.Tensor,
             sirf_image_template: sirf.ImageData,
-            sirf_obj_func: object
+            sirf_obj_func
             ) -> torch.Tensor:
         """
         Calculates the *gradient* of the SIRF objective function.
@@ -228,21 +228,21 @@ class _ObjectiveFunctionGradient(torch.autograd.Function):
         Args:
             ctx: The PyTorch context object.
             torch_image: The input PyTorch tensor (representing an image).
-            sirf_image_template:  A SIRF image object used as a template. Its 
+            sirf_image_template:  A SIRF image object used as a template. Its
               data will be replaced by the content of `torch_image`.
             sirf_obj_func: The SIRF objective function.
 
         Returns:
             A PyTorch tensor representing the gradient of the objective function.
         """
-    
+
         device = torch_image.device
         sirf_image = torch_to_sirf_(torch_image, sirf_image_template)
         if torch_image.requires_grad:
             ctx.device = device
             ctx.sirf_image = sirf_image
             ctx.sirf_obj_func = sirf_obj_func
-            return sirf_to_torch(sirf_obj_func.get_gradient(sirf_image), 
+            return sirf_to_torch(sirf_obj_func.get_gradient(sirf_image),
                 device, requires_grad=True
                 )
         else:
@@ -268,7 +268,7 @@ class _ObjectiveFunctionGradient(torch.autograd.Function):
             represents the gradient of the loss with respect to the input image,
             accounting for the second-order derivatives.
         """
-            
+
         sirf_obj_func = ctx.sirf_obj_func
         sirf_image = ctx.sirf_image
         device = ctx.device
@@ -276,7 +276,7 @@ class _ObjectiveFunctionGradient(torch.autograd.Function):
         sirf_grad = torch_to_sirf_(grad_output, sirf_image.clone())
         # arguments current estimate and input_ (i.e. the vector)
         sirf_HVP = sirf_obj_func.multiply_with_Hessian(sirf_image, sirf_grad)
-        
+
         torch_HVP = sirf_to_torch(sirf_grad, device, requires_grad=False)
         return torch_HVP, None, None
 
@@ -285,7 +285,7 @@ def check_shapes(torch_shape, sirf_shape):
     Checks if the PyTorch and SIRF shapes are compatible.
 
     Args:
-        torch_shape: The shape of the PyTorch tensor (excluding batch and 
+        torch_shape: The shape of the PyTorch tensor (excluding batch and
           channel dimensions).
         sirf_shape: The shape of the SIRF object.
 
@@ -305,11 +305,11 @@ def apply_wrapped_sirf(wrapped_sirf_func, torch_src, sirf_src_shape):
     applying the wrapped SIRF function to each element of the batch and channel.
 
     Args:
-        wrapped_sirf_func:  A function that takes a single PyTorch tensor 
-          (representing a single SIRF object's data) and applies the wrapped 
+        wrapped_sirf_func:  A function that takes a single PyTorch tensor
+          (representing a single SIRF object's data) and applies the wrapped
           SIRF operation (either an Operator or an ObjectiveFunction).
-        torch_src: The input PyTorch tensor. Dimensions (batch, channel, 
-          *sirf_object_shape).  If the channel dimension is not present, it's 
+        torch_src: The input PyTorch tensor. Dimensions (batch, channel,
+          *sirf_object_shape).  If the channel dimension is not present, it's
           added temporarily.
         sirf_src_shape: The expected shape of the SIRF object.
 
@@ -346,7 +346,7 @@ def apply_wrapped_sirf(wrapped_sirf_func, torch_src, sirf_src_shape):
         for channel in range(n_channel):
             channel_values.append(wrapped_sirf_func(torch_src[batch, channel]))
         batch_values.append(torch.stack(channel_values, dim=0))
-    
+
     # [batch, channel, *value.shape]
     out = torch.stack(batch_values, dim=0)
     if channel:
@@ -365,7 +365,7 @@ class Operator(torch.nn.Module):
     PyTorch tensors and SIRF objects and manages batch and channel dimensions.
     """
     def __init__(self,
-            operator, 
+            operator,
             sirf_src_template: sirf.DataContainer
             ):
         """
@@ -380,13 +380,13 @@ class Operator(torch.nn.Module):
         """
         super(Operator, self).__init__()
         # get the shape of src
-        self.wrapped_sirf_operator = lambda x: _Operator.apply(x, 
+        self.wrapped_sirf_operator = lambda x: _Operator.apply(x,
             sirf_src_template,
             operator
             )
 
         self.sirf_src_shape = sirf_src_template.shape
-        
+
     def forward(self, torch_src: torch.Tensor) -> torch.Tensor:
         """
         Applies the wrapped SIRF operator to the input tensor.
@@ -405,7 +405,7 @@ class Operator(torch.nn.Module):
             ValueError:  If the input tensor has an invalid shape.  See
                 `apply_wrapped_sirf` for details.
         """
-        
+
         return apply_wrapped_sirf(self.wrapped_sirf_operator, torch_src,
             self.sirf_src_shape
             )
@@ -421,7 +421,7 @@ class ObjectiveFunction(torch.nn.Module):
     Function `_ObjectiveFunction`.
     """
     def __init__(self,
-            sirf_obj_func: object,
+            sirf_obj_func,
             sirf_image_template: sirf.ImageData
             ):
         """
@@ -435,7 +435,7 @@ class ObjectiveFunction(torch.nn.Module):
               temporarily replaced by the input tensor's data.
         """
         super(ObjectiveFunction, self).__init__()
-        self.wrapped_sirf_obj_func = lambda x: _ObjectiveFunction.apply(x, 
+        self.wrapped_sirf_obj_func = lambda x: _ObjectiveFunction.apply(x,
             sirf_image_template, sirf_obj_func
             )
 
@@ -451,13 +451,13 @@ class ObjectiveFunction(torch.nn.Module):
               `[batch, *sirf_image_shape]`.
 
         Returns:
-            A PyTorch tensor representing the value of the objective function. 
+            A PyTorch tensor representing the value of the objective function.
             The output dimensions will be `[batch, channel]` or `[batch]`.
 
         Raises:
             ValueError: If the input tensor has an invalid shape.
         """
-        return apply_wrapped_sirf(self.wrapped_sirf_obj_func, torch_image, 
+        return apply_wrapped_sirf(self.wrapped_sirf_obj_func, torch_image,
             self.sirf_image_shape
             )
 
@@ -472,7 +472,7 @@ class ObjectiveFunctionGradient(torch.nn.Module):
     objective function.
     """
     def __init__(self,
-            sirf_obj_func: object,
+            sirf_obj_func,
             sirf_image_template: sirf.ImageData
             ):
         """
@@ -487,7 +487,7 @@ class ObjectiveFunctionGradient(torch.nn.Module):
         """
         super(ObjectiveFunctionGradient, self).__init__()
         self.wrapper_sirf_obj_func = lambda x: \
-            _ObjectiveFunctionGradient.apply(x, sirf_image_template, 
+            _ObjectiveFunctionGradient.apply(x, sirf_image_template,
             sirf_obj_func
             )
 
@@ -499,19 +499,17 @@ class ObjectiveFunctionGradient(torch.nn.Module):
 
         Args:
             torch_image:  The input image as a PyTorch tensor.  Dimensions:
-              `[batch, channel, *sirf_image_shape]` or 
+              `[batch, channel, *sirf_image_shape]` or
               `[batch, *sirf_image_shape]`.
 
         Returns:
-            A PyTorch tensor representing the gradient of the objective function. 
-            Output dimensions match the input dimensions: `[batch, channel, 
-            *sirf_image_shape]` or `[batch, *sirf_image_shape]`. 
+            A PyTorch tensor representing the gradient of the objective function.
+            Output dimensions match the input dimensions: `[batch, channel,
+            *sirf_image_shape]` or `[batch, *sirf_image_shape]`.
 
         Raises:
             ValueError: If the input tensor has an invalid shape.
         """
-        return apply_wrapped_sirf(self.wrapper_sirf_obj_func, torch_image, 
+        return apply_wrapped_sirf(self.wrapper_sirf_obj_func, torch_image,
             self.sirf_image_shape
             )
-
-
