@@ -1,7 +1,4 @@
-''' 
-Object-Oriented wrap for the cSIRF-to-Python interface pysirf.py
-'''
-
+'''Object-Oriented wrap for the cSIRF-to-Python interface pysirf.py'''
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
 ## Copyright 2015 - 2020 University College London
@@ -43,6 +40,10 @@ if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
 else:
     ABC = abc.ABCMeta('ABC', (), {})
 
+# In future, would be good to explicitly list all objects to import when doing `from sirf.SIRF import *`.
+# However, we will keep this for later to avoid mistakes in updating this variable.
+# __all__ = ['DataContainer', 'ImageData', 'GeometricalInfo', 'AdjointOperator']
+
 
 class DataContainer(ABC):
     '''
@@ -63,7 +64,7 @@ class DataContainer(ABC):
         '''
         Overloads + for data containers.
 
-        Returns the sum of the container data with another container 
+        Returns the sum of the container data with another container
         data viewed as vectors.
         other: DataContainer
         '''
@@ -73,7 +74,7 @@ class DataContainer(ABC):
         '''
         Overloads - for data containers.
 
-        Returns the difference of the container data with another container 
+        Returns the difference of the container data with another container
         data viewed as vectors.
         other: DataContainer
         '''
@@ -251,7 +252,7 @@ class DataContainer(ABC):
 
     def dot(self, other):
         '''
-        Returns the dot product of the container data with another container 
+        Returns the dot product of the container data with another container
         data viewed as vectors.
         other: DataContainer
         '''
@@ -417,10 +418,10 @@ class DataContainer(ABC):
         '''
         Linear combination for data containers.
 
-        Returns the linear combination of the self data with another container 
+        Returns the linear combination of the self data with another container
         data y viewed as vectors.
         a: multiplier to self, can be a number or a DataContainer
-        b: multiplier to y, can be a number or a DataContainer 
+        b: multiplier to y, can be a number or a DataContainer
         y: DataContainer
         out:   DataContainer to store the result to.
         '''
@@ -430,10 +431,10 @@ class DataContainer(ABC):
         '''
         Linear combination for data containers: new interface.
 
-        Returns the linear combination of the self data with another container 
+        Returns the linear combination of the self data with another container
         data y viewed as vectors.
         a: multiplier to self, can be a number or a DataContainer
-        b: multiplier to y, can be a number or a DataContainer 
+        b: multiplier to y, can be a number or a DataContainer
         y: DataContainer
         out:   DataContainer to store the result to, can be self or y.
         '''
@@ -599,7 +600,7 @@ class DataContainer(ABC):
         else:
             dt = 'float%s' % bits
         return numpy.dtype(dt)
-    
+
 
 class ImageData(DataContainer):
     '''
@@ -716,7 +717,7 @@ class GeometricalInfo(object):
         arr = numpy.ndarray((3,), dtype = numpy.float32)
         try_calling (pysirf.cSIRF_GeomInfo_get_spacing(self.handle, arr.ctypes.data))
         return tuple(arr)
-    
+
     def get_size(self):
         """Size is the number of voxels in each dimension."""
         arr = numpy.ndarray((3,), dtype = cpp_int_dtype())
@@ -737,7 +738,7 @@ class GeometricalInfo(object):
 
 class AdjointOperator(object):
     """
-    Creates the adjoint operator of a linear operator `lin_op`. 
+    Creates the adjoint operator of a linear operator `lin_op`.
     """
     def __init__(self, operator):
         self.operator = operator
@@ -751,6 +752,3 @@ class AdjointOperator(object):
         """Calls the `direct` method of the original linear operator"""
         # Note: calling `direct` will raise an error in SIRF if the operator is not linear.
         return self.operator.direct(x)
-
-
-__all__ = ['DataContainer', 'ImageData', 'GeometricalInfo', 'AdjointOperator']        

@@ -9,6 +9,8 @@ torch.use_deterministic_algorithms(True)
 import sirf
 from sirf.torch import Operator, ObjectiveFunction, ObjectiveFunctionGradient, sirf_to_torch
 
+DEV = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 
 def get_data(modality, data_type):
     if modality == "PET":
@@ -58,7 +60,7 @@ def get_data(modality, data_type):
 
 
 @pytest.fixture(params=[
-    ("MR", "2d"), ("PET", "2d"), ("PET", "3d"), 
+    ("MR", "2d"), ("PET", "2d"), ("PET", "3d"),
 ])
 def test_data(request):
     modality, data_type = request.param
@@ -101,7 +103,7 @@ def test_forward_gradcheck(test_data):
         pytest.skip("Tests not set up for other modalities at this time.")
 
     torch_forward = Operator(acq_model, image_data.clone())
-    torch_image_data = torch.tensor(image_data.as_array(), requires_grad=True).unsqueeze(0).cuda()
+    torch_image_data = sirf_to_torch(image_data, device=DEV, requires_grad=True).unsqueeze(0)
 
     run_gradcheck(torch_forward, torch_image_data, (modality, data_type), "Forward " + modality,
                   nondet_tol=1e-6, fast_mode=True, eps=1e-2, atol=1e-4, rtol=1e-4)
@@ -119,7 +121,7 @@ def test_adjoint_gradcheck(test_data):
 
     adj_acq_model = sirf.SIRF.AdjointOperator(acq_model)
     torch_adjoint = Operator(adj_acq_model, acq_data.clone())
-    torch_acq_data = torch.tensor(acq_data.as_array(), requires_grad=True).unsqueeze(0).cuda()
+    torch_acq_data = sirf_to_torch(acq_data, device=DEV, requires_grad=True).unsqueeze(0)
 
     run_gradcheck(torch_adjoint, torch_acq_data, (modality, data_type), "Adjointness " + modality,
                   nondet_tol=1e-6, fast_mode=True, eps=1e-2, atol=1e-4, rtol=1e-4)
@@ -132,20 +134,20 @@ def test_objective_function_with_wrapped_acquisition_model_gradcheck(test_data):
     if modality == "PET":
         # add background term to acq_model
         acq_model.set_background_term(acq_data.get_uniform_copy(1.))
-        # add constant term to acq_data 
+        # add constant term to acq_data
         acq_data_new = acq_data + 1
         acq_model.set_up(acq_data_new, image_data)
         torch_forward = Operator(acq_model, image_data.clone())
-        torch_image_data = torch.tensor(image_data.as_array(), requires_grad=True).unsqueeze(0).cuda()
+        torch_image_data = sirf_to_torch(image_data, device=DEV, requires_grad=True).unsqueeze(0)
         loss = torch.nn.PoissonNLLLoss(log_input=False, full=False, reduction='sum')
         torch_acq_data = sirf_to_torch(acq_data_new, device=torch_image_data.device)
         torch_acq_model_obj = lambda x: loss(torch_forward(x), torch_acq_data)
     elif modality == "MR":
         torch_forward = Operator(acq_model, image_data.clone())
-        torch_image_data = torch.tensor(image_data.as_array(), requires_grad=True).unsqueeze(0).cuda()
+        torch_image_data = sirf_to_torch(image_data, device=DEV, requires_grad=True).unsqueeze(0)
         torch_acq_data = sirf_to_torch(acq_data, device=torch_image_data.device)
         torch_acq_model_obj = lambda x: (torch_forward(x) - torch_acq_data).abs().pow(2).sum() # L2 squared loss
-        
+
     else:
         pytest.skip("Tests not set up for other modalities at this time.")
 
@@ -160,7 +162,7 @@ def test_objective_function_gradcheck(test_data):
     if modality == "PET":
         # add background term to acq_model
         acq_model.set_background_term(acq_data.get_uniform_copy(1.))
-        # add constant term to acq_data 
+        # add constant term to acq_data
         acq_data_new = acq_data + 1
         obj_fun = pet.make_Poisson_loglikelihood(acq_data_new)
     else:
@@ -170,8 +172,7 @@ def test_objective_function_gradcheck(test_data):
     obj_fun.set_up(image_data)
 
     torch_obj_fun = ObjectiveFunction(obj_fun, image_data.clone())
-    torch_image_data = torch.tensor(image_data.as_array(), requires_grad=True).unsqueeze(0).cuda()
-
+    torch_image_data = sirf_to_torch(image_data, device=DEV, requires_grad=True).unsqueeze(0)
 
     run_gradcheck(torch_obj_fun, torch_image_data, (modality, data_type), "Objective " + modality,
                   nondet_tol=1e-4, fast_mode=True, eps=1e-3, atol=1e-2, rtol=1e-2)
@@ -183,7 +184,7 @@ def test_objective_function_gradient_gradcheck(test_data):
     if modality == "PET":
         # add background term to acq_model
         acq_model.set_background_term(acq_data.get_uniform_copy(1.))
-        # add constant term to acq_data 
+        # add constant term to acq_data
         acq_data_new = acq_data + 1
         obj_fun = pet.make_Poisson_loglikelihood(acq_data_new)
     else:
@@ -194,7 +195,7 @@ def test_objective_function_gradient_gradcheck(test_data):
 
 
     torch_obj_fun_grad = ObjectiveFunctionGradient(obj_fun, image_data.clone())
-    torch_image_data = torch.tensor(image_data.as_array(), requires_grad=True).unsqueeze(0).cuda()
+    torch_image_data = sirf_to_torch(image_data, device=DEV, requires_grad=True).unsqueeze(0)
 
     run_gradcheck(torch_obj_fun_grad, torch_image_data, (modality, data_type), "Objective Gradient " + modality,
                   nondet_tol=1e-6, fast_mode=True, eps=1e-3, atol=1e-2, rtol=1e-2)
