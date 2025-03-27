@@ -36,7 +36,7 @@ def test_main(rec=False, verb=False, throw=True):
         test.check(acq_data.norm())
 
         image = acq_data.create_uniform_image(1.0)
-        test.check(image.norm())
+        test.check_if_equal_within_tolerance(image.norm(), numpy.sqrt(numpy.prod(image.dimensions())))
 
         acq_model = AcquisitionModelUsingRayTracingMatrix()
         acq_model.set_up(acq_data, image)

@@ -99,11 +99,13 @@ void
 ListmodeToSinograms::compute_fan_sums_(bool prompt_fansum)
 {
 	//*********** get Scanner details
-	const int num_rings =
-		lm_data_ptr->get_scanner_ptr()->get_num_rings();
-	const int num_detectors_per_ring =
-		lm_data_ptr->get_scanner_ptr()->get_num_detectors_per_ring();
-
+#if STIR_VERSION < 060000
+        const auto& scanner = *lm_data_ptr->get_scanner_ptr();
+#else
+        const auto& scanner = lm_data_ptr->get_scanner();
+#endif
+	const auto num_rings = scanner.get_num_rings();
+	const auto num_detectors_per_ring = scanner.get_num_detectors_per_ring();
 
 	//*********** Finally, do the real work
 
@@ -118,12 +120,11 @@ ListmodeToSinograms::compute_fan_sums_(bool prompt_fansum)
 	// go to the beginning of the binary data
 	lm_data_ptr->reset();
 
-	// TODO have to use lm_data_ptr->get_proj_data_info_sptr() once STIR PR 108 is merged
 	max_ring_diff_for_fansums = 60;
-	if (*lm_data_ptr->get_scanner_ptr() != Scanner(Scanner::Siemens_mMR))
+	if (scanner != Scanner(Scanner::Siemens_mMR))
 	{
 		warning("This is not mMR data. Assuming all possible ring differences are in the listmode file");
-		max_ring_diff_for_fansums = lm_data_ptr->get_scanner_ptr()->get_num_rings() - 1;
+		max_ring_diff_for_fansums = num_rings - 1;
 	}
 	unsigned int current_frame_num = 1;
 	{
@@ -335,10 +336,14 @@ ListmodeToSinograms::estimate_randoms()
 			SinglesRatesFromGEHDF5  singles;
 			singles.read_from_file(input_filename);
 			GEHDF5Wrapper input_file(input_filename);
+#if STIR_VERSION < 060000
 			float coincidence_time_window = input_file.get_coincidence_time_window();
 			ProjData& proj_data = *randoms_sptr->data();
 			randoms_from_singles(proj_data, singles, coincidence_time_window);
-			return 0;
+#else
+                        randoms_from_singles(*randoms_sptr->data(), singles);
+#endif
+                        return 0;
 		}
 	}
 	catch (...) {
@@ -410,7 +415,11 @@ void
 PETAcquisitionSensitivityModel::unnormalise(STIRAcquisitionData& ad) const
 {
 	BinNormalisation* norm = norm_.get();
+#if STIR_VERSION < 050000
 	norm->undo(*ad.data(), 0, 1);
+#else
+	norm->undo(*ad.data());
+#endif
 }
 
 void
@@ -443,7 +452,11 @@ PETAttenuationModel::unnormalise(STIRAcquisitionData& ad) const
 	BinNormalisation* norm = norm_.get();
         stir::shared_ptr<DataSymmetriesForViewSegmentNumbers>
 		symmetries_sptr(sptr_forw_projector_->get_symmetries_used()->clone());
+#if STIR_VERSION < 050000
 	norm->undo(*ad.data(), 0, 1, symmetries_sptr);
+#else
+	norm->undo(*ad.data(), symmetries_sptr);
+#endif
 }
 
 void
@@ -592,4 +605,57 @@ PETAcquisitionModel::backward(STIRImageData& id, const STIRAcquisitionData& ad,
 		if (stir::Verbosity::get() > 1) std::cout << "ok\n";
 	}
 
+}
+
+template <class ObjFuncT>
+static void set_STIR_obj_fun_from_acq_model(ObjFuncT& obj_fun, const AcqMod3DF& am)
+{
+  auto sptr_asm = am.asm_sptr();
+  // cannot do this yet for listmode, so it is in the member functions
+  // set_projector_pair_sptr(am.projectors_sptr());
+  bool have_a = am.additive_term_sptr().get();
+  bool have_b = am.background_term_sptr().get();
+  bool have_asm = sptr_asm.get();
+  if (!have_b) {
+    if (have_a)
+      obj_fun.set_additive_proj_data_sptr(am.additive_term_sptr()->data());
+  }
+  else {
+    auto sptr_b = am.background_term_sptr();
+    stir::shared_ptr<STIRAcquisitionData> sptr;
+    if (have_asm)
+      sptr = sptr_asm->invert(*sptr_b);
+    else
+      sptr = sptr_b->clone();
+    if (have_a) {
+      auto sptr_a = am.additive_term_sptr();
+      float a = 1.0f;
+      sptr->axpby(&a, *sptr, &a, *sptr_a);
+    }
+    obj_fun.set_additive_proj_data_sptr(sptr->data());
+  }
+  if (am.normalisation_sptr().get())
+    obj_fun.set_normalisation_sptr(am.normalisation_sptr());
+}
+
+void
+xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF::
+set_acquisition_model(std::shared_ptr<AcqMod3DF> sptr_am)
+{
+  sptr_am_ = sptr_am;
+  AcqMod3DF& am = *sptr_am;
+  set_projector_pair_sptr(am.projectors_sptr());
+  set_STIR_obj_fun_from_acq_model(*this, am);
+}
+
+void
+xSTIR_PoissonLLhLinModMeanListDataProjMatBin3DF::
+set_acquisition_model(std::shared_ptr<AcqMod3DF> sptr_am)
+{
+  sptr_am_ = std::dynamic_pointer_cast<PETAcquisitionModelUsingMatrix>(sptr_am);
+  if (!sptr_am_)
+    THROW("Listmode objective function currently needs a matrix for the acquisition model");
+
+  set_proj_matrix(sptr_am_->matrix_sptr());
+  set_STIR_obj_fun_from_acq_model(*this, *sptr_am_);
 }

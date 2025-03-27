@@ -73,6 +73,18 @@ namespace sirf {
 			for (; dst != end; ++dst, ++src)
 				*dst = *src;
 		}
+		size_t size() const
+		{
+			Dimensions dim = dimensions();
+			if (is_empty())
+				return 0;
+			size_t n = 1;
+			for (std::map<std::string, int>::iterator it = dim.begin(); it != dim.end(); ++it) {
+				n *= it->second;
+			}
+			return n;
+		}
+
         void fill(const ImageData& im)
         {
             Iterator_const& src = im.begin();

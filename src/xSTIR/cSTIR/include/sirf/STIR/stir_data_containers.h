@@ -1,7 +1,7 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC
-Copyright 2018 - 2020 University College London
+Copyright 2015 - 2023 Rutherford Appleton Laboratory STFC
+Copyright 2018 - 2024 University College London
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -135,16 +135,30 @@ namespace sirf {
 		std::string _filename;
 	};
 
+#if 0
+        // not used yet. See also https://github.com/SyneRBI/SIRF/pull/1103
+	/*!
+	\ingroup PET
+	\brief Abstract base class for PET scanner data
+	*/
+	class STIRScanData: public virtual ContainerBase {
+	public:
+		virtual ~STIRScanData() {}
+		virtual stir::shared_ptr<stir::ExamData> data_sptr() const = 0;
+		//virtual void set_data_sptr(stir::shared_ptr<stir::ExamData> data) = 0;
+	};
+#endif
 	/*!
 	\ingroup PET
 	\brief STIR ProjData wrapper with added functionality.
 
 	This class enjoys some features of STIR ProjData and, additionally,
 	implements the linear algebra functionality specified by the
-	abstract base class aDatacontainer, and provides means for the data
+	abstract base class DataContainer, and provides means for the data
 	storage mode (file/memory) selection.
 	*/
 
+//<<<<<<< HEAD
 	class STIRAcquisitionData : public DataContainerTempl<float> {
 	public:
 		virtual ~STIRAcquisitionData() {}
@@ -152,12 +166,22 @@ namespace sirf {
 		{
 			return std::string("float");
 		}
+//=======
+//	class STIRAcquisitionData : /*public STIRScanData, */public DataContainer {
+//	public:
+//>>>>>>> master
 
 		// virtual constructors
 		virtual STIRAcquisitionData* same_acquisition_data
 			(stir::shared_ptr<const stir::ExamInfo> sptr_exam_info,
 			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info) const = 0;
 		virtual std::shared_ptr<STIRAcquisitionData> new_acquisition_data() const = 0;
+
+                std::string get_info() const
+                {
+                        return this->data()->get_exam_info_sptr()->parameter_info() +
+                          this->data()->get_proj_data_info_sptr()->parameter_info();
+                 }
 
 		virtual bool is_complex() const
 		{
@@ -216,6 +240,8 @@ namespace sirf {
 		}
 		static std::shared_ptr<STIRAcquisitionData> storage_template()
 		{
+			if (!_template)
+                          error("storage_template error. You probably need to call set_storage_scheme() first");
 			return _template;
 		}
 
@@ -223,10 +249,22 @@ namespace sirf {
 		{
 			return _data;
 		}
+/*		virtual stir::shared_ptr<stir::ExamData> data_sptr()
+		{
+			return _data;
+			//return stir::shared_ptr<stir::ExamData>(_data);
+		}*/
 		const stir::shared_ptr<stir::ProjData> data() const
+		//stir::shared_ptr<const stir::ProjData> data() const // causes lots of problems
 		{
 			return _data;
 		}
+                #if 1
+		virtual stir::shared_ptr<stir::ExamData> data_sptr() const
+		{
+			return _data;
+		}
+                #endif
 		void set_data(stir::shared_ptr<stir::ProjData> data)
 		{
 			_data = data;
@@ -238,7 +276,7 @@ namespace sirf {
 		{
 			if (ad.is_empty())
 				THROW("The source of STIRAcquisitionData::fill is empty");
-			stir::shared_ptr<stir::ProjData> sptr = ad.data();
+			stir::shared_ptr<const stir::ProjData> sptr = ad.data();
 			data()->fill(*sptr);
 		}
 		virtual void fill_from(const float* d) { data()->fill_from(d); }
@@ -267,9 +305,26 @@ namespace sirf {
 			return 1; // data ok
 		}
 		virtual float norm() const;
+//<<<<<<< HEAD
 		virtual float sum() const;
 		virtual float max() const;
+		virtual float min() const;
 		virtual float dot(const DataContainer& a_x) const;
+/*
+=======
+		/// below all void* are actually float*
+		virtual void sum(void* ptr) const;
+		virtual void max(void* ptr) const;
+		virtual void min(void* ptr) const;
+		virtual void dot(const DataContainer& a_x, void* ptr) const;
+		float dot(const DataContainer& a_x) const
+		{
+			float s;
+			dot(a_x, &s);
+			return s;
+		}
+>>>>>>> master
+*/
 		virtual void axpby(
 			float a, const DataContainer& a_x,
 			float b, const DataContainer& a_y);
@@ -373,6 +428,11 @@ namespace sirf {
 		stir::shared_ptr<const stir::ProjDataInfo> get_proj_data_info_sptr() const
 		{
 			return data()->get_proj_data_info_sptr();
+		}
+		std::string modality() const
+		{
+			const ExamInfo& ex_info = *get_exam_info_sptr();
+			return ex_info.imaging_modality.get_name();
 		}
 
 		// ProjData casts
@@ -704,11 +764,15 @@ namespace sirf {
                 return this->STIRAcquisitionData::norm();
 
             // do it
+#if STIR_VERSION <= 060100
             double t = 0.0;
             auto iter = pd_ptr->begin();
 			for (; iter != pd_ptr->end(); ++iter)
 				t += (*iter) * (*iter);
 			return std::sqrt((float)t);
+#else
+                        return static_cast<float>(pd_ptr->norm());
+#endif
         }
         virtual float dot(const DataContainer& a_x) const
         {
@@ -780,6 +844,54 @@ namespace sirf {
 		{
 			init();
 			return (STIRAcquisitionDataInMemory*)clone_base();
+		}
+	};
+
+        /*! container for STIR PET or SPECT list-mode data
+          \ingroup PET
+
+          This class contains a stir::ListModeData object and has a few methods to access it.
+        */
+	class STIRListmodeData : public ContainerBase /*STIRScanData*/ {
+	public:
+		STIRListmodeData(std::string lmdata_filename)
+		{
+			_data = stir::read_from_file<stir::ListModeData>(lmdata_filename);
+		}
+                virtual ~STIRListmodeData() {}
+
+                // TODO remove
+		virtual stir::shared_ptr<stir::ExamData> data_sptr() const {
+			return _data;
+		}
+		virtual stir::shared_ptr<stir::ListModeData> data() const {
+			return _data;
+		}
+#if 0
+		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
+		{
+			THROW("ListmodeData::new_data_container_handle not implemented");
+			return 0;
+		}
+#endif
+                //! Construct an AcquisitionData object corresponding to the listmode data
+                /*! no additional compression (such as as mashing, or rebinning) is used.*/
+                std::shared_ptr<STIRAcquisitionData> acquisition_data_template() const
+                {
+			return std::shared_ptr < STIRAcquisitionData >
+                          (STIRAcquisitionData::storage_template()->same_acquisition_data(this->data()->get_exam_info_sptr(),
+                                                                                          this->data()->get_proj_data_info_sptr()->create_shared_clone()));
+                }
+          std::string get_info() const
+                {
+                  return this->data()->get_exam_info_sptr()->parameter_info() +
+                          this->data()->get_proj_data_info_sptr()->parameter_info();
+                 }
+	protected:
+		stir::shared_ptr<stir::ListModeData> _data;
+		virtual DataContainer* clone_impl() const
+		{
+			THROW("ListmodeData::clone not implemented");
 		}
 	};
 
@@ -958,6 +1070,11 @@ namespace sirf {
 			return new ObjectHandle<DataContainer>
 				(std::shared_ptr<DataContainer>(same_image_data()));
 		}
+                std::string get_info() const
+                {
+                        return this->data().get_exam_info_sptr()->parameter_info();
+                        // TODO geometric info, although that's handled separately in SIRF
+                 }
 		virtual bool is_complex() const
 		{
 			return false;
@@ -1004,9 +1121,20 @@ namespace sirf {
 		virtual void write(const std::string& filename, const std::string& format_file) const;
 
 		virtual float norm() const;
+//<<<<<<< HEAD
 		virtual float sum() const;
 		virtual float max() const;
+		virtual float min() const;
 		virtual float dot(const DataContainer& dc) const;
+/*
+=======
+		/// below all void* are actually float*
+		virtual void sum(void* ptr) const;
+		virtual void max(void* ptr) const;
+		virtual void min(void* ptr) const;
+		virtual void dot(const DataContainer& a_x, void* ptr) const;
+>>>>>>> master
+*/
 		virtual void axpby(
 			float a, const DataContainer& a_x,
 			float b, const DataContainer& a_y);
@@ -1123,6 +1251,14 @@ namespace sirf {
 		void zoom_image(const Coord3DF& zooms = { 1.f,1.f,1.f }, const Coord3DF& offsets_in_mm = { 0.f,0.f,0.f },
 			const Coord3DI& new_sizes = { -1,-1,-1 },
 			const stir::ZoomOptions zoom_options = stir::ZoomOptions::preserve_sum);
+
+		/// Zoom the image (modifies itself) using another image as a template.
+		void zoom_image_as_template(const STIRImageData& template_image,
+			const stir::ZoomOptions zoom_options = stir::ZoomOptions::preserve_sum);
+
+		/// Zoom the image (modifies itself) using another image as a template.
+		void zoom_image_as_template(const STIRImageData& template_image, 
+		    const char* const zoom_options_str = "preserve_sum");
 
 		/// Move to scanner centre. The acquisition needs to be supplied such that in the future,
 		/// bed offset etc can be taken into account.

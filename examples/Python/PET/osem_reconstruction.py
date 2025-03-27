@@ -40,8 +40,18 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
+try:
+    import pylab
+    HAVE_PYLAB = True
+except RuntimeWarning:
+    HAVE_PYLAB = False
+
+from sirf.Utilities import error, examples_data_path, existing_filepath
+
 # import engine module
-exec('from sirf.' + args['--engine'] + ' import *')
+import importlib
+engine = args['--engine']
+pet = importlib.import_module('sirf.' + engine)
 
 
 # process command-line options
@@ -56,7 +66,7 @@ if args['--anim'] is not None:
     ai_file = existing_filepath(data_path, args['--anim'])
 else:
     ai_file = None
-show_plot = not args['--non-interactive']
+show_plot = not args['--non-interactive'] and HAVE_PYLAB
 
 
 # Define a function that does something with an image. This function
@@ -78,16 +88,16 @@ def image_data_processor(image_array, im_num):
 def main():
  
     # direct all engine's information and warnings printing to files
-    msg_red = MessageRedirector('info.txt', 'warn.txt')
+    _ = pet.MessageRedirector('info.txt', 'warn.txt')
 
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
-    acq_model = AcquisitionModelUsingRayTracingMatrix()
+    acq_model = pet.AcquisitionModelUsingRayTracingMatrix()
 
     # PET acquisition data to be read from this file
     # (TODO: a link to raw data formats document to be given here)
     print('raw data: %s' % raw_data_file)
-    acq_data = AcquisitionData(raw_data_file)
+    acq_data = pet.AcquisitionData(raw_data_file)
 
     # create initial image estimate of dimensions and voxel sizes
     # compatible with the scanner geometry (included in the AcquisitionData
@@ -98,7 +108,7 @@ def main():
 
     # define objective function to be maximized as
     # Poisson logarithmic likelihood (with linear model for mean)
-    obj_fun = make_Poisson_loglikelihood(acq_data, acq_model=acq_model)
+    obj_fun = pet.make_Poisson_loglikelihood(acq_data, acq_model=acq_model)
     #obj_fun.set_acquisition_model(acq_model)
 
     # select Ordered Subsets Maximum A-Posteriori One Step Late as the
@@ -106,7 +116,7 @@ def main():
     # this example, we actually run OSEM);
     # this algorithm does not converge to the maximum of the objective function
     # but is used in practice to speed-up calculations
-    recon = OSMAPOSLReconstructor()
+    recon = pet.OSMAPOSLReconstructor()
     recon.set_objective_function(obj_fun)
     recon.set_num_subsets(num_subsets)
     recon.set_input(acq_data)

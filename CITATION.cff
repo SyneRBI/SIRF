@@ -36,13 +36,13 @@ authors:
     family-names: Kolbitsch
     orcid: 'https://orcid.org/0000-0002-4355-8368'
     affiliation: Physikalisch-Technische Bundesanstalt (PTB)
-  - given-names: Imraj
-    family-names Singh
-    orcid: 'https://orcid.org/0000-0003-2186-0977'
-    affiliation: University College London
   - given-names: Nikos
     family-names: Efthimiou
     orcid: 'https://orcid.org/0000-0003-1947-5033'
+  - given-names: Imraj
+    family-names: Singh
+    orcid: 'https://orcid.org/0000-0003-2186-0977'
+    affiliation: University College London
   - given-names: Matthew
     family-names: Strugari
     affiliation: Dalhousie University (Canada)
@@ -64,10 +64,13 @@ authors:
     family-names: Biguri
     orcid: 'https://orcid.org/0000-0002-2636-3032'
     affiliation: University College London
-  - orcid: 'https://orcid.org/0000-0002-9151-3295'
+  - given-names: Toni
+    family-names: Reeves
+    orcid: 'https://orcid.org/0000-0002-9151-3295'
     affiliation: University College London
-    given-names: Alexander
+  - given-names: Alexander
     family-names: Whitehead
+  - family-names: skarrea
   - given-names: Evangelos
     family-names: Papoutsellis
     affiliation: UK Research & Innovation
@@ -79,6 +82,8 @@ authors:
     family-names: Thomas
     given-names: Ben
     orcid: 'https://orcid.org/0000-0002-9784-1177'
+  - family-names: Zhong
+    given-names: Shenjun
   - orcid: 'https://orcid.org/0000-0003-2919-1894'
     affiliation: University College London
     given-names: Francesca

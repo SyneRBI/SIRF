@@ -11,6 +11,7 @@ Options:
   -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
                               subfolder of SIRF root folder
   -i <iter>, --iter=<iter>    number of smoothing iterations [default: 10]
+  -c <size>, --conv=<size>    smoothing convolution kernel halfsize [default: 1]
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
   --non-interactive           do not show plots
 '''
@@ -38,10 +39,11 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
-from pUtilities import *
+from sirf.Utilities import error, examples_data_path, existing_filepath, show_3D_array
 
 # import engine module
-exec('from sirf.' + args['--engine'] + ' import *')
+import importlib
+mr = importlib.import_module('sirf.' + args['--engine'])
 
 # process command-line options
 data_file = args['--file']
@@ -49,6 +51,7 @@ data_path = args['--path']
 if data_path is None:
     data_path = examples_data_path('MR')
 nit = int(args['--iter'])
+cks = int(args['--conv'])
 show_plot = not args['--non-interactive']
 
 def main():
@@ -59,12 +62,12 @@ def main():
     input_file = existing_filepath(data_path, data_file)
     #
     # acquisition data will be read from an HDF file input_file
-    AcquisitionData.set_storage_scheme('memory')
+    mr.AcquisitionData.set_storage_scheme('memory')
 
-    acq_data = AcquisitionData(input_file)
+    acq_data = mr.AcquisitionData(input_file)
     #
     # pre-process acquisition data
-    processed_data = preprocess_acquisition_data(acq_data)
+    processed_data = mr.preprocess_acquisition_data(acq_data)
     #
     # sort k-space data into a 2D Cartesian matrix for each coil
     processed_data.sort()
@@ -72,10 +75,11 @@ def main():
     # 2. Calculate coil sensitivity maps directly from the raw k-space data:
 
     # create coil sensitivity object
-    CSMs = CoilSensitivityData()
+    CSMs = mr.CoilSensitivityData()
     #
     # set number of smoothing iterations to suppress noise
-    CSMs.smoothness = nit
+    CSMs.smoothing_iterations = nit
+    CSMs.conv_kernel_halfsize = cks
     
     # calculate coil sensitivity maps directly from the raw k-space data by the
     # Square-Root-of-the-Sum-of-Squares over all coils (SRSS) method
@@ -98,13 +102,14 @@ def main():
     # SSRS and Inati methods:
 
     # create coil images object
-    CIs = CoilImagesData()
+    CIs = mr.CoilImagesData()
     # calculate coil sensitivity maps by dividing each coil image data by the
     # Square-Root-of-the-Sum-of-Squares over all coils (SRSS);
     # (niter = nit) sets the number of smoothing iterations applied
     # to the image data prior to the calculation of the coil sensitivity maps
     CIs.calculate(processed_data)
-    CSs = CoilSensitivityData()
+    CSs = mr.CoilSensitivityData()
+    CSs.conv_kernel_halfsize = cks
     print('B) calculating from coil images...')
     CSs.calculate(CIs, method='SRSS(niter=%d)' % nit)
     diff = CSs - CSMs

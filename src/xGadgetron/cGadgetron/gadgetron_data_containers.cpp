@@ -98,8 +98,7 @@ MRAcquisitionData::write(const std::string &filename) const
 void
 MRAcquisitionData::read(const std::string& filename_ismrmrd_with_ext, int all)
 {
-	
-    bool const verbose = true;
+	bool const verbose = true;
 
 	if( verbose )
 		std::cout<< "Started reading acquisitions from " << filename_ismrmrd_with_ext << std::endl;
@@ -109,10 +108,8 @@ MRAcquisitionData::read(const std::string& filename_ismrmrd_with_ext, int all)
 		mtx.lock();
 		ISMRMRD::Dataset d(filename_ismrmrd_with_ext.c_str(),"dataset", false);
 		d.readHeader(this->acqs_info_);
-
-        ISMRMRD::IsmrmrdHeader hdr = acqs_info_.get_IsmrmrdHeader();
-        
-        uint32_t num_acquis = d.getNumberOfAcquisitions();
+		ISMRMRD::IsmrmrdHeader hdr = acqs_info_.get_IsmrmrdHeader();
+		uint32_t num_acquis = d.getNumberOfAcquisitions();
 		mtx.unlock();
 
 		std::stringstream str;
@@ -144,7 +141,8 @@ MRAcquisitionData::read(const std::string& filename_ismrmrd_with_ext, int all)
 			if( verbose )
 			{
 				if( i_acqu%( num_acquis/10 ) == 0 )
-					std::cout << std::ceil(float(i_acqu) / num_acquis * 100) << "%.." << std::flush;
+					std::cout << std::ceil(float(i_acqu) / num_acquis * 100)
+					<< "%.." << std::flush;
 			}
 
 			ISMRMRD::Acquisition acq;
@@ -152,10 +150,11 @@ MRAcquisitionData::read(const std::string& filename_ismrmrd_with_ext, int all)
 			d.readAcquisition( i_acqu, acq);
 			mtx.unlock();
 
-			if(all || !TO_BE_IGNORED(acq))
-				this->append_acquisition( acq );
+			IgnoreMask ignore_mask = this->ignore_mask();
+			if (all || !ignore_mask.ignored(acq.flags()))
+				this->append_acquisition(acq);
 		}
-        this->sort_by_time();
+		this->sort_by_time();
 		if( verbose )
 			std::cout<< "\nFinished reading acquisitions from " << filename_ismrmrd_with_ext << std::endl;
 	}
@@ -185,8 +184,8 @@ MRAcquisitionData::get_acquisitions_dimensions(size_t ptr_dim) const
     int* dim = (int*)ptr_dim;
 
     ISMRMRD::Acquisition acq;
-    int ns;
-    int nc;
+    int ns = 0;
+    int nc = 0;
     int num_acq = 0;
     for (int i = 0; i < na; ++i)
     {
@@ -202,6 +201,7 @@ MRAcquisitionData::get_acquisitions_dimensions(size_t ptr_dim) const
         }
         num_acq++;
     }
+    ASSERT(num_acq > 0, "All acquisitions ignored, dimensions undefined,");
 
     int const num_dims = 3;
     dim[0] = ns;
@@ -217,16 +217,19 @@ uint16_t MRAcquisitionData::get_trajectory_dimensions(void) const
     ASSERT(na > 0, "You are asking for dimensions on an empty acquisition container. Please don't...");
 
     ISMRMRD::Acquisition acq;
-    uint16_t traj_dims = 65535;
+    uint16_t traj_dims;
+    int num_acq = 0;
     for (int i = 0; i < na; ++i)
     {
         if (!get_acquisition(i, acq))
             continue;
-        if (traj_dims == 65535)
+        if (num_acq == 0)
             traj_dims = acq.trajectory_dimensions();
         else if (acq.trajectory_dimensions() != traj_dims)
             throw LocalisedException("Not every acquisition in your container has the same trajectory dimension." , __FILE__, __LINE__);
+        num_acq++;
     }
+    ASSERT(num_acq > 0, "All acquisitions ignored, trajectory dimensions undefined.");
     return traj_dims;
 }
 
@@ -236,13 +239,14 @@ void MRAcquisitionData::get_kspace_dimensions(std::vector<size_t>& dims) const
     ASSERT(na > 0, "You are asking for dimensions on an empty acquisition container. Please don't...");
 
     ISMRMRD::Acquisition acq;
-    int nro = -1;
+    int nro;
     int nc;
+    int num_acq = 0;
     for (int i = 0; i < na; ++i)
     {
         if (!get_acquisition(i, acq))
             continue;
-        if (nro == -1) {
+        if (num_acq == 0) {
             nro = acq.number_of_samples();
             nc = acq.active_channels();
         }
@@ -252,7 +256,9 @@ void MRAcquisitionData::get_kspace_dimensions(std::vector<size_t>& dims) const
             if (acq.number_of_samples() != nro)
                 throw std::runtime_error("The number of readout points is not consistent within this container.");
         }
+        num_acq++;
     }
+    ASSERT(num_acq > 0, "All acquisitions ignored, some k-space dimensions undefined");
 
     ISMRMRD::IsmrmrdHeader hdr = this->acquisitions_info().get_IsmrmrdHeader();
     ISMRMRD::Encoding e = hdr.encoding[0];
@@ -559,12 +565,33 @@ MRAcquisitionData::max(const ISMRMRD::Acquisition& acq_a)
 {
     const complex_float_t* pa;
     complex_float_t z = 0;
+    bool init = true;
     for (pa = acq_a.data_begin(); pa != acq_a.data_end(); pa++) {
         complex_float_t zi = *pa;
         float r = std::real(z);
         float ri = std::real(zi);
-        if (ri > r)
+        if (init || ri > r) {
             z = zi;
+            init = false;
+        }
+    }
+    return z;
+}
+
+complex_float_t
+MRAcquisitionData::min(const ISMRMRD::Acquisition& acq_a)
+{
+    const complex_float_t* pa;
+    complex_float_t z = 0;
+    bool init = true;
+    for (pa = acq_a.data_begin(); pa != acq_a.data_end(); pa++) {
+        complex_float_t zi = *pa;
+        float r = std::real(z);
+        float ri = std::real(zi);
+        if (init || ri < r) {
+            z = zi;
+            init = false;
+        }
     }
     return z;
 }
@@ -617,6 +644,7 @@ MRAcquisitionData::max() const
     int n = number();
     complex_float_t z = 0;
     ISMRMRD::Acquisition a;
+    bool init = true;
     for (int i = 0; i < n;) {
         if (!get_acquisition(i, a)) {
             i++;
@@ -625,8 +653,37 @@ MRAcquisitionData::max() const
         complex_float_t zi = MRAcquisitionData::max(a);
         float r = std::real(z);
         float ri = std::real(zi);
-        if (ri > r)
+        if (init || ri > r) {
             z = zi;
+            init = false;
+        }
+        i++;
+    }
+    complex_float_t* ptr_z = static_cast<complex_float_t*>(ptr);
+    *ptr_z = z;
+}
+
+//void
+//MRAcquisitionData::min(void* ptr) const
+complex_float_t
+MRAcquisitionData::min() const
+{
+    int n = number();
+    complex_float_t z = 0;
+    ISMRMRD::Acquisition a;
+    bool init = true;
+    for (int i = 0; i < n;) {
+        if (!get_acquisition(i, a)) {
+            i++;
+            continue;
+        }
+        complex_float_t zi = MRAcquisitionData::min(a);
+        float r = std::real(z);
+        float ri = std::real(zi);
+        if (init || ri < r) {
+            z = zi;
+            init = false;
+        }
         i++;
     }
     return z;
@@ -1179,7 +1236,7 @@ AcquisitionsVector*
 AcquisitionsVector::clone_impl() const
 {
 	AcquisitionsVector* ptr_ad =
-		new AcquisitionsVector(this->acqs_info_);
+		new AcquisitionsVector(this->acqs_info_, this->ignore_mask_);
 	for (int i = 0; i < number(); i++) {
 		ISMRMRD::Acquisition acq;
 		get_acquisition(i, acq);
@@ -1220,7 +1277,8 @@ AcquisitionsVector::set_data(const complex_float_t* z, int all)
 	for (int a = 0, i = 0; a < na; a++) {
 		int ia = index(a);
 		ISMRMRD::Acquisition& acq = *acqs_[ia];
-		if (!all && TO_BE_IGNORED(acq)) {
+		IgnoreMask ignore_mask = this->ignore_mask();
+		if (!all && ignore_mask.ignored(acq.flags())) {
 			std::cout << "ignoring acquisition " << ia << '\n';
 			continue;
 		}
@@ -1339,7 +1397,23 @@ GadgetronImageData::max() const
         complex_float_t zi = wi.max();
         float r = std::real(z);
         float ri = std::real(zi);
-        if (ri > r)
+        if (i == 0 || ri > r)
+            z = zi;
+    }
+    complex_float_t* ptr_z = static_cast<complex_float_t*>(ptr);
+    *ptr_z = z;
+}
+
+void
+GadgetronImageData::min(void* ptr) const
+{
+    complex_float_t z = 0;
+    for (unsigned int i = 0; i < number(); i++) {
+        const ImageWrap& wi = image_wrap(i);
+        complex_float_t zi = wi.min();
+        float r = std::real(z);
+        float ri = std::real(zi);
+        if (i == 0 || ri < r)
             z = zi;
     }
     return z;
@@ -2141,7 +2215,7 @@ GadgetronImagesVector::set_up_geom_info()
 
     for (unsigned im=1; im<number(); ++im) {
         ISMRMRD::ImageHeader &ih = image_wrap(im).head();
-        
+
         // record which is the largest slice index
         // this allows to differentiate between slice number and this->number() as the
         // latter also includes different contrasts, phases, repetitions etc. that have
@@ -2428,7 +2502,6 @@ void CoilSensitivitiesVector::combine_images_with_coilmaps(GadgetronImageData& c
         if( img_dims != csm_dims)
             throw LocalisedException("The data dimensions of the image don't match the sensitivity maps.",   __FILE__, __LINE__);
 
-        
 		CFImage* ptr_dst_img = new CFImage(Nx, Ny, Nz, 1); //urgh this is so horrible
 		sirf::ImageWrap iw_dst(ISMRMRD::ISMRMRD_CXFLOAT, ptr_dst_img );
 		
@@ -2518,10 +2591,6 @@ void CoilSensitivitiesVector::calculate_csm
         }
     }
 
-    int* object_mask = new int[nx*ny*nz];
-    memset(object_mask, 0, nx*ny*nz * sizeof(int));
-
-    ISMRMRD::NDArray<complex_float_t> v(cm0);
     ISMRMRD::NDArray<complex_float_t> w(cm0);
 
     float* ptr_img = img.getDataPtr();
@@ -2538,17 +2607,9 @@ void CoilSensitivitiesVector::calculate_csm
         }
     }
 
-    float max_im = max_(nx, ny, nz, ptr_img);
-    float small_grad = max_im * 2 / (nx + ny + 0.0f);
-    for (int i = 0; i < 3; i++)
-        smoothen_(nx, ny, nz, nc, v.getDataPtr(), w.getDataPtr(), 0, 1);
-    float noise = max_diff_(nx, ny, nz, nc, small_grad,
-        v.getDataPtr(), cm0.getDataPtr());
-    mask_noise_(nx, ny, nz, ptr_img, noise, object_mask);
-
     for (int i = 0; i < csm_smoothness_; i++)
-        smoothen_(nx, ny, nz, nc, cm0.getDataPtr(), w.getDataPtr(), //0, 1);
-            object_mask, 1);
+        smoothen_(nx, ny, nz, nc, cm0.getDataPtr(), w.getDataPtr(),
+        csm_conv_kernel_halfsize_);
 
     for (unsigned int z = 0; z < nz; z++) {
         for (unsigned int y = 0; y < ny; y++) {
@@ -2568,7 +2629,7 @@ void CoilSensitivitiesVector::calculate_csm
             for (unsigned int x = 0; x < nx; x++, i++) {
                 float r = img(x, y, z);
                 float s;
-                if (r != 0.0 && object_mask[i])
+                if (r != 0.0)
                     s = (float)(1.0 / r);
                 else
                     s = 0.0;
@@ -2580,28 +2641,12 @@ void CoilSensitivitiesVector::calculate_csm
         }
     }
 
-    delete[] object_mask;
-}
-
-
-
-void CoilSensitivitiesVector::mask_noise_
-(int nx, int ny, int nz, float* u, float noise, int* mask)
-{
-    int i = 0;
-    for (int iz = 0; iz < nz; iz++)
-        for (int iy = 0; iy < ny; iy++)
-            for (int ix = 0; ix < nx; ix++, i++) {
-            float t = fabs(u[i]);
-            mask[i] = (t > noise);
-        }
 }
 
 void
 CoilSensitivitiesVector::smoothen_
 (int nx, int ny, int nz, int nc,
-    complex_float_t* u, complex_float_t* v,
-    int* obj_mask, int w)
+    complex_float_t* u, complex_float_t* v, int w)
 {
     const complex_float_t ONE(1.0, 0.0);
     const complex_float_t TWO(2.0, 0.0);
@@ -2609,10 +2654,6 @@ CoilSensitivitiesVector::smoothen_
         for (int iz = 0, k = 0; iz < nz; iz++)
             for (int iy = 0; iy < ny; iy++)
                 for (int ix = 0; ix < nx; ix++, i++, k++) {
-                    if (obj_mask && !obj_mask[k]) {
-                        v[i] = u[i];
-                        continue;
-                    }
                     int n = 0;
                     complex_float_t r(0.0, 0.0);
                     complex_float_t s(0.0, 0.0);
@@ -2624,7 +2665,7 @@ CoilSensitivitiesVector::smoothen_
                                 continue;
                             int j = i + jx + jy*nx;
                             int l = k + jx + jy*nx;
-                            if (i != j && (!obj_mask || obj_mask[l])) {
+                            if (i != j) {
                                 n++;
                                 r += ONE;
                                 s += u[j];
@@ -2638,6 +2679,7 @@ CoilSensitivitiesVector::smoothen_
     memcpy(u, v, nx*ny*nz*nc * sizeof(complex_float_t));
 }
 
+//<<<<<<< HEAD
 float
 CoilSensitivitiesVector::max_(int nx, int ny, int nz, float* u)
 {
@@ -2678,3 +2720,5 @@ CoilSensitivitiesVector::max_diff_
     }
     return s;
 }
+//=======
+//>>>>>>> master

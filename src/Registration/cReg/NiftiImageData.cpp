@@ -261,7 +261,7 @@ void NiftiImageData<dataType>::construct_NiftiImageData_from_complex_im_real_com
 
     auto &it_in = in_sptr->begin();
     auto &it_out = out_sptr->begin();
-    for (; it_in!=in_sptr->end(); ++it_in, ++it_out)
+    for (; it_out != out_sptr->end(); ++it_in, ++it_out)
         *it_out = (*it_in).complex_float().real();
 }
 
@@ -277,7 +277,7 @@ void NiftiImageData<dataType>::construct_NiftiImageData_from_complex_im_imag_com
 
     auto &it_in = in_sptr->begin();
     auto &it_out = out_sptr->begin();
-    for (; it_in!=in_sptr->end(); ++it_in, ++it_out)
+    for (; it_out != out_sptr->end(); ++it_in, ++it_out)
         *it_out = (*it_in).complex_float().imag();
 }
 
@@ -1807,13 +1807,28 @@ float NiftiImageData<dataType>::sum() const
 template<class dataType>
 float NiftiImageData<dataType>::max() const
 {
-    float s = 0.0;
-    for (unsigned i = 0; i < this->_nifti_image->nvox; ++i) {
+    unsigned i = 0;
+    float s = _data[i++];
+    for (; i < this->_nifti_image->nvox; ++i) {
         float si = _data[i];
         if (si > s)
             s = si;
     }
     return s;
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::min(void* ptr) const
+{
+    unsigned i = 0;
+    float s = _data[i++];
+    for (; i < this->_nifti_image->nvox; ++i) {
+        float si = _data[i];
+        if (si < s)
+            s = si;
+    }
+    float* ptr_s = static_cast<float*>(ptr);
+    *ptr_s = s;
 }
 
 template<class dataType>

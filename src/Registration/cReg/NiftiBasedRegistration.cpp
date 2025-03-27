@@ -50,7 +50,7 @@ const std::shared_ptr<const Transformation<dataType> > NiftiBasedRegistration<da
 {
     // Get deformation as NiftiImageData3DDisplacement (from Transformation)
     std::shared_ptr<const NiftiImageData3DDeformation<dataType> > def_fwd = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<dataType> >(this->get_deformation_field_forward_sptr(idx));
-    return std::move(std::make_shared<NiftiImageData3DDisplacement<dataType> >(*def_fwd));
+    return std::make_shared<NiftiImageData3DDisplacement<dataType> >(*def_fwd);
 }
 
 template<class dataType>
@@ -58,7 +58,7 @@ const std::shared_ptr<const Transformation<dataType> > NiftiBasedRegistration<da
 {
     // Get deformation as NiftiImageData3DDisplacement (from Transformation)
     std::shared_ptr<const NiftiImageData3DDeformation<dataType> > def_inv = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<dataType> >(this->get_deformation_field_inverse_sptr(idx));
-    return std::move(std::make_shared<NiftiImageData3DDisplacement<dataType> >(*def_inv));
+    return std::make_shared<NiftiImageData3DDisplacement<dataType> >(*def_inv);
 }
 
 namespace sirf {

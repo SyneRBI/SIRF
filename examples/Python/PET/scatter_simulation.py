@@ -8,7 +8,7 @@ Usage:
 
 Options:
   -f <file>, --file=<file>    raw data file [default: scatter_template.hs]
-  -p <path>, --path=<path>    path to data files, defaults to data/examples/PET
+  -p <path>, --path=<path>    path to data files, defaults to examples/parameter_files
                               subfolder of SIRF root folder
   -o <file>, --output=<file>  output file for simulated data [default: scatter_output.hs]
   --non-interactive           do not show plots
@@ -63,7 +63,7 @@ def main():
     ##    PET.AcquisitionData.set_storage_scheme('memory')
 
     # no info printing from the engine, warnings and errors sent to stdout
-    msg_red = PET.MessageRedirector()
+    _ = PET.MessageRedirector()
 
     # Create a template Acquisition Model
     #acq_template = AcquisitionData('Siemens mMR', 1, 0, 1)

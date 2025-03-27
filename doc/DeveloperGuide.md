@@ -1,37 +1,39 @@
 # Table of contents
 
-1. [Overview](#Overview)
-2. [SIRF structure](#SIRF_structure)
-    1. [Rationale](#Rationale)
-    2. [Software layers](#Software_layers)
-    	1. [Reconstruction engines](#Reconstruction_engines)
-    	2. [Extended engine functionality](#Extended_engine_functionality)
-    	3. [C interface](#C_interface)
-    	4. [Matlab and Pyton interfaces to C](#Matlab_Python_interfaces)
-    	5. [Matlab and Pyton OO interfaces](#Matlab_Python_OO_interfaces)
-    3. [Data handling](#Data_handling)
-    4. [Illustration](#Illustration)
+1. [Overview](#overview)
+2. [SIRF structure](#sirf_structure)
+    1. [Rationale](#rationale)
+    2. [Software layers](#software_layers)
+    	1. [Reconstruction engines](#reconstruction_engines)
+    	2. [Extended engine functionality](#extended_engine_functionality)
+    	3. [C interface](#c_interface)
+    	4. [Matlab and Pyton interfaces to C](#matlab_python_interfaces)
+    	5. [Matlab and Pyton OO interfaces](#matlab_python_oo_interfaces)
+    3. [Data handling](#data_handling)
+    4. [Illustration](#illustration)
         1. [Python](#Illustration_Python)
         2. [Matlab](#Illustration_Matlab)
-3. [Adding new functionality to SIRF](#Adding_functionality)
-	1. [Step 1: create C wrappers](#Create_wrappers)
+3. [Adding new functionality to SIRF](#adding_new_functionality)
+	1. [Step 1: create C wrappers](#create_wrappers)
 	2. [Step 2: create Matlab and Python Object-Oriented interface for your additions](#Create_OO_interface)
-4. [Adding a gadget to SIRF gadget library](#Adding_gadget)
-5. [SIRF programming conventions](#SIRF_programming_conventions)
+4. [Adding a gadget to SIRF gadget library](#adding_gadget)
+5. [SIRF programming conventions](#sirf_programming_conventions)
 	1. [Naming](#conventions_naming)
 	2. [File conventions](#conventions_file)
 	3. [Others](#conventions_others)
 6. [Cloning data container](#clone_datacontainer)
 7. [Information on building and testing](#build_testing)
 
-# Overview <a name="Overview"></a>
+# Overview <a name="overview"></a>
 
 The SIRF (Synergistic Image Reconstruction Framework) software is an Open Source toolkit for the reconstruction of PET and MRI raw data. The aim is to provide code simple enough to easily perform a reconstruction, yet powerful enough to be able to handle real, full-size datasets. Our strategy in achieving this aim is to employ available Open Source reconstruction software written in advanced programming languages such as C++ and provide basic-user-friendly interfaces to it written in script languages, primarily Matlab and Python. This document describes in detail the interfacing principles and structure in order to facilitate the contributions to SIRF from any interested developer.
-This Developer's Guide is for version 3.5 of SIRF. The software can be found on [https://github.com/CCPSyneRBI](https://github.com/CCPSyneRBI).
+This Developer's Guide is for version 3.8 of SIRF[^1]. The software can be found on [https://github.com/CCPSyneRBI](https://github.com/CCPSyneRBI).
 
-# SIRF structure <a name="SIRF_structure"></a>
+[^1]: Except for the Matlab interface which is not supported starting from SIRF 3.0.
 
-## Rationale <a name="Rationale"></a>
+# SIRF structure <a name="sirf_structure"></a>
+
+## Rationale <a name="rationale"></a>
 
 SIRF builds upon existing Open Source software packages for medical image reconstruction, referred to as *reconstruction engines*, or simply *engines*, in this document. At present, we use STIR (Software for Tomographic Image Reconstruction) as a PET engine and Gadgetron as MR engine.
 
@@ -43,7 +45,7 @@ Interfacing of C into Matlab is pretty straightforward, as Matlab has facilities
 
 Our topmost interface layer are Object-Oriented Matlab and Python modules that cover up in a nice user-friendly way all the technicalities involved in the inner interface layers.
 
-## Software layers <a name="Software_layers"></a>
+## Software layers <a name="software_layers"></a>
 
 To summarise, SIRF software is structured as the following set of layers (from top to bottom):
 
@@ -56,7 +58,7 @@ To summarise, SIRF software is structured as the following set of layers (from t
 
 As you start to explore SIRF code, you may notice files and folders preceded by the characters "x", "c", "p" and "m". These correspond to the various layers of SIRF: eXtended engine functionality, C-interface, Python and Matlab.
 
-### Reconstruction engines <a name="Reconstruction_engines"></a>
+### Reconstruction engines <a name="reconstruction_engines"></a>
 
 At present, SIRF uses software package STIR for PET reconstruction and Gadgetron for MR reconstruction.
 
@@ -64,59 +66,59 @@ STIR implements a library of C++ classes for performing PET reconstruction and r
 
 With Gadgetron, reconstruction is performed by a chain of gadgets, pieces of code implementing specific tasks. The chain of gadgets runs on the server, which can be just a command line window, or it can be another computer or a VM. In order to set up the chain, the server needs to receive an xml text describing it from the client, which again can be another command line window on the same or another computer. The first gadget in the chain then starts waiting for acquisition data to arrive from the client in chunks of a certain size. Having processed a chunk of data, the first gadget passes the result to the second and starts processing the next chunk and so on. The last gadget sends the reconstructed images back to the client. As with STIR, the user is not required to have any knowledge of C\++. Instead, the reconstruction tasks are essentially programmed in xml language, which is very similar to STIR, where the reconstruction tasks are programmed in Interfile language.
 
-### Extended engine functionality <a name="Extended_engine_functionality"></a>
+### Extended engine functionality <a name="extended_engine_functionality"></a>
 
 The intended usage of STIR and Gadgetron requires minimal participation from the user - normally, the composition of an xml or Interfile document at most. SIRF allows the users to actually code the reconstruction tasks by working with reconstruction objects and the data objects that they operate on. Since neither STIR nor Gadgetron developers were concerned with this kind of usage, their code was not well-suited for this kind of interaction and therefore required some extensions. The extended engine functionality layer of SIRF is a C++ implementation of various data types that provide the necessary extensions.
 
-#### Extended STIR functionality <a name="Extended STIR functionality"></a>
+#### Extended STIR functionality <a name="extended_stir_functionality"></a>
 
 Extended STIR functionality types are essentially wrappers around relevant STIR classes that hide STIR implementation specifics, so that a different PET reconstruction engine may be used instead without changing anything in the interface layers further above.
 
-###### PETAcquisitionData <a name="PETAcquisitionData"></a>
+###### PETAcquisitionData <a name="pet_acquisition_data"></a>
 
 A class for handling PET acquisition data. Based on STIR `ProjData` class and retains most of its functionality. Has additional algebraic operations functionality. *Files:* `SIRF/src/xSTIR/cSTIR/stir_data_containers.*`.
 
-###### PETImageData <a name="PETImageData"></a>
+###### PETImageData <a name="pet_image_data"></a>
 
 A class for handling PET image data. Based on STIR `DiscretisedDensity` class and retains most of its functionality. Has additional algebraic operations functionality. *Files:* `SIRF/src/xSTIR/cSTIR/stir_data_containers.*`.
 
-###### ListmodeToSinograms <a name="ListmodeToSinograms"></a>
+###### ListmodeToSinograms <a name="listmode_to_sinograms"></a>
 
 A class for listmode-to-sinogram conversion and randoms estimation.
 
-###### PETAcquisitionModel <a name="PETAcquisitionModel"></a>
+###### PETAcquisitionModel <a name="pet_acquisition_model"></a>
 
 A class for PET acquisition process simulation. Has method `forward` for simulating acquisition process in a PET scanner and method `backward` for the adjoint (transposed) operation. *Files:* `SIRF/src/xSTIR/cSTIR/stir_x.*`.
 
-###### PETAcquisitionModelUsingMatrix <a name="PETAcquisitionModelUsingMatrix"></a>
+###### PETAcquisitionModelUsingMatrix <a name="pet_acquisition_model_using_matrix"></a>
 
 A class derived from `PETAcquisitionModel`. Employs STIR object `ProjMatrixByBin` in forward- and backprojection. *Files:* `SIRF/src/xSTIR/cSTIR/stir_x.*`.
 
-###### PETAcquisitionSensitivityModel <a name="PETAcquisitionSensitivityModel"></a>
+###### PETAcquisitionSensitivityModel <a name="pet_acquisition_sensitivity_model"></a>
 
 A class for PET acquisition sensitivity simulation, responsible for modelling detector efficiencies and attenuation.
 
-#### Extended Gadgetron functionality <a name="Extended Gadgetron functionality"></a>
+#### Extended Gadgetron functionality <a name="extended_gadgetron_functionality"></a>
 
 Extended Gadgetron functionality in SIRF is built entirely upon the Gadgetron client `gadgetron_ismrmrd_client.cpp`: SIRF essentially provides an alternative client. The server-side parts of the Gadgetron code are not used at present. This, for example, allows the use of Gadgetron without its installation under Windows - instead, Gadgetron can be run on a Linux Virtual Machine.
 
-###### MRAcquisitionData <a name="MRAcquisitionData"></a>
+###### MRAcquisitionData <a name="mr_acquisition_data"></a>
 
 A container class for storing and handling ISMRMRD acquisitions. *Files:* `SIRF/src/xGadgetron/cGadgetron/gadgetron_data_containers.*`.
 
-###### MRImageData <a name="MRImageData"></a>
+###### MRImageData <a name="mr_image_data"></a>
 
 A container class for storing and handling ISMRMRD images. *Files:* `SIRF/src/xGadgetron/cGadgetron/gadgetron_data_containers.*`.
 
-###### MRAcquisitionModel <a name="MRAcquisitionModel"></a>
+###### MRAcquisitionModel <a name="mr_acquisition_model"></a>
 
 A class for MR acquisition process simulation. Has method `forward` for simulating acquisition process in an MR scanner and method `backward` for the adjoint (transposed) operation. *Files:* `SIRF/src/xGadgetron/cGadgetron/gadgetron_x.*`.
 
-###### Gadget <a name="Gadget"></a>
+###### Gadget <a name="gadget"></a>
 
 A class for storing properties and generating xml description of a Gadgetron gadget. *Files:* `SIRF/src/xGadgetron/cGadgetron/gadget_lib.h`.
 
-###### SIRF gadgets library <a name="Gadgets_library"></a>
+###### SIRF gadgets library <a name="gadgets_library"></a>
 
 At present, the set of classes that have been derived from Gadgets (representing a subset of Gadgetron gadgets) contains:
 
@@ -140,7 +142,7 @@ At present, the set of classes that have been derived from Gadgets (representing
 
 and some other (reader/writer/finish) gadgets not accessible from SIRF scripts. The library also has a gadget `SimpleReconGadgetSet` that actually represents a small gadget chain performing fully sampled reconstruction. *Files:* `SIRF/src/xGadgetron/cGadgetron/gadget_lib.h`.
 
-### C interface <a name="C_interface"></a>
+### C interface <a name="c_interface"></a>
 
 The C interface layer is a set of C functions that wrap SIRF C++ code.
 
@@ -148,7 +150,7 @@ Each interface function has arguments of basic C types: `void*`, `int`, `float` 
 
 SIRF Python and Matlab objects do not have direct access to C\++ objects and their data. Their role is to obtain a reference to a C\++ object or its data by calling a C interface function and pass it to another C\++ object by calling another C interface function. A C\++ object or data reference is wrapped into an object of the class `DataHandle`, which additionally has a property that records any exceptions thrown by the C++ code, and the pointer to this `DataHandle` object is passed as a `void*` argument or return value. To simplify/shorten the coding of wrapping/unwrapping, a class template `ObjectHandle` is derived from `DataHandle`. *Files:* `SIRF/src/iUtilities/data_handle.h`, `SIRF/scr/common/include/SIRF/common/object_handle.inl`.
 
-### Matlab and Python interfaces to C <a name="Matlab_Python_interfaces"></a>
+### Matlab and Python interfaces to C <a name="matlab_python_interfaces"></a>
 
 Wrapping C\++ into C dramatically simplifies the interfacing into any programming language. In the case of Matlab, no interfacing is required under Linux, where Matlab can call C library functions directly via `calllib()`, whereas under Windows one just need to add  `__declspec(dllexport)` in front of every C function, which is done by executables `gmi_xstir.exe`, `gmi_xgadgetron.exe` etc.
 
@@ -161,7 +163,7 @@ For Python, we use SWIG, which requires just these 5 lines to generate the inter
     %include "cstir.h"
 
 
-### Matlab and Python OO interfaces <a name="Matlab_Python_OO_interfaces"></a>
+### Matlab and Python OO interfaces <a name="matlab_python_oo_interfaces"></a>
 
 Matlab and Python interfaces of the previous section are not user-friendly and not Object-Oriented, which is why on top of them we have Object-Oriented modules `+STIR`, `+Gadgetron` and `+Reg` in Matlab and `STIR.py`, `Gadgetron.py` and `Reg.py` in Python. These modules are described in User Guide.
 
@@ -183,17 +185,17 @@ Matlab and Python interfaces of the previous section are not user-friendly and n
             mSTIR      : Object-Oriented Matlab interface
             pSTIR      : Object-Oriented Python interface
 
-## Data handling principles <a name="Data_handling"></a>
+## Data handling principles <a name="data_handling"></a>
 
 Data processed by reconstruction engines are often of complicated structure and generally cannot be efficiently handled by script languages. For this reason, in SIRF all data processing is performed by the engines and their extensions, and scripts do not have direct access to data.
 
 The only way for user's scripts to work with the engine data is to get a copy of it in a script array format via `as_array()` methods of SIRF data container classes and pass an array to the engine via their `fill()` methods.
 
-# Illustration <a name="Illustration"></a>
+# Illustration <a name="illustration"></a>
 
 In this section we illustrate how the SIRF software layers interact. To avoid duplication, we focus on the case of MR reconstruction by Gadgetron. The PET and Registration cases are totally parallel.
 
-### Python <a name="Illustration_Python"></a>
+### Python <a name="illustration_python"></a>
 
 A reconstruction script would normally contain the following line indicating the source of raw acquisition data:
 
@@ -227,7 +229,7 @@ showing that the acquisition data file is handled by the Dataset object of ISMRM
 
 If exception is thrown, it is caught by the `CATCH` macro, which records it in the `DataHandle` object that this function will return, so that it can be reported by Python and Matlab interface module `AcquistionData` objects.
 
-### Matlab <a name="Illustration_Matlab"></a>
+### Matlab <a name="illustration_matlab"></a>
 
 In the case of a Matlab script, the line
 
@@ -249,13 +251,13 @@ to the following C function
         return cGT_ISMRMRDAcquisitionsFile(file);
     }
 
-# Adding new functionality to SIRF <a name="Adding_new_functionality"></a>
+# Adding new functionality to SIRF <a name="adding_new_functionality"></a>
 
 The preferred way for adding new functionality to SIRF is by implementing it in C\++. Having implemented and tested your C++ addition, put your class definitions to `gadgetron_x.h` and your implementation code to `gadgetron_x.cpp` in folder `SIRF/src/xGadgetron/cGadgetron`. Alternatively, add new `*.h` and `*.cpp` files, in which case you will need to list them in `add_library` statement in `CMakeLists.txt` too. Then follow the two steps described below. Again, to reduce duplication, instructions are for Gadgetron-related additions; those for STIR-related are symmetric.
 
 We stress that the instructions below are for classes that will be exposed to the user only. We note that currently, only a tiny fraction of STIR classes and no Gadgetron classes are exposed.
 
-### Step 1: create C wrappers. <a name="Create_wrappers"></a>
+### Step 1: create C wrappers. <a name="create_wrappers"></a>
 
 If a new class has default constructor, you may like to add the following two lines to the function `cGT_newObject()` in `cgadgetron.cpp` before the last `return` statement there:
 
@@ -321,7 +323,7 @@ The next two wrappers demonstrate how data is exchanged between C++ and Matlab/P
 
 Both wrappers obtain a pointer `ptr_acqs` to a `DataHandle` object containing the reference `acqs` to an `MRAcquisitionData` object and pointer `ptr_z` to the data of a Matlab/Python array storing MR acquisitions data. The reference `acqs` is used to call methods `get_data` and `set_data` which perform the data exchange. The argument `all` specifies whether all acquisition data must be put in the receiving `ptr_z`-referenced array or whether data not directly used in the reconstruction (e.g. noise calibration data) must be ignored. Exceptions are handled by the `CATCH` macro, successful execution returns a default empty `DataHandle` object, the only role of which in this case is to report successful return.
 
-### Step 2: create Matlab and Python Object-Oriented interface for your additions <a name="Create_OO_interface"></a>
+### Step 2: create Matlab and Python Object-Oriented interface for your additions <a name="create_oo_interface"></a>
 
 This section demonstrates how C wrappers of the previous section are used by the objects of SIRF Object-Oriented interface modules.
 
@@ -394,7 +396,7 @@ The Matlab counterparts of the code pieces of the previous section are:
     r = calllib('miutilities', 'mFloatDataFromHandle', handle);
     sirf.Utilities.delete(handle)
 
-# Adding a gadget to SIRF gadget library <a name="Adding_gadget"></a>
+# Adding a gadget to SIRF gadget library <a name="adding_gadget"></a>
 
 To add a Gadgetron gadget to SIRF gadgets library, follow the steps below.
 
@@ -427,7 +429,7 @@ to the function `cGT_newObject()` in the file `cgadgetron.cpp`.
 
 * Build SIRF.
 
-# SIRF programming conventions <a name="SIRF_programming_conventions"></a>
+# SIRF programming conventions <a name="sirf_programming_conventions"></a>
 The programming style used in SIRF resembles closely that used in STIR. When implementing new code in C++, try to follow the following conventions.
 
 ## Naming <a name="conventions_naming"></a>

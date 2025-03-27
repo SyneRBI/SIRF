@@ -1,6 +1,7 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC
+Copyright 2015 - 2019, 2021, 2023 Rutherford Appleton Laboratory STFC
+Copyright 2024 University College London
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -25,19 +26,43 @@ limitations under the License.
 #include <map>
 #include "sirf/iUtilities/DataHandle.h"
 
+namespace sirf {
+
+	typedef std::map<std::string, int> Dimensions;
+
 /*!
 \ingroup Common
 \brief Abstract data container.
+
+This preliminary class essentially only exists to be able to check run-time type
+information of different types of containers.
+
+Its naming and methods are likely to change in future versions. Do not
+use it directly therefore.
+*/
+        
+	class ContainerBase {
+	public:
+		virtual ~ContainerBase() {}
+		//virtual ObjectHandle<DataContainer>* new_data_container_handle() const = 0;
+        };
+/*!
+\ingroup Common
+\brief Abstract data container with numerical operations.
 
 A class for a set of generally heterogeneous items of data.
 
 Has vector features: norm, dot product, linear combination,
 which rely on the same features of the items.
 */
+//<<<<<<< HEAD
 
 namespace sirf {
 
-	class DataContainer {
+//	class DataContainer {
+//=======
+	class DataContainer: public virtual ContainerBase {
+//>>>>>>> master
 	public:
 		virtual ~DataContainer() {}
 
@@ -60,7 +85,102 @@ namespace sirf {
 			return is_complex() ? 16 * sizeof(float) : 8 * sizeof(float);
 		}
 
+//<<<<<<< HEAD
 		virtual void write(const std::string& filename) const = 0;
+/*
+=======
+		/// returns the norm of this container viewed as a vector
+		virtual float norm() const = 0;
+
+		/// below all void* are actually either float* (STIR containers and NiftiImageData)
+		/// or complex_float_t* (Gadgetron containers)
+
+		/// calculates the dot product of this container with another one
+		virtual void dot(const DataContainer& dc, void* ptr) const = 0;
+
+		/// calculates the sum of this container elements
+		virtual void sum(void* ptr) const = 0;
+
+		/// calculates the value of this container's element with the largest real part
+		virtual void max(void* ptr) const = 0;
+
+		/// calculates the value of this container's element with the smallest real part
+		virtual void min(void* ptr) const = 0;
+
+		/// \c *this = the elementwise product \c x*y
+		virtual void multiply
+			(const DataContainer& x, const DataContainer& y) = 0;
+		/// \c *this = the product \c x * y with scalar y
+		virtual void multiply
+			(const DataContainer& x, const void* ptr_y) = 0;
+
+		/// \c *this = the sum \c x + y with scalar y
+		virtual void add
+			(const DataContainer& x, const void* ptr_y) = 0;
+
+		/// \c *this = the elementwise ratio \c x / y
+		virtual void divide
+			(const DataContainer& x, const DataContainer& y) = 0;
+
+		/// \c *this = the elementwise \c max(x, y)
+		virtual void maximum
+			(const DataContainer& x, const DataContainer& y) = 0;
+		virtual void maximum
+			(const DataContainer& x, const void* ptr_y) = 0;
+
+		/// \c *this = the elementwise \c min(x, y)
+		virtual void minimum
+			(const DataContainer& x, const DataContainer& y) = 0;
+		virtual void minimum
+			(const DataContainer& x, const void* ptr_y) = 0;
+
+		/// \c *this = the elementwise \c pow(x, y)
+		virtual void power
+			(const DataContainer& x, const DataContainer& y) = 0;
+		virtual void power
+			(const DataContainer& x, const void* ptr_y) = 0;
+
+		/// \c *this = the elementwise \c exp(x)
+		virtual void exp(const DataContainer& x) = 0;
+		/// \c *this = the elementwise \c log(x)
+		virtual void log(const DataContainer& x) = 0;
+		/// \c *this = the elementwise \c sqrt(x)
+		virtual void sqrt(const DataContainer& x) = 0;
+		/// \c *this = the elementwise \c sign(x)
+		virtual void sign(const DataContainer& x) = 0;
+		/// \c *this = the elementwise \c abs(x)
+		virtual void abs(const DataContainer& x) = 0;
+
+		/// \c *this = the linear combination of \c x and \c y
+		virtual void axpby(
+			const void* ptr_a, const DataContainer& x,
+			const void* ptr_b, const DataContainer& y) = 0;
+		/// alternative interface to the above
+		virtual void xapyb(
+			const DataContainer& x, const void* ptr_a,
+			const DataContainer& y, const void* ptr_b) = 0;
+
+		/// \c *this = elementwise sum of two elementwise products \c x*a and \c y*b
+		virtual void xapyb(
+			const DataContainer& x, const DataContainer& a,
+			const DataContainer& y, const DataContainer& b) = 0;
+
+		/// \c *this = elementwise sum of \c x*a and elementwise \c y*b
+		virtual void xapyb(
+			const DataContainer& a_x, const void* ptr_a,
+			const DataContainer& a_y, const DataContainer& a_b) = 0;
+
+		/// \c *this = elementwise sum of elementwise \c x*a and \c y*b
+		void xapyb(
+			const DataContainer& a_x, const DataContainer& a_a,
+			const DataContainer& a_y, const void* ptr_b)
+		{
+			xapyb(a_y, ptr_b, a_x, a_a);
+		}
+
+		virtual void write(const std::string &filename) const = 0;
+>>>>>>> master
+*/
 
 		bool is_empty() const
 		{

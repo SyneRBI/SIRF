@@ -180,7 +180,7 @@ def main():
     template_PET_im = pet.ImageData(template_PET_raw)
 
     # Get template MR image from template raw
-    template_MR_raw = mr.AcquisitionData(template_MR_raw_path)
+    template_MR_raw = mr.AcquisitionData(template_MR_raw_path, False, mr.IgnoreMask())
     template_MR_raw.sort_by_time()
     template_MR_raw = mr.preprocess_acquisition_data(template_MR_raw)
     template_MR_im = simple_mr_recon(template_MR_raw)
@@ -247,7 +247,7 @@ def main():
     # Create coil sensitivity data
     print("Calculating coil sensitivity map...")
     csm = mr.CoilSensitivityData()
-    csm.smoothness = 500
+    csm.smoothing_iterations = 500
     csm.calculate(template_MR_raw)
 
     # Create interleaved sampling

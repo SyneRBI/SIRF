@@ -46,12 +46,21 @@ args = docopt(__doc__, version=__version__)
 
 from ast import literal_eval
 
-from pUtilities import show_3D_array
+from sirf.Utilities import error, examples_data_path, existing_filepath
+from sirf.Utilities import show_3D_array
 
 import numpy as np
+try:
+    import pylab
+    HAVE_PYLAB = True
+except RuntimeWarning:
+    HAVE_PYLAB = False
+
 
 # import engine module
-exec('from sirf.' + args['--engine'] + ' import *')
+import importlib
+engine = args['--engine']
+pet = importlib.import_module('sirf.' + engine)
 
 
 # process command-line options
@@ -69,19 +78,19 @@ list_file = existing_filepath(data_path, list_file)
 tmpl_file = existing_filepath(data_path, tmpl_file)
 interval = literal_eval(args['--interval'])
 storage = args['--storage']
-show_plot = not args['--non-interactive']
+show_plot = not args['--non-interactive'] and HAVE_PYLAB
 
 
 def main():
 
     # direct all engine's messages to files
-    msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
+    _ = pet.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     # select acquisition data storage scheme
-    AcquisitionData.set_storage_scheme(storage)
+    pet.AcquisitionData.set_storage_scheme(storage)
 
     # create listmode-to-sinograms converter object
-    lm2sino = ListmodeToSinograms()
+    lm2sino = pet.ListmodeToSinograms()
 
     # set input, output and template files
     lm2sino.set_input(list_file)

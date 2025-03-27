@@ -38,8 +38,11 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
+from sirf.Utilities import error, examples_data_path, existing_filepath
+
 # import engine module
-exec('from sirf.' + args['--engine'] + ' import *')
+import importlib
+mr = importlib.import_module('sirf.' + args['--engine'])
 
 # process command-line options
 data_file = args['--file']
@@ -55,23 +58,21 @@ def main():
     input_file = existing_filepath(data_path, data_file)
 
     # acquisition data will be read from an HDF file input_file
-    AcquisitionData.set_storage_scheme('memory')
-    acq_data = AcquisitionData(input_file)
+    mr.AcquisitionData.set_storage_scheme('memory')
+    acq_data = mr.AcquisitionData(input_file)
     print('---\n acquisition data norm: %e' % acq_data.norm())
 
     # pre-process acquisition data
     print('---\n pre-processing acquisition data...')
-    processed_data = preprocess_acquisition_data(acq_data)
+    processed_data = mr.preprocess_acquisition_data(acq_data)
     print('---\n processed acquisition data norm: %e' % processed_data.norm())
 
     # perform reconstruction to obtain a meaningful ImageData object
-    # (cannot be obtained in any other way at present)
-#    if processed_data.is_undersampled():
     if acq_data.is_undersampled():
-        recon = CartesianGRAPPAReconstructor()
+        recon = mr.CartesianGRAPPAReconstructor()
         recon.compute_gfactors(False)
     else:
-        recon = FullySampledReconstructor()
+        recon = mr.FullySampledReconstructor()
     recon.set_input(processed_data)
     print('---\n reconstructing...')
     recon.process()
@@ -104,24 +105,20 @@ def main():
     print('patient table positions:')
     print(ptp)
     
-    # sort processed acquisition data;
-    # sorting currently performed with respect to (in this order):
-    #    - repetition
-    #    - slice
-    #    - kspace encode step 1
+    # sort processed acquisition data
     print('---\n sorting acquisition data...')
     processed_data.sort()
 
     # compute coil sensitivity maps
     print('---\n computing coil sensitivity maps...')
-    csms = CoilSensitivityData()
+    csms = mr.CoilSensitivityData()
     csms.calculate(processed_data)
     
     # create acquisition model based on the acquisition parameters
     # stored in processed_data and image parameters stored in reconstructed_images
-##    acq_model = AcquisitionModel(processed_data, reconstructed_images)
-    acq_model = AcquisitionModel()
-    acq_model.set_up(processed_data, reconstructed_images)
+    acq_model = mr.AcquisitionModel(processed_data, reconstructed_images)
+##    acq_model = mr.AcquisitionModel()
+##    acq_model.set_up(processed_data, reconstructed_images)
     acq_model.set_coil_sensitivity_maps(csms)
 
     # use the acquisition model (forward projection) to produce simulated
@@ -134,7 +131,8 @@ def main():
         simulated_acq_data.write(output_file)
 
     # display simulated acquisition data
-    #simulated_acq_data.show(title = 'Simulated acquisition data (magnitude)')
+    if show_plot:
+        simulated_acq_data.show(title = 'Simulated acquisition data (magnitude)')
 
     print('\n--- Computing the norm of the acquisition model operator...')
     acqm_norm = acq_model.norm()

@@ -55,20 +55,6 @@ limitations under the License.
 
 /*!
 \ingroup MR
-\brief Acquisitions filter.
-
-Some acquisitions do not participate directly in the reconstruction process
-(e.g. noise calibration acquisitions).
-*/
-#define TO_BE_IGNORED(acq) \
-	(!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION) && \
-	!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING) && \
-	!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_MEASUREMENT) && \
-	!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_REVERSE) && \
-	(acq).flags() >= (1 << (ISMRMRD::ISMRMRD_ACQ_IS_NOISE_MEASUREMENT - 1)))
-
-/*!
-\ingroup MR
 \brief Serialized ISMRMRD acquisition header (cf. ismrmrd.h).
 
 */
@@ -127,6 +113,79 @@ namespace sirf {
 		std::string data_;
         mutable ISMRMRD::IsmrmrdHeader header_;
         mutable bool have_header_;
+	};
+
+	/*!
+	\ingroup Gadgetron Data Containers
+	\brief Class enabling ignoring acquisitions with certain ISMRMRD acquisition flags.
+
+	Most of the acquisitiondata can be represented by a multidimensional array.
+	However, the input raw data may also contain acquisitions serving some special
+	purposes different from the rest, e.g. acquisitions with noise calibration data
+	(ISMRMRD flag 19). These may have incompatible shape, and must be ignored e.g.
+	when calculating multidimensional data dimensions or performing algebraic operations
+	on acquisition data by some reconstruction algorithms. Class IgnoreMask encapsulates
+	a 64-bit integer with non-zero bits representing 'forbidden' ISMRMRD flags, i.e. any
+	acquisition acq that has at least one of these flags in its bit field returned by
+	its acq.flags() method will be ignored.
+	*/
+	class IgnoreMask {
+	public:
+		IgnoreMask(unsigned long long int mask = (1 << 18)) :
+		    ignore_(mask), max_(8*sizeof(mask)) {}
+		void set(unsigned long long int mask)
+		{
+			ignore_ = mask;
+		}
+		void ignore(unsigned int i)
+		{
+			if (i < 1 || i > max_)
+				return;
+			unsigned long long int one = 1;
+			ignore_ = ignore_ | (one << (i - 1));
+		}
+		void ignore_not(unsigned int i)
+		{
+			if (i < 1 || i > max_)
+				return;
+			unsigned long long int one = 1;
+			ignore_ = ignore_ & ~(one << (i - 1));
+		}
+		bool bit(unsigned int i) const
+		{
+			if (i < 1 || i > max_)
+				return true;
+			unsigned long long int one = 1;
+			return ignore_ & (one << (i - 1));
+		}
+		unsigned long long int bits() const
+		{
+			return ignore_;
+		}
+		bool ignored(unsigned long long int bits) const
+		{
+			return bits & ignore_;
+		}
+		std::string bits_string() const
+		{
+			unsigned int size = max_;
+			unsigned long long int one = 1;
+			unsigned long long int bitmask = (one << (size - 1));
+			std::stringstream str;
+			for (unsigned int i = 0; i < size; i++) {
+				if (ignore_ & (bitmask >> i))
+					str << '1';
+				else
+					str << '0';
+				if ((i + 1) % 4 == 0)
+					str << ' ';
+			}
+			str << '\n';
+			return str.str();
+		}
+	private:
+		unsigned long long int ignore_;
+		unsigned int max_;
 	};
 
     /*!
@@ -257,7 +316,11 @@ namespace sirf {
 		static complex_float_t sum(const ISMRMRD::Acquisition& acq_x);
 		// the value of the element of x with the largest real part
 		static complex_float_t max(const ISMRMRD::Acquisition& acq_x);
-/*
+//<<<<<<< HEAD
+// /*
+//=======
+		static complex_float_t min(const ISMRMRD::Acquisition& acq_x);
+//>>>>>>> master
 		// elementwise multiplication
 		// y := x .* y
 		static void multiply
@@ -307,7 +370,7 @@ namespace sirf {
 		// y := abs(x)
 		static void abs
 			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
-*/
+// */
 		static float norm(const ISMRMRD::Acquisition& acq_x);
 
 		// type and dimension of an ISMRMRD::Acquisition parameter
@@ -443,8 +506,8 @@ namespace sirf {
 				name, name of k-space dimension to modify
 				min_max_ctr = minimium, maximum and center value of sampled region
     	*/
-		void set_encoding_limits(const std::string& name, \
-									const std::tuple<unsigned short,unsigned short,unsigned short> min_max_ctr)
+		void set_encoding_limits(const std::string& name,
+			const std::tuple<unsigned short,unsigned short,unsigned short> min_max_ctr)
 		{
 			ISMRMRD::IsmrmrdHeader hdr = this->acquisitions_info().get_IsmrmrdHeader();
 			ISMRMRD::EncodingLimits enc_limits = hdr.encoding[0].encodingLimits;
@@ -523,8 +586,10 @@ namespace sirf {
 
 		virtual gadgetron::shared_ptr<ISMRMRD::Acquisition>
 			get_acquisition_sptr(unsigned int num) = 0;
-		virtual int get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) const = 0;
-		virtual void set_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
+		virtual int get_acquisition(unsigned int,
+			ISMRMRD::Acquisition&) const = 0; 
+		virtual void set_acquisition(unsigned int,
+			ISMRMRD::Acquisition&) = 0;
 		virtual void append_acquisition(ISMRMRD::Acquisition& acq) = 0;
 
 		virtual void copy_acquisitions_info(const MRAcquisitionData& ac) = 0;
@@ -538,7 +603,7 @@ namespace sirf {
 		virtual void set_data(const complex_float_t* z, int all = 1) = 0;
 		virtual void get_data(complex_float_t* z, int all = 1);
 
-        virtual void set_user_floats(float const * const z, int const idx);
+		virtual void set_user_floats(float const * const z, int const idx);
 
 		virtual bool is_complex() const
 		{
@@ -546,10 +611,27 @@ namespace sirf {
 		}
 
 		// acquisition data algebra
+//<<<<<<< HEAD
 		virtual float norm() const;
 		virtual complex_float_t sum() const;
 		virtual complex_float_t max() const;
+		virtual complex_float_t min() const;
 		virtual complex_float_t dot(const DataContainer& dc) const;
+/*
+=======
+		/// below all void* are actually complex_float_t*
+		virtual void sum(void* ptr) const;
+		virtual void max(void* ptr) const;
+		virtual void min(void* ptr) const;
+		virtual void dot(const DataContainer& dc, void* ptr) const;
+		complex_float_t dot(const DataContainer& a_x)
+		{
+			complex_float_t z;
+			dot(a_x, &z);
+			return z;
+		}
+>>>>>>> master
+*/
 		virtual void axpby(
 			complex_float_t a, const DataContainer& a_x,
 			complex_float_t b, const DataContainer& a_y);
@@ -578,9 +660,11 @@ namespace sirf {
 		// regular methods
 		AcquisitionsInfo acquisitions_info() const { return acqs_info_; }
 		void set_acquisitions_info(std::string info) { acqs_info_ = info; }
-        void set_acquisitions_info(const AcquisitionsInfo info) { acqs_info_ = info;}
+		void set_acquisitions_info(const AcquisitionsInfo info) { acqs_info_ = info;}
+		IgnoreMask ignore_mask() const { return ignore_mask_; }
+		void set_ignore_mask(IgnoreMask ignore_mask) const { ignore_mask_= ignore_mask; }
 
-        ISMRMRD::TrajectoryType get_trajectory_type() const;
+		ISMRMRD::TrajectoryType get_trajectory_type() const;
 		
 		void set_trajectory_type(const ISMRMRD::TrajectoryType type);
 
@@ -605,8 +689,8 @@ namespace sirf {
 		}
 
 		bool undersampled() const;
-        int get_acquisitions_dimensions(size_t ptr_dim) const;
-        void get_kspace_dimensions(std::vector<size_t>& dims) const;
+		int get_acquisitions_dimensions(size_t ptr_dim) const;
+		void get_kspace_dimensions(std::vector<size_t>& dims) const;
 		uint16_t get_trajectory_dimensions(void) const;
 	
 		void sort();
@@ -614,31 +698,32 @@ namespace sirf {
 		bool sorted() const { return sorted_; }
 		void set_sorted(bool sorted) { sorted_ = sorted; }
 
-        //! Function to get the indices of the acquisitions belonging to different dimensions of k-space
-        /*!
-        * All acquisitions belong to only one subset in a multi-dimensional k-space.
-        * This function returns a vector of sets of indices belonging to the acquisitions of the individual subsets.
-        */
-        std::vector<KSpaceSubset::SetType > get_kspace_order() const;
+		//! Function to get the indices of the acquisitions belonging to different dimensions of k-space
+		/*!
+		 * All acquisitions belong to only one subset in a multi-dimensional k-space.
+		 * This function returns a vector of sets of indices belonging to the acquisitions of the individual subsets.
+		 */
+		std::vector<KSpaceSubset::SetType > get_kspace_order() const;
 
-        //! Function to get the all KSpaceSubset's of the MRAcquisitionData
-        std::vector<KSpaceSubset> get_kspace_sorting() const { return this->sorting_; }
+		//! Function to get the all KSpaceSubset's of the MRAcquisitionData
+		std::vector<KSpaceSubset> get_kspace_sorting() const { return this->sorting_; }
 
-        //! Function to go through Acquisitions and assign them to their k-space dimension
-        /*!
-        * All acquisitions belong to only one subset in a multi-dimensional k-space. This function goes through
-        * all acquisitions in the container, extracts their subset (i.e. which slice contrast etc.) and stores
-        * this information s.t. consisten subsets (i.e. all acquisitions belonging to the same slice) can be
-        * extracted.
-        */
-        void organise_kspace();
+		//! Function to go through Acquisitions and assign them to their k-space dimension
+		/*!
+		 * All acquisitions belong to only one subset in a multi-dimensional k-space. This function goes through
+		 * all acquisitions in the container, extracts their subset (i.e. which slice contrast etc.) and stores
+		 * this information s.t. consisten subsets (i.e. all acquisitions belonging to the same slice) can be
+		 * extracted.
+		 */
+		void organise_kspace();
 
-		virtual std::vector<int> get_flagged_acquisitions_index(const std::vector<ISMRMRD::ISMRMRD_AcquisitionFlags> flags) const;
-		virtual std::vector<int> get_slice_encoding_index(const unsigned kspace_encode_step_2) const;
+		virtual std::vector<int> get_flagged_acquisitions_index
+			(const std::vector<ISMRMRD::ISMRMRD_AcquisitionFlags> flags) const;
+		virtual std::vector<int> get_slice_encoding_index
+			(const unsigned kspace_encode_step_2) const;
 
-
-        virtual void get_subset(MRAcquisitionData& subset, const std::vector<int> subset_idx) const;
-        virtual void set_subset(const MRAcquisitionData &subset, const std::vector<int> subset_idx);
+		virtual void get_subset(MRAcquisitionData& subset, const std::vector<int> subset_idx) const;
+		virtual void set_subset(const MRAcquisitionData &subset, const std::vector<int> subset_idx);
 
 		std::vector<int> index() { return index_; }
 		const std::vector<int>& index() const { return index_; }
@@ -646,7 +731,8 @@ namespace sirf {
 		int index(int i) const
 		{
 			const std::size_t ni = index_.size();
-			if (i < 0 || (ni > 0 && static_cast<std::size_t>(i) >= ni) || static_cast<unsigned>(i) >= number())
+			if (i < 0 || (ni > 0 && static_cast<std::size_t>(i) >= ni) 
+				|| static_cast<unsigned>(i) >= number())
 				THROW("Aquisition number is out of range");
 			if (ni > 0)
 				return index_[i];
@@ -654,22 +740,25 @@ namespace sirf {
 				return i;
 		}
 
-    	/*! 
-    		\brief Reader for ISMRMRD::Acquisition from ISMRMRD file. 
-      		*	filename_ismrmrd_with_ext:	filename of ISMRMRD rawdata file with .h5 extension.
-      		* 
-      		* In case the ISMRMRD::Dataset constructor throws an std::runtime_error the reader catches it, 
-      		* displays the message and throws it again.
-			* To avoid reading noise samples and other calibration data, the TO_BE_IGNORED macro is employed
-			* to exclude potentially incompatible input. 
-    	*/
+		/*!
+		\brief Reader for ISMRMRD::Acquisition from ISMRMRD file.
+		* In case the ISMRMRD::Dataset constructor throws an std::runtime_error the reader catches it,
+		* displays the message and throws it again.
+		* To avoid reading noise samples and other calibration data, IgnoreMask may be set
+		* (see method set_ignore_mask) to exclude potentially incompatible input.
+
+		* filename_ismrmrd_with_ext: filename of ISMRMRD rawdata file with .h5 extension.
+		* all: overrider of the ignore mask - non-zero value forces reading all acquisitions.
+		*/
 		void read(const std::string& filename_ismrmrd_with_ext, int all = 0);
 
 	protected:
 		bool sorted_ = false;
 		std::vector<int> index_;
-        std::vector<KSpaceSubset> sorting_;
+		std::vector<KSpaceSubset> sorting_;
 		AcquisitionsInfo acqs_info_;
+
+		mutable IgnoreMask ignore_mask_; //= IgnoreMask();
 
 		// new MRAcquisitionData objects will be created from this template
 		// using same_acquisitions_container()
@@ -691,13 +780,15 @@ namespace sirf {
 	*/
 	class AcquisitionsVector : public MRAcquisitionData {
 	public:
-        AcquisitionsVector(const std::string& filename_with_ext, int all = 0)
-        {
-            this->read(filename_with_ext, all);
-        }
-
-        AcquisitionsVector(const AcquisitionsInfo& info = AcquisitionsInfo())
+		AcquisitionsVector(const std::string& filename_with_ext, int all = 0, IgnoreMask ignore_mask = IgnoreMask())
 		{
+			this->set_ignore_mask(ignore_mask);
+			this->read(filename_with_ext, all);
+		}
+
+		AcquisitionsVector(const AcquisitionsInfo& info = AcquisitionsInfo(), IgnoreMask ignore_mask = IgnoreMask())
+		{
+			this->set_ignore_mask(ignore_mask);
 			acqs_info_ = info;
 		}
 		virtual void empty();
@@ -715,15 +806,13 @@ namespace sirf {
 			int ind = index(num);
 			return acqs_[ind];
 		}
-		virtual int get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) const
+		virtual int get_acquisition(unsigned int num,
+			ISMRMRD::Acquisition& acq) const
 		{
+			IgnoreMask ignore_mask = this->ignore_mask();
 			int ind = index(num);
 			acq = *acqs_[ind];
-			if (!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION) && \
-				!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING) && \
-				!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_MEASUREMENT) && \
-				!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_REVERSE) && \
-				(acq).flags() >= (1 << (ISMRMRD::ISMRMRD_ACQ_IS_NOISE_MEASUREMENT - 1)))
+			if (ignore_mask.ignored(acq.flags()))
 				return 0;
 			return 1;
 		}
@@ -742,11 +831,11 @@ namespace sirf {
 		virtual AcquisitionsVector* same_acquisitions_container
 			(const AcquisitionsInfo& info) const
 		{
-			return new AcquisitionsVector(info);
+			return new AcquisitionsVector(info, ignore_mask_);
 		}
 		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
-			DataContainer* ptr = new AcquisitionsVector(acqs_info_);
+			DataContainer* ptr = new AcquisitionsVector(acqs_info_, ignore_mask_);
 			return new ObjectHandle<DataContainer>
 				(gadgetron::shared_ptr<DataContainer>(ptr));
 		}
@@ -754,7 +843,7 @@ namespace sirf {
 			new_acquisitions_container()
 		{
 			return gadgetron::unique_ptr<MRAcquisitionData>
-				(new AcquisitionsVector(acqs_info_));
+				(new AcquisitionsVector(acqs_info_, ignore_mask_));
 		}
 
 	private:
@@ -878,8 +967,10 @@ namespace sirf {
 		}
 
 		virtual float norm() const;
+//<<<<<<< HEAD
 		virtual complex_float_t sum() const;
 		virtual complex_float_t max() const;
+		virtual complex_float_t min() const;
 		virtual complex_float_t dot(const DataContainer& dc) const;
 		void axpby(
 			complex_float_t a, const DataContainer& a_x,
@@ -887,6 +978,21 @@ namespace sirf {
 		void xapyb(
 			const DataContainer& a_x, complex_float_t a_a,
 			const DataContainer& a_y, complex_float_t a_b)
+/*
+=======
+		/// below all void* are actually complex_float_t*
+		virtual void sum(void* ptr) const;
+		virtual void max(void* ptr) const;
+		virtual void min(void* ptr) const;
+		virtual void dot(const DataContainer& dc, void* ptr) const;
+		virtual void axpby(
+			const void* ptr_a, const DataContainer& a_x,
+			const void* ptr_b, const DataContainer& a_y);
+		virtual void xapyb(
+			const DataContainer& a_x, const void* ptr_a,
+			const DataContainer& a_y, const void* ptr_b)
+>>>>>>> master
+*/
 		{
 			ComplexFloat_ a(a_a);
 			ComplexFloat_ b(a_b);
@@ -1404,7 +1510,14 @@ namespace sirf {
             throw std::runtime_error("This has not been implemented yet.");
         }
 
-        void set_csm_smoothness(int s){csm_smoothness_ = s;}
+        void set_csm_smoothness(int s)
+        {
+            csm_smoothness_ = s;
+        }
+        void set_csm_conv_kernel_size(int w)
+        {
+            csm_conv_kernel_halfsize_ = w;
+        }
 
         void calculate(CoilImagesVector& iv);
         void calculate(const MRAcquisitionData& acq)
@@ -1435,7 +1548,10 @@ namespace sirf {
 
     private:
         int csm_smoothness_ = 0;
-        void smoothen_(int nx, int ny, int nz, int nc, complex_float_t* u, complex_float_t* v, int* obj_mask, int w);
+        int csm_conv_kernel_halfsize_ = 1;
+        void smoothen_(int nx, int ny, int nz, int nc, complex_float_t* u, complex_float_t* v, 
+        //int* obj_mask, 
+        int w);
         void mask_noise_(int nx, int ny, int nz, float* u, float noise, int* mask);
         float max_diff_(int nx, int ny, int nz, int nc, float small_grad, complex_float_t* u, complex_float_t* v);
         float max_(int nx, int ny, int nz, float* u);

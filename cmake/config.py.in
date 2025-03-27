@@ -4,4 +4,6 @@ SIRF_HAS_NiftyPET = @NiftyPET_BOOL_STR@
 
 SIRF_HAS_Parallelproj = @Parallelproj_BOOL_STR@
 
+STIR_WITH_CUDA = @STIR_WITH_CUDA_BOOL_STR@
+
 SIRF_HAS_SPM = @SPM_BOOL_STR@
