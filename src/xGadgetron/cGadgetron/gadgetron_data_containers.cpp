@@ -659,8 +659,9 @@ MRAcquisitionData::max() const
         }
         i++;
     }
-    complex_float_t* ptr_z = static_cast<complex_float_t*>(ptr);
-    *ptr_z = z;
+    return z;
+    //complex_float_t* ptr_z = static_cast<complex_float_t*>(ptr);
+    //*ptr_z = z;
 }
 
 //void
@@ -1400,12 +1401,13 @@ GadgetronImageData::max() const
         if (i == 0 || ri > r)
             z = zi;
     }
-    complex_float_t* ptr_z = static_cast<complex_float_t*>(ptr);
-    *ptr_z = z;
+    return z;
+    //complex_float_t* ptr_z = static_cast<complex_float_t*>(ptr);
+    //*ptr_z = z;
 }
 
-void
-GadgetronImageData::min(void* ptr) const
+complex_float_t
+GadgetronImageData::min() const
 {
     complex_float_t z = 0;
     for (unsigned int i = 0; i < number(); i++) {

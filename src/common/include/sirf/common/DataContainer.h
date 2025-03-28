@@ -57,7 +57,7 @@ which rely on the same features of the items.
 */
 //<<<<<<< HEAD
 
-namespace sirf {
+//namespace sirf {
 
 //	class DataContainer {
 //=======
@@ -238,6 +238,9 @@ namespace sirf {
 
 		/// calculates the value of this container's element with the largest real part
 		virtual T max() const = 0;
+
+		/// calculates the value of this container's element with the smallest real part
+		virtual T min() const = 0;
 
 		/// calculates the dot product of this container with another one
 		virtual T dot(const DataContainer& dc) const = 0;

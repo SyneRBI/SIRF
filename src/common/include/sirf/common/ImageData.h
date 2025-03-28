@@ -76,7 +76,7 @@ namespace sirf {
 		size_t size() const
 		{
 			Dimensions dim = dimensions();
-			if (is_empty())
+			if (this->is_empty())
 				return 0;
 			size_t n = 1;
 			for (std::map<std::string, int>::iterator it = dim.begin(); it != dim.end(); ++it) {

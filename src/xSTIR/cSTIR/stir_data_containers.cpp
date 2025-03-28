@@ -161,8 +161,7 @@ STIRAcquisitionData::min(void* ptr) const
 	return t;
 //	*ptr_t = (float)t;
 #endif
->>>>>>> master
-*/
+//>>>>>>> master
 }
 
 float

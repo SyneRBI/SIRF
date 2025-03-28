@@ -215,6 +215,26 @@ cSIRF_compute_max(const void* ptr_x, void* ptr_z)
 
 template<typename T>
 void
+compute_min_templ(const void* ptr_x, void* ptr_z)
+{
+	auto const& x = objectFromHandle<DataContainerTempl<T> >(ptr_x);
+	*static_cast<T*>(ptr_z) = x.min();
+}
+
+extern "C"
+void*
+cSIRF_compute_min(const void* ptr_x, void* ptr_z)
+{
+	try {
+		auto const& base = objectFromHandle<DataContainer>(ptr_x);
+		SELECT_DATA_CASE(base.data_type(), compute_min_templ, ptr_x, ptr_z);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+template<typename T>
+void
 axpby_templ(
 	const void* ptr_a, const void* ptr_x,
 	const void* ptr_b, const void* ptr_y, void* h
@@ -227,6 +247,7 @@ axpby_templ(
 	z.xapyb(x, a, y, b);
 }
 
+/*
 extern "C"
 void*
 cSIRF_compute_min(const void* ptr_x, void* ptr_z)
@@ -238,6 +259,7 @@ cSIRF_compute_min(const void* ptr_x, void* ptr_z)
 	}
 	CATCH;
 }
+*/
 
 extern "C"
 void*

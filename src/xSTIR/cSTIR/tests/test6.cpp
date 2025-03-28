@@ -142,8 +142,8 @@ int test6()
 
 		recon.subiteration() = recon.get_start_subiteration_num();
 		recon.reconstruct(sptr_id->data_sptr());
-                float max_value;
-                sptr_id->max(&max_value);
+                float max_value = sptr_id->max();
+                //sptr_id->max(&max_value);
                 if (max_value < .075F/50) // currently see .075, but it's going to be a bit unstable, so let's play safe.
                   throw std::runtime_error("STIR listmode reconstruction: max (" +
                                            std::to_string(max_value) + ") too low");

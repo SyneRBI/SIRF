@@ -141,7 +141,8 @@ NiftiImageData<dataType>& NiftiImageData<dataType>::operator=(const ImageData<co
             // Finally, copy the data
             auto &it_src = to_copy.begin();
             auto &it_dst = this->begin();
-            for (; it_src != to_copy.end(); ++it_src, ++it_dst)
+            //for (; it_src != to_copy.end(); ++it_src, ++it_dst)
+            for (; it_src != to_copy.end() && it_dst != this->end(); ++it_src, ++it_dst)
                 *it_dst = (*it_src).complex_float().real();
             set_up_geom_info();
         }
@@ -1818,7 +1819,8 @@ float NiftiImageData<dataType>::max() const
 }
 
 template<class dataType>
-void NiftiImageData<dataType>::min(void* ptr) const
+float NiftiImageData<dataType>::min() const
+//void NiftiImageData<dataType>::min(void* ptr) const
 {
     unsigned i = 0;
     float s = _data[i++];
@@ -1827,8 +1829,9 @@ void NiftiImageData<dataType>::min(void* ptr) const
         if (si < s)
             s = si;
     }
-    float* ptr_s = static_cast<float*>(ptr);
-    *ptr_s = s;
+    return s;
+    //float* ptr_s = static_cast<float*>(ptr);
+    //*ptr_s = s;
 }
 
 template<class dataType>

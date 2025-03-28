@@ -628,15 +628,31 @@ namespace sirf {
         virtual float norm() const;
         virtual float sum() const;
         virtual float max() const;
+        virtual float min() const;
         virtual void scale(float s);
         virtual float dot(const DataContainer& a_x) const;
         virtual void axpby(dataType a, const DataContainer& a_x, dataType b, const DataContainer& a_y);
         virtual void xapyb(const DataContainer& a_x, dataType a, const DataContainer& a_y, dataType b);
         virtual void xapyb(const DataContainer& a_x, dataType a, const DataContainer& a_y, const DataContainer& a_b);
         virtual void xapyb(const DataContainer& a_x, const DataContainer& a_a, const DataContainer& a_y, const DataContainer& a_b);
-
 /*
-<<<<<<< HEAD
+    virtual void multiply (const DataContainer& a_x, const DataContainer& a_y);
+    virtual void divide   (const DataContainer& a_x, const DataContainer& a_y);
+    virtual void maximum(const DataContainer& x, const DataContainer& y);
+    virtual void minimum(const DataContainer& x, const DataContainer& y);
+    virtual void power(const DataContainer& x, const DataContainer& y);
+    virtual void multiply(const DataContainer& a_x, const void* a_y);
+    virtual void add(const DataContainer& a_x, const void* a_y);
+    virtual void maximum(const DataContainer& x, const void* a_y);
+    virtual void minimum(const DataContainer& x, const void* a_y);
+    virtual void power(const DataContainer& x, const void* a_y);
+    virtual void exp(const DataContainer& x);
+    virtual void log(const DataContainer& x);
+    virtual void sqrt(const DataContainer& x);
+    virtual void sign(const DataContainer& x);
+    virtual void abs(const DataContainer& x);
+*/
+//<<<<<<< HEAD
         virtual Dimensions dimensions() const
         {
             Dimensions dim;
@@ -661,8 +677,8 @@ namespace sirf {
         mutable std::shared_ptr<Iterator_const> _begin_const;
         mutable std::shared_ptr<Iterator_const> _end_const;
     };
+/*
 =======
-*/
         // Copy data
         im->data = static_cast<void*>(calloc(im->nvox,sizeof(newType)));
         newType *dataPtr = static_cast<newType*>(im->data);
@@ -672,7 +688,9 @@ namespace sirf {
         free(originalArray);
         return;
     }
+*/
 
+/*
     // ------------------------------------------------------------------------------ //
     // Pure virtual methods from ImageData
     // ------------------------------------------------------------------------------ //
@@ -702,7 +720,7 @@ public:
         _end_const.reset(new Iterator_const(_data+_nifti_image->nvox));
         return *_end_const;
     }
-    /*
+//    /*
     unsigned int items() const { return 1; }
     virtual void dot      (const DataContainer& a_x, void* ptr) const;
     virtual void axpby    (const void* ptr_a, const DataContainer& a_x, const void* ptr_b, const DataContainer& a_y);
@@ -714,7 +732,6 @@ public:
     virtual void divide   (const DataContainer& a_x, const DataContainer& a_y);
 	virtual void maximum(const DataContainer& x, const DataContainer& y);
 	virtual void minimum(const DataContainer& x, const DataContainer& y);
-*/
 protected:
     /// Clone helper function. Don't use.
     virtual NiftiImageData* clone_impl() const
@@ -726,9 +743,13 @@ protected:
         return new ObjectHandle<DataContainer>
             (std::shared_ptr<DataContainer>(new NiftiImageData));
     }
+*/
 
+/*
 public:
     unsigned int items() const { return 1; }
+    
+    /*
     /// below all void* are actually float*
     virtual void sum      (void* ptr) const;
     virtual void max      (void* ptr) const;
@@ -782,5 +803,6 @@ protected:
     mutable std::shared_ptr<Iterator_const> _begin_const;
     mutable std::shared_ptr<Iterator_const> _end_const;
 };
+*/
 //>>>>>>> master
 }
