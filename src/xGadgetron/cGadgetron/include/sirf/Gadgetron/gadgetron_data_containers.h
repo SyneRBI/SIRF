@@ -316,11 +316,7 @@ namespace sirf {
 		static complex_float_t sum(const ISMRMRD::Acquisition& acq_x);
 		// the value of the element of x with the largest real part
 		static complex_float_t max(const ISMRMRD::Acquisition& acq_x);
-//<<<<<<< HEAD
-// /*
-//=======
 		static complex_float_t min(const ISMRMRD::Acquisition& acq_x);
-//>>>>>>> master
 		// elementwise multiplication
 		// y := x .* y
 		static void multiply
@@ -370,7 +366,6 @@ namespace sirf {
 		// y := abs(x)
 		static void abs
 			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
-// */
 		static float norm(const ISMRMRD::Acquisition& acq_x);
 
 		// type and dimension of an ISMRMRD::Acquisition parameter
@@ -611,27 +606,11 @@ namespace sirf {
 		}
 
 		// acquisition data algebra
-//<<<<<<< HEAD
 		virtual float norm() const;
 		virtual complex_float_t sum() const;
 		virtual complex_float_t max() const;
 		virtual complex_float_t min() const;
 		virtual complex_float_t dot(const DataContainer& dc) const;
-/*
-=======
-		/// below all void* are actually complex_float_t*
-		virtual void sum(void* ptr) const;
-		virtual void max(void* ptr) const;
-		virtual void min(void* ptr) const;
-		virtual void dot(const DataContainer& dc, void* ptr) const;
-		complex_float_t dot(const DataContainer& a_x)
-		{
-			complex_float_t z;
-			dot(a_x, &z);
-			return z;
-		}
->>>>>>> master
-*/
 		virtual void axpby(
 			complex_float_t a, const DataContainer& a_x,
 			complex_float_t b, const DataContainer& a_y);
@@ -967,7 +946,6 @@ namespace sirf {
 		}
 
 		virtual float norm() const;
-//<<<<<<< HEAD
 		virtual complex_float_t sum() const;
 		virtual complex_float_t max() const;
 		virtual complex_float_t min() const;
@@ -978,21 +956,6 @@ namespace sirf {
 		void xapyb(
 			const DataContainer& a_x, complex_float_t a_a,
 			const DataContainer& a_y, complex_float_t a_b)
-/*
-=======
-		/// below all void* are actually complex_float_t*
-		virtual void sum(void* ptr) const;
-		virtual void max(void* ptr) const;
-		virtual void min(void* ptr) const;
-		virtual void dot(const DataContainer& dc, void* ptr) const;
-		virtual void axpby(
-			const void* ptr_a, const DataContainer& a_x,
-			const void* ptr_b, const DataContainer& a_y);
-		virtual void xapyb(
-			const DataContainer& a_x, const void* ptr_a,
-			const DataContainer& a_y, const void* ptr_b)
->>>>>>> master
-*/
 		{
 			ComplexFloat_ a(a_a);
 			ComplexFloat_ b(a_b);
