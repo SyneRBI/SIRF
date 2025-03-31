@@ -158,7 +158,6 @@ namespace sirf {
 	storage mode (file/memory) selection.
 	*/
 
-//<<<<<<< HEAD
 	class STIRAcquisitionData : public DataContainerTempl<float> {
 	public:
 		virtual ~STIRAcquisitionData() {}
@@ -166,10 +165,6 @@ namespace sirf {
 		{
 			return std::string("float");
 		}
-//=======
-//	class STIRAcquisitionData : /*public STIRScanData, */public DataContainer {
-//	public:
-//>>>>>>> master
 
 		// virtual constructors
 		virtual STIRAcquisitionData* same_acquisition_data
@@ -305,26 +300,10 @@ namespace sirf {
 			return 1; // data ok
 		}
 		virtual float norm() const;
-//<<<<<<< HEAD
 		virtual float sum() const;
 		virtual float max() const;
 		virtual float min() const;
 		virtual float dot(const DataContainer& a_x) const;
-/*
-=======
-		/// below all void* are actually float*
-		virtual void sum(void* ptr) const;
-		virtual void max(void* ptr) const;
-		virtual void min(void* ptr) const;
-		virtual void dot(const DataContainer& a_x, void* ptr) const;
-		float dot(const DataContainer& a_x) const
-		{
-			float s;
-			dot(a_x, &s);
-			return s;
-		}
->>>>>>> master
-*/
 		virtual void axpby(
 			float a, const DataContainer& a_x,
 			float b, const DataContainer& a_y);
@@ -1121,20 +1100,10 @@ namespace sirf {
 		virtual void write(const std::string& filename, const std::string& format_file) const;
 
 		virtual float norm() const;
-//<<<<<<< HEAD
 		virtual float sum() const;
 		virtual float max() const;
 		virtual float min() const;
 		virtual float dot(const DataContainer& dc) const;
-/*
-=======
-		/// below all void* are actually float*
-		virtual void sum(void* ptr) const;
-		virtual void max(void* ptr) const;
-		virtual void min(void* ptr) const;
-		virtual void dot(const DataContainer& a_x, void* ptr) const;
->>>>>>> master
-*/
 		virtual void axpby(
 			float a, const DataContainer& a_x,
 			float b, const DataContainer& a_y);
@@ -1182,18 +1151,6 @@ namespace sirf {
 			_data->fill(v);
 		}
 		void scale(float s);
-		//void axpby(
-		//	float a, const DataContainer& a_x,
-		//	float b, const DataContainer& a_y)
-		//{
-		//	axpby(&a, a_x, &b, a_y);
-		//}
-		//void xapyb(
-		//	const DataContainer& a_x, float a,
-		//	const DataContainer& a_y, float b)
-		//{
-		//	xapyb(a_x, &a, a_y, &b);
-		//}
 		size_t size() const
 		{
 			return _data->size_all();
