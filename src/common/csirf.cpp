@@ -247,20 +247,6 @@ axpby_templ(
 	z.xapyb(x, a, y, b);
 }
 
-/*
-extern "C"
-void*
-cSIRF_compute_min(const void* ptr_x, void* ptr_z)
-{
-	try {
-		auto const& x = objectFromHandle<DataContainer>(ptr_x);
-		x.min(ptr_z);
-		return new DataHandle;
-	}
-	CATCH;
-}
-*/
-
 extern "C"
 void*
 cSIRF_axpby(
@@ -431,8 +417,6 @@ binary_templ(const void* ptr_x, const void* ptr_y, const char* f, void* h)
 		z.maximum(x, y);
 	else if (sirf::iequals(f, "minimum"))
 		z.minimum(x, y);
-		//else
-		//	return unknownObject("function", f, __FILE__, __LINE__);
 }
 
 extern "C"
