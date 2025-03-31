@@ -1171,7 +1171,6 @@ The actual algorithm is described in
 			sptr_ad_ = sptr;
 			set_proj_data_sptr(sptr->data());
 		}
-//<<<<<<< HEAD
 		void set_acquisition_model(std::shared_ptr<AcqMod3DF> sptr_am)
 		{
 			sptr_am_ = sptr_am;
@@ -1203,10 +1202,6 @@ The actual algorithm is described in
 			if (am.normalisation_sptr().get())
 				set_normalisation_sptr(am.normalisation_sptr());
 		}
-//=======
-//		void set_acquisition_model(std::shared_ptr<AcqMod3DF> sptr_am);
-//
-//>>>>>>> master
 		std::shared_ptr<AcqMod3DF> acquisition_model_sptr()
 		{
 			return sptr_am_;
