@@ -377,152 +377,6 @@ MRAcquisitionData::xapyb
     }
 }
 
-/*
-void
-MRAcquisitionData::binary_op
-(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, 
-    complex_float_t (*f)(complex_float_t, complex_float_t))
-{
-    const complex_float_t* px;
-    complex_float_t* py;
-    for (px = acq_x.data_begin(), py = acq_y.data_begin();
-        px != acq_x.data_end() && py != acq_y.data_end(); px++, py++) {
-        *py = f(*px, *py);
-    }
-}
-
-void
-MRAcquisitionData::semibinary_op
-(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y,
-    complex_float_t(*f)(complex_float_t, complex_float_t))
-{
-    const complex_float_t* px;
-    complex_float_t* py;
-    for (px = acq_x.data_begin(), py = acq_y.data_begin();
-        px != acq_x.data_end() && py != acq_y.data_end(); px++, py++) {
-        *py = f(*px, y);
-    }
-}
-
-void
-MRAcquisitionData::unary_op
-(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y,
-    complex_float_t(*f)(complex_float_t))
-{
-    const complex_float_t* px;
-    complex_float_t* py;
-    for (px = acq_x.data_begin(), py = acq_y.data_begin();
-        px != acq_x.data_end() && py != acq_y.data_end(); px++, py++) {
-        *py = f(*px);
-    }
-}
-
-void
-MRAcquisitionData::multiply
-(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
-{
-    MRAcquisitionData::binary_op(acq_x, acq_y, DataContainerTempl<complex_float_t>::product);
-}
-
-void
-MRAcquisitionData::multiply
-(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y)
-{
-    MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainerTempl<complex_float_t>::product);
-}
-
-void
-MRAcquisitionData::add
-(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y)
-{
-    MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainerTempl<complex_float_t>::sum);
-}
-
-void
-MRAcquisitionData::divide
-(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
-{
-    MRAcquisitionData::binary_op(acq_x, acq_y, DataContainerTempl<complex_float_t>::ratio);
-}
-
-void
-MRAcquisitionData::maximum
-(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
-{
-    MRAcquisitionData::binary_op(acq_x, acq_y, DataContainerTempl<complex_float_t>::maxreal);
-}
-
-void
-MRAcquisitionData::maximum
-(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y)
-{
-    MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainerTempl<complex_float_t>::maxreal);
-}
-
-void
-MRAcquisitionData::minimum
-(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
-{
-    MRAcquisitionData::binary_op(acq_x, acq_y, DataContainerTempl<complex_float_t>::minreal);
-}
-
-void
-MRAcquisitionData::minimum
-(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y)
-{
-    MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainerTempl<complex_float_t>::minreal);
-}
-
-void
-MRAcquisitionData::power
-(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
-{
-    MRAcquisitionData::binary_op(acq_x, acq_y, DataContainerTempl<complex_float_t>::power);
-}
-
-void
-MRAcquisitionData::power
-(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y)
-{
-    MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainerTempl<complex_float_t>::power);
-}
-
-void
-MRAcquisitionData::exp
-(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
-{
-    MRAcquisitionData::unary_op(acq_x, acq_y, DataContainerTempl<complex_float_t>::exp);
-}
-
-void
-MRAcquisitionData::log
-(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
-{
-    MRAcquisitionData::unary_op(acq_x, acq_y, DataContainerTempl<complex_float_t>::log);
-}
-
-void
-MRAcquisitionData::sqrt
-(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
-{
-    MRAcquisitionData::unary_op(acq_x, acq_y, DataContainerTempl<complex_float_t>::sqrt);
-}
-
-void
-MRAcquisitionData::sign
-(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
-{
-    MRAcquisitionData::unary_op(acq_x, acq_y, DataContainerTempl<complex_float_t>::sign);
-}
-
-void
-MRAcquisitionData::abs
-(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
-{
-    MRAcquisitionData::unary_op(acq_x, acq_y, DataContainerTempl<complex_float_t>::abs);
-}
-*/
-
 complex_float_t
 MRAcquisitionData::dot
 (const ISMRMRD::Acquisition& acq_a, const ISMRMRD::Acquisition& acq_b)
@@ -660,12 +514,8 @@ MRAcquisitionData::max() const
         i++;
     }
     return z;
-    //complex_float_t* ptr_z = static_cast<complex_float_t*>(ptr);
-    //*ptr_z = z;
 }
 
-//void
-//MRAcquisitionData::min(void* ptr) const
 complex_float_t
 MRAcquisitionData::min() const
 {
@@ -1402,8 +1252,6 @@ GadgetronImageData::max() const
             z = zi;
     }
     return z;
-    //complex_float_t* ptr_z = static_cast<complex_float_t*>(ptr);
-    //*ptr_z = z;
 }
 
 complex_float_t
@@ -2681,7 +2529,6 @@ CoilSensitivitiesVector::smoothen_
     memcpy(u, v, nx*ny*nz*nc * sizeof(complex_float_t));
 }
 
-//<<<<<<< HEAD
 float
 CoilSensitivitiesVector::max_(int nx, int ny, int nz, float* u)
 {
@@ -2722,5 +2569,4 @@ CoilSensitivitiesVector::max_diff_
     }
     return s;
 }
-//=======
-//>>>>>>> master
+
