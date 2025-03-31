@@ -1820,7 +1820,6 @@ float NiftiImageData<dataType>::max() const
 
 template<class dataType>
 float NiftiImageData<dataType>::min() const
-//void NiftiImageData<dataType>::min(void* ptr) const
 {
     unsigned i = 0;
     float s = _data[i++];
@@ -1830,8 +1829,6 @@ float NiftiImageData<dataType>::min() const
             s = si;
     }
     return s;
-    //float* ptr_s = static_cast<float*>(ptr);
-    //*ptr_s = s;
 }
 
 template<class dataType>
@@ -1839,8 +1836,6 @@ void NiftiImageData<dataType>::axpby(
     dataType a, const DataContainer& a_x,
     dataType b, const DataContainer& a_y)
 {
-    //const float a = *static_cast<const float*>(ptr_a);
-    //const float b = *static_cast<const float*>(ptr_b);
     const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
     const NiftiImageData<dataType>& y = dynamic_cast<const NiftiImageData<dataType>&>(a_y);
 
@@ -1868,50 +1863,6 @@ void NiftiImageData<dataType>::xapyb(
     const DataContainer& a_x, dataType a,
     const DataContainer& a_y, const DataContainer& a_b)
 {
-    //const float a = *static_cast<const float*>(ptr_a);
-    const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
-    const NiftiImageData<dataType>& y = dynamic_cast<const NiftiImageData<dataType>&>(a_y);
-    const NiftiImageData<dataType>& b = dynamic_cast<const NiftiImageData<dataType>&>(a_b);
-
-    // If the result hasn't been initialised, make a clone of one of them
-    if (!this->is_initialised())
-        *this = *x.clone();
-
-    ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "axpby operands size mismatch");
-    ASSERT(_nifti_image->nvox == y._nifti_image->nvox, "axpby operands size mismatch");
-    ASSERT(_nifti_image->nvox == b._nifti_image->nvox, "axpby operands size mismatch");
-
-    for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
-        _data[i] = a * x._data[i] + b._data[i] * y._data[i];
-}
-/*
-template<class dataType>
-void NiftiImageData<dataType>::axpby(
-    const void* ptr_a, const DataContainer& a_x,
-    const void* ptr_b, const DataContainer& a_y)
-{
-    const float a = *static_cast<const float*>(ptr_a);
-    const float b = *static_cast<const float*>(ptr_b);
-    const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
-    const NiftiImageData<dataType>& y = dynamic_cast<const NiftiImageData<dataType>&>(a_y);
-
-    // If the result hasn't been initialised, make a clone of one of them
-    if (!this->is_initialised())
-        *this = *x.clone();
-
-    ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "axpby operands size mismatch");
-    ASSERT(_nifti_image->nvox == y._nifti_image->nvox, "axpby operands size mismatch");
-
-    for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
-        _data[i] = a * x._data[i] + b * y._data[i];
-}
-
-template<class dataType>
-void NiftiImageData<dataType>::xapyb(
-    const DataContainer& a_x, const void* ptr_a,
-    const DataContainer& a_y, const DataContainer& a_b)
-{
-    const float a = *static_cast<const float*>(ptr_a);
     const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
     const NiftiImageData<dataType>& y = dynamic_cast<const NiftiImageData<dataType>&>(a_y);
     const NiftiImageData<dataType>& b = dynamic_cast<const NiftiImageData<dataType>&>(a_b);
@@ -1928,14 +1879,6 @@ void NiftiImageData<dataType>::xapyb(
         _data[i] = a * x._data[i] + b._data[i] * y._data[i];
 }
 
-template<class dataType>
-void NiftiImageData<dataType>::xapyb(
-    const DataContainer& a_x, const void* ptr_a,
-    const DataContainer& a_y, const void* ptr_b)
-{
-	NiftiImageData<dataType>::axpby(ptr_a, a_x, ptr_b, a_y);
-}
-*/
 template<class dataType>
 void NiftiImageData<dataType>::xapyb(
     const DataContainer& a_x, const DataContainer& a_a,
