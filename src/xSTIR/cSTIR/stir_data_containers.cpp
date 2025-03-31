@@ -62,10 +62,8 @@ STIRAcquisitionData::norm() const
 float
 STIRAcquisitionData::sum() const
 {
-//	float* ptr_t = static_cast<float*>(ptr);
 #if STIR_VERSION >= 060200
         return data()->sum();
-//        *ptr_t = data()->sum();
 #else
 	int n = get_max_segment_num();
 	double t = 0;
@@ -82,23 +80,15 @@ STIRAcquisitionData::sum() const
 				t += *seg_iter++;
 		}
 	}
-//<<<<<<< HEAD
 	return (float)t;
-	//float* ptr_t = static_cast<float*>(ptr);
-	//*ptr_t = (float)t;
-//=======
-//	*ptr_t = (float)t;
 #endif
-//>>>>>>> master
 }
 
 float
 STIRAcquisitionData::max() const
 {
-//	float* ptr_t = static_cast<float*>(ptr);
 #if STIR_VERSION >= 060200
         return data()->find_max();
-//        *ptr_t = data()->find_max();
 #else
 	int n = get_max_segment_num();
 	float t = 0;
@@ -121,12 +111,7 @@ STIRAcquisitionData::max() const
 				t = std::max(t, *seg_iter++);
 		}
 	}
-//<<<<<<< HEAD
 	return t;
-	//float* ptr_t = static_cast<float*>(ptr);
-	//*ptr_t = (float)t;
-//=======
-//	*ptr_t = (float)t;
 #endif
 }
 
@@ -135,14 +120,6 @@ STIRAcquisitionData::min() const
 {
 #if STIR_VERSION >= 060200
         return data()->find_min();
-/*
-void
-STIRAcquisitionData::min(void* ptr) const
-{
-	float* ptr_t = static_cast<float*>(ptr);
-#if STIR_VERSION >= 060200
-        *ptr_t = data()->find_min();
-*/
 #else
 	float t = 0;
 	bool init = true;
@@ -159,9 +136,7 @@ STIRAcquisitionData::min(void* ptr) const
 		}
 	}
 	return t;
-//	*ptr_t = (float)t;
 #endif
-//>>>>>>> master
 }
 
 float
@@ -193,8 +168,6 @@ STIRAcquisitionData::dot(const DataContainer& a_x) const
 		}
 	}
 	return (float)t;
-	//float* ptr_t = static_cast<float*>(ptr);
-	//*ptr_t = (float)t;
 }
 
 void
@@ -526,61 +499,18 @@ STIRImageData::sum() const
 {
 	return data().sum();
 }
-/*
-<<<<<<< HEAD
-#if defined(_MSC_VER) && _MSC_VER < 1900
-	Image3DF::const_full_iterator iter;
-#else
-	typename Array<3, float>::const_full_iterator iter;
-#endif
-
-	double s = 0.0;
-	for (iter = data().begin_all(); iter != data().end_all(); iter++)
-		s += *iter;
-	return (float)s;
-	//float* ptr_s = static_cast<float*>(ptr);
-	//*ptr_s = (float)s;
-=======
-	float* ptr_s = static_cast<float*>(ptr);
-        *ptr_s = (float)data().sum();
->>>>>>> master
-*/
 
 float
 STIRImageData::max() const
 {
 	return data().find_max();
 }
-/*
-<<<<<<< HEAD
-#if defined(_MSC_VER) && _MSC_VER < 1900
-	Image3DF::const_full_iterator iter;
-#else
-	typename Array<3, float>::const_full_iterator iter;
-#endif
 
-	float s = 0.0;
-	for (iter = data().begin_all(); iter != data().end_all(); iter++)
-		s = std::max(s, *iter);
-	return s;
-	//float* ptr_s = static_cast<float*>(ptr);
-	//*ptr_s = (float)s;
-=======
-	float* ptr_s = static_cast<float*>(ptr);
-        *ptr_s = (float)data().find_max();
-*/
-
-//void
-//STIRImageData::min(void* ptr) const
 float
 STIRImageData::min() const
 {
 	return data().find_min();
 }
-//	float* ptr_s = static_cast<float*>(ptr);
-//        *ptr_s = (float)data().find_min();
-//>>>>>>> master
-//}
 
 float
 STIRImageData::dot(const DataContainer& a_x) const
@@ -602,8 +532,6 @@ STIRImageData::dot(const DataContainer& a_x) const
 		s += t * (*iter_x);
 	}
 	return (float)s;
-	//float* ptr_s = static_cast<float*>(ptr);
-	//*ptr_s = (float)s;
 }
 
 void
@@ -622,31 +550,7 @@ STIRImageData::xapyb(
 {
 	SIRF_DYNAMIC_CAST(const STIRImageData, x, a_x);
 	SIRF_DYNAMIC_CAST(const STIRImageData, y, a_y);
-/*
-<<<<<<< HEAD
-#if defined(_MSC_VER) && _MSC_VER < 1900
-	Image3DF::full_iterator iter;
-	Image3DF::const_full_iterator iter_x;
-	Image3DF::const_full_iterator iter_y;
-#else
-	typename Array<3, float>::full_iterator iter;
-	typename Array<3, float>::const_full_iterator iter_x;
-	typename Array<3, float>::const_full_iterator iter_y;
-#endif
-
-	if (size() != x.size() || size() != y.size())
-		throw std::runtime_error("xapyb error: operands sizes differ");
-
-	for (iter = data().begin_all(),
-		iter_x = x.data().begin_all(), iter_y = y.data().begin_all();
-		iter != data().end_all() &&
-		iter_x != x.data().end_all() && iter_y != y.data().end_all();
-		iter++, iter_x++, iter_y++)
-		*iter = a * (*iter_x) + b * (*iter_y);
-=======
-*/
         data().xapyb(x.data(), a, y.data(), b);
-//>>>>>>> master
 }
 
 void
