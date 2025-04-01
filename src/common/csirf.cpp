@@ -19,7 +19,7 @@ limitations under the License.
 
 */
 
-#include <memory>
+//#include <memory>
 
 #include "sirf/iUtilities/DataHandle.h"
 #include "sirf/common/DataContainer.h"

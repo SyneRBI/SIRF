@@ -29,7 +29,7 @@ limitations under the License.
 
 #include "sirf/Reg/NiftiImageData3DTensor.h"
 #include "sirf/Reg/NiftiImageData3D.h"
-#include <boost/format.hpp>
+//#include <boost/format.hpp>
 
 using namespace sirf;
 

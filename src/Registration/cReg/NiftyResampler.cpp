@@ -33,10 +33,10 @@ limitations under the License.
 #include "sirf/Reg/NiftiImageData3DDeformation.h"
 #include "sirf/Reg/AffineTransformation.h"
 #include "sirf/NiftyMoMo/BSplineTransformation.h"
-#include <_reg_resampling.h>
-#include <_reg_globalTrans.h>
-#include <_reg_tools.h>
-#include <memory>
+//#include <_reg_resampling.h>
+//#include <_reg_globalTrans.h>
+//#include <_reg_tools.h>
+//#include <memory>
 
 using namespace sirf;
 using namespace detail;
@@ -249,7 +249,8 @@ static void set_post_resample_outputs(std::shared_ptr<DataContainer> &out_to_ret
         auto &it_imag = resampled_niftis.imag()->begin();
         for (; it_out!=output_to_return_sptr->end(); ++it_real, ++it_imag, ++it_out) {
             complex_float_t cmplx_flt(*it_real,*it_imag);
-            *it_out = NumRef((void *)&cmplx_flt, NumberType::CXFLOAT);
+            *it_out = NumRef(static_cast<void*>(&cmplx_flt), NumberType::CXFLOAT);
+            //*it_out = NumRef((void *)&cmplx_flt, NumberType::CXFLOAT);
         }
         output_as_member_sptr = output_to_return_sptr;
     }

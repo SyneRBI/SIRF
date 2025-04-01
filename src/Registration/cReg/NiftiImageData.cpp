@@ -30,7 +30,7 @@ limitations under the License.
 
 #include "sirf/iUtilities/LocalisedException.h"
 #include "sirf/Reg/NiftiImageData.h"
-#include <nifti1_io.h>
+//#include <nifti1_io.h>
 #include "_reg_resampling.h"
 #include <boost/filesystem.hpp>
 #include "sirf/Reg/NiftiImageData3D.h"
@@ -40,9 +40,9 @@ limitations under the License.
 #include "sirf/Reg/AffineTransformation.h"
 #include "sirf/Reg/NiftyResampler.h"
 #include <iomanip>
-#include <cmath>
-#include <numeric>
-#include <algorithm>
+//#include <cmath>
+//#include <numeric>
+//#include <algorithm>
 
 // Remove NiftyReg's definition of isnan
 #undef isnan

@@ -28,7 +28,7 @@ limitations under the License.
 */
 
 #include "sirf/Reg/Resample.h"
-#include <stdexcept>
+//#include <stdexcept>
 using namespace sirf;
 
 /// Set reference image

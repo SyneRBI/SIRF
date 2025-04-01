@@ -33,7 +33,7 @@ limitations under the License.
 #include "sirf/Reg/Transformation.h"
 #include "sirf/Reg/AffineTransformation.h"
 #include "sirf/Reg/Quaternion.h"
-#include <_reg_tools.h>
+//#include <_reg_tools.h>
 #ifdef SIRF_SPM
 #include "sirf/Reg/SPMRegistration.h"
 #endif

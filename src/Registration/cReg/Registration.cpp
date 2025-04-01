@@ -28,7 +28,7 @@ limitations under the License.
 */
 
 #include "sirf/Reg/Registration.h"
-#include <stdexcept>
+//#include <stdexcept>
 #include <iostream>
 
 using namespace sirf;

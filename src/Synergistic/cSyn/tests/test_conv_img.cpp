@@ -19,8 +19,8 @@ limitations under the License.
 
 */
 
-#include <iostream>
-#include <string>
+//#include <iostream>
+//#include <string>
 
 #include "sirf/Gadgetron/gadgetron_data_containers.h"
 #include "sirf/STIR/stir_data_containers.h"
@@ -42,7 +42,8 @@ int main(int argc, char* argv[])
 	ImageDataWrap imw(filename, eng_in, true);
 	std::cout << "converting " << eng_in.c_str() << " image to "
 		<< eng_out.c_str() << " image...\n";
-	const ImageData<float>& im_in = (const ImageData<float>&)imw.data();
+	const ImageData<float>& im_in = static_cast<const ImageData<float>&>(imw.data());
+	//const ImageData<float>& im_in = (const ImageData<float>&)imw.data();
 	if (eng_out == std::string("Reg")) {
 		NiftiImageData3D<float> im_out(im_in);
 		if (im_out == im_in) {
