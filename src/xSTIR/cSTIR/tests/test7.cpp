@@ -131,7 +131,8 @@ int main()
 
 		shared_ptr<STIRAcquisitionData> background_sptr(randoms_sptr->new_acquisition_data());
 		float alpha = 1.0;
-		background_sptr->axpby(&alpha, *randoms_sptr, &alpha, *scatter_sptr);
+		background_sptr->axpby(alpha, *randoms_sptr, alpha, *scatter_sptr);
+		//background_sptr->axpby(&alpha, *randoms_sptr, &alpha, *scatter_sptr);
 		std::cout << "===== background norm: " << background_sptr->norm() << '\n';
 
 		CREATE_OBJ(PETAcquisitionSensitivityModel, asm_, asm_sptr, *mf_sptr);

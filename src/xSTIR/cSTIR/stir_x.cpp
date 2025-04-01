@@ -528,8 +528,8 @@ PETAcquisitionModel::forward(STIRAcquisitionData& ad, const STIRImageData& image
 
 	if (sptr_add_.get() && !do_linear_only) {
 		if (stir::Verbosity::get() > 1) std::cout << "additive term added...";
-		ad.axpby(&one, ad, &one, *sptr_add_);
-		//ad.axpby(1.0, ad, 1.0, *sptr_add_);
+		//ad.axpby(&one, ad, &one, *sptr_add_);
+		ad.axpby(1.0, ad, 1.0, *sptr_add_);
 		if (stir::Verbosity::get() > 1) std::cout << "ok\n";
 	}
 	else
@@ -546,8 +546,8 @@ PETAcquisitionModel::forward(STIRAcquisitionData& ad, const STIRImageData& image
 
 	if (sptr_background_.get() && !do_linear_only) {
 		if (stir::Verbosity::get() > 1) std::cout << "background term added...";
-		ad.axpby(&one, ad, &one, *sptr_background_);
-		//ad.axpby(1.0, ad, 1.0, *sptr_background_);
+		//ad.axpby(&one, ad, &one, *sptr_background_);
+		ad.axpby(1.0, ad, 1.0, *sptr_background_);
 		if (stir::Verbosity::get() > 1) std::cout << "ok\n";
 	}
 	else
@@ -630,7 +630,8 @@ static void set_STIR_obj_fun_from_acq_model(ObjFuncT& obj_fun, const AcqMod3DF& 
     if (have_a) {
       auto sptr_a = am.additive_term_sptr();
       float a = 1.0f;
-      sptr->axpby(&a, *sptr, &a, *sptr_a);
+      sptr->axpby(a, *sptr, a, *sptr_a);
+      //sptr->axpby(&a, *sptr, &a, *sptr_a);
     }
     obj_fun.set_additive_proj_data_sptr(sptr->data());
   }
@@ -638,6 +639,7 @@ static void set_STIR_obj_fun_from_acq_model(ObjFuncT& obj_fun, const AcqMod3DF& 
     obj_fun.set_normalisation_sptr(am.normalisation_sptr());
 }
 
+/*
 void
 xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF::
 set_acquisition_model(std::shared_ptr<AcqMod3DF> sptr_am)
@@ -647,6 +649,7 @@ set_acquisition_model(std::shared_ptr<AcqMod3DF> sptr_am)
   set_projector_pair_sptr(am.projectors_sptr());
   set_STIR_obj_fun_from_acq_model(*this, am);
 }
+*/
 
 void
 xSTIR_PoissonLLhLinModMeanListDataProjMatBin3DF::

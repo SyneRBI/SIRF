@@ -326,7 +326,7 @@ class DataContainer(ABC):
                 z.handle = pysirf.cSIRF_axpby(one.ctypes.data, self.handle, one.ctypes.data, other.handle)
                 check_status(z.handle)
             else:
-                try_calling(pysirf.cSIRF_axpbyAlt(one.ctypes.data, self.handle, one.ctypes.data, other.handle, z.handle))
+                try_calling(pysirf.cSIRF_compute_axpby(one.ctypes.data, self.handle, one.ctypes.data, other.handle, z.handle))
         return z
 
     def subtract(self, other, out=None):
@@ -356,7 +356,7 @@ class DataContainer(ABC):
         else:
             assert_validities(self, out)
             z = out
-            try_calling(pysirf.cSIRF_axpbyAlt \
+            try_calling(pysirf.cSIRF_compute_axpby \
                 (pl_one.ctypes.data, self.handle, mn_one.ctypes.data, other.handle, z.handle))
 
     def multiply(self, other, out=None):
@@ -454,13 +454,13 @@ class DataContainer(ABC):
                 if out is None:
                     z.handle = pysirf.cSIRF_axpby(alpha.ctypes.data, self.handle, beta.ctypes.data, y.handle)
                 else:
-                    try_calling(pysirf.cSIRF_axpbyAlt(alpha.ctypes.data, self.handle, beta.ctypes.data, y.handle, z.handle))
+                    try_calling(pysirf.cSIRF_compute_axpby(alpha.ctypes.data, self.handle, beta.ctypes.data, y.handle, z.handle))
             else:
                 #a is scalar, b is array
                 if out is None:
                     z.handle = pysirf.cSIRF_XapYB(self.handle, alpha.ctypes.data, y.handle, b.handle)
                 else:
-                    try_calling(pysirf.cSIRF_XapYBAlt(self.handle, alpha.ctypes.data, y.handle, b.handle, z.handle))
+                    try_calling(pysirf.cSIRF_compute_XapYB(self.handle, alpha.ctypes.data, y.handle, b.handle, z.handle))
         else:
             assert_validities(self, a)
             if isinstance(b, Number):
@@ -469,14 +469,14 @@ class DataContainer(ABC):
                 if out is None:
                     z.handle = pysirf.cSIRF_XapYB(y.handle, beta.ctypes.data, self.handle, a.handle)
                 else:
-                    try_calling(pysirf.cSIRF_XapYBAlt(y.handle, beta.ctypes.data, self.handle, a.handle, z.handle))
+                    try_calling(pysirf.cSIRF_compute_XapYB(y.handle, beta.ctypes.data, self.handle, a.handle, z.handle))
             else:
                 #a is array, b is array
                 assert_validities(self, b)
                 if out is None:
                     z.handle = pysirf.cSIRF_xapyb(self.handle, a.handle, y.handle, b.handle)
                 else:
-                    try_calling(pysirf.cSIRF_xapybAlt(self.handle, a.handle, y.handle, b.handle, z.handle))
+                    try_calling(pysirf.cSIRF_compute_xapyb(self.handle, a.handle, y.handle, b.handle, z.handle))
 
         if out is None:
             check_status(z.handle)

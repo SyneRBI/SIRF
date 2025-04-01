@@ -28,20 +28,20 @@ limitations under the License.
 */
 
 #include "sirf/Reg/Registration.h"
-#include <stdexcept>
+//#include <stdexcept>
 #include <iostream>
 
 using namespace sirf;
 
 template<class dataType>
-void Registration<dataType>::set_reference_image(const std::shared_ptr<const ImageData> reference_image_sptr)
+void Registration<dataType>::set_reference_image(const std::shared_ptr<const ImageData<dataType> > reference_image_sptr)
 {
     _reference_image_sptr = reference_image_sptr;
     _reference_image_filename = "";
 }
 
 template<class dataType>
-void Registration<dataType>::set_floating_image(const std::shared_ptr<const ImageData> floating_image_sptr)
+void Registration<dataType>::set_floating_image(const std::shared_ptr<const ImageData<dataType> > floating_image_sptr)
 {
     if (!_floating_image_filenames.empty()) {
         std::cout << "\nClearing floating images set via filename";
@@ -53,7 +53,7 @@ void Registration<dataType>::set_floating_image(const std::shared_ptr<const Imag
 }
 
 template<class dataType>
-void Registration<dataType>::add_floating_image(const std::shared_ptr<const ImageData> floating_image_sptr)
+void Registration<dataType>::add_floating_image(const std::shared_ptr<const ImageData<dataType> > floating_image_sptr)
 {
     if (!_floating_image_filenames.empty()) {
         std::cout << "\nClearing floating images set via filename";

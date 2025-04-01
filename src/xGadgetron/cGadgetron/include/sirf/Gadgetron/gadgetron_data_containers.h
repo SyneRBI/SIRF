@@ -273,8 +273,15 @@ namespace sirf {
 	\brief Abstract MR acquisition data container class.
 
 	*/
-	class MRAcquisitionData : public DataContainer {
+	class MRAcquisitionData : public DataContainerTempl<complex_float_t> {
 	public:
+		typedef MRAcquisitionData self_type;
+
+		virtual std::string data_type() const
+		{
+			return std::string("complex_float");
+		}
+
 		// static methods
 
 		// ISMRMRD acquisitions algebra: acquisitions viewed as vectors of 
@@ -564,7 +571,7 @@ namespace sirf {
 			return std::make_tuple(limit.minimum, limit.maximum, limit.center);
 		}
 
-		// abstract methods
+		// virtual methods
 
 		virtual void empty() = 0;
 		virtual void take_over(MRAcquisitionData&) = 0;
@@ -599,59 +606,37 @@ namespace sirf {
 		}
 
 		// acquisition data algebra
-		/// below all void* are actually complex_float_t*
-		virtual void sum(void* ptr) const;
-		virtual void max(void* ptr) const;
-		virtual void min(void* ptr) const;
-		virtual void dot(const DataContainer& dc, void* ptr) const;
-		complex_float_t dot(const DataContainer& a_x)
-		{
-			complex_float_t z;
-			dot(a_x, &z);
-			return z;
-		}
+		virtual float norm() const;
+		virtual complex_float_t sum() const;
+		virtual complex_float_t max() const;
+		virtual complex_float_t min() const;
+		virtual complex_float_t dot(const DataContainer& dc) const;
 		virtual void axpby(
-			const void* ptr_a, const DataContainer& a_x,
-			const void* ptr_b, const DataContainer& a_y);
+			complex_float_t a, const DataContainer& a_x,
+			complex_float_t b, const DataContainer& a_y);
+		virtual void xapyb(
+			const DataContainer& a_x, complex_float_t a,
+			const DataContainer& a_y, complex_float_t b)
+		{
+			axpby(a, a_x, b, a_y);
+		}
+		virtual void xapyb(
+			const DataContainer& a_x, complex_float_t a,
+			const DataContainer& a_y, const DataContainer& a_b);
 		virtual void xapyb(
 			const DataContainer& a_x, const DataContainer& a_a,
 			const DataContainer& a_y, const DataContainer& a_b);
-		virtual void xapyb(
-			const DataContainer& a_x, const void* ptr_a,
-			const DataContainer& a_y, const void* ptr_b)
-		{
-			axpby(ptr_a, a_x, ptr_b, a_y);
-		}
-		virtual void xapyb(
-			const DataContainer& a_x, const void* ptr_a,
-			const DataContainer& a_y, const DataContainer& a_b);
-		virtual void multiply(const DataContainer& x, const DataContainer& y);
-		virtual void divide(const DataContainer& x,	const DataContainer& y);
-		virtual void maximum(const DataContainer& x, const DataContainer& y);
-		virtual void minimum(const DataContainer& x, const DataContainer& y);
-		virtual void power(const DataContainer& x, const DataContainer& y);
-		virtual void multiply(const DataContainer& x, const void* y);
-		virtual void add(const DataContainer& x, const void* ptr_y);
-		virtual void maximum(const DataContainer& x, const void* y);
-		virtual void minimum(const DataContainer& x, const void* y);
-		virtual void power(const DataContainer& x, const void* y);
-		virtual void exp(const DataContainer& x);
-		virtual void log(const DataContainer& x);
-		virtual void sqrt(const DataContainer& x);
-		virtual void sign(const DataContainer& x);
-		virtual void abs(const DataContainer& x);
-		virtual float norm() const;
 
 		virtual void write(const std::string &filename) const;
 
-		// regular methods
-		void binary_op(const DataContainer& a_x, const DataContainer& a_y,
-			void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&));
-		void semibinary_op(const DataContainer& a_x, complex_float_t y,
-			void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&, complex_float_t));
-		void unary_op(const DataContainer& a_x,
-			void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&));
+		virtual void binary_op(const DataContainer& a_x, const DataContainer& a_y,
+			complex_float_t(*f)(complex_float_t, complex_float_t));
+		virtual void semibinary_op(
+			const DataContainer& a_x, complex_float_t y,
+			complex_float_t(*f)(complex_float_t, complex_float_t));
+		virtual void unary_op(const DataContainer& a_x, complex_float_t(*f)(complex_float_t));
 
+		// regular methods
 		AcquisitionsInfo acquisitions_info() const { return acqs_info_; }
 		void set_acquisitions_info(std::string info) { acqs_info_ = info; }
 		void set_acquisitions_info(const AcquisitionsInfo info) { acqs_info_ = info;}
@@ -788,7 +773,7 @@ namespace sirf {
 		virtual void empty();
 		virtual void take_over(MRAcquisitionData& ad) {}
 		virtual unsigned int number() const { return (unsigned int)acqs_.size(); }
-		virtual unsigned int items() const { return (unsigned int)acqs_.size(); }
+		virtual unsigned int items() const { return (unsigned int)this->acqs_.size(); }
 		virtual void append_acquisition(ISMRMRD::Acquisition& acq)
 		{
 			acqs_.push_back(gadgetron::shared_ptr<ISMRMRD::Acquisition>
@@ -852,11 +837,17 @@ namespace sirf {
 
 	*/
 
-	class ISMRMRDImageData : public ImageData {
+	class ISMRMRDImageData : public ImageData<complex_float_t> {
 	public:
+		typedef ISMRMRDImageData self_type;
+
 		//ISMRMRDImageData(ISMRMRDImageData& id, const char* attr, 
 		//const char* target); //does not build, have to be in the derived class
 		
+		virtual bool is_complex() const
+		{
+			return true;
+		}
 		virtual void empty() = 0;
 		virtual unsigned int number() const = 0;
 		virtual gadgetron::shared_ptr<ImageWrap> sptr_image_wrap
@@ -955,38 +946,29 @@ namespace sirf {
 		}
 
 		virtual float norm() const;
-		/// below all void* are actually complex_float_t*
-		virtual void sum(void* ptr) const;
-		virtual void max(void* ptr) const;
-		virtual void min(void* ptr) const;
-		virtual void dot(const DataContainer& dc, void* ptr) const;
-		virtual void axpby(
-			const void* ptr_a, const DataContainer& a_x,
-			const void* ptr_b, const DataContainer& a_y);
-		virtual void xapyb(
-			const DataContainer& a_x, const void* ptr_a,
-			const DataContainer& a_y, const void* ptr_b)
+		virtual complex_float_t sum() const;
+		virtual complex_float_t max() const;
+		virtual complex_float_t min() const;
+		virtual complex_float_t dot(const DataContainer& dc) const;
+		void axpby(
+			complex_float_t a, const DataContainer& a_x,
+			complex_float_t b, const DataContainer& a_y);
+		void xapyb(
+			const DataContainer& a_x, complex_float_t a_a,
+			const DataContainer& a_y, complex_float_t a_b)
 		{
-			ComplexFloat_ a(*static_cast<const complex_float_t*>(ptr_a));
-			ComplexFloat_ b(*static_cast<const complex_float_t*>(ptr_b));
+			ComplexFloat_ a(a_a);
+			ComplexFloat_ b(a_b);
 			xapyb_(a_x, a, a_y, b);
 		}
 		virtual void xapyb(
-			const DataContainer& a_x, const void* ptr_a,
+			const DataContainer& a_x, complex_float_t a_a,
 			const DataContainer& a_y, const DataContainer& a_b)
 		{
-			ComplexFloat_ a(*static_cast<const complex_float_t*>(ptr_a));
+			ComplexFloat_ a(a_a);
 			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, b, a_b);
 			xapyb_(a_x, a, a_y, b);
 		}
-		//virtual void xapyb(
-		//	const DataContainer& a_x, const DataContainer& a_a,
-		//	const DataContainer& a_y, const void* ptr_b)
-		//{
-		//	SIRF_DYNAMIC_CAST(const ISMRMRDImageData, a, a_a);
-		//	ComplexFloat_ b(*(complex_float_t*)ptr_b);
-		//	xapyb_(a_x, a, a_y, b);
-		//}
 		virtual void xapyb(
 			const DataContainer& a_x, const DataContainer& a_a,
 			const DataContainer& a_y, const DataContainer& a_b)
@@ -995,50 +977,17 @@ namespace sirf {
 			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, b, a_b);
 			xapyb_(a_x, a, a_y, b);
 		}
-		virtual void multiply(const DataContainer& x, const DataContainer& y);
-		virtual void divide(const DataContainer& x, const DataContainer& y);
-		virtual void maximum(const DataContainer& x, const DataContainer& y);
-		virtual void minimum(const DataContainer& x, const DataContainer& y);
-		virtual void power(const DataContainer& x, const DataContainer& y);
-		virtual void multiply(const DataContainer& x, const void* ptr_y);
-		virtual void add(const DataContainer& x, const void* ptr_y);
-		virtual void maximum(const DataContainer& x, const void* ptr_y);
-		virtual void minimum(const DataContainer& x, const void* ptr_y);
-		virtual void power(const DataContainer& x, const void* ptr_y);
-		virtual void exp(const DataContainer& x);
-		virtual void log(const DataContainer& x);
-		virtual void sqrt(const DataContainer& x);
-		virtual void sign(const DataContainer& x);
-		virtual void abs(const DataContainer& x);
 
-		void binary_op(
-			const DataContainer& a_x, const DataContainer& a_y,
+		virtual void binary_op(const DataContainer& a_x, const DataContainer& a_y,
 			complex_float_t(*f)(complex_float_t, complex_float_t));
-		void semibinary_op(
+		virtual void semibinary_op(
 			const DataContainer& a_x, complex_float_t y,
 			complex_float_t(*f)(complex_float_t, complex_float_t));
-		void unary_op(const DataContainer& a_x, complex_float_t(*f)(complex_float_t));
+		virtual void unary_op(const DataContainer& a_x, complex_float_t(*f)(complex_float_t));
 
 		void fill(float s);
 		void scale(float s);
-		complex_float_t dot(const DataContainer& a_x)
-		{
-			complex_float_t z;
-			dot(a_x, &z);
-			return z;
-		}
-		void axpby(
-			complex_float_t a, const DataContainer& a_x,
-			complex_float_t b, const DataContainer& a_y)
-		{
-			axpby(&a, a_x, &b, a_y);
-		}
-		void xapyb(
-			const DataContainer& a_x, complex_float_t a,
-			const DataContainer& a_y, complex_float_t b)
-		{
-			xapyb(a_x, &a, a_y, &b);
-		}			
+
 		gadgetron::unique_ptr<ISMRMRDImageData> clone() const
 		{
 			return gadgetron::unique_ptr<ISMRMRDImageData>(this->clone_impl());
@@ -1154,6 +1103,10 @@ namespace sirf {
 
 	class GadgetronImagesVector : public GadgetronImageData {
 	public:
+		virtual std::string data_type() const
+		{
+			return std::string("complex_float");
+		}
 		typedef ImageData::Iterator BaseIter;
 		typedef ImageData::Iterator_const BaseIter_const;
 		typedef std::vector<gadgetron::shared_ptr<ImageWrap> >::iterator
@@ -1333,7 +1286,7 @@ namespace sirf {
 		}
 		virtual unsigned int items() const
 		{ 
-			return (unsigned int)images_.size(); 
+			return (unsigned int)this->images_.size(); 
 		}
 		virtual unsigned int number() const 
 		{ 
@@ -1456,7 +1409,7 @@ namespace sirf {
         void print_header(const unsigned im_num);
 
         /// Is complex?
-        virtual bool is_complex() const;
+        //virtual bool is_complex() const;
 
         /// Reorient image. Requires that dimensions match
         virtual void reorient(const VoxelisedGeometricalInfo3D &geom_info_out);

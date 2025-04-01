@@ -34,23 +34,23 @@ namespace sirf {
 	class ImageDataWrap {
 	public:
 		ImageDataWrap(const std::string &filename, const std::string &engine, bool verbose);
-		ImageData& data()
+		DataContainer& data()
 		{
 			return *img_sptr_;
 		}
-		const ImageData& data() const
+		const DataContainer& data() const
 		{
 			return *img_sptr_;
 		}
-		std::shared_ptr<ImageData> data_sptr()
+		std::shared_ptr<DataContainer> data_sptr()
 		{
 			return img_sptr_;
 		}
-		const std::shared_ptr<ImageData> data_sptr() const
+		const std::shared_ptr<DataContainer> data_sptr() const
 		{
 			return img_sptr_;
 		}
 	private:
-		std::shared_ptr<ImageData> img_sptr_;
+		std::shared_ptr<DataContainer> img_sptr_;
 	};
 }

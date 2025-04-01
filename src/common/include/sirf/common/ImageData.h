@@ -33,8 +33,10 @@ limitations under the License.
 \brief Abstract base class for SIRF image data.
 
 */
+
 namespace sirf {
-	class ImageData : public DataContainer
+	template<typename T>
+	class ImageData : public DataContainerTempl<T>
 	{
 	public:
 		virtual ~ImageData() {}
@@ -74,7 +76,7 @@ namespace sirf {
 		size_t size() const
 		{
 			Dimensions dim = dimensions();
-			if (is_empty())
+			if (this->is_empty())
 				return 0;
 			size_t n = 1;
 			for (std::map<std::string, int>::iterator it = dim.begin(); it != dim.end(); ++it) {
@@ -133,7 +135,7 @@ namespace sirf {
 			return !(*this == id);
 		}
 		/// Get geometrical info
-        std::shared_ptr<const VoxelisedGeometricalInfo3D > get_geom_info_sptr() const
+        virtual std::shared_ptr<const VoxelisedGeometricalInfo3D > get_geom_info_sptr() const
         {
             // If the geometrical info has not been created yet, throw an error
             if (!_geom_info_sptr)
@@ -149,12 +151,24 @@ namespace sirf {
             return std::unique_ptr<ImageData>(this->clone_impl());
         }
         /// Is complex? Unless overwridden (Gadgetron), assume not complex.
-        virtual bool is_complex() const { return false; }
+		virtual bool is_complex() const { return false; }
         /// Reorient image. Requires that dimesions and spacing match
-        virtual void reorient(const VoxelisedGeometricalInfo3D &);
-        /// Can reorient? (check dimensions and spacing)
-        static bool can_reorient(const VoxelisedGeometricalInfo3D &geom_1, const VoxelisedGeometricalInfo3D &geom_2, const bool throw_error);
-        /// Populate the geometrical info metadata (from the image's own metadata)
+        virtual void reorient(const VoxelisedGeometricalInfo3D &) //;
+		{
+			throw std::runtime_error("ImageData::reorient not yet implemented for your image type.");
+		}
+		/// Can reorient? (check dimensions and spacing)
+        static bool can_reorient(const VoxelisedGeometricalInfo3D &geom_1, const VoxelisedGeometricalInfo3D &geom_2, const bool throw_error) //;
+		{
+			// If size and spacing match, return true
+			if (geom_1.get_size() == geom_2.get_size())
+				return true;
+			// Else (and error desired), print error
+			if (throw_error)
+				throw std::runtime_error("ImageData::can_reorient: num voxels do not match.");
+			// Else, return false
+			return false;
+		}        /// Populate the geometrical info metadata (from the image's own metadata)
         virtual void set_up_geom_info() = 0;
     protected:
         /// Clone helper function. Don't use.

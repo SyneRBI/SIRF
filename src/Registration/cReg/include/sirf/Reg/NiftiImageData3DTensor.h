@@ -91,13 +91,13 @@ public:
     void flip_component(const int dim);
 
     /// Tensor component maths
-    void tensor_component_maths(const int dim, const std::shared_ptr<const ImageData> &scalar_im_sptr, const typename NiftiImageData<dataType>::MathsType maths_type);
+    void tensor_component_maths(const int dim, const std::shared_ptr<const ImageData<dataType> > &scalar_im_sptr, const typename NiftiImageData<dataType>::MathsType maths_type);
 
     /// Multiply tensor component by image
-    void multiply_tensor_component(const int dim, const std::shared_ptr<const ImageData> &scalar_im_sptr);
+    void multiply_tensor_component(const int dim, const std::shared_ptr<const ImageData<dataType> > &scalar_im_sptr);
 
     /// Add image to tensor component
-    void add_to_tensor_component(const int dim, const std::shared_ptr<const ImageData> &scalar_im_sptr);
+    void add_to_tensor_component(const int dim, const std::shared_ptr<const ImageData<dataType> > &scalar_im_sptr);
 
     virtual ObjectHandle<DataContainer>* new_data_container_handle() const
     {

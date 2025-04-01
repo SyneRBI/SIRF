@@ -37,7 +37,7 @@ namespace sirf {
 
 /// Forward declarations
 template<class dataType> class Transformation;
-class ImageData;
+template<class dataType> class ImageData;
 
 /*!
 \ingroup Registration
@@ -79,13 +79,13 @@ public:
     virtual ~Registration() {}
 
     /// Set reference image
-    void set_reference_image(const std::shared_ptr<const ImageData> reference_image_sptr);
+    void set_reference_image(const std::shared_ptr<const ImageData<dataType> > reference_image_sptr);
 
     /// Set floating image. Will clear any previous floating images.
-    void set_floating_image(const std::shared_ptr<const ImageData> floating_image_sptr);
+    void set_floating_image(const std::shared_ptr<const ImageData<dataType> > floating_image_sptr);
 
     /// Add floating image
-    void add_floating_image(const std::shared_ptr<const ImageData> floating_image_sptr);
+    void add_floating_image(const std::shared_ptr<const ImageData<dataType> > floating_image_sptr);
 
     /// Set reference image filename. Will be read as NiftiImageData.
     void set_reference_image_filename(const std::string &filename);
@@ -103,7 +103,7 @@ public:
     virtual void process() = 0;
 
     /// Get registered image
-    virtual const std::shared_ptr<const ImageData> get_output_sptr(const unsigned idx = 0) const { return _warped_images.at(idx); }
+    virtual const std::shared_ptr<const ImageData<dataType> > get_output_sptr(const unsigned idx = 0) const { return _warped_images.at(idx); }
 
     /// Get forward deformation field image
     virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_forward_sptr(const unsigned idx = 0) const { return _def_fwd_images.at(idx); }
@@ -123,11 +123,11 @@ protected:
     virtual void check_parameters() const;
 
     /// Reference image
-    std::shared_ptr<const ImageData> _reference_image_sptr;
+    std::shared_ptr<const ImageData<dataType> > _reference_image_sptr;
     /// Floating image
-    std::vector<std::shared_ptr<const ImageData> > _floating_images;
+    std::vector<std::shared_ptr<const ImageData<dataType> > > _floating_images;
     /// Warped image
-    std::vector<std::shared_ptr<ImageData> > _warped_images;
+    std::vector<std::shared_ptr<ImageData<dataType> > > _warped_images;
 
     /// Forward deformation field image
     std::vector<std::shared_ptr<Transformation<dataType> > > _def_fwd_images;

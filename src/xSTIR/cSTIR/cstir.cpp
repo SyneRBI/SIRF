@@ -1446,7 +1446,7 @@ extern "C"
 void* cSTIR_imageFromImageData(void* ptr_v)
 {
 	try {
-		ImageData& id = objectFromHandle<ImageData>(ptr_v);
+		ImageData<float>& id = objectFromHandle<ImageData<float> >(ptr_v);
 		shared_ptr<STIRImageData> sptr(new STIRImageData(id));
 		return (void*)newObjectHandle(sptr);
 	}

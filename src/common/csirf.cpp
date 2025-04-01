@@ -19,7 +19,7 @@ limitations under the License.
 
 */
 
-#include <memory>
+//#include <memory>
 
 #include "sirf/iUtilities/DataHandle.h"
 #include "sirf/common/DataContainer.h"
@@ -34,6 +34,17 @@ using namespace sirf;
 #define NEW_OBJECT_HANDLE(T) new ObjectHandle<T >(shared_ptr<T >(new T))
 #define SPTR_FROM_HANDLE(Object, X, H) \
 	shared_ptr<Object> X; getObjectSptrFromHandle<Object>(H, X);
+#define SELECT_DATA_CASE(DataType, Method, Args, ...) \
+	if (DataType == "float") \
+		Method<float>(Args, ##__VA_ARGS__); \
+	else if (DataType == "complex_float") \
+		Method<complex_float_t>(Args, ##__VA_ARGS__); \
+	else { \
+		std::string err = "??? Unsupported data type "; \
+		err += DataType; \
+		throw(err.c_str()); \
+	} \
+
 
 
 static void*
@@ -141,17 +152,33 @@ cSIRF_norm(const void* ptr_x)
 	CATCH;
 }
 
+template<typename T>
+void
+compute_dot_templ(const void* ptr_x, const void* ptr_y, void* ptr_z)
+{
+	auto const& x = objectFromHandle<DataContainerTempl<T> >(ptr_x);
+	auto const& y = objectFromHandle<DataContainerTempl<T> >(ptr_y);
+	*static_cast<T*>(ptr_z) = x.dot(y);
+}
+
 extern "C"
 void*
 cSIRF_compute_dot(const void* ptr_x, const void* ptr_y, void* ptr_z)
 {
 	try {
-		auto const& x = objectFromHandle<DataContainer>(ptr_x);
-		auto const& y = objectFromHandle<DataContainer>(ptr_y);
-		x.dot(y, ptr_z);
+		auto const& base = objectFromHandle<DataContainer>(ptr_x);
+		SELECT_DATA_CASE(base.data_type(), compute_dot_templ, ptr_x, ptr_y, ptr_z);
 		return new DataHandle;
 	}
 	CATCH;
+}
+
+template<typename T>
+void
+compute_sum_templ(const void* ptr_x, void* ptr_z)
+{
+	auto const& x = objectFromHandle<DataContainerTempl<T> >(ptr_x);
+	*static_cast<T*>(ptr_z) = x.sum();
 }
 
 extern "C"
@@ -159,11 +186,19 @@ void*
 cSIRF_compute_sum(const void* ptr_x, void* ptr_z)
 {
 	try {
-		auto const& x = objectFromHandle<DataContainer>(ptr_x);
-		x.sum(ptr_z);
+		auto const& base = objectFromHandle<DataContainer>(ptr_x);
+		SELECT_DATA_CASE(base.data_type(), compute_sum_templ, ptr_x, ptr_z);
 		return new DataHandle;
 	}
 	CATCH;
+}
+
+template<typename T>
+void
+compute_max_templ(const void* ptr_x, void* ptr_z)
+{
+	auto const& x = objectFromHandle<DataContainerTempl<T> >(ptr_x);
+	*static_cast<T*>(ptr_z) = x.max();
 }
 
 extern "C"
@@ -171,11 +206,19 @@ void*
 cSIRF_compute_max(const void* ptr_x, void* ptr_z)
 {
 	try {
-		auto const& x = objectFromHandle<DataContainer>(ptr_x);
-		x.max(ptr_z);
+		auto const& base = objectFromHandle<DataContainer>(ptr_x);
+		SELECT_DATA_CASE(base.data_type(), compute_max_templ, ptr_x, ptr_z);
 		return new DataHandle;
 	}
 	CATCH;
+}
+
+template<typename T>
+void
+compute_min_templ(const void* ptr_x, void* ptr_z)
+{
+	auto const& x = objectFromHandle<DataContainerTempl<T> >(ptr_x);
+	*static_cast<T*>(ptr_z) = x.min();
 }
 
 extern "C"
@@ -183,11 +226,25 @@ void*
 cSIRF_compute_min(const void* ptr_x, void* ptr_z)
 {
 	try {
-		auto const& x = objectFromHandle<DataContainer>(ptr_x);
-		x.min(ptr_z);
+		auto const& base = objectFromHandle<DataContainer>(ptr_x);
+		SELECT_DATA_CASE(base.data_type(), compute_min_templ, ptr_x, ptr_z);
 		return new DataHandle;
 	}
 	CATCH;
+}
+
+template<typename T>
+void
+axpby_templ(
+	const void* ptr_a, const void* ptr_x,
+	const void* ptr_b, const void* ptr_y, void* h
+) {
+	auto const& x = objectFromHandle<DataContainerTempl<T> >(ptr_x);
+	auto const& y = objectFromHandle<DataContainerTempl<T> >(ptr_y);
+	T a = *static_cast<const T*>(ptr_a);
+	T b = *static_cast<const T*>(ptr_b);
+	auto& z = objectFromHandle<DataContainerTempl<T> >(h);
+	z.xapyb(x, a, y, b);
 }
 
 extern "C"
@@ -197,11 +254,9 @@ cSIRF_axpby(
 	const void* ptr_b, const void* ptr_y
 ) {
 	try {
-		auto const& x =	objectFromHandle<DataContainer>(ptr_x);
-		auto const& y =	objectFromHandle<DataContainer>(ptr_y);
+		auto const& x = objectFromHandle<DataContainer>(ptr_x);
 		void* h = x.new_data_container_handle();
-		auto& z = objectFromHandle<DataContainer>(h);
-		z.xapyb(x, ptr_a, y, ptr_b);
+		SELECT_DATA_CASE(x.data_type(), axpby_templ, ptr_a, ptr_x, ptr_b, ptr_y, h);
 		return h;
 	}
 	CATCH;
@@ -209,19 +264,31 @@ cSIRF_axpby(
 
 extern "C"
 void*
-cSIRF_axpbyAlt(
+cSIRF_compute_axpby(
 	const void* ptr_a, const void* ptr_x,
 	const void* ptr_b, const void* ptr_y,
 	void* ptr_z
 ) {
 	try {
-		auto const& x =	objectFromHandle<DataContainer>(ptr_x);
-		auto const& y =	objectFromHandle<DataContainer>(ptr_y);
-		auto& z = objectFromHandle<DataContainer>(ptr_z);
-		z.xapyb(x, ptr_a, y, ptr_b);
+		auto const& x = objectFromHandle<DataContainer>(ptr_x);
+		SELECT_DATA_CASE(x.data_type(), axpby_templ, ptr_a, ptr_x, ptr_b, ptr_y, ptr_z);
 		return new DataHandle;
 	}
 	CATCH;
+}
+
+template<typename T>
+void
+xapyb_templ(
+	const void* ptr_x, const void* ptr_a,
+	const void* ptr_y, const void* ptr_b, void* h
+) {
+	auto const& x = objectFromHandle<DataContainerTempl<T> >(ptr_x);
+	auto const& a = objectFromHandle<DataContainerTempl<T> >(ptr_a);
+	auto const& y = objectFromHandle<DataContainerTempl<T> >(ptr_y);
+	auto const& b = objectFromHandle<DataContainerTempl<T> >(ptr_b);
+	auto& z = objectFromHandle<DataContainerTempl<T> >(h);
+	z.xapyb(x, a, y, b);
 }
 
 extern "C"
@@ -232,12 +299,8 @@ cSIRF_xapyb(
 ) {
 	try {
 		auto const& x =	objectFromHandle<DataContainer>(ptr_x);
-		auto const& a =	objectFromHandle<DataContainer>(ptr_a);
-		auto const& y =	objectFromHandle<DataContainer>(ptr_y);
-		auto const& b =	objectFromHandle<DataContainer>(ptr_b);
 		void* h = x.new_data_container_handle();
-		auto& z = objectFromHandle<DataContainer>(h);
-		z.xapyb(x, a, y, b);
+		SELECT_DATA_CASE(x.data_type(), xapyb_templ, ptr_x, ptr_a, ptr_y, ptr_b, h);
 		return h;
 	}
 	CATCH;
@@ -245,21 +308,31 @@ cSIRF_xapyb(
 
 extern "C"
 void*
-cSIRF_xapybAlt(
+cSIRF_compute_xapyb(
 	const void* ptr_x, const void* ptr_a,
 	const void* ptr_y, const void* ptr_b,
 	void* ptr_z
 ) {
 	try {
-		auto const& x =	objectFromHandle<DataContainer>(ptr_x);
-		auto const& a =	objectFromHandle<DataContainer>(ptr_a);
-		auto const& y =	objectFromHandle<DataContainer>(ptr_y);
-		auto const& b =	objectFromHandle<DataContainer>(ptr_b);
-		auto& z = objectFromHandle<DataContainer>(ptr_z);
-		z.xapyb(x, a, y, b);
+		auto const& x = objectFromHandle<DataContainer>(ptr_x);
+		SELECT_DATA_CASE(x.data_type(), xapyb_templ, ptr_x, ptr_a, ptr_y, ptr_b, ptr_z);
 		return new DataHandle;
 	}
 	CATCH;
+}
+
+template<typename T>
+void
+XapYB_templ(
+	const void* ptr_x, const void* ptr_a,
+	const void* ptr_y, const void* ptr_b, void* h
+) {
+	auto const& x = objectFromHandle<DataContainerTempl<T> >(ptr_x);
+	auto const& y = objectFromHandle<DataContainerTempl<T> >(ptr_y);
+	T a = *static_cast<const T*>(ptr_a);
+	auto const& b = objectFromHandle<DataContainerTempl<T> >(ptr_b);
+	auto& z = objectFromHandle<DataContainerTempl<T> >(h);
+	z.xapyb(x, a, y, b);
 }
 
 extern "C"
@@ -270,11 +343,8 @@ cSIRF_XapYB(
 ) {
 	try {
 		auto const& x = objectFromHandle<DataContainer>(ptr_x);
-		auto const& y = objectFromHandle<DataContainer>(ptr_y);
-		auto const& b = objectFromHandle<DataContainer>(ptr_b);
 		void* h = x.new_data_container_handle();
-		auto& z = objectFromHandle<DataContainer>(h);
-		z.xapyb(x, ptr_a, y, b);
+		SELECT_DATA_CASE(x.data_type(), XapYB_templ, ptr_x, ptr_a, ptr_y, ptr_b, h);
 		return h;
 	}
 	CATCH;
@@ -282,30 +352,36 @@ cSIRF_XapYB(
 
 extern "C"
 void*
-cSIRF_XapYBAlt(
+cSIRF_compute_XapYB(
 	const void* ptr_x, const void* ptr_a,
 	const void* ptr_y, const void* ptr_b,
 	void* ptr_z
 ) {
 	try {
 		auto const& x = objectFromHandle<DataContainer>(ptr_x);
-		auto const& y = objectFromHandle<DataContainer>(ptr_y);
-		auto const& b = objectFromHandle<DataContainer>(ptr_b);
-		auto& z = objectFromHandle<DataContainer>(ptr_z);
-		z.xapyb(x, ptr_a, y, b);
+		SELECT_DATA_CASE(x.data_type(), XapYB_templ, ptr_x, ptr_a, ptr_y, ptr_b, ptr_z);
 		return new DataHandle;
 	}
 	CATCH;
 }
 
+template<typename T>
+void
+add_templ(const void* ptr_x, const void* ptr_y, void* ptr_z)
+{
+	auto const& x = objectFromHandle<DataContainerTempl<T> >(ptr_x);
+	T y = *static_cast<const T*>(ptr_y);
+	auto& z = objectFromHandle<DataContainerTempl<T> >(ptr_z);
+	z.add(x, y);
+}
+
 extern "C"
 void*
-cSIRF_add(const void* ptr_x, const void* ptr_y, const void* ptr_z)
+cSIRF_add(const void* ptr_x, const void* ptr_y, void* ptr_z)
 {
 	try {
 		auto const& x = objectFromHandle<DataContainer>(ptr_x);
-		auto& z = objectFromHandle<DataContainer>(ptr_z);
-		z.add(x, ptr_y);
+		SELECT_DATA_CASE(x.data_type(), add_templ, ptr_x, ptr_y, ptr_z);
 		return new DataHandle;
 	}
 	CATCH;
@@ -318,11 +394,29 @@ cSIRF_sum(const void* ptr_x, const void* ptr_y)
 	try {
 		auto const& x = objectFromHandle<DataContainer>(ptr_x);
 		void* h = x.new_data_container_handle();
-		auto& z = objectFromHandle<DataContainer>(h);
-		z.add(x, ptr_y);
+		SELECT_DATA_CASE(x.data_type(), add_templ, ptr_x, ptr_y, h);
 		return h;
 	}
 	CATCH;
+}
+
+template<typename T>
+void
+binary_templ(const void* ptr_x, const void* ptr_y, const char* f, void* h)
+{
+	auto const& x = objectFromHandle<DataContainerTempl<T> >(ptr_x);
+	auto const& y = objectFromHandle<DataContainerTempl<T> >(ptr_y);
+	auto& z = objectFromHandle<DataContainerTempl<T> >(h);
+	if (sirf::iequals(f, "power"))
+		z.power(x, y);
+	else if (sirf::iequals(f, "multiply"))
+		z.multiply(x, y);
+	else if (sirf::iequals(f, "divide"))
+		z.divide(x, y);
+	else if (sirf::iequals(f, "maximum"))
+		z.maximum(x, y);
+	else if (sirf::iequals(f, "minimum"))
+		z.minimum(x, y);
 }
 
 extern "C"
@@ -331,21 +425,8 @@ cSIRF_binary(const void* ptr_x, const void* ptr_y, const char* f)
 {
 	try {
 		auto const& x = objectFromHandle<DataContainer>(ptr_x);
-		auto const& y = objectFromHandle<DataContainer>(ptr_y);
 		void* h = x.new_data_container_handle();
-		auto& z = objectFromHandle<DataContainer>(h);
-		if (sirf::iequals(f, "power"))
-			z.power(x, y);
-		else if (sirf::iequals(f, "multiply"))
-			z.multiply(x, y);
-		else if (sirf::iequals(f, "divide"))
-			z.divide(x, y);
-		else if (sirf::iequals(f, "maximum"))
-			z.maximum(x, y);
-		else if (sirf::iequals(f, "minimum"))
-			z.minimum(x, y);
-		else
-			return unknownObject("function", f, __FILE__, __LINE__);
+		SELECT_DATA_CASE(x.data_type(), binary_templ, ptr_x, ptr_y, f, h);
 		return h;
 	}
 	CATCH;
@@ -353,27 +434,31 @@ cSIRF_binary(const void* ptr_x, const void* ptr_y, const char* f)
 
 extern "C"
 void*
-cSIRF_compute_binary(const void* ptr_x, const void* ptr_y, const char* f, const void* ptr_z)
+cSIRF_compute_binary(const void* ptr_x, const void* ptr_y, const char* f, void* ptr_z)
 {
 	try {
 		auto const& x = objectFromHandle<DataContainer>(ptr_x);
-		auto& z = objectFromHandle<DataContainer>(ptr_z);
-		auto const& y = objectFromHandle<DataContainer>(ptr_y);
-		if (sirf::iequals(f, "power"))
-			z.power(x, y);
-		else if (sirf::iequals(f, "multiply"))
-			z.multiply(x, y);
-		else if (sirf::iequals(f, "divide"))
-			z.divide(x, y);
-		else if (sirf::iequals(f, "maximum"))
-			z.maximum(x, y);
-		else if (sirf::iequals(f, "minimum"))
-			z.minimum(x, y);
-		else
-			return unknownObject("function", f, __FILE__, __LINE__);
+		SELECT_DATA_CASE(x.data_type(), binary_templ, ptr_x, ptr_y, f, ptr_z);
 		return new DataHandle;
 	}
 	CATCH;
+}
+
+template<typename T>
+void
+semibinary_templ(const void* ptr_x, const void* ptr_y, const char* f, void* h)
+{
+	auto const& x = objectFromHandle<DataContainerTempl<T> >(ptr_x);
+	auto& z = objectFromHandle<DataContainerTempl<T> >(h);
+	T y = *static_cast<const T*>(ptr_y);
+	if (sirf::iequals(f, "power"))
+		z.power(x, y);
+	else if (sirf::iequals(f, "multiply"))
+		z.multiply(x, y);
+	else if (sirf::iequals(f, "maximum"))
+		z.maximum(x, y);
+	else if (sirf::iequals(f, "minimum"))
+		z.minimum(x, y);
 }
 
 extern "C"
@@ -383,17 +468,7 @@ cSIRF_semibinary(const void* ptr_x, const void* ptr_y, const char* f)
 	try {
 		auto const& x = objectFromHandle<DataContainer>(ptr_x);
 		void* h = x.new_data_container_handle();
-		auto& z = objectFromHandle<DataContainer>(h);
-		if (sirf::iequals(f, "power"))
-			z.power(x, ptr_y);
-		else if (sirf::iequals(f, "multiply"))
-			z.multiply(x, ptr_y);
-		else if (sirf::iequals(f, "maximum"))
-			z.maximum(x, ptr_y);
-		else if (sirf::iequals(f, "minimum"))
-			z.minimum(x, ptr_y);
-		else
-			return unknownObject("function", f, __FILE__, __LINE__);
+		SELECT_DATA_CASE(x.data_type(), semibinary_templ, ptr_x, ptr_y, f, h);
 		return h;
 	}
 	CATCH;
@@ -401,24 +476,34 @@ cSIRF_semibinary(const void* ptr_x, const void* ptr_y, const char* f)
 
 extern "C"
 void*
-cSIRF_compute_semibinary(const void* ptr_x, const void* ptr_y, const char* f, const void* ptr_z)
+cSIRF_compute_semibinary(const void* ptr_x, const void* ptr_y, const char* f, void* ptr_z)
 {
 	try {
 		auto const& x = objectFromHandle<DataContainer>(ptr_x);
-		auto& z = objectFromHandle<DataContainer>(ptr_z);
-		if (sirf::iequals(f, "power"))
-			z.power(x, ptr_y);
-		else if (sirf::iequals(f, "multiply"))
-			z.multiply(x, ptr_y);
-		else if (sirf::iequals(f, "maximum"))
-			z.maximum(x, ptr_y);
-		else if (sirf::iequals(f, "minimum"))
-			z.minimum(x, ptr_y);
-		else
-			return unknownObject("function", f, __FILE__, __LINE__);
+		SELECT_DATA_CASE(x.data_type(), semibinary_templ, ptr_x, ptr_y, f, ptr_z);
 		return new DataHandle;
 	}
 	CATCH;
+}
+
+template<typename T>
+void
+unary_templ(const void* ptr_x, const char* f, void* h)
+{
+		auto const& x = objectFromHandle<DataContainerTempl<T> >(ptr_x);
+		auto& z = objectFromHandle<DataContainerTempl<T> >(h);
+		if (sirf::iequals(f, "exp"))
+			z.exp(x);
+		else if (sirf::iequals(f, "log"))
+			z.log(x);
+		else if (sirf::iequals(f, "sqrt"))
+			z.sqrt(x);
+		else if (sirf::iequals(f, "sign"))
+			z.sign(x);
+		else if (sirf::iequals(f, "abs"))
+			z.abs(x);
+		//else
+		//	return unknownObject("function", f, __FILE__, __LINE__);
 }
 
 extern "C"
@@ -428,19 +513,7 @@ cSIRF_unary(const void* ptr_x, const char* f)
 	try {
 		auto const& x = objectFromHandle<DataContainer>(ptr_x);
 		void* h = x.new_data_container_handle();
-		auto& z = objectFromHandle<DataContainer>(h);
-		if (sirf::iequals(f, "exp"))
-			z.exp(x);
-		else if (sirf::iequals(f, "log"))
-			z.log(x);
-		else if (sirf::iequals(f, "sqrt"))
-			z.sqrt(x);
-		else if (sirf::iequals(f, "sign"))
-			z.sign(x);
-		else if (sirf::iequals(f, "abs"))
-			z.abs(x);
-		else
-			return unknownObject("function", f, __FILE__, __LINE__);
+		SELECT_DATA_CASE(x.data_type(), unary_templ, ptr_x, f, h);
 		return h;
 	}
 	CATCH;
@@ -448,23 +521,11 @@ cSIRF_unary(const void* ptr_x, const char* f)
 
 extern "C"
 void*
-cSIRF_compute_unary(const void* ptr_x, const char* f, const void* ptr_z)
+cSIRF_compute_unary(const void* ptr_x, const char* f, void* ptr_z)
 {
 	try {
 		auto const& x = objectFromHandle<DataContainer>(ptr_x);
-		auto& z = objectFromHandle<DataContainer>(ptr_z);
-		if (sirf::iequals(f, "exp"))
-			z.exp(x);
-		else if (sirf::iequals(f, "log"))
-			z.log(x);
-		else if (sirf::iequals(f, "sqrt"))
-			z.sqrt(x);
-		else if (sirf::iequals(f, "sign"))
-			z.sign(x);
-		else if (sirf::iequals(f, "abs"))
-			z.abs(x);
-		else
-			return unknownObject("function", f, __FILE__, __LINE__);
+		SELECT_DATA_CASE(x.data_type(), unary_templ, ptr_x, f, ptr_z);
 		return new DataHandle;
 	}
 	CATCH;
@@ -503,14 +564,22 @@ cSIRF_DataHandleVector_push_back(void* self, void* to_append)
     return new DataHandle;
 }
 
+template<typename T>
+void
+fill_templ(void* ptr_im, const void* ptr_src)
+{
+	auto& id = objectFromHandle<ImageData<T> >(ptr_im);
+	auto const& id_src = objectFromHandle<ImageData<T> >(ptr_src);
+	id.fill(id_src);
+}
+
 extern "C"
 void*
 cSIRF_fillImageFromImage(void* ptr_im, const void* ptr_src)
 {
 	try {
-		auto& id = objectFromHandle<ImageData>(ptr_im);
-		auto const& id_src = objectFromHandle<ImageData>(ptr_src);
-		id.fill(id_src);
+		auto& id = objectFromHandle<DataContainer>(ptr_im);
+		SELECT_DATA_CASE(id.data_type(), fill_templ, ptr_im, ptr_src);
 		return new DataHandle;
 	}
     CATCH;
@@ -522,10 +591,20 @@ cSIRF_readImageData(const char* file, const char* eng, int verb)
 {
 	try {
 		ImageDataWrap idw(file, eng, verb);
-		std::shared_ptr<ImageData> sptr_id = idw.data_sptr();
-		return newObjectHandle<ImageData>(sptr_id);
+		std::shared_ptr<DataContainer> sptr_id = idw.data_sptr();
+		return newObjectHandle<DataContainer>(sptr_id);
 	}
 	CATCH;
+}
+
+template<typename T>
+void
+equal_images_templ
+(const void* ptr_im_a, const void* ptr_im_b, int* ptr_same)
+{
+	auto const& id_a = objectFromHandle<ImageData<T> >(ptr_im_a);
+	auto const& id_b = objectFromHandle<ImageData<T> >(ptr_im_b);
+	*ptr_same = (id_a == id_b);
 }
 
 extern "C"
@@ -533,12 +612,22 @@ void*
 cSIRF_equalImages(const void* ptr_im_a, const void* ptr_im_b)
 {
 	try {
-		auto const& id_a = objectFromHandle<ImageData>(ptr_im_a);
-		auto const& id_b = objectFromHandle<ImageData>(ptr_im_b);
-		int same = (id_a == id_b);
+		auto const& id_a = objectFromHandle<DataContainer>(ptr_im_a);
+		int same;
+		SELECT_DATA_CASE(id_a.data_type(), equal_images_templ, ptr_im_a, ptr_im_b, &same);
 		return dataHandle(same);
 	}
     CATCH;
+}
+
+template<typename T>
+void
+reorient_templ(void* im_ptr, void* geom_info_ptr)
+{
+	auto& id = objectFromHandle<ImageData<T> >(im_ptr);
+	VoxelisedGeometricalInfo3D geom_info =
+		objectFromHandle<VoxelisedGeometricalInfo3D>(geom_info_ptr);
+	id.reorient(geom_info);
 }
 
 extern "C"
@@ -546,13 +635,19 @@ void*
 cSIRF_ImageData_reorient(void* im_ptr, void *geom_info_ptr)
 {
     try {
-        auto& id = objectFromHandle<ImageData>(im_ptr);
-        VoxelisedGeometricalInfo3D geom_info =
-                objectFromHandle<VoxelisedGeometricalInfo3D>(geom_info_ptr);
-        id.reorient(geom_info);
+        auto& id = objectFromHandle<DataContainer>(im_ptr);
+		SELECT_DATA_CASE(id.data_type(), reorient_templ, im_ptr, geom_info_ptr);
         return new DataHandle;
     }
     CATCH;
+}
+
+template<typename T>
+void
+geom_info_templ(const void* ptr_im, void** ptr)
+{
+	const auto& id = objectFromHandle<const ImageData<T> >(ptr_im);
+	*ptr = newObjectHandle(id.get_geom_info_sptr());
 }
 
 extern "C"
@@ -560,8 +655,10 @@ void*
 cSIRF_ImageData_get_geom_info(const void* ptr_im)
 {
 	try {
-		const auto& id = objectFromHandle<const ImageData>(ptr_im);
-		return newObjectHandle(id.get_geom_info_sptr());
+		const auto& id = objectFromHandle<const DataContainer>(ptr_im);
+		void* v;
+		SELECT_DATA_CASE(id.data_type(), geom_info_templ, ptr_im, &v);
+		return v;
 	}
 	CATCH;
 }
