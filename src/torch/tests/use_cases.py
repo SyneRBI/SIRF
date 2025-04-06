@@ -164,9 +164,9 @@ class PETVarNet(torch.nn.Module):
         Returns:
             torch.Tensor: Reconstructed image.
         """
-        for i in range(len(self.ConvBlocks)):
+        for ConvBlock in enumerate(self.ConvBlocks):
             # Each iteration: Convolutional block output + gradient descent step
-            x = self.relu(self.ConvBlocks[i](x) + self.objfuncgrad(x))
+            x = self.relu(self.ConvBlock(x) + self.objfuncgrad(x))
         return x
 
 
@@ -307,7 +307,7 @@ class UseCases:
         out_acq_model = self.gradient_descent_with_acq_model(lr=lr, n_iter=n_iter)
 
         print("Gradient Descent with Objective Function")
-        out_obj_func = self.gradient_descent_with_obj_func(lr=lr, n_iter=n_iter)        
+        out_obj_func = self.gradient_descent_with_obj_func(lr=lr, n_iter=n_iter)
 
         plt.figure(figsize=(12, 4))
 
@@ -345,7 +345,6 @@ class UseCases:
         """
         # Initialize image parameters (to be optimized)
         torch_image = sirf_to_torch(self.image.get_uniform_copy(1), self.device).unsqueeze(0) # Add batch dim.
-        torch_image_init = torch_image.clone() # unused
         torch_image_params = torch.nn.Parameter(torch_image)
 
         torch_measurements = sirf_to_torch(self.acq_data, self.device)
@@ -391,7 +390,7 @@ class UseCases:
             optimizer.step()
             print("Iteration: ", i, "Loss: ", loss.item())
         return torch_image_params.data.detach().cpu().squeeze().numpy()  # Return optimised image
-        
+
 
 
 if __name__ == '__main__':
