@@ -82,7 +82,7 @@ class PETLearnedPrimalDual(torch.nn.Module):
         Returns:
             torch.Tensor: The reconstructed image.
         """
-        batch_size = y.shape[0]  # Not used, but could be for batched processing
+        # batch_size = y.shape[0]  Not used, but could be for batched processing
 
         # Initialize dual variable (h) and primal variable (f) with zeros
         h = torch.zeros_like(y, device=y.device)
@@ -164,9 +164,9 @@ class PETVarNet(torch.nn.Module):
         Returns:
             torch.Tensor: Reconstructed image.
         """
-        for i in range(len(self.ConvBlocks)):
+        for ConvBlock in enumerate(self.ConvBlocks):
             # Each iteration: Convolutional block output + gradient descent step
-            x = self.relu(self.ConvBlocks[i](x) + self.objfuncgrad(x))
+            x = self.relu(self.ConvBlock(x) + self.objfuncgrad(x))
         return x
 
 
@@ -201,7 +201,6 @@ class UseCases:
             if dim == '2D':
                 try:
                     self.pet_varnet()
-                    pass
                 except Exception as e:
                     print(f"Error encountered: {e}")
                     print("PET Varnet failed")
@@ -225,7 +224,6 @@ class UseCases:
         DualConvBlocks = [ConvBlock() for i in range(3)]
 
         # Set up forward and adjoint operators using SIRF's Operator class
-        sirf_image_template = self.image.get_uniform_copy(1)
         FwdOperator = Operator(self.acq_model, self.image.get_uniform_copy(1))
         AdjOperator = Operator(sirf.SIRF.AdjointOperator(self.acq_model.get_linear_acquisition_model()), self.acq_data.get_uniform_copy(1))
 
@@ -309,23 +307,23 @@ class UseCases:
         out_acq_model = self.gradient_descent_with_acq_model(lr=lr, n_iter=n_iter)
 
         print("Gradient Descent with Objective Function")
-        out_obj_func = self.gradient_descent_with_obj_func(lr=lr, n_iter=n_iter)        
+        out_obj_func = self.gradient_descent_with_obj_func(lr=lr, n_iter=n_iter)
 
-        fig = plt.figure(figsize=(12, 4))
+        plt.figure(figsize=(12, 4))
 
-        # Subplot 1
+
         plt.subplot(1, 3, 1)
         plt.imshow(self.image.get_uniform_copy(1).as_array()[0])
         plt.colorbar()
         plt.title('Initial Image')
 
-        # Subplot 2
+
         plt.subplot(1, 3, 2)
         plt.imshow(out_acq_model)
         plt.colorbar()
         plt.title('Acq model wrapped')
 
-        # Subplot 3
+
         plt.subplot(1, 3, 3)
         plt.imshow(out_obj_func)
         plt.colorbar()
@@ -347,7 +345,6 @@ class UseCases:
         """
         # Initialize image parameters (to be optimized)
         torch_image = sirf_to_torch(self.image.get_uniform_copy(1), self.device).unsqueeze(0) # Add batch dim.
-        torch_image_init = torch_image.clone() # unused
         torch_image_params = torch.nn.Parameter(torch_image)
 
         torch_measurements = sirf_to_torch(self.acq_data, self.device)
@@ -393,10 +390,9 @@ class UseCases:
             optimizer.step()
             print("Iteration: ", i, "Loss: ", loss.item())
         return torch_image_params.data.detach().cpu().squeeze().numpy()  # Return optimised image
-        
+
 
 
 if __name__ == '__main__':
-    import matplotlib.pyplot as plt
     torch.manual_seed(42)
     uses = UseCases('PET', '2D', 'all')
