@@ -82,7 +82,6 @@ class PETLearnedPrimalDual(torch.nn.Module):
         Returns:
             torch.Tensor: The reconstructed image.
         """
-        # batch_size = y.shape[0]  Not used, but could be for batched processing
 
         # Initialize dual variable (h) and primal variable (f) with zeros
         h = torch.zeros_like(y, device=y.device)
@@ -139,7 +138,7 @@ class ConvBlock(torch.nn.Module):
 
 class PETVarNet(torch.nn.Module):
     """
-    A PyTorch module implementing a variational network for PET image reconstruction.
+    A PyTorch module implementing a very basic variational network for PET image reconstruction.
     """
     def __init__(self, ConvBlocks, objfuncgrad):
         """
