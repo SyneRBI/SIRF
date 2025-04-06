@@ -3,6 +3,7 @@
 
 * SIRF/STIR
   - `ScatterEstimation` has extra methods that allow setting masks for the tail-fitting
+  - `ImageData` has extra method to zoom image using information from a template image, `zoom_image_as_template`.
   - Error raised in `AcquisitionSensitivityModel.[un]normalise` methods applied to a read-only object.
   - Error raised if `AcquisitionModel.adjoint` ran when the model is not linear.
 * SIRF-torch
@@ -15,7 +16,6 @@
 * SIRF
   - `cmake/sirf.__init__.py.in` import sirf.SIRF content into the `sirf` namespace for convenience
   - `common/SIRF.py` adding adjoint operator
-
 
 
 ## v3.8.1
