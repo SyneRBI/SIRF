@@ -3,9 +3,7 @@ try:
 except ModuleNotFoundError:
     raise ModuleNotFoundError('Failed to import torch. Please install PyTorch first.')
 
-
 import sirf
-import numpy
 
 
 
@@ -280,7 +278,8 @@ class _ObjectiveFunctionGradient(torch.autograd.Function):
         # arguments current estimate and input_ (i.e. the vector)
         sirf_HVP = sirf_obj_func.multiply_with_Hessian(sirf_image, sirf_grad)
 
-        torch_HVP = sirf_to_torch(sirf_grad, device, requires_grad=False)
+        torch_HVP = sirf_to_torch(sirf_HVP, device, requires_grad=False)
+
         return torch_HVP, None, None
 
 def check_shapes(torch_shape, sirf_shape):
