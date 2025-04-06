@@ -131,6 +131,7 @@ class _Operator(torch.autograd.Function):
             return sirf_to_torch(sirf_dest, device)
 
     @staticmethod
+    @torch.autograd.function.once_differentiable
     def backward(ctx,
             grad_output: torch.Tensor
             ) -> tuple[torch.Tensor | None, None, None]:
@@ -184,6 +185,7 @@ class _ObjectiveFunction(torch.autograd.Function):
             return sirf_to_torch(sirf_obj_func(sirf_image), device)
 
     @staticmethod
+    @torch.autograd.function.once_differentiable
     def backward(ctx,
             grad_output: torch.Tensor
             ) -> tuple[torch.Tensor | None, None, None]:
@@ -249,6 +251,7 @@ class _ObjectiveFunctionGradient(torch.autograd.Function):
             return sirf_to_torch(sirf_obj_func.get_gradient(sirf_image), device)
 
     @staticmethod
+    @torch.autograd.function.once_differentiable
     def backward(ctx,
             grad_output: torch.Tensor
             ) -> tuple[torch.Tensor | None, None, None]:
