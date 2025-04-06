@@ -90,7 +90,7 @@ def run_gradcheck(func, input_data, data_info, test_name, **kwargs):
 
 @pytest.mark.skipif(not test_flags["forward"], reason="Forward test disabled")
 def test_forward_gradcheck(test_data):
-    acq_data, image_data, acq_model, modality, data_type = test_data
+    _, image_data, acq_model, modality, data_type = test_data
     if modality == "PET":
         pass
     elif modality == "MR":
@@ -107,7 +107,7 @@ def test_forward_gradcheck(test_data):
 
 @pytest.mark.skipif(not test_flags["adjoint"], reason="Adjoint test disabled")
 def test_adjoint_gradcheck(test_data):
-    acq_data, image_data, acq_model, modality, data_type = test_data
+    acq_data, _, acq_model, modality, data_type = test_data
     if modality == "PET":
         pass
     elif modality == "MR":
