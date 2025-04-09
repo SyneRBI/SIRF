@@ -128,6 +128,8 @@ sirf::cSTIR_ImageDataParameter(void* hp, const char* name)
 		return charDataHandleFromCharData(id.modality().c_str());
 	else if (sirf::iequals(name, "contiguous"))
 		return dataHandle<bool>(id.is_contiguous());
+	else if (sirf::iequals(name, "address"))
+		return dataHandle<size_t>(id.address());
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 }

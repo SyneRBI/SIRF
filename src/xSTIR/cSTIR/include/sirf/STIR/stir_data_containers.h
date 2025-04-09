@@ -1385,6 +1385,13 @@ namespace sirf {
 		void semibinary_op(const DataContainer& a_x, float y, float(*f)(float, float));
 		void binary_op(const DataContainer& a_x, const DataContainer& a_y, float(*f)(float, float));
 
+		size_t address() const {
+		    return reinterpret_cast<size_t>(_data->get_const_full_data_ptr());
+		}
+		size_t address() {
+		    return reinterpret_cast<size_t>(_data->get_full_data_ptr());
+		}
+
 	private:
 		/// Clone helper function. Don't use.
 		virtual STIRImageData* clone_impl() const
