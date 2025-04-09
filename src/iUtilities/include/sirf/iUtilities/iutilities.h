@@ -46,6 +46,7 @@ extern "C" {
 	double doubleDataFromHandle(const void* ptr);
 	double doubleReDataFromHandle(const void* ptr);
 	double doubleImDataFromHandle(const void* ptr);
+	size_t size_tDataFromHandle(const void* ptr);
 	int executionStatus(const void* ptr);
 	const char* executionError(const void* ptr);
 	const char* executionErrorFile(const void* ptr);

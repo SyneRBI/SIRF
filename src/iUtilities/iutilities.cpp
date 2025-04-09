@@ -78,6 +78,10 @@ extern "C" {
 	{
 		return dataHandle<double>(i);
 	}
+	void* size_tDataHandle(size_t i)
+	{
+		return dataHandle<size_t>(i);
+	}
 
 	char* charDataFromHandle(const void* ptr)
 	{
