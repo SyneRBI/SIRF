@@ -78,7 +78,7 @@ extern "C" {
 	{
 		return dataHandle<double>(i);
 	}
-	void* size_tDataHandle(size_t i)
+	void* size_tDataFromHandle(size_t i)
 	{
 		return dataHandle<size_t>(i);
 	}
