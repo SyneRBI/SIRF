@@ -470,6 +470,11 @@ class ImageData(SIRF.ImageData):
         """
         return parms.set_char_par(self.handle, 'ImageData', 'modality', mod)
 
+    @property
+    def address(self):
+        import sirf.STIR_params as parms
+        return parms.size_t_par(self.handle, 'ImageData', 'address')
+
     def initialise(self, dim, vsize=(1., 1., 1.), origin=(0., 0., 0.)):
         """
         Sets image size and geometric information.
