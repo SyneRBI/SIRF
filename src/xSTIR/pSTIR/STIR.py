@@ -1327,6 +1327,12 @@ class AcquisitionData(ScanData):
         """Returns imaging modality as Python string."""
         return parms.char_par(self.handle, 'AcquisitionData', 'modality')
 
+    @property
+    def __array_interface__(self):
+        """As per https://numpy.org/doc/stable/reference/arrays.interface.html"""
+        return {'shape': self.shape, 'typestr': '<f4', 'version': 3,
+                'data': (parms.size_t_par(self.handle, 'ImageData', 'address'), False)}
+
     def as_array(self):
         """Returns bin values as ndarray.
 
