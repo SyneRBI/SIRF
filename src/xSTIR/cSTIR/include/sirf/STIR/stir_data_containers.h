@@ -513,6 +513,13 @@ namespace sirf {
 		void semibinary_op(const DataContainer& a_x, float y, float(*f)(float, float));
 		void binary_op(const DataContainer& a_x, const DataContainer& a_y, float(*f)(float, float));
 
+		virtual size_t address() const {
+			THROW("data address defined only for data in memory");
+		}
+		virtual size_t address() {
+			THROW("data address defined only for data in memory");
+		}
+
 	protected:
 		static std::string _storage_scheme;
 		static std::shared_ptr<STIRAcquisitionData> _template;
@@ -885,6 +892,15 @@ namespace sirf {
             while (iter != pd_ptr->end())
                 *iter++ = (*iter_x++) / (*iter_y++);
         }
+
+		virtual size_t address() const {
+                    auto *pd_ptr = dynamic_cast<const stir::ProjDataInMemory*>(data().get());
+		    return reinterpret_cast<size_t>(pd_ptr->get_const_data_ptr());
+		}
+		virtual size_t address() {
+                    auto *pd_ptr = dynamic_cast<stir::ProjDataInMemory*>(data().get());
+		    return reinterpret_cast<size_t>(pd_ptr->get_data_ptr());
+		}
 
 	private:
 		virtual STIRAcquisitionDataInMemory* clone_impl() const

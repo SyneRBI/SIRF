@@ -8,7 +8,7 @@ Options:
   -p <path>, --path=<path>     path to data files, defaults to data/examples/PET
                                subfolder of SIRF root folder
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
-  -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: file]
+  -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: memory]
   --non-interactive            do not show plots
 '''
 
@@ -167,7 +167,8 @@ def main():
     tmx = image.transf_matrix()
     print(tmx)
 
-
+    if scheme != storage:
+        pet.AcquisitionData.set_storage_scheme(scheme)
 try:
     main()
     print('\n=== done with %s' % __file__)
@@ -175,5 +176,3 @@ try:
 except error as err:
     print('%s' % err.value)
 
-if scheme != storage:
-    AcquisitionData.set_storage_scheme(scheme)
