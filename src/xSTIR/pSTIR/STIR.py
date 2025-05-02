@@ -480,6 +480,10 @@ class ImageData(SIRF.ImageData):
         return {'shape': self.shape, 'typestr': '<f4', 'version': 3,
                 'data': (parms.size_t_par(self.handle, 'ImageData', 'address'), False)}
 
+    def asarray(self):
+        """Returns view of self"""
+        return numpy.asarray(self)
+
     def initialise(self, dim, vsize=(1., 1., 1.), origin=(0., 0., 0.)):
         """
         Sets image size and geometric information.
