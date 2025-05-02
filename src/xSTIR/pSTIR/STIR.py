@@ -1331,7 +1331,7 @@ class AcquisitionData(ScanData):
     def __array_interface__(self):
         """As per https://numpy.org/doc/stable/reference/arrays.interface.html"""
         return {'shape': self.shape, 'typestr': '<f4', 'version': 3,
-                'data': (parms.size_t_par(self.handle, 'ImageData', 'address'), False)}
+                'data': (parms.size_t_par(self.handle, 'AcquisitionData', 'address'), False)}
 
     def as_array(self):
         """Returns bin values as ndarray.

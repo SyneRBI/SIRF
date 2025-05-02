@@ -8,7 +8,7 @@ Options:
   -p <path>, --path=<path>     path to data files, defaults to data/examples/PET
                                subfolder of SIRF root folder
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
-  -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: file]
+  -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: memory]
   --non-interactive            do not show plots
 '''
 
@@ -89,6 +89,21 @@ def main():
         acq_data.show(range(dim[1]//4))
     acq_array = acq_data.as_array()
 
+    acq_asarray = numpy.asarray(acq_data)
+    for j in range(5):
+        i = 50 + j
+        print(acq_array[0,i,i,i], acq_asarray[0,i,i,i])
+#    img_data = pet.ImageData(existing_filepath(data_path, 'mMR/mu_map.hv'))
+#    img_data = acq_data.create_uniform_image()*0
+    img_data = pet.ImageData(acq_data) + 20
+    print('ok')
+    new = numpy.asarray(img_data)  # zerocopy view
+    old = img_data.as_array()   # deepcopy
+    img_data = acq_data.create_uniform_image() + 10
+    new += 1
+    for i in range(5):
+        print(new[i,i,i], old[i,i,i])
+
     if storage[0] == 'm':  # for now, we can only subset acquisition data stored in memory
         nv = dim[2]//2
         views = numpy.arange(nv)
@@ -167,7 +182,8 @@ def main():
     tmx = image.transf_matrix()
     print(tmx)
 
-
+    if scheme != storage:
+        pet.AcquisitionData.set_storage_scheme(scheme)
 try:
     main()
     print('\n=== done with %s' % __file__)
@@ -175,5 +191,3 @@ try:
 except error as err:
     print('%s' % err.value)
 
-if scheme != storage:
-    AcquisitionData.set_storage_scheme(scheme)
