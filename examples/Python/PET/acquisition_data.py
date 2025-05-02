@@ -94,12 +94,12 @@ def main():
         i = 50 + j
         print(acq_array[0,i,i,i], acq_asarray[0,i,i,i])
 #    img_data = pet.ImageData(existing_filepath(data_path, 'mMR/mu_map.hv'))
-#    img_data = acq_data.create_uniform_image()*0
-    img_data = pet.ImageData(acq_data) + 20
+#    img_data = acq_data.create_uniform_image(5)
+    img_data = pet.ImageData(acq_data) #+ 20
     print('ok')
     new = numpy.asarray(img_data)  # zerocopy view
     old = img_data.as_array()   # deepcopy
-    img_data = acq_data.create_uniform_image() + 10
+    img_data = acq_data.create_uniform_image() #+ 10
     new += 1
     for i in range(5):
         print(new[i,i,i], old[i,i,i])

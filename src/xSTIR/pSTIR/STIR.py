@@ -40,6 +40,7 @@ from sirf import SIRF
 from sirf.SIRF import DataContainer
 import sirf.pyiutilities as pyiutil
 import sirf.pystir as pystir
+import sirf.pysirf as pysirf
 
 import sirf.STIR_params as parms
 from sirf.config import SIRF_HAS_NiftyPET
@@ -429,6 +430,9 @@ class ImageData(SIRF.ImageData):
             if arg.handle is None:
                 raise AssertionError()
             self.handle = pystir.cSTIR_imageFromAcquisitionData(arg.handle)
+            check_status(self.handle)
+            a = numpy.asarray([0, 0], dtype=numpy.float32)
+            self.handle = pysirf.cSIRF_sum(self.handle, a.ctypes.data)
             check_status(self.handle)
         elif isinstance(arg, SIRF.ImageData):
             if arg.handle is None:
@@ -1299,6 +1303,9 @@ class AcquisitionData(ScanData):
             raise error('Wrong second argument in create_uniform_image')
         check_status(image.handle)
         image.fill(value)
+        a = numpy.asarray([0, 0], dtype=numpy.float32)
+        image.handle = pysirf.cSIRF_sum(image.handle, a.ctypes.data)
+        check_status(image.handle)
         return image
 
     def dimensions(self):
