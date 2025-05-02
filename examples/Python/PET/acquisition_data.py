@@ -97,7 +97,8 @@ def main():
 #    img_data = acq_data.create_uniform_image(5)
     img_data = pet.ImageData(acq_data) #+ 20
     print('ok')
-    new = numpy.asarray(img_data)  # zerocopy view
+#    new = numpy.asarray(img_data)  # zerocopy view
+    new = img_data.asarray()  # zerocopy view
     old = img_data.as_array()   # deepcopy
     img_data = acq_data.create_uniform_image() #+ 10
     new += 1
