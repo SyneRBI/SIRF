@@ -89,25 +89,6 @@ def main():
         acq_data.show(range(dim[1]//4))
     acq_array = acq_data.as_array()
 
-# TODO: more systematic demo in a separate script
-    print('testing asarray() methods of pet.AcquisitionData and pet.ImageData...')
-#    acq_asarray = numpy.asarray(acq_data)
-    acq_asarray = acq_data.asarray() # same as above
-    diff = acq_array - acq_asarray
-    print('norm of acq_data.as_array() - acq_data.asarray(): %f' % numpy.linalg.norm(diff))
-#    img_data = pet.ImageData(existing_filepath(data_path, 'mMR/mu_map.hv')) # contiguous
-#    img_data = acq_data.create_uniform_image(5) # now contiguous too
-    img_data = pet.ImageData(acq_data) # now contiguous too
-#    new = numpy.asarray(img_data)  # zerocopy view
-    new = img_data.asarray()  # same as above
-    old = img_data.as_array() # deepcopy
-    diff = new - old
-    print('norm of img_data.as_array() - img_data.asarray(): %f' % numpy.linalg.norm(diff))
-    new += 1
-    img_arr = img_data.as_array() # previous line changed img_data
-    diff = new - img_arr
-    print('norm of img_data.as_array() - img_data.asarray(): %f' % numpy.linalg.norm(diff))
-
     if storage[0] == 'm':  # for now, we can only subset acquisition data stored in memory
         nv = dim[2]//2
         views = numpy.arange(nv)
