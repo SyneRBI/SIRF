@@ -480,9 +480,9 @@ class ImageData(SIRF.ImageData):
         return {'shape': self.shape, 'typestr': '<f4', 'version': 3,
                 'data': (parms.size_t_par(self.handle, 'ImageData', 'address'), False)}
 
-    def asarray(self):
+    def asarray(self, xp=numpy):
         """Returns view of self"""
-        return numpy.asarray(self)
+        return xp.asarray(self)
 
     def initialise(self, dim, vsize=(1., 1., 1.), origin=(0., 0., 0.)):
         """
@@ -1344,9 +1344,9 @@ class AcquisitionData(ScanData):
         return {'shape': self.shape, 'typestr': '<f4', 'version': 3,
                 'data': (parms.size_t_par(self.handle, 'AcquisitionData', 'address'), False)}
 
-    def asarray(self):
+    def asarray(self, xp=numpy):
         """Returns view of self"""
-        return numpy.asarray(self)
+        return xp.asarray(self)
 
     def as_array(self):
         """Returns bin values as ndarray.
