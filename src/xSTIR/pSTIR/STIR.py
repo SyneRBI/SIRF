@@ -40,6 +40,7 @@ from sirf import SIRF
 from sirf.SIRF import DataContainer
 import sirf.pyiutilities as pyiutil
 import sirf.pystir as pystir
+import sirf.pysirf as pysirf
 
 import sirf.STIR_params as parms
 from sirf.config import SIRF_HAS_NiftyPET
@@ -430,6 +431,9 @@ class ImageData(SIRF.ImageData):
                 raise AssertionError()
             self.handle = pystir.cSTIR_imageFromAcquisitionData(arg.handle)
             check_status(self.handle)
+            a = numpy.asarray([0, 0], dtype=numpy.float32)
+            self.handle = pysirf.cSIRF_sum(self.handle, a.ctypes.data)
+            check_status(self.handle)
         elif isinstance(arg, SIRF.ImageData):
             if arg.handle is None:
                 raise AssertionError()
@@ -475,6 +479,10 @@ class ImageData(SIRF.ImageData):
         """As per https://numpy.org/doc/stable/reference/arrays.interface.html"""
         return {'shape': self.shape, 'typestr': '<f4', 'version': 3,
                 'data': (parms.size_t_par(self.handle, 'ImageData', 'address'), False)}
+
+    def asarray(self, xp=numpy):
+        """Returns view of self"""
+        return xp.asarray(self)
 
     def initialise(self, dim, vsize=(1., 1., 1.), origin=(0., 0., 0.)):
         """
@@ -1299,6 +1307,9 @@ class AcquisitionData(ScanData):
             raise error('Wrong second argument in create_uniform_image')
         check_status(image.handle)
         image.fill(value)
+        a = numpy.asarray([0, 0], dtype=numpy.float32)
+        image.handle = pysirf.cSIRF_sum(image.handle, a.ctypes.data)
+        check_status(image.handle)
         return image
 
     def dimensions(self):
@@ -1332,6 +1343,10 @@ class AcquisitionData(ScanData):
         """As per https://numpy.org/doc/stable/reference/arrays.interface.html"""
         return {'shape': self.shape, 'typestr': '<f4', 'version': 3,
                 'data': (parms.size_t_par(self.handle, 'AcquisitionData', 'address'), False)}
+
+    def asarray(self, xp=numpy):
+        """Returns view of self"""
+        return xp.asarray(self)
 
     def as_array(self):
         """Returns bin values as ndarray.
