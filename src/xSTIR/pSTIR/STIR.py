@@ -398,6 +398,10 @@ class EllipticCylinder(Shape):
         return (rx, ry)
 
 
+class ContiguousError(BufferError):
+    pass
+
+
 # class ImageData(DataContainer):
 class ImageData(SIRF.ImageData):
     """Class for PET image data objects.
@@ -477,12 +481,17 @@ class ImageData(SIRF.ImageData):
     @property
     def __array_interface__(self):
         """As per https://numpy.org/doc/stable/reference/arrays.interface.html"""
+        if not self.contiguous:
+            raise ContiguousError("please make a copy first with `as_array`")
         return {'shape': self.shape, 'typestr': '<f4', 'version': 3,
                 'data': (parms.size_t_par(self.handle, 'ImageData', 'address'), False)}
 
     def asarray(self, xp=numpy):
-        """Returns view of self"""
-        return xp.asarray(self)
+        """Returns view (or fallback copy) of self"""
+        try:
+            return xp.asarray(self)
+        except ContiguousError:
+            return xp.asarray(self.as_array())
 
     def initialise(self, dim, vsize=(1., 1., 1.), origin=(0., 0., 0.)):
         """
