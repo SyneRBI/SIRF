@@ -1138,6 +1138,10 @@ namespace sirf {
 		{
 			return false;
 		}
+		bool is_contiguous() const
+		{
+			return data().is_contiguous();
+		}
 		unsigned int items() const
 		{
 			return 1;
