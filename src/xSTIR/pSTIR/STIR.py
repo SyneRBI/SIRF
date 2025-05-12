@@ -399,7 +399,11 @@ class EllipticCylinder(Shape):
         return (rx, ry)
 
 
-class ContiguousError(BufferError):
+class ContiguousError(ValueError):
+    """
+    ValueError for discontiguous memory as per
+    https://data-apis.org/array-api/latest/API_specification/generated/array_api.asarray.html
+    """
     pass
 
 
@@ -486,16 +490,18 @@ class ImageData(SIRF.ImageData):
     def __array_interface__(self):
         """As per https://numpy.org/doc/stable/reference/arrays.interface.html"""
         if not self.contiguous:
-            raise ContiguousError("please make a copy first with `as_array`")
+            raise ContiguousError("please make an array-copy first with `as_array`")
         return {'shape': self.shape, 'typestr': '<f4', 'version': 3,
                 'data': (parms.size_t_par(self.handle, 'ImageData', 'address'), False)}
 
-    def asarray(self, xp=numpy):
+    def asarray(self, xp=numpy, copy=None, **kwargs):
         """Returns view (or fallback copy) of self"""
         try:
-            return xp.asarray(self)
+            return xp.asarray(self, copy=copy, **kwargs)
         except ContiguousError:
-            return xp.asarray(self.as_array())
+            if copy or copy is None:
+                return xp.asarray(self.as_array(), **kwargs)
+            raise
 
     def initialise(self, dim, vsize=(1., 1., 1.), origin=(0., 0., 0.)):
         """
@@ -1357,9 +1363,9 @@ class AcquisitionData(ScanData):
         return {'shape': self.shape, 'typestr': '<f4', 'version': 3,
                 'data': (parms.size_t_par(self.handle, 'AcquisitionData', 'address'), False)}
 
-    def asarray(self, xp=numpy):
+    def asarray(self, xp=numpy, **kwargs):
         """Returns view of self"""
-        return xp.asarray(self)
+        return xp.asarray(self, **kwargs)
 
     def as_array(self):
         """Returns bin values as ndarray.

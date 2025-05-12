@@ -1,7 +1,7 @@
-'''Acquisition data handling demo.
+'''ImageData.asarray usage demo.
 
 Usage:
-  acquisition_data [--help | options]
+  asarray.py [--help | options]
 
 Options:
   -f <file>, --file=<file>     raw data file [default: my_forward_projection.hs]
@@ -77,14 +77,10 @@ def test_img_asarray(img_data):
         img_data = img_data.copy()
         img_asarray = img_data.asarray()
     img_as_array = img_data.as_array() # deepcopy
-    #print(numpy.linalg.norm(img_asarray))
-    #print(numpy.linalg.norm(img_as_array))
     diff = img_asarray - img_as_array
     print('norm of img_data.asarray() - img_data.as_array(): %f' % numpy.linalg.norm(diff))
     img_asarray += 1 # img_data changed
     img_array = img_data.as_array()
-    #print(numpy.linalg.norm(img_asarray))
-    #print(numpy.linalg.norm(img_array))
     diff = img_asarray - img_array
     print('norm of img_data.asarray() - img_data.as_array(): %f' % numpy.linalg.norm(diff))
 
@@ -129,9 +125,10 @@ def main():
     img_data = pet.ImageData(acq_data)
     test_img_asarray(img_data)
 
-    _ = img_data.asarray() # view dummy to trigger contiguity error message
-
-    print('ok') # should not be printed (error in the previous line)
+    try:
+        _ = img_data.asarray() # view dummy to trigger contiguity error message
+    except error as err:
+        print('%s' % err.value)
 
 try:
     main()
