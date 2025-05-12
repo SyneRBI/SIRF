@@ -827,7 +827,7 @@ namespace sirf {
 		{
 			return new AcquisitionsVector(info, ignore_mask_);
 		}
-		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
+		virtual ObjectHandle<DataContainer>* new_data_container_handle(const bool initialise_with_0) const
 		{
 			DataContainer* ptr = new AcquisitionsVector(acqs_info_, ignore_mask_);
 			return new ObjectHandle<DataContainer>
@@ -1102,6 +1102,10 @@ namespace sirf {
 		private:
 			complex_float_t v_;
 		};
+
+		virtual void multiply_(const DataContainer& x, const DataContainer& y);
+		virtual void divide_(const DataContainer& x, const DataContainer& y);
+		virtual void add_(const DataContainer& x, complex_float_t y);
 
 		template<class A, class B>
 		void xapyb_(const DataContainer& a_x, A& a, const DataContainer& a_y, B& b)
@@ -1389,7 +1393,7 @@ namespace sirf {
 			return *sptr_iw;
 		}
 */
-		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
+		virtual ObjectHandle<DataContainer>* new_data_container_handle(const bool initialise_with_0) const
 		{
 			return new ObjectHandle<DataContainer>
 				(gadgetron::shared_ptr<DataContainer>(new_images_container()));

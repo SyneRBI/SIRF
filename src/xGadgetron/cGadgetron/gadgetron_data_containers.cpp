@@ -292,7 +292,7 @@ MRAcquisitionData::get_data(complex_float_t* z, int a)
 	}
 	for (unsigned int a = 0, i = 0; a < na; a++) {
 		if (!get_acquisition(a, acq)) {
-			std::cout << "ignoring acquisition " << a << '\n';
+			//std::cout << "ignoring acquisition " << a << '\n';
 			continue;
 		}
 		unsigned int nc = acq.active_channels();
@@ -423,28 +423,52 @@ void
 MRAcquisitionData::multiply
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
-    MRAcquisitionData::binary_op(acq_x, acq_y, DataContainer::product<complex_float_t>);
+//    MRAcquisitionData::binary_op(acq_x, acq_y, DataContainer::product<complex_float_t>);
+    const complex_float_t* px;
+    complex_float_t* py;
+    for (px = acq_x.data_begin(), py = acq_y.data_begin();
+        px != acq_x.data_end() && py != acq_y.data_end(); px++, py++) {
+        *py = (*px) * (*py);
+    }
 }
 
 void
 MRAcquisitionData::multiply
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y)
 {
-    MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainer::product<complex_float_t>);
+//    MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainer::product<complex_float_t>);
+    const complex_float_t* px;
+    complex_float_t* py;
+    for (px = acq_x.data_begin(), py = acq_y.data_begin();
+        px != acq_x.data_end() && py != acq_y.data_end(); px++, py++) {
+        *py = *px * y;
+    }
 }
 
 void
 MRAcquisitionData::add
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y)
 {
-    MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainer::sum<complex_float_t>);
+//    MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainer::sum<complex_float_t>);
+    const complex_float_t* px;
+    complex_float_t* py;
+    for (px = acq_x.data_begin(), py = acq_y.data_begin();
+        px != acq_x.data_end() && py != acq_y.data_end(); px++, py++) {
+        *py = *px + y;
+    }
 }
 
 void
 MRAcquisitionData::divide
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
-    MRAcquisitionData::binary_op(acq_x, acq_y, DataContainer::ratio<complex_float_t>);
+//    MRAcquisitionData::binary_op(acq_x, acq_y, DataContainer::ratio<complex_float_t>);
+    const complex_float_t* px;
+    complex_float_t* py;
+    for (px = acq_x.data_begin(), py = acq_y.data_begin();
+        px != acq_x.data_end() && py != acq_y.data_end(); px++, py++) {
+        *py = (*px) / (*py);
+    }
 }
 
 void
@@ -710,18 +734,18 @@ MRAcquisitionData::axpby(
     bool isempty = (number() < 1);
     for (int ix = 0, iy = 0, k = 0; ix < nx && iy < ny;) {
         if (!x.get_acquisition(ix, ax)) {
-            std::cout << ix << " ignored (ax)\n";
+//            std::cout << ix << " ignored (ax)\n";
             ix++;
             continue;
         }
         if (!y.get_acquisition(iy, ay)) {
-            std::cout << iy << " ignored (ay)\n";
+//            std::cout << iy << " ignored (ay)\n";
             iy++;
             continue;
         }
         if (!isempty) {
             if (!get_acquisition(k, acq)) {
-                std::cout << k << " ignored (acq)\n";
+//                std::cout << k << " ignored (acq)\n";
                 k++;
                 continue;
             }
@@ -763,28 +787,28 @@ MRAcquisitionData::xapyb(
     for (int ix = 0, iy = 0, ia = 0, ib = 0, k = 0;
         ix < nx && iy < ny && ia < na && ib < nb;) {
         if (!x.get_acquisition(ix, ax)) {
-            std::cout << ix << " ignored (ax)\n";
+//            std::cout << ix << " ignored (ax)\n";
             ix++;
             continue;
         }
         if (!y.get_acquisition(iy, ay)) {
-            std::cout << iy << " ignored (ay)\n";
+//            std::cout << iy << " ignored (ay)\n";
             iy++;
             continue;
         }
         if (!a.get_acquisition(ia, aa)) {
-            std::cout << ia << " ignored (aa)\n";
+//            std::cout << ia << " ignored (aa)\n";
             ia++;
             continue;
         }
         if (!b.get_acquisition(ib, ab)) {
-            std::cout << ib << " ignored (ab)\n";
+//            std::cout << ib << " ignored (ab)\n";
             ib++;
             continue;
         }
         if (!isempty) {
             if (!get_acquisition(k, acq)) {
-                std::cout << k << " ignored (acq)\n";
+//                std::cout << k << " ignored (acq)\n";
                 k++;
                 continue;
             }
@@ -826,23 +850,23 @@ MRAcquisitionData::xapyb(
     for (int ix = 0, iy = 0, ib = 0, k = 0;
         ix < nx && iy < ny && ib < nb;) {
         if (!x.get_acquisition(ix, ax)) {
-            std::cout << ix << " ignored (ax)\n";
+//            std::cout << ix << " ignored (ax)\n";
             ix++;
             continue;
         }
         if (!y.get_acquisition(iy, ay)) {
-            std::cout << iy << " ignored (ay)\n";
+//            std::cout << iy << " ignored (ay)\n";
             iy++;
             continue;
         }
         if (!b.get_acquisition(ib, ab)) {
-            std::cout << ib << " ignored (ab)\n";
+//            std::cout << ib << " ignored (ab)\n";
             ib++;
             continue;
         }
         if (!isempty) {
             if (!get_acquisition(k, acq)) {
-                std::cout << k << " ignored (acq)\n";
+//                std::cout << k << " ignored (acq)\n";
                 k++;
                 continue;
             }
@@ -994,18 +1018,18 @@ MRAcquisitionData::binary_op(
 	bool isempty = (number() < 1);
     for (int ix = 0, iy = 0, k = 0; ix < nx && iy < ny;) {
 		if (!x.get_acquisition(ix, ax)) {
-			std::cout << ix << " ignored (ax)\n";
+//			std::cout << ix << " ignored (ax)\n";
 			ix++;
 			continue;
 		}
 		if (!y.get_acquisition(iy, ay)) {
-			std::cout << iy << " ignored (ay)\n";
+//			std::cout << iy << " ignored (ay)\n";
 			iy++;
 			continue;
 		}
 		if (!isempty) {
 			if (!get_acquisition(k, acq)) {
-				std::cout << k << " ignored (acq)\n";
+//				std::cout << k << " ignored (acq)\n";
 				k++;
 				continue;
 			}
@@ -1038,13 +1062,13 @@ MRAcquisitionData::semibinary_op(const DataContainer& a_x, complex_float_t y,
     bool isempty = (number() < 1);
     for (int ix = 0, k = 0; ix < nx;) {
         if (!x.get_acquisition(ix, ax)) {
-            std::cout << ix << " ignored (ax)\n";
+//            std::cout << ix << " ignored (ax)\n";
             ix++;
             continue;
         }
         if (!isempty) {
             if (!get_acquisition(k, acq)) {
-                std::cout << k << " ignored (acq)\n";
+//                std::cout << k << " ignored (acq)\n";
                 k++;
                 continue;
             }
@@ -1077,13 +1101,13 @@ MRAcquisitionData::unary_op(const DataContainer& a_x,
     bool isempty = (number() < 1);
     for (int ix = 0, k = 0; ix < nx;) {
         if (!x.get_acquisition(ix, ax)) {
-            std::cout << ix << " ignored (ax)\n";
+//            std::cout << ix << " ignored (ax)\n";
             ix++;
             continue;
         }
         if (!isempty) {
             if (!get_acquisition(k, acq)) {
-                std::cout << k << " ignored (acq)\n";
+//                std::cout << k << " ignored (acq)\n";
                 k++;
                 continue;
             }
@@ -1387,7 +1411,7 @@ AcquisitionsVector::set_data(const complex_float_t* z, int all)
 		ISMRMRD::Acquisition& acq = *acqs_[ia];
 		IgnoreMask ignore_mask = this->ignore_mask();
 		if (!all && ignore_mask.ignored(acq.flags())) {
-			std::cout << "ignoring acquisition " << ia << '\n';
+			//std::cout << "ignoring acquisition " << ia << '\n';
 			continue;
 		}
 		unsigned int nc = acq.active_channels();
@@ -1564,6 +1588,83 @@ const void* ptr_b, const DataContainer& a_y)
 }
 
 void
+GadgetronImageData::multiply_(
+    const DataContainer& a_x, const DataContainer& a_y)
+{
+    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
+    SIRF_DYNAMIC_CAST(const GadgetronImageData, y, a_y);
+    unsigned int nx = x.number();
+    unsigned int ny = y.number();
+    if (nx != ny)
+        THROW("ImageData sizes mismatch in binary_op");
+    unsigned int n = number();
+    if (n > 0) {
+        if (n != nx)
+            THROW("ImageData sizes mismatch in binary_op");
+        for (unsigned int i = 0; i < nx && i < ny; i++)
+            image_wrap(i).multiply(x.image_wrap(i), y.image_wrap(i));
+    }
+    else {
+        for (unsigned int i = 0; i < nx && i < ny; i++) {
+            ImageWrap w(x.image_wrap(i));
+            w.multiply(x.image_wrap(i), y.image_wrap(i));
+            append(w);
+        }
+    }
+    this->set_meta_data(x.get_meta_data());
+}
+
+void
+GadgetronImageData::divide_(
+    const DataContainer& a_x, const DataContainer& a_y)
+{
+    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
+    SIRF_DYNAMIC_CAST(const GadgetronImageData, y, a_y);
+    unsigned int nx = x.number();
+    unsigned int ny = y.number();
+    if (nx != ny)
+        THROW("ImageData sizes mismatch in binary_op");
+    unsigned int n = number();
+    if (n > 0) {
+        if (n != nx)
+            THROW("ImageData sizes mismatch in binary_op");
+        for (unsigned int i = 0; i < nx && i < ny; i++)
+            image_wrap(i).divide(x.image_wrap(i), y.image_wrap(i));
+    }
+    else {
+        for (unsigned int i = 0; i < nx && i < ny; i++) {
+            ImageWrap w(x.image_wrap(i));
+            w.divide(x.image_wrap(i), y.image_wrap(i));
+            append(w);
+        }
+    }
+    this->set_meta_data(x.get_meta_data());
+}
+
+void
+GadgetronImageData::add_(
+    const DataContainer& a_x, complex_float_t y)
+{
+    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
+    unsigned int nx = x.number();
+    unsigned int n = number();
+    if (n > 0) {
+        if (n != nx)
+            THROW("ImageData sizes mismatch in semibinary_op");
+        for (unsigned int i = 0; i < nx; i++)
+            image_wrap(i).add(x.image_wrap(i), y);
+    }
+    else {
+        for (unsigned int i = 0; i < nx; i++) {
+            ImageWrap w(x.image_wrap(i));
+            w.add(x.image_wrap(i), y);
+            append(w);
+        }
+    }
+    this->set_meta_data(x.get_meta_data());
+}
+
+void
 GadgetronImageData::binary_op(
     const DataContainer& a_x, const DataContainer& a_y,
     complex_float_t(*f)(complex_float_t, complex_float_t))
@@ -1641,9 +1742,10 @@ GadgetronImageData::unary_op(const DataContainer& a_x,
 void
 GadgetronImageData::multiply(const DataContainer& a_x, const DataContainer& a_y)
 {
-	SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-	SIRF_DYNAMIC_CAST(const GadgetronImageData, y, a_y);
-    binary_op(x, y, DataContainer::product<complex_float_t>);
+    multiply_(a_x, a_y);
+//    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
+//    SIRF_DYNAMIC_CAST(const GadgetronImageData, y, a_y);
+//    binary_op(x, y, DataContainer::product<complex_float_t>);
 }
 
 void
@@ -1657,17 +1759,20 @@ GadgetronImageData::multiply(const DataContainer& a_x, const void* ptr_y)
 void
 GadgetronImageData::add(const DataContainer& a_x, const void* ptr_y)
 {
-    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
     complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
-    semibinary_op(x, y, DataContainer::sum<complex_float_t>);
+    add_(a_x, y);
+//    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
+//    complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
+//    semibinary_op(x, y, DataContainer::sum<complex_float_t>);
 }
 
 void
 GadgetronImageData::divide(const DataContainer& a_x, const DataContainer& a_y)
 {
-	SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-	SIRF_DYNAMIC_CAST(const GadgetronImageData, y, a_y);
-    binary_op(x, y, DataContainer::ratio<complex_float_t>);
+    divide_(a_x, a_y);
+//    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
+//    SIRF_DYNAMIC_CAST(const GadgetronImageData, y, a_y);
+//    binary_op(x, y, DataContainer::ratio<complex_float_t>);
 }
 
 void
