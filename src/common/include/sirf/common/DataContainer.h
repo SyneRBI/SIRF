@@ -62,6 +62,10 @@ which rely on the same features of the items.
 		virtual ObjectHandle<DataContainer>* new_data_container_handle(const bool initialise_with_0 = false) const = 0;
 		virtual unsigned int items() const = 0;
 		virtual bool is_complex() const = 0;
+		virtual bool supports_array_view() const
+		{
+			return false;
+		}
 		/// returns the size of data elements
 		virtual int bits() const
 		{

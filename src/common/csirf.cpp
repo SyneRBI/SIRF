@@ -95,6 +95,18 @@ cSIRF_isComplex(const void* ptr_x)
 
 extern "C"
 void*
+cSIRF_supportsArrayView(const void* ptr_x)
+{
+	try {
+		CAST_PTR(DataHandle, h_x, ptr_x);
+		auto const& x =	objectFromHandle<DataContainer>(h_x);
+		return dataHandle<int>(x.supports_array_view());
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cSIRF_bits(const void* ptr_x)
 {
 	try {

@@ -925,6 +925,10 @@ namespace sirf {
                     auto *pd_ptr = dynamic_cast<stir::ProjDataInMemory*>(data().get());
 		    return reinterpret_cast<size_t>(pd_ptr->get_data_ptr());
 		}
+		virtual bool supports_array_view() const
+		{
+			return true;
+		}
 
 	private:
 		virtual STIRAcquisitionDataInMemory* clone_impl() const
@@ -1161,6 +1165,10 @@ namespace sirf {
 		virtual bool is_complex() const
 		{
 			return false;
+		}
+		virtual bool supports_array_view() const
+		{
+			return is_contiguous();
 		}
 		bool is_contiguous() const
 		{
