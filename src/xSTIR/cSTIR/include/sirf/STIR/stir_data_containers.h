@@ -886,6 +886,11 @@ namespace sirf {
                 *iter++ = (*iter_x++) / (*iter_y++);
         }
 
+		virtual bool supports_array_view() const
+		{
+			return true;
+		}
+
 	private:
 		virtual STIRAcquisitionDataInMemory* clone_impl() const
 		{
@@ -1121,6 +1126,10 @@ namespace sirf {
 		virtual bool is_complex() const
 		{
 			return false;
+		}
+		virtual bool supports_array_view() const
+		{
+			return is_contiguous();
 		}
 		bool is_contiguous() const
 		{

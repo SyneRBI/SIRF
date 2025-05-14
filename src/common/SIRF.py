@@ -213,6 +213,14 @@ class DataContainer(ABC):
         pyiutil.deleteDataHandle(handle)
         return i != 0
 
+    def supports_array_view(self):
+        assert self.handle is not None
+        handle = pysirf.cSIRF_supportsArrayView(self.handle)
+        check_status(handle)
+        i = pyiutil.intDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return i != 0
+
     def conjugate(self, out=None):
         ''' Computes complex conjugate of self.
 
