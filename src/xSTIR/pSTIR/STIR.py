@@ -414,6 +414,7 @@ class ImageData(SIRF.ImageData):
     values. You have to use the `as_array` method to get an array with
     the voxel values, and use the `fill` function to change the voxel values.
     """
+    pass
 
     def __init__(self, arg=None):
         """Creates an ImageData object.
@@ -438,6 +439,7 @@ class ImageData(SIRF.ImageData):
                 raise AssertionError()
             self.handle = pystir.cSTIR_imageFromAcquisitionData(arg.handle)
             check_status(self.handle)
+            return
             a = numpy.asarray([0, 0], dtype=numpy.float32)
             self.handle = pysirf.cSIRF_sum(self.handle, a.ctypes.data)
             check_status(self.handle)
@@ -489,6 +491,7 @@ class ImageData(SIRF.ImageData):
     def __array_interface__(self):
         """As per https://numpy.org/doc/stable/reference/arrays.interface.html"""
         if not self.contiguous:
+            print('data not contiguous!')
             raise ContiguousError("please make an array-copy first with `as_array`")
         return {'shape': self.shape, 'typestr': '<f4', 'version': 3,
                 'data': (parms.size_t_par(self.handle, 'ImageData', 'address'), False)}
