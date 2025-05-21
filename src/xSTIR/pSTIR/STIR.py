@@ -431,6 +431,8 @@ class ImageData(SIRF.ImageData):
                          method before using it.
         """
         self.handle = None
+        self.name = 'ImageData'
+        self.rimsize = -1
         if isinstance(arg, str):
             self.handle = pystir.cSTIR_objectFromFile('Image', arg)
             check_status(self.handle)
@@ -451,8 +453,6 @@ class ImageData(SIRF.ImageData):
         elif arg is not None:
             raise error(
                 'wrong argument ' + repr(arg) + ' for ImageData constructor')
-        self.name = 'ImageData'
-        self.rimsize = -1
 
     def __del__(self):
         """Deallocates this ImageData object."""
@@ -1328,6 +1328,7 @@ class AcquisitionData(ScanData):
             raise error('Wrong second argument in create_uniform_image')
         check_status(image.handle)
         image.fill(value)
+        return image
         a = numpy.asarray([0, 0], dtype=numpy.float32)
         image.handle = pysirf.cSIRF_sum(image.handle, a.ctypes.data)
         check_status(image.handle)
