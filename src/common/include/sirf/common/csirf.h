@@ -41,6 +41,7 @@ void* cSIRF_examples_data_path(const char* data_type);
 // Data container methods
 void* cSIRF_dataItems(const void* ptr_x);
 void* cSIRF_isComplex(const void* ptr_x);
+void* cSIRF_supportsArrayView(const void* ptr_x);
 void* cSIRF_bits(const void* ptr_x);
 void* cSIRF_conjugate(void* ptr);
 void* cSIRF_conjugated(void* ptr);

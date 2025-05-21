@@ -78,15 +78,19 @@ extern "C" {
 	{
 		return dataHandle<double>(i);
 	}
+	void* size_tDataHandle(size_t i)
+	{
+		return dataHandle<size_t>(i);
+	}
 
 	char* charDataFromHandle(const void* ptr)
 	{
 		return charDataFromDataHandle((const DataHandle*)ptr);
 	}
-    bool boolDataFromHandle(const void* ptr)
-    {
-        return dataFromHandle<bool>(ptr);
-    }
+	bool boolDataFromHandle(const void* ptr)
+	{
+		return dataFromHandle<bool>(ptr);
+	}
 	int intDataFromHandle(const void* ptr)
 	{
 		return dataFromHandle<int>(ptr);
@@ -143,6 +147,10 @@ extern "C" {
 	{
 		std::complex<double> z = dataFromHandle<std::complex<double> >(ptr);
 		return z.imag();
+	}
+	size_t size_tDataFromHandle(const void* ptr)
+	{
+		return dataFromHandle<size_t>(ptr);
 	}
 
 	int executionStatus(const void* ptr) {

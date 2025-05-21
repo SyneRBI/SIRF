@@ -33,7 +33,7 @@ extern "C" {
 	void* floatDataHandle(float i);
 	void* doubleDataHandle(double i);
 	char* charDataFromHandle(const void* ptr);
-    bool boolDataFromHandle(const void* ptr);
+	bool boolDataFromHandle(const void* ptr);
 	int intDataFromHandle(const void* ptr);
 	int intDataItemFromHandle(const void* ptr, int i);
 	int uint16DataItemFromHandle(const void* ptr, int i);
@@ -46,6 +46,7 @@ extern "C" {
 	double doubleDataFromHandle(const void* ptr);
 	double doubleReDataFromHandle(const void* ptr);
 	double doubleImDataFromHandle(const void* ptr);
+	size_t size_tDataFromHandle(const void* ptr);
 	int executionStatus(const void* ptr);
 	const char* executionError(const void* ptr);
 	const char* executionErrorFile(const void* ptr);

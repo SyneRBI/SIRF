@@ -40,6 +40,7 @@ from sirf import SIRF
 from sirf.SIRF import DataContainer
 import sirf.pyiutilities as pyiutil
 import sirf.pystir as pystir
+import sirf.pysirf as pysirf
 
 import sirf.STIR_params as parms
 from sirf.config import SIRF_HAS_NiftyPET
@@ -398,6 +399,13 @@ class EllipticCylinder(Shape):
         return (rx, ry)
 
 
+class ContiguousError(ValueError):
+    """
+    ValueError for discontiguous memory as per
+    https://data-apis.org/array-api/latest/API_specification/generated/array_api.asarray.html
+    """
+
+
 # class ImageData(DataContainer):
 class ImageData(SIRF.ImageData):
     """Class for PET image data objects.
@@ -406,6 +414,7 @@ class ImageData(SIRF.ImageData):
     values. You have to use the `as_array` method to get an array with
     the voxel values, and use the `fill` function to change the voxel values.
     """
+    pass
 
     def __init__(self, arg=None):
         """Creates an ImageData object.
@@ -422,6 +431,8 @@ class ImageData(SIRF.ImageData):
                          method before using it.
         """
         self.handle = None
+        self.name = 'ImageData'
+        self.rimsize = -1
         if isinstance(arg, str):
             self.handle = pystir.cSTIR_objectFromFile('Image', arg)
             check_status(self.handle)
@@ -429,6 +440,10 @@ class ImageData(SIRF.ImageData):
             if arg.handle is None:
                 raise AssertionError()
             self.handle = pystir.cSTIR_imageFromAcquisitionData(arg.handle)
+            check_status(self.handle)
+            return
+            a = numpy.asarray([0, 0], dtype=numpy.float32)
+            self.handle = pysirf.cSIRF_sum(self.handle, a.ctypes.data)
             check_status(self.handle)
         elif isinstance(arg, SIRF.ImageData):
             if arg.handle is None:
@@ -438,8 +453,6 @@ class ImageData(SIRF.ImageData):
         elif arg is not None:
             raise error(
                 'wrong argument ' + repr(arg) + ' for ImageData constructor')
-        self.name = 'ImageData'
-        self.rimsize = -1
 
     def __del__(self):
         """Deallocates this ImageData object."""
@@ -459,6 +472,10 @@ class ImageData(SIRF.ImageData):
         return info
 
     @property
+    def contiguous(self):
+        return parms.bool_par(self.handle, 'ImageData', 'contiguous')
+
+    @property
     def modality(self):
         """Returns imaging modality as Python string."""
         return parms.char_par(self.handle, 'ImageData', 'modality')
@@ -469,6 +486,24 @@ class ImageData(SIRF.ImageData):
         mod: "PT" or "NM" or "MR" or "CT" or "US" or "Optical"
         """
         return parms.set_char_par(self.handle, 'ImageData', 'modality', mod)
+
+    @property
+    def __array_interface__(self):
+        """As per https://numpy.org/doc/stable/reference/arrays.interface.html"""
+        if not self.contiguous:
+            print('data not contiguous!')
+            raise ContiguousError("please make an array-copy first with `as_array`")
+        return {'shape': self.shape, 'typestr': '<f4', 'version': 3,
+                'data': (parms.size_t_par(self.handle, 'ImageData', 'address'), False)}
+
+    def asarray(self, xp=numpy, copy=None, **kwargs):
+        """Returns view (or fallback copy) of self"""
+        try:
+            return xp.asarray(self, copy=copy, **kwargs)
+        except ContiguousError:
+            if copy or copy is None:
+                return xp.asarray(self.as_array(), **kwargs)
+            raise
 
     def initialise(self, dim, vsize=(1., 1., 1.), origin=(0., 0., 0.)):
         """
@@ -681,7 +716,7 @@ class ImageData(SIRF.ImageData):
             np_offsets_in_mm.ctypes.data, np_size.ctypes.data, scaling))
 
         return zoomed_im
-    
+
     def zoom_image_as_template(self, template_image, scaling='preserve_sum'):
         """
         Returns a zoomed image based on a template image's geometry.
@@ -697,7 +732,7 @@ class ImageData(SIRF.ImageData):
         ### because of a bug somewherre
         try_calling(pystir.cSTIR_ImageData_zoom_image_as_template(
             zoomed_image.handle, self.handle, scaling))
-        
+
         return zoomed_image
 
     def move_to_scanner_centre(self, proj_data):
@@ -1013,27 +1048,27 @@ class PinholeSPECTUBMatrix:
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
-            
+
     def get_maximum_number_of_sigmas(self):
         """Returns the number of sigmas to consider when correcting for intrinsic PSF."""
         return parms.float_par(self.handle, self.name, 'maximum_number_of_sigmas')
-    
+
     def set_maximum_number_of_sigmas(self, value):
         """Sets the number of sigmas to consider when correcting for intrinsic PSF."""
         parms.set_float_par(self.handle, self.name, 'maximum_number_of_sigmas', value)
-        
+
     def get_spatial_resolution_PSF(self):
         """Returns the spatial high resolution in which to sample distributions (in cm)."""
         return parms.float_par(self.handle, self.name, 'spatial_resolution_PSF')
-    
+
     def set_spatial_resolution_PSF(self, value):
         """Sets the spatial high resolution in which to sample distributions (in cm)."""
         parms.set_float_par(self.handle, self.name, 'spatial_resolution_PSF', value)
-        
+
     def get_subsampling_factor_PSF(self):
         """Returns the subsampling factor to compute convolutions when PSF or DOI corrections are enabled."""
         return parms.int_par(self.handle, self.name, 'subsampling_factor_PSF')
-    
+
     def set_subsampling_factor_PSF(self, value):
         """Sets the subsampling factor to compute convolutions when PSF or DOI corrections are enabled."""
         parms.set_int_par(self.handle, self.name, 'subsampling_factor_PSF', value)
@@ -1041,35 +1076,35 @@ class PinholeSPECTUBMatrix:
     def set_detector_file(self, filename):
         """Sets the name of the file containing the detector information."""
         parms.set_char_par(self.handle, self.name, 'detector_file', filename)
-    
+
     def set_collimator_file(self, filename):
         """Sets the name of the file containing the collimator information."""
         parms.set_char_par(self.handle, self.name, 'collimator_file', filename)
-        
+
     def get_psf_correction(self):
         """Returns the setting for enabling corrections for intrinsic PSF."""
         return parms.char_par(self.handle, self.name, 'psf_correction')
-        
+
     def set_psf_correction(self, value):
         """Enable or disable corrections for intrinsic PSF."""
         parms.set_char_par(self.handle, self.name, 'psf_correction', value)
-        
+
     def get_doi_correction(self):
         """Returns the setting for enabling corrections for depth of interaction."""
         return parms.char_par(self.handle, self.name, 'doi_correction')
-        
+
     def set_doi_correction(self, value):
         """Enable or disable corrections for depth of interaction."""
         parms.set_char_par(self.handle, self.name, 'doi_correction', value)
-        
+
     def get_attenuation_type(self):
         """Returns the attenuation type: full, simple, or no."""
         return parms.char_par(self.handle, self.name, 'attenuation_type')
-        
+
     def set_attenuation_type(self, value):
         """Set the attenuation type to full, simple, or no."""
         parms.set_char_par(self.handle, self.name, 'attenuation_type', value)
-        
+
     def get_attenuation_image(self):
         """Returns the attenuation image used by the projector."""
         image = ImageData()
@@ -1081,15 +1116,15 @@ class PinholeSPECTUBMatrix:
         assert_validity(value, ImageData)
         parms.set_parameter(self.handle, self.name, 'attenuation_image', value.handle)
         return self
-        
+
     def get_object_radius(self):
         """Returns the radius of the object in the xy plane of the image volume."""
         return parms.float_par(self.handle, self.name, 'object_radius')
-    
+
     def set_object_radius(self, value):
         """Sets the radius of the object in the xy plane of the image volume. Could be used for masking."""
         parms.set_float_par(self.handle, self.name, 'object_radius', value)
-        
+
     def get_mask_image(self):
         """Returns the mask image used by the projector."""
         image = ImageData()
@@ -1101,20 +1136,20 @@ class PinholeSPECTUBMatrix:
         assert_validity(value, ImageData)
         parms.set_parameter(self.handle, self.name, 'mask_image', value.handle)
         return self
-        
+
     def get_keep_all_views_in_cache(self):
         """Returns a bool checking if we're keeping the whole matrix in memory or not."""
         return parms.bool_par(self.handle, self.name, 'keep_all_views_in_cache')
-            
+
     def set_keep_all_views_in_cache(self, value):
         """Enable keeping the matrix in memory to speed-up calculations (can use lots of memory)."""
         parms.set_bool_par(self.handle, self.name, 'keep_all_views_in_cache', value)
         return self
-        
+
     def get_mask_from_attenuation_map(self):
         """Returns a bool checking if we're masking with the attenuation map or not."""
         return parms.bool_par(self.handle, self.name, 'mask_from_attenuation_map')
-            
+
     def set_mask_from_attenuation_map(self, value):
         """Enable masking from attenuation map if mask file is not set."""
         parms.set_bool_par(self.handle, self.name, 'mask_from_attenuation_map', value)
@@ -1176,7 +1211,7 @@ class ListmodeData(ScanData):
         acq_data.handle = pystir.cSTIR_acquisitionDataFromListmode(self.handle)
         return acq_data
 
-        
+
 ScanData.register(ListmodeData)
 
 
@@ -1294,6 +1329,10 @@ class AcquisitionData(ScanData):
         check_status(image.handle)
         image.fill(value)
         return image
+        a = numpy.asarray([0, 0], dtype=numpy.float32)
+        image.handle = pysirf.cSIRF_sum(image.handle, a.ctypes.data)
+        check_status(image.handle)
+        return image
 
     def dimensions(self):
         """Returns a tuple of the data dimensions.
@@ -1320,6 +1359,16 @@ class AcquisitionData(ScanData):
     def modality(self):
         """Returns imaging modality as Python string."""
         return parms.char_par(self.handle, 'AcquisitionData', 'modality')
+
+    @property
+    def __array_interface__(self):
+        """As per https://numpy.org/doc/stable/reference/arrays.interface.html"""
+        return {'shape': self.shape, 'typestr': '<f4', 'version': 3,
+                'data': (parms.size_t_par(self.handle, 'AcquisitionData', 'address'), False)}
+
+    def asarray(self, xp=numpy, **kwargs):
+        """Returns view of self"""
+        return xp.asarray(self, **kwargs)
 
     def as_array(self):
         """Returns bin values as ndarray.
@@ -1988,8 +2037,8 @@ class AcquisitionModel(object):
         num_subsets: int, optional
                      the number of subsets of ad; if None, is set to
                      self.num_subsets.
-        out        : optional AcquisitionData to store the result into. 
-                     Default None, if None a new AcquisitionData will be 
+        out        : optional AcquisitionData to store the result into.
+                     Default None, if None a new AcquisitionData will be
                      returned.
         """
         assert_validity(ad, AcquisitionData)
@@ -2032,7 +2081,7 @@ class AcquisitionModel(object):
             raise error('AcquisitionModel is not linear\nYou can get the ' +
                         'linear part of the AcquisitionModel with ' +
                         'get_linear_acquisition_model')
-        
+
     def adjoint(self, ad, out=None):
         '''Back-projects acquisition data into image space, if the
            AcquisitionModel is linear
@@ -2041,7 +2090,7 @@ class AcquisitionModel(object):
            Added for CCPi CIL compatibility
            https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
         '''
-        return self.backward(ad, subset_num=self.subset_num, 
+        return self.backward(ad, subset_num=self.subset_num,
                              num_subsets=self.num_subsets, out=out)
 
     def is_affine(self):
@@ -2084,33 +2133,33 @@ class AcquisitionModel(object):
     @property
     def subset_num(self):
         '''Selected subset number
- 
-        This value is used by direct and adjoint methods and are the 
-        default values used by forward and back projection for their 
+
+        This value is used by direct and adjoint methods and are the
+        default values used by forward and back projection for their
         parameter subset_num.
-        
+
         Default value is 0.
         '''
         return self._subset_num
-    
+
     @property
     def num_subsets(self):
         '''Number of subsets to divide the AcquisitionData during projection
 
-        This value is used by the direct and adjoint methods. Additionally, 
+        This value is used by the direct and adjoint methods. Additionally,
         this value is the default value used by forward and back projection
         for the parameter num_subsets.
-        
+
         Default value is 1 and corresponds to forward/backward projecting
         the whole dataset.
 
         '''
         return self._num_subsets
-    
+
     @subset_num.setter
     def subset_num(self, value):
         '''setter for subset_num
-        
+
         value: int >= 0 and < num_subsets
         '''
         if isinstance (value, Integral):
@@ -2121,21 +2170,21 @@ class AcquisitionModel(object):
                     .format(self.subset_num, value))
         else:
             raise ValueError("Expected an integer. Got {}".format(type(value)))
-    
+
     @num_subsets.setter
     def num_subsets(self, value):
         '''setter for num_subsets
 
         value: int > 0.
-        Allows to set the number of subsets the AcquisitionModel operates on. 
-        Notice that reassigning the num_subsets to any valid number will also 
+        Allows to set the number of subsets the AcquisitionModel operates on.
+        Notice that reassigning the num_subsets to any valid number will also
         set the property subset_num to 0.
         '''
         if isinstance (value, Integral):
             if value > 0:
                 self._num_subsets = value
                 self.subset_num = 0
-                
+
             else:
                 raise ValueError("Expected a subset number larger than 0. Got {}"\
                     .format(value))
@@ -2444,9 +2493,9 @@ class QuadraticPrior(Prior):
 class LogcoshPrior(Prior):
     r"""Class for Log-cosh Prior.
 
-    Implements the prior, Log-cosh Prior, one of the earliest uses in P. J. 
-    Green's paper "Bayesian reconstructions from emission tomography data using 
-    a modified EM algorithm," in IEEE Transactions on Medical Imaging, vol. 9, 
+    Implements the prior, Log-cosh Prior, one of the earliest uses in P. J.
+    Green's paper "Bayesian reconstructions from emission tomography data using
+    a modified EM algorithm," in IEEE Transactions on Medical Imaging, vol. 9,
     no. 1, pp. 84-93, March 1990, doi: 10.1109/42.52985.
 
     The prior has one parameter the scalar, it is the edge-preservation parameter.
@@ -2496,9 +2545,9 @@ class RelativeDifferencePrior(Prior):
     r"""Class for Relative Difference Prior.
 
     Implements the prior, Relative Difference Prior, proposed by Johan Nuyts et.
-    al in "A concave prior penalizing relative differences for 
-    maximum-a-posteriori reconstruction in emission tomography," in IEEE 
-    Transactions on Nuclear Science, vol. 49, no. 1, pp. 56-60, Feb. 2002, 
+    al in "A concave prior penalizing relative differences for
+    maximum-a-posteriori reconstruction in emission tomography," in IEEE
+    Transactions on Nuclear Science, vol. 49, no. 1, pp. 56-60, Feb. 2002,
     doi: 10.1109/TNS.2002.998681.
 
     The value of the prior is computed as follows:
@@ -2976,7 +3025,7 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByB
 
     def get_cache_path(self):
         return parms.char_par(self.handle, self.name, 'cache_path')
-    
+
     def set_time_interval(self, start, stop):
         """Sets the time interval.
 
@@ -3614,11 +3663,11 @@ class ScatterEstimator():
     def get_num_iterations(self):
         """Get number of iterations of the SSS algorithm to use."""
         return parms.int_par(self.handle, 'PETScatterEstimator', 'num_iterations')
-    
+
     def get_OSEM_num_subiterations(self):
         """Get number of subiterations used by OSEM in the SSS algorithm."""
         return parms.int_par(self.handle, 'PETScatterEstimator', 'OSEM_num_subiterations')
-    
+
     def get_OSEM_num_subsets(self):
         """Get number of subsets used by OSEM in the SSS algorithm."""
         return parms.int_par(self.handle, 'PETScatterEstimator', 'OSEM_num_subsets')
@@ -3656,11 +3705,11 @@ class ScatterEstimator():
     def set_OSEM_num_subiterations(self, v):
         """Set number of subiterations used by OSEM in the SSS algorithm."""
         parms.set_int_par(self.handle, 'PETScatterEstimator', 'set_OSEM_num_subiterations', v)
-        
+
     def set_OSEM_num_subsets(self, v):
         """Set number of subsets used by OSEM in the SSS algorithm."""
         parms.set_int_par(self.handle, 'PETScatterEstimator', 'set_OSEM_num_subsets', v)
-         
+
     def set_num_iterations(self, v):
         """Set number of iterations of the SSS algorithm to use."""
         parms.set_int_par(self.handle, 'PETScatterEstimator', 'set_num_iterations', v)
