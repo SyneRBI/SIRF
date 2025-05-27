@@ -459,10 +459,6 @@ class ImageData(SIRF.ImageData):
         return info
 
     @property
-    def contiguous(self):
-        return parms.bool_par(self.handle, 'ImageData', 'contiguous')
-
-    @property
     def modality(self):
         """Returns imaging modality as Python string."""
         return parms.char_par(self.handle, 'ImageData', 'modality')

@@ -150,7 +150,6 @@ namespace sirf {
         }
         /// Is complex? Unless overwridden (Gadgetron), assume not complex.
         virtual bool is_complex() const { return false; }
-        virtual bool supports_array_view() const { return false; }
         /// Reorient image. Requires that dimesions and spacing match
         virtual void reorient(const VoxelisedGeometricalInfo3D &);
         /// Can reorient? (check dimensions and spacing)
