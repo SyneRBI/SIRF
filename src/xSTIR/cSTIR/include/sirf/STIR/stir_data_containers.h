@@ -165,7 +165,7 @@ namespace sirf {
 		virtual STIRAcquisitionData* same_acquisition_data
 			(stir::shared_ptr<const stir::ExamInfo> sptr_exam_info,
 			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info,
-			const bool initialise_with_0) const = 0;
+			const bool initialise_with_0 = false) const = 0;
 		virtual std::shared_ptr<STIRAcquisitionData> new_acquisition_data() const = 0;
 
                 std::string get_info() const
@@ -614,13 +614,13 @@ namespace sirf {
 		virtual STIRAcquisitionData* same_acquisition_data
 			(stir::shared_ptr<const stir::ExamInfo> sptr_exam_info,
 			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info,
-			const bool initialise_with_0) const
+			const bool initialise_with_0 = false) const
 		{
 			STIRAcquisitionData* ptr_ad =
 				new STIRAcquisitionDataInFile(sptr_exam_info, sptr_proj_data_info);
 			return ptr_ad;
 		}
-		virtual ObjectHandle<DataContainer>* new_data_container_handle(const bool initialise_with_0) const
+		virtual ObjectHandle<DataContainer>* new_data_container_handle(const bool initialise_with_0 = false) const
 		{
 			init();
 			DataContainer* ptr = _template->same_acquisition_data(
@@ -635,7 +635,7 @@ namespace sirf {
 			init();
 			return std::shared_ptr < STIRAcquisitionData >
 				(_template->same_acquisition_data(this->get_exam_info_sptr(),
-				this->get_proj_data_info_sptr()->create_shared_clone(), false));
+				this->get_proj_data_info_sptr()->create_shared_clone()));
 		}
 		virtual std::unique_ptr<STIRAcquisitionData> get_subset(const std::vector<int>& views) const;
 
@@ -731,14 +731,14 @@ namespace sirf {
 		virtual STIRAcquisitionData* same_acquisition_data
 			(stir::shared_ptr<const stir::ExamInfo> sptr_exam_info,
 			stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info,
-			const bool initialise_with_0
+			const bool initialise_with_0 = false
 			) const
 		{
 			STIRAcquisitionData* ptr_ad =
 				new STIRAcquisitionDataInMemory(sptr_exam_info, sptr_proj_data_info, initialise_with_0);
 			return ptr_ad;
 		}
-		virtual ObjectHandle<DataContainer>* new_data_container_handle(const bool initialise_with_0) const
+		virtual ObjectHandle<DataContainer>* new_data_container_handle(const bool initialise_with_0 = false) const
 		{
 			init();
 			DataContainer* ptr = _template->same_acquisition_data
@@ -754,7 +754,7 @@ namespace sirf {
 			return std::shared_ptr < STIRAcquisitionData >
 				(_template->same_acquisition_data
 				(this->get_exam_info_sptr(),
-                                 this->get_proj_data_info_sptr()->create_shared_clone(), false));
+                                 this->get_proj_data_info_sptr()->create_shared_clone()));
 		}
 		virtual std::unique_ptr<STIRAcquisitionData> get_subset(const std::vector<int>& views) const;
 
@@ -1132,7 +1132,7 @@ namespace sirf {
 		{
 			return std::shared_ptr<STIRImageData>(same_image_data());
 		}
-		virtual ObjectHandle<DataContainer>* new_data_container_handle(const bool initialise_with_0) const
+		virtual ObjectHandle<DataContainer>* new_data_container_handle(const bool initialise_with_0 = false) const
 		{
 			return new ObjectHandle<DataContainer>
 				(std::shared_ptr<DataContainer>(same_image_data()));

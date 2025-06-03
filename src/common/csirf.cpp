@@ -389,9 +389,7 @@ cSIRF_semibinary(const void* ptr_x, const void* ptr_y, const char* f)
 		if (sirf::iequals(f, "power"))
 			z.power(x, ptr_y);
 		else if (sirf::iequals(f, "multiply"))
-			z.axpby(ptr_y, x, static_cast<void*>(ptr_0), x);
-//			z.axpby(ptr_y, x, (void*)ptr_0, x);
-// slow!		z.multiply(x, ptr_y);
+			z.axpby(ptr_y, x, ptr_0, x);
 		else if (sirf::iequals(f, "maximum"))
 			z.maximum(x, ptr_y);
 		else if (sirf::iequals(f, "minimum"))
@@ -415,9 +413,7 @@ cSIRF_compute_semibinary(const void* ptr_x, const void* ptr_y, const char* f, co
 		if (sirf::iequals(f, "power"))
 			z.power(x, ptr_y);
 		else if (sirf::iequals(f, "multiply"))
-			z.axpby(ptr_y, x, static_cast<void*>(ptr_0), x);
-//			z.axpby(ptr_y, x, (void*)ptr_0, x);
-// slow!		z.multiply(x, ptr_y);
+			z.axpby(ptr_y, x, ptr_0, x);
 		else if (sirf::iequals(f, "maximum"))
 			z.maximum(x, ptr_y);
 		else if (sirf::iequals(f, "minimum"))
