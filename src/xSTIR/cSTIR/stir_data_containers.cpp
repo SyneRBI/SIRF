@@ -203,35 +203,6 @@ const DataContainer& a_y, const void* ptr_b
 
     // Call STIR's xapyb
     data()->xapyb(*x->data(), a, *y->data(), b);
-    /*
-    ProjData& pd = *data();
-    const ProjData& pd_x = *x->data();
-    const ProjData& pd_y = *y->data();
-    auto pdm = dynamic_cast<ProjDataInMemory*>(&pd);
-    auto pdm_x = dynamic_cast<const ProjDataInMemory*>(&pd_x);
-    auto pdm_y = dynamic_cast<const ProjDataInMemory*>(&pd_y);
-    if (is_null_ptr(pdm) || is_null_ptr(pdm_x) || is_null_ptr(pdm_y)) {
-        // Call STIR's xapyb
-        std::cout << "calling STIR's xapyb...\n";
-        data()->xapyb(*x->data(), a, *y->data(), b);
-    }
-    int dim[4];
-    size_t n = get_dimensions(dim);
-    float* ptr = pdm->get_data_ptr();
-    const float* ptr_x = pdm_x->get_const_data_ptr();
-    const float* ptr_y = pdm_y->get_const_data_ptr();
-    if (a == 1.0 && b == 1.0) {
-        //std::cout << "adding...\n";
-        for (size_t i = 0; i < n; i++)
-            *ptr++ = (*ptr_x++) + (*ptr_y++);
-//            ptr[i] = ptr_x[i] + ptr_y[i];
-    }
-    else {
-        std::cout << "using xapyb...\n";
-        for (size_t i = 0; i < n; i++)
-            ptr[i] = ptr_x[i] * a + ptr_y[i] * b;
-    }
-    */
 }
 
 void
