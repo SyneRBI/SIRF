@@ -16,6 +16,7 @@ Options:
 {licence}
 """
 # Created on Tue Nov 21 11:23:39 2017
+import numpy
 from sirf.Gadgetron import *
 from sirf.Utilities import is_operator_adjoint, runner, RE_PYEXT, __license__
 __version__ = "0.3.0"

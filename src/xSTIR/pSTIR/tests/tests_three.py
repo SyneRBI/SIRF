@@ -13,6 +13,7 @@ Options:
 
 {licence}
 """
+import numpy
 from sirf.STIR import *
 from sirf.Utilities import runner, RE_PYEXT, __license__
 __version__ = "0.2.4"

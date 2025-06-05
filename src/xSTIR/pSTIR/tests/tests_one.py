@@ -14,6 +14,7 @@ Options:
 {licence}
 """
 import math
+import numpy
 import warnings
 from sirf.STIR import *
 from sirf.Utilities import runner, RE_PYEXT, __license__
