@@ -56,7 +56,8 @@ def test_main(rec=False, verb=False, throw=True):
         new_image_data = image_data * 10
         test.check_if_equal_within_tolerance(10 * image_data_norm, new_image_data.norm())
 
-    return test.failed, test.ntest
+    #return test.failed, test.ntest
+    numpy.testing.assert_equal(test.failed, 0)
 
 
 if __name__ == "__main__":

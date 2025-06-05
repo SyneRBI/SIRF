@@ -68,7 +68,8 @@ def test_main(rec=False, verb=False, throw=True):
     if not is_operator_adjoint(am, max_err = 1e-3):
       raise AssertionError("Gadgetron operator is not adjoint")
 
-    return test.failed, test.ntest
+    #return test.failed, test.ntest
+    numpy.testing.assert_equal(test.failed, 0)
 
 
 if __name__ == "__main__":

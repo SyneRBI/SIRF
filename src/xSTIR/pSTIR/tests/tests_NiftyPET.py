@@ -125,7 +125,7 @@ def test_main(rec=False, verb=False, throw=True):
     # Reset original verbose-ness
     pet.set_verbosity(original_verb)
 
-    return 0, 1
+    #return 0, 1
 
 if __name__ == "__main__":
     runner(test_main, __doc__, __version__, __author__)

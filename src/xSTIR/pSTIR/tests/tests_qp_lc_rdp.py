@@ -14,6 +14,7 @@ Options:
 
 {licence}
 """
+import numpy
 import sirf.STIR
 import sirf.config
 from sirf.Utilities import runner, RE_PYEXT, __license__, examples_data_path, pTest
@@ -95,8 +96,9 @@ def test_main(rec=False, verb=False, throw=True):
             if isinstance(prior, sirf.STIR.RelativeDifferencePrior):
                 prior.set_epsilon(im.max()*.01)
             Hessian_test(test, prior, im, 0.03)
-            
-    return test.failed, test.ntest
+
+    #return test.failed, test.ntest
+    numpy.testing.assert_equal(test.failed, 0)
 
 
 if __name__ == "__main__":

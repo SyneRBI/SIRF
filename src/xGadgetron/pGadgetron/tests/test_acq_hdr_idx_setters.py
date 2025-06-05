@@ -37,7 +37,7 @@ def test_main(rec=False, verb=False, throw=True):
     test_successful = True
 
     test_failed = not test_successful
-    return test_failed, 1
+    #return test_failed, 1
 
 
 if __name__ == "__main__":

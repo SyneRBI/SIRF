@@ -72,7 +72,8 @@ def test_main(rec=False, verb=False, throw=True):
         if get_max_omp_threads() != get_default_num_omp_threads():
             raise AssertionError("Max num omp threads failed (pt. 2)")
 
-    return test.failed, test.ntest
+    #return test.failed, test.ntest
+    numpy.testing.assert_equal(test.failed, 0)
 
 
 if __name__ == "__main__":

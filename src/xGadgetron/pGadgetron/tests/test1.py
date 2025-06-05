@@ -77,7 +77,8 @@ def test_main(rec=False, verb=False, throw=True):
     test.check(abs(xFy.imag/xFy.real), abs_tol = 1e-4)
     test.check(abs(Bxy.imag/Bxy.real), abs_tol = 1e-4)
 
-    return test.failed, test.ntest
+    #return test.failed, test.ntest
+    numpy.testing.assert_equal(test.failed, 0)
 
 
 if __name__ == "__main__":

@@ -73,7 +73,8 @@ def test_main(rec=False, verb=False, throw=True):
             test.check(complex_image.info(p))
             #print(form % complex_image.info(p))
 
-    return test.failed, test.ntest
+    #return test.failed, test.ntest
+    numpy.testing.assert_equal(test.failed, 0)
 
 
 if __name__ == "__main__":

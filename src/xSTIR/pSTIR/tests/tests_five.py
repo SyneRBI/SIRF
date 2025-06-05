@@ -13,6 +13,7 @@ Options:
 
 {licence}
 """
+import numpy
 from sirf.Utilities import petmr_data_path, existing_filepath, \
                            pTest, RE_PYEXT , runner
 from sirf.STIR import MessageRedirector, AcquisitionData
@@ -96,7 +97,8 @@ def test_main(rec=False, verb=False, throw=True):
         b /= 3
         test.check(b.sum()/N)
 
-    return test.failed, test.ntest
+    #return test.failed, test.ntest
+    numpy.testing.assert_equal(test.failed, 0)
 
 
 if __name__ == "__main__":

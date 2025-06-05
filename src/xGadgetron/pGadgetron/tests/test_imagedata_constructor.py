@@ -50,7 +50,8 @@ def test_main(rec=False, verb=False, throw=True):
     test_successful *= imgdata.dimensions() == test_img_dimensions
 
     test_failed = not test_successful
-    return test_failed, 1
+    #return test_failed, 1
+    numpy.testing.assert_equal(test_failed, 0)
 
 
 if __name__ == "__main__":

@@ -198,7 +198,8 @@ def test_main(rec=False, verb=False, throw=True):
         d = numpy.linalg.norm(img_arr_conj_sirf - img_arr_conj_numpy)
         test.check_if_equal(0, d)
 
-    return test.failed, test.ntest
+    #return test.failed, test.ntest
+    numpy.testing.assert_equal(test.failed, 0)
 
 
 if __name__ == "__main__":

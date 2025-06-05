@@ -101,7 +101,7 @@ def test_main(rec=False, verb=False, throw=True):
         unscattered_data.write("out_unscattered.hs")
         assert False, f"Difference between simulated and estimated scatter is too large (rel err {rel_err}). Data written to file as out*.hs"
 
-    return 0, 1
+    #return 0, 1
 
 
 if __name__ == "__main__":

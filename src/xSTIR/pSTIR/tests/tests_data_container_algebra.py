@@ -42,7 +42,8 @@ def test_main(rec=False, verb=False, throw=True):
         image.fill(1.0)
         data_container_algebra_tests(test, image)
 
-    return test.failed, test.ntest
+    #return test.failed, test.ntest
+    numpy.testing.assert_equal(test.failed, 0)
 
 
 if __name__ == "__main__":

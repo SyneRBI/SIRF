@@ -40,7 +40,8 @@ def test_main(rec=False, verb=False, throw=True):
     complex_images = recon.get_output()
     test_data_container_algebra(test, complex_images)
 
-    return test.failed, test.ntest
+    #return test.failed, test.ntest
+    numpy.testing.assert_equal(test.failed, 0)
 
 
 if __name__ == "__main__":
