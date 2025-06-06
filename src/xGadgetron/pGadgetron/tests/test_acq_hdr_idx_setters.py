@@ -21,7 +21,7 @@ __version__ = "0.2.3"
 __author__ = "Johannes Mayer"
 
 
-def test_main(rec=False, verb=False, throw=True):
+def test_main(rec=False, verb=False, throw=True, no_ret_val=True):
 
     print("Running the ImageData from AcquisitionData constructor test")
     data_path = examples_data_path('MR')
@@ -37,8 +37,10 @@ def test_main(rec=False, verb=False, throw=True):
     test_successful = True
 
     test_failed = not test_successful
-    #return test_failed, 1
+    if no_ret_val:
+        return
+    return test_failed, 1
 
 
 if __name__ == "__main__":
-    runner(test_main, __doc__, __version__, __author__)
+    runner(test_main, __doc__, __version__, __author__, no_ret_val=False)

@@ -16,13 +16,13 @@ Options:
 import numpy
 from sirf.Gadgetron import *
 from sirf.Utilities import runner, RE_PYEXT, __license__
-from sirf.Utilities import test_data_container_algebra
+from sirf.Utilities import data_container_algebra_tests
 
 __version__ = "0.2.3"
 __author__ = "Evgueni Ovtchinnikov"
 
 
-def test_main(rec=False, verb=False, throw=True):
+def test_main(rec=False, verb=False, throw=True, no_ret_val=True):
 
     datafile = RE_PYEXT.sub(".txt", __file__)
     test = pTest(datafile, rec, throw=throw)
@@ -33,17 +33,19 @@ def test_main(rec=False, verb=False, throw=True):
 
     prep_gadgets = ['RemoveROOversamplingGadget']
     processed_data = input_data.process(prep_gadgets)
-    test_data_container_algebra(test, processed_data)
+    data_container_algebra_tests(test, processed_data)
 
     recon = FullySampledReconstructor()
     recon.set_input(processed_data)
     recon.process()
     complex_images = recon.get_output()
-    test_data_container_algebra(test, complex_images)
+    data_container_algebra_tests(test, complex_images)
 
-    #return test.failed, test.ntest
     numpy.testing.assert_equal(test.failed, 0)
+    if no_ret_val:
+        return
+    return test.failed, test.ntest
 
 
 if __name__ == "__main__":
-    runner(test_main, __doc__, __version__, __author__)
+    runner(test_main, __doc__, __version__, __author__, no_ret_val=False)
