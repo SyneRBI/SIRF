@@ -5,7 +5,7 @@
   - `ScatterEstimation` has extra methods that allow setting masks for the tail-fitting
   - `ImageData` has extra method to zoom image using information from a template image, `zoom_image_as_template`.
   - Error raised in `AcquisitionSensitivityModel.[un]normalise` methods applied to a read-only object.
-
+  - `DataContainer.supports_array_view` to test for zero-copy compatibility.
 
 ## v3.8.1
 
@@ -60,7 +60,7 @@
   - added extra members to ScatterEstimation to set behaviour of OSEM used during scatter estimation.
   - added missing `set`/`get` methods for OSSPS `relaxation_parameter`, `relaxation_gamma` and `upper_bound`.
   - added test for scatter simulation and estimation.
-  
+
 * CMake/building:
   - default `DISABLE_MATLAB` to `ON` as our Matlab support is out-of-date and could
   generate conflicts with Python shared libraries.
@@ -151,14 +151,14 @@
     Logan test data during build.
 
 * MR (major improvements)
-  - added acquisition models for 2D non-cartesian encoding. 
+  - added acquisition models for 2D non-cartesian encoding.
     The 2D radial, golden-angle increment radial and stack-of-stars trajectory are supported.
     However, this uses Gadgetron toolbox libraries to be found when building SIRF.
     Other MR features only need access to a Gadgetron server at run-time.
-  - fixed GadgetronImagesVector::reorient() to only consider slice index 
+  - fixed GadgetronImagesVector::reorient() to only consider slice index
     and ignore dimensions such as contrast, repetition etc.
   - To avoid appending to an existing `.h5` file, writing methods now first check whether
-    the file to which data is to be written already exists, and if so, delete it before writing. 
+    the file to which data is to be written already exists, and if so, delete it before writing.
 
 * PET/STIR (minor improvements)
   - (Python) Expose advanced parameters from STIR to sirf.STIR.RayTracingMatrix and add get_info()
@@ -179,7 +179,7 @@
   see the `examples/C++` directory for basic usage.
   - during the build step the executable ismrmrd_generate_cartesian_shepp_logan is called
   to generate simulated data to be used in tests such that the test data are compatible with
-  the installed ISMRMRD version. 
+  the installed ISMRMRD version.
 
 
 ## v3.1.1
@@ -192,7 +192,7 @@
   - Automatic calling of `sort_by_time()` in most places. This ensures that only consistent images are reconstructed.
   - Encoding classes perform the Fourier transformations instead of the `MRAcquisitionModel`.
   - `CoilSensitivitiesVector` class now has forward and backward method using the encoding classes getting rid of the duplicate FFT code used to compute `coil sensitivities` from `MRAcquisitionData`.
-  - Added constructor for `GadgetronImagesVector` from `MRAcquisitionData`. This allows setting up an MR acquisition model without having to perform a reconstruction first. 
+  - Added constructor for `GadgetronImagesVector` from `MRAcquisitionData`. This allows setting up an MR acquisition model without having to perform a reconstruction first.
 
 * PET/STIR
    - iterative reconstructors `set_current_estimate` and `get_current_estimate` now create a clone to avoid surprising modifications of arguments. The old behaviour of `set_current_estimate` can still be achieved by `set_estimate`.<br>
@@ -210,7 +210,7 @@
 ## v3.0.0
 ### Backwards incompatible changes
 * STIR version 4.1.0 is now required.
-* Python 2 is no longer supported. Most code might still work, but we do not check. A warning is written when the Python version found is 2. This will be changed to `FATAL_ERROR` at a later stage. 
+* Python 2 is no longer supported. Most code might still work, but we do not check. A warning is written when the Python version found is 2. This will be changed to `FATAL_ERROR` at a later stage.
 * Handling of coil images and sensitivities in C++ code simplified by inheriting CoilImagesVector from GadgetronImagesVector and replacing CoilSensitivitiesAsImages with CoilSensitivitiesVector, also inheriting from GadgetronImagesVector. All methods of CoilImagesVector and CoilSensitivitiesVector other than those inherited from GadgetronImagesVector are no longer supported except methods named compute(), which are renamed to calculate().
 
 ### Deprecations (will be errors in SIRF 4.0)
@@ -229,7 +229,7 @@ Note that default values of `num_subsets` and `subset_num` are 0 and 1 respectiv
   - When adding a shape to a `sirf.STIR.ImageData`, optionally give the number of times to sample a voxel. This is useful when the shape partially - but not completely - fills a voxel.
   - If `storage_scheme` is set to `memory`, `PETAcquisitionData` allows direct modification, whereas before a copy would need to be created first. (Internally, it uses STIR `ProjDataInMemory`, instead of `ProjDataFromStream`).
 * Registration
-  - Registration of 2d images is now supported with aladin and f3d. 
+  - Registration of 2d images is now supported with aladin and f3d.
 * examples data:
   - Installs `examples`, `data` and `doc` to the install directory, i.e. `${CMAKE_INSTALL_PREFIX}/share/SIRF-<version_major>.<version_minor>` directory.
   - If the `SIRF_DATA_PATH` environment variable is set, `examples_data_path` will search for the examples data there, or in `SIRF_INSTALL_PATH/share/SIRF-<version_major>.<version_minor>/data` directory. In MATLAB, the `example_data_path` function has the version set by CMake at install time.
