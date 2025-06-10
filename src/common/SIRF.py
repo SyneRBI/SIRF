@@ -1,4 +1,4 @@
-''' 
+'''
 Object-Oriented wrap for the cSIRF-to-Python interface pysirf.py
 '''
 
@@ -63,7 +63,7 @@ class DataContainer(ABC):
         '''
         Overloads + for data containers.
 
-        Returns the sum of the container data with another container 
+        Returns the sum of the container data with another container
         data viewed as vectors.
         other: DataContainer
         '''
@@ -73,7 +73,7 @@ class DataContainer(ABC):
         '''
         Overloads - for data containers.
 
-        Returns the difference of the container data with another container 
+        Returns the difference of the container data with another container
         data viewed as vectors.
         other: DataContainer
         '''
@@ -213,7 +213,13 @@ class DataContainer(ABC):
         pyiutil.deleteDataHandle(handle)
         return i != 0
 
+    @property
     def supports_array_view(self):
+        """
+        Returns True iff zero-copy compatible as per
+        https://data-apis.org/array-api/latest/API_specification/generated/array_api.asarray.html
+        https://numpy.org/doc/stable/reference/arrays.interface.html
+        """
         assert self.handle is not None
         handle = pysirf.cSIRF_supportsArrayView(self.handle)
         check_status(handle)
@@ -259,7 +265,7 @@ class DataContainer(ABC):
 
     def dot(self, other):
         '''
-        Returns the dot product of the container data with another container 
+        Returns the dot product of the container data with another container
         data viewed as vectors.
         other: DataContainer
         '''
@@ -425,10 +431,10 @@ class DataContainer(ABC):
         '''
         Linear combination for data containers.
 
-        Returns the linear combination of the self data with another container 
+        Returns the linear combination of the self data with another container
         data y viewed as vectors.
         a: multiplier to self, can be a number or a DataContainer
-        b: multiplier to y, can be a number or a DataContainer 
+        b: multiplier to y, can be a number or a DataContainer
         y: DataContainer
         out:   DataContainer to store the result to.
         '''
@@ -438,10 +444,10 @@ class DataContainer(ABC):
         '''
         Linear combination for data containers: new interface.
 
-        Returns the linear combination of the self data with another container 
+        Returns the linear combination of the self data with another container
         data y viewed as vectors.
         a: multiplier to self, can be a number or a DataContainer
-        b: multiplier to y, can be a number or a DataContainer 
+        b: multiplier to y, can be a number or a DataContainer
         y: DataContainer
         out:   DataContainer to store the result to, can be self or y.
         '''
@@ -607,7 +613,7 @@ class DataContainer(ABC):
         else:
             dt = 'float%s' % bits
         return numpy.dtype(dt)
-    
+
 
 class ImageData(DataContainer):
     '''
@@ -724,7 +730,7 @@ class GeometricalInfo(object):
         arr = numpy.ndarray((3,), dtype = numpy.float32)
         try_calling (pysirf.cSIRF_GeomInfo_get_spacing(self.handle, arr.ctypes.data))
         return tuple(arr)
-    
+
     def get_size(self):
         """Size is the number of voxels in each dimension."""
         arr = numpy.ndarray((3,), dtype = cpp_int_dtype())
