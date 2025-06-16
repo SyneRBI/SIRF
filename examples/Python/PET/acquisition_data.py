@@ -82,6 +82,9 @@ def main():
     print('raw data: %s' % raw_data_file)
     acq_data = pet.AcquisitionData(raw_data_file)
 
+    png = pet.PoissonNoiseGenerator(10, True)
+    png.seed(2)
+
     # copy the acquisition data into a Python array and display
     dim = acq_data.dimensions()
     print('data dimensions: %d x %d x %d x %d' % dim)

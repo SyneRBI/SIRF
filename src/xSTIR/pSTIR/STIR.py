@@ -1625,6 +1625,26 @@ class ListmodeToSinograms(object):
         return v
 
 
+class PoissonNoiseGenerator(object):
+    """
+    Class that generates Poisson noise.
+    """
+
+    def __init__(self, scaling_factor=1.0, preserve_mean=False):
+        self.name = "PoissonNoiseGenerator"
+        self.handle = pystir.cSTIR_createPoissonNoiseGenerator(scaling_factor, preserve_mean)
+        check_status(self.handle)
+
+    def seed(self, s):
+        parms.set_int_par(self.handle, self.name, 'seed', s)
+
+    def generate(self, input):
+        output = AcquisitionData()
+        output.handle = pystir.cSTIR_generatePoissonNoise(self.handle, input.handle)
+        check_status(output.handle)
+        return output
+
+
 class AcquisitionSensitivityModel(object):
     """
     Class that handles PET scanner detector efficiencies and attenuation.

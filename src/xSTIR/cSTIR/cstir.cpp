@@ -204,6 +204,8 @@ void* cSTIR_newObject(const char* name)
                   return NEW_OBJECT_HANDLE(PETScatterEstimator);
 		if (sirf::iequals(name, "SeparableGaussianImageFilter"))
 			return NEW_OBJECT_HANDLE(xSTIR_SeparableGaussianImageFilter);
+                if (sirf::iequals(name, "PoissonNoiseGenerator"))
+                  return NEW_OBJECT_HANDLE(PoissonNoiseGenerator);
 		return unknownObject("object", name, __FILE__, __LINE__);
 	}
 	CATCH;
@@ -290,6 +292,8 @@ void* cSTIR_setParameter
                         return cSTIR_setScatterSimulatorParameter(hs, name, hv);
                 else if(sirf::iequals(obj, "PETScatterEstimator"))
                         return cSTIR_setScatterEstimatorParameter(hs, name, hv);
+                else if(sirf::iequals(obj, "PoissonNoiseGenerator"))
+                        return cSTIR_setPoissonNoiseGeneratorParameter(hs, name, hv);
 		else
 			return unknownObject("object", obj, __FILE__, __LINE__);
 	}
@@ -360,6 +364,8 @@ void* cSTIR_parameter(const void* ptr, const char* obj, const char* name)
 			return cSTIR_FBP2DParameter(handle, name);
                 else if(sirf::iequals(obj, "PETScatterEstimator"))
                         return cSTIR_ScatterEstimatorParameter(handle, name);
+//                else if(sirf::iequals(obj, "PoissonNoiseGenerator"))
+//                        return cSTIR_PoissonNoiseGeneratorParameter(handle, name);
 		return unknownObject("object", obj, __FILE__, __LINE__);
 	}
 	CATCH;
@@ -609,6 +615,31 @@ void* cSTIR_applyImageDataProcessor(const void* ptr_p, void* ptr_i)
 		Image3DF& image = id.data();
 		processor.apply(image);
 		return (void*) new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_createPoissonNoiseGenerator(const float scaling_factor, const bool preserve_mean)
+{
+	try {
+		shared_ptr<PoissonNoiseGenerator> 
+			sptr(new PoissonNoiseGenerator(scaling_factor, preserve_mean));
+		return newObjectHandle(sptr);
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_generatePoissonNoise(const void* ptr_gen, const void* ptr_input)
+{
+	try {
+		PoissonNoiseGenerator& generator =
+			objectFromHandle<PoissonNoiseGenerator>(ptr_gen);
+		STIRAcquisitionData& input = objectFromHandle<STIRAcquisitionData>(ptr_input);
+		std::shared_ptr<STIRAcquisitionData> sptr_output = input.new_acquisition_data();
+		generator.generate_random(*sptr_output, input);
+		return newObjectHandle(sptr_output);
 	}
 	CATCH;
 }

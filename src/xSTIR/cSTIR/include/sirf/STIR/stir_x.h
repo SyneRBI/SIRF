@@ -41,6 +41,7 @@ limitations under the License.
 #include "sirf/STIR/stir_data_containers.h"
 #include "stir/recon_buildblock/PoissonLogLikelihoodWithLinearModelForMeanAndProjData.h"
 #include "stir/recon_buildblock/PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin.h"
+#include "stir/GeneralisedPoissonNoiseGenerator.h"
 
 #define MIN_BIN_EFFICIENCY 1.0e-20f
 //#define MIN_BIN_EFFICIENCY 1.0e-6f
@@ -107,6 +108,27 @@ namespace sirf {
 		//shared_ptr<stir::ChainedBinNormalisation> norm_;
 	};
 
+	class PoissonNoiseGenerator {
+	public:
+		//! Constructor intialises the random number generator with a fixed seed
+		PoissonNoiseGenerator(const float scaling_factor = 1.0F, const bool preserve_mean = false)
+		{
+			gpng_ = stir::shared_ptr<stir::GeneralisedPoissonNoiseGenerator>
+				(new GeneralisedPoissonNoiseGenerator(scaling_factor, preserve_mean));
+		}
+		//! The seed value for the random number generator
+		void seed(unsigned int s)
+		{
+			gpng_->seed(s);
+		}
+		void generate_random(STIRAcquisitionData& output, const STIRAcquisitionData& input)
+		{
+			gpng_->generate_random(*output.data(), *input.data());
+		}
+
+	protected:
+		stir::shared_ptr<stir::GeneralisedPoissonNoiseGenerator> gpng_;
+	};
 	
         /*!
 	\ingroup PET
