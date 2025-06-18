@@ -35,9 +35,6 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
-import math
-import numpy
-
 from sirf.Utilities import error, examples_data_path, existing_filepath
 
 # import engine module
@@ -103,4 +100,4 @@ except error as err:
     print('%s' % err.value)
 
 if scheme != storage:
-    AcquisitionData.set_storage_scheme(scheme)
+    pet.AcquisitionData.set_storage_scheme(scheme)
