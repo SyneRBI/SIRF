@@ -8,6 +8,9 @@ Options:
   -p <path>, --path=<path>     path to data files, defaults to data/examples/PET
                                subfolder of SIRF root folder
   -o <file>, --output=<file>   output file for Poisson noise data
+  -r <seed>, --seed=<seed>     random generator seed [default: 1]
+  -F <sf>, --sf=<sf>           scaling factor [default: 1.0]
+  -m, --pm                     preserve mean
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
   -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: file]
   --non-interactive            do not show plots
@@ -48,6 +51,9 @@ data_path = args['--path']
 if data_path is None:
     data_path = examples_data_path('PET')
 output_file = args['--output']
+seed = int(args['--seed'])
+sf = float(args['--sf'])
+pm = bool(args['--pm'])
 storage = args['--storage']
 show_plot = not args['--non-interactive']
 
@@ -79,14 +85,14 @@ def main():
     print('reading prompts from %s' % prompts_file)
     acq_data = pet.AcquisitionData(prompts_file)
 
-    png = pet.PoissonNoiseGenerator(0.1)
-    png.seed(1)
+    png = pet.PoissonNoiseGenerator(sf, pm)
+    png.seed(seed)
     noise = png.generate(acq_data)
     dim_noise = noise.dimensions()
     print(f'acquisition data norm: {acq_data.norm()}')
     print(f'noise norm: {noise.norm()}')
     if show_plot:
-        noise.show(range(dim_noise[1]//4))
+        noise.show(range(dim_noise[1]//4), title='selected noise sinograms')
 
     if output_file is not None:
         noise.write(output_file)
