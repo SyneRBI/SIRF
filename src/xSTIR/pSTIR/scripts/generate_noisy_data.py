@@ -7,7 +7,7 @@ Options:
   -f <file>, --file=<file>     prompts file [default: my_forward_projection.hs]
   -p <path>, --path=<path>     path to data files, defaults to data/examples/PET
                                subfolder of SIRF root folder
-  -o <file>, --output=<file>   output file for Poisson noise data
+  -o <file>, --output=<file>   output file for Poisson noisy data
   -r <seed>, --seed=<seed>     random generator seed [default: 1]
   -F <sf>, --sf=<sf>           scaling factor [default: 1.0]
   -m, --pm                     preserve mean
@@ -84,18 +84,18 @@ def main():
     prompts_file = existing_filepath(data_path, data_file)
     print('reading prompts from %s' % prompts_file)
     acq_data = pet.AcquisitionData(prompts_file)
+    dim = acq_data.dimensions()
+    print(f'acquisition data norm: {acq_data.norm()}')
 
     png = pet.PoissonNoiseGenerator(sf, pm)
-    png.seed(seed)
-    noise = png.generate(acq_data)
-    dim_noise = noise.dimensions()
-    print(f'acquisition data norm: {acq_data.norm()}')
-    print(f'noise norm: {noise.norm()}')
+    png.set_seed(seed)
+    noisy_data = png.generate_noisy_data(acq_data)
+    print(f'noisy data norm: {noisy_data.norm()}')
     if show_plot:
-        noise.show(range(dim_noise[1]//4), title='selected noise sinograms')
+        noisy_data.show(range(dim[1]//4), title='selected noisy sinograms')
 
     if output_file is not None:
-        noise.write(output_file)
+        noisy_data.write(output_file)
 
 
 try:

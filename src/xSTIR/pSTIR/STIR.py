@@ -1634,15 +1634,20 @@ class PoissonNoiseGenerator(object):
         self.name = "PoissonNoiseGenerator"
         self.handle = pystir.cSTIR_createPoissonNoiseGenerator(scaling_factor, preserve_mean)
         check_status(self.handle)
+        self.scale = scaling_factor
 
-    def seed(self, s):
+    @property
+    def scaling_factor(self):
+        return self_scale
+
+    def set_seed(self, s):
         parms.set_int_par(self.handle, self.name, 'seed', s)
 
-    def generate(self, acq_data):
-        noise = AcquisitionData()
-        noise.handle = pystir.cSTIR_generatePoissonNoise(self.handle, acq_data.handle)
-        check_status(noise.handle)
-        return noise
+    def generate_noisy_data(self, acq_data):
+        noisy_data = AcquisitionData()
+        noisy_data.handle = pystir.cSTIR_generatePoissonNoise(self.handle, acq_data.handle)
+        check_status(noisy_data.handle)
+        return noisy_data
 
 
 class AcquisitionSensitivityModel(object):
