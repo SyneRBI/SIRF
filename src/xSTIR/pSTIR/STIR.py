@@ -1638,7 +1638,7 @@ class PoissonNoiseGenerator(object):
 
     @property
     def scaling_factor(self):
-        return self_scale
+        return self.scale
 
     def set_seed(self, s):
         parms.set_int_par(self.handle, self.name, 'seed', s)
