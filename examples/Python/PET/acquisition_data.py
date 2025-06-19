@@ -82,15 +82,6 @@ def main():
     print('raw data: %s' % raw_data_file)
     acq_data = pet.AcquisitionData(raw_data_file)
 
-    png = pet.PoissonNoiseGenerator(0.1)
-    png.set_seed(1)
-    noisy_data = png.generate_noisy_data(acq_data)
-    dim_noisy_data = noisy_data.dimensions()
-    print(f'acquisition data norm: {acq_data.norm()}')
-    print(f'noisy data norm: {noisy_data.norm()}')
-    if show_plot:
-        noisy_data.show(range(dim_noisy_data[1]//4))
-
     # copy the acquisition data into a Python array and display
     dim = acq_data.dimensions()
     print('data dimensions: %d x %d x %d x %d' % dim)
