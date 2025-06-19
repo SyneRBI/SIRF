@@ -1,7 +1,7 @@
-'''Poisson noise generation script.
+'''Poisson noise generation demo.
 
 Usage:
-  generate_poisson_noise [--help | options]
+  generate_noisy_data [--help | options]
 
 Options:
   -f <file>, --file=<file>     prompts file [default: my_forward_projection.hs]
