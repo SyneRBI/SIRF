@@ -9,7 +9,7 @@ Options:
                                subfolder of SIRF root folder
   -o <file>, --output=<file>   output file for Poisson noisy data
   -r <seed>, --seed=<seed>     random generator seed [default: 1]
-  -F <sf>, --sf=<sf>           scaling factor [default: 1.0]
+  -F <sf>, --sf=<sf>           scaling factor [default: 1.0] (use a higher value for higher relative noise)
   -m, --pm                     preserve mean
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
   -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: file]
@@ -89,7 +89,8 @@ def main():
 
     png = pet.PoissonNoiseGenerator(sf, pm)
     png.set_seed(seed)
-    noisy_data = png.generate_noisy_data(acq_data)
+    png.process(acq_data)
+    noisy_data = png.get_output()
     print(f'noisy data norm: {noisy_data.norm()}')
     if show_plot:
         noisy_data.show(range(dim[1]//4), title='selected noisy sinograms')

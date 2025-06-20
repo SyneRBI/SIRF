@@ -923,8 +923,7 @@ void*
 sirf::cSTIR_setPoissonNoiseGeneratorParameter
 (const DataHandle *hp, const char* name, const DataHandle* hv)
 {
-    PoissonNoiseGenerator& obj =
-            objectFromHandle<PoissonNoiseGenerator>(hp);
+    auto& obj = objectFromHandle<PoissonNoiseGenerator>(hp);
     if (sirf::iequals(name, "seed"))
         obj.seed(dataFromHandle<int>(hv));
     return new DataHandle;

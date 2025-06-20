@@ -634,10 +634,9 @@ extern "C"
 void* cSTIR_generatePoissonNoise(const void* ptr_gen, const void* ptr_input)
 {
 	try {
-		PoissonNoiseGenerator& generator =
-			objectFromHandle<PoissonNoiseGenerator>(ptr_gen);
-		STIRAcquisitionData& input = objectFromHandle<STIRAcquisitionData>(ptr_input);
-		std::shared_ptr<STIRAcquisitionData> sptr_output = input.new_acquisition_data();
+		auto& generator = objectFromHandle<PoissonNoiseGenerator>(ptr_gen);
+		auto& input = objectFromHandle<STIRAcquisitionData>(ptr_input);
+		auto sptr_output = input.new_acquisition_data();
 		generator.generate_random(*sptr_output, input);
 		return newObjectHandle(sptr_output);
 	}

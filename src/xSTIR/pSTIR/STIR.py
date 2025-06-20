@@ -1627,21 +1627,39 @@ class ListmodeToSinograms(object):
 
 class PoissonNoiseGenerator(object):
     """
-    Class that generates Poisson noise.
+    Generates noise realisations according to Poisson statistics but allowing for scaling.
+
+    A scaling_factor is used to multiply the input data before generating
+    the Poisson random number. This means that a scaling_factor larger than 1
+    will result in less noisy data.
+
+    If preserve_mean=false, the mean of the output data will
+    be equal to <tt>scaling_factor*mean_of_input</tt>, otherwise it
+    will be equal to mean_of_input, but then the output is no longer Poisson
+    distributed.
     """
 
     def __init__(self, scaling_factor=1.0, preserve_mean=False):
         self.name = "PoissonNoiseGenerator"
         self.handle = pystir.cSTIR_createPoissonNoiseGenerator(scaling_factor, preserve_mean)
         check_status(self.handle)
-        self.scale = scaling_factor
-
-    @property
-    def scaling_factor(self):
-        return self.scale
+        self.scaling_factor = scaling_factor
+        self.preserve_mean = preserve_mean
+        self.output_handle = None
 
     def set_seed(self, s):
         parms.set_int_par(self.handle, self.name, 'seed', s)
+
+    def process(self, acq_data):
+        self.output_handle = pystir.cSTIR_generatePoissonNoise(self.handle, acq_data.handle)
+        check_status(self.output_handle)
+
+    def get_output(self):
+        if self.output_handle is None:
+            raise error('Noise generating not done')
+        output = AcquisitionData()
+        output.handle = self.output_handle
+        return output
 
     def generate_noisy_data(self, acq_data):
         noisy_data = AcquisitionData()
