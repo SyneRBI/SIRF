@@ -23,7 +23,7 @@ __version__ = "3.1.0"
 __author__ = "Evgueni Ovtchinnikov, Casper da Costa-Luis"
 
 
-def test_main(rec=False, verb=False, throw=True):
+def test_main(rec=False, verb=False, throw=True, no_ret_val=True):
     datafile = RE_PYEXT.sub(".txt", __file__)
     test = pTest(datafile, rec, throw=throw)
     test.verbose = verb
@@ -77,8 +77,11 @@ def test_main(rec=False, verb=False, throw=True):
     test.check(abs(xFy.imag/xFy.real), abs_tol = 1e-4)
     test.check(abs(Bxy.imag/Bxy.real), abs_tol = 1e-4)
 
+    numpy.testing.assert_equal(test.failed, 0)
+    if no_ret_val:
+        return
     return test.failed, test.ntest
 
 
 if __name__ == "__main__":
-    runner(test_main, __doc__, __version__, __author__)
+    runner(test_main, __doc__, __version__, __author__, no_ret_val=False)

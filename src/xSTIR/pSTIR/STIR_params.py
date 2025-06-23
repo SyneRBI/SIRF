@@ -93,6 +93,14 @@ def int_par(handle, group, par):
     return value
 
 
+def size_t_par(handle, group, par):
+    h = parameter(handle, group, par)
+    check_status(h, inspect.stack()[1])
+    value = pyiutil.size_tDataFromHandle(h)
+    pyiutil.deleteDataHandle(h)
+    return value
+
+
 def int_pars(handle, group, par, n):
     h = parameter(handle, group, par)
     check_status(h)

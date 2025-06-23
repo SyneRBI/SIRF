@@ -20,7 +20,7 @@ __version__ = "0.2.3"
 __author__ = "Richard Brown"
 
 
-def test_main(rec=False, verb=False, throw=True):
+def test_main(rec=False, verb=False, throw=True, no_ret_val=True):
     msg_red = pet.MessageRedirector()
 
     data_path = pet.examples_data_path('PET')
@@ -37,8 +37,10 @@ def test_main(rec=False, verb=False, throw=True):
     if abs(time_at_which_num_prompts_exceeds_threshold-known_time) > 1.e-4:
         raise AssertionError("ListmodeToSinograms::get_time_at_which_num_prompts_exceeds_threshold failed")
 
+    if no_ret_val:
+        return
     return 0, 1
 
 
 if __name__ == "__main__":
-    runner(test_main, __doc__, __version__, __author__)
+    runner(test_main, __doc__, __version__, __author__, no_ret_val=False)

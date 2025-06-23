@@ -13,6 +13,7 @@ Options:
 
 {licence}
 """
+import numpy
 from sirf.Utilities import petmr_data_path, existing_filepath, \
                            pTest, RE_PYEXT , runner
 from sirf.STIR import MessageRedirector, AcquisitionData
@@ -20,7 +21,7 @@ __version__ = "0.2.2"
 __author__ = "Casper da Costa-Luis, Edoardo Pasca"
 
 
-def test_main(rec=False, verb=False, throw=True):
+def test_main(rec=False, verb=False, throw=True, no_ret_val=True):
     datafile = RE_PYEXT.sub(".txt", __file__)
     test = pTest(datafile, rec, throw=throw)
     test.verbose = verb
@@ -96,8 +97,11 @@ def test_main(rec=False, verb=False, throw=True):
         b /= 3
         test.check(b.sum()/N)
 
+    numpy.testing.assert_equal(test.failed, 0)
+    if no_ret_val:
+        return
     return test.failed, test.ntest
 
 
 if __name__ == "__main__":
-    runner(test_main, __doc__, __version__, __author__)
+    runner(test_main, __doc__, __version__, __author__, no_ret_val=False)

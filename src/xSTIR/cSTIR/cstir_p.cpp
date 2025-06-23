@@ -105,6 +105,8 @@ sirf::cSTIR_AcquisitionDataParameter(void* hp, const char* name)
 		return dataHandle<int>(ad.get_tof_mash_factor());
 	if (sirf::iequals(name, "modality"))
 		return charDataHandleFromCharData(ad.modality().c_str());
+	else if (sirf::iequals(name, "address"))
+		return dataHandle<size_t>(ad.address());
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 }
@@ -126,7 +128,8 @@ sirf::cSTIR_ImageDataParameter(void* hp, const char* name)
 	STIRImageData& id = objectFromHandle<STIRImageData>(hp);
 	if (sirf::iequals(name, "modality"))
 		return charDataHandleFromCharData(id.modality().c_str());
-
+	else if (sirf::iequals(name, "address"))
+		return dataHandle<size_t>(id.address());
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 }
