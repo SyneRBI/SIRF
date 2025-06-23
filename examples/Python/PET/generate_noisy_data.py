@@ -9,7 +9,7 @@ Options:
                                subfolder of SIRF root folder
   -o <file>, --output=<file>   output file for Poisson noisy data
   -r <seed>, --seed=<seed>     random generator seed [default: 1]
-  -F <sf>, --sf=<sf>           scaling factor [default: 1.0] (use a higher value for higher relative noise)
+  -F <sf>, --sf=<sf>           scaling factor [default: 1.0] (use a higher value for lower relative noise)
   -m, --pm                     preserve mean
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
   -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: file]

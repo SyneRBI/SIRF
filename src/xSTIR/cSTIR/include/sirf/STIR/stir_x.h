@@ -108,6 +108,22 @@ namespace sirf {
 		//shared_ptr<stir::ChainedBinNormalisation> norm_;
 	};
 
+	/*!
+	\ingroup PET
+	\brief Class for Poisson noise generation.
+
+	Generates noise realisations according to Poisson statistics but allowing for scaling.
+
+	A scaling_factor is used to multiply the input data before generating
+	the Poisson random number. This means that a scaling_factor larger than 1
+	will result in data with lower relative noise.
+
+	If preserve_mean=false, the mean of the output data will
+	be equal to scaling_factor*mean_of_input, otherwise it
+	will be equal to mean_of_input, but then the output is no longer Poisson
+	distributed.
+	*/
+
 	class PoissonNoiseGenerator {
 	public:
 		//! Constructor intialises the random number generator with a fixed seed
@@ -116,7 +132,7 @@ namespace sirf {
 			gpng_ = stir::shared_ptr<stir::GeneralisedPoissonNoiseGenerator>
 				(new GeneralisedPoissonNoiseGenerator(scaling_factor, preserve_mean));
 		}
-		//! The seed value for the random number generator
+		//! Sets the seed value for the random number generator
 		void seed(unsigned int s)
 		{
 			gpng_->seed(s);

@@ -1631,10 +1631,10 @@ class PoissonNoiseGenerator(object):
 
     A scaling_factor is used to multiply the input data before generating
     the Poisson random number. This means that a scaling_factor larger than 1
-    will result in less noisy data.
+    will result in data with lower relative noise.
 
     If preserve_mean=false, the mean of the output data will
-    be equal to <tt>scaling_factor*mean_of_input</tt>, otherwise it
+    be equal to scaling_factor*mean_of_input, otherwise it
     will be equal to mean_of_input, but then the output is no longer Poisson
     distributed.
     """
@@ -1643,8 +1643,6 @@ class PoissonNoiseGenerator(object):
         self.name = "PoissonNoiseGenerator"
         self.handle = pystir.cSTIR_createPoissonNoiseGenerator(scaling_factor, preserve_mean)
         check_status(self.handle)
-        self.scaling_factor = scaling_factor
-        self.preserve_mean = preserve_mean
         self.output_handle = None
 
     def set_seed(self, s):
