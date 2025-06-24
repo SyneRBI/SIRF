@@ -631,7 +631,11 @@ class ImageData(SIRF.ImageData):
         return tm
 
     def as_array(self):
-        """Returns 3D Numpy ndarray with values at the voxels."""
+        """
+        WARNING: you probably should use `.asarray()` (no underscore) instead.
+
+        Returns 3D Numpy ndarray with values at the voxels.
+        """
         if self.handle is None:
             raise AssertionError()
         array = numpy.ndarray(self.dimensions(), dtype=numpy.float32)
@@ -1357,7 +1361,10 @@ class AcquisitionData(ScanData):
         return xp.asarray(self, **kwargs)
 
     def as_array(self):
-        """Returns bin values as ndarray.
+        """
+        WARNING: you probably should use `.asarray()` (no underscore) instead.
+
+        Returns bin values as ndarray.
 
         Return a copy of acquisition data stored in this object as a
         NumPy ndarray of 4 dimensions (in default C ordering of data):
