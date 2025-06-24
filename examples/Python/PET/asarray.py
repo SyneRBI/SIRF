@@ -13,8 +13,8 @@ Options:
 '''
 
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
-## Copyright 2015 - 2017 University College London.
+## Copyright 2015 - 2025 Rutherford Appleton Laboratory STFC
+## Copyright 2015 - 2025 University College London.
 ##
 ## This is software developed for the Collaborative Computational
 ## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -70,18 +70,18 @@ else:
 
 def test_img_asarray(img_data):
     try:
-        img_asarray = img_data.asarray() # view
+        img_asarray = img_data.asarray(copy=False) # view
         print('img_data.asarray() ok')
     except Exception:
-        print('data not contiguous, making a copy...')
-        img_data = img_data.copy()
-        img_asarray = img_data.asarray()
-    img_as_array = img_data.as_array() # deepcopy
-    diff = img_asarray - img_as_array
+        print('data not contiguous, working with its contiguous copy instead...')
+        img_data = img_data + 0
+        img_asarray = img_data.asarray(copy=False)
+    img_as_array = img_data.as_array() # deepcopy to compare with
+    diff = img_asarray - img_as_array # must be 0
     print('norm of img_data.asarray() - img_data.as_array(): %f' % numpy.linalg.norm(diff))
-    img_asarray += 1 # img_data changed
-    img_array = img_data.as_array()
-    diff = img_asarray - img_array
+    img_asarray += 1 # img_data changed too
+    img_as_array = img_data.as_array() # must be 0
+    diff = img_asarray - img_as_array
     print('norm of img_data.asarray() - img_data.as_array(): %f' % numpy.linalg.norm(diff))
 
 
@@ -113,29 +113,21 @@ def main():
 
     print('\n== Testing asarray() method of pet.ImageData...')
 
-    print('- testing image from file:')
+    print('\n-- testing image from file:')
     img_data = pet.ImageData(existing_filepath(data_path, 'mMR/mu_map.hv')) # contiguous
     test_img_asarray(img_data)
 
-    print('- testing image returned by AcquisitionData.create_uniform_image():')
+    print('\n-- testing image returned by AcquisitionData.create_uniform_image():')
     img_data = acq_data.create_uniform_image(5)
     test_img_asarray(img_data)
 
-    print('- testing image constructed from acquisition data:')
+    print('\n-- testing image constructed from acquisition data:')
     img_data = pet.ImageData(acq_data)
     test_img_asarray(img_data)
-
-    _ = img_data.asarray() # view dummy to trigger contiguity error message
-
-    try:
-        _ = img_data.asarray() # view dummy to trigger contiguity error message
-    except error as err:
-        print('%s' % err.value)
 
 try:
     main()
     print('\n=== done with %s' % __file__)
-
 except error as err:
     print('%s' % err.value)
 

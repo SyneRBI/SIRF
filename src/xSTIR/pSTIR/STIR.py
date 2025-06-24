@@ -403,7 +403,6 @@ class ContiguousError(ValueError):
     ValueError for discontiguous memory as per
     https://data-apis.org/array-api/latest/API_specification/generated/array_api.asarray.html
     """
-    pass
 
 
 # class ImageData(DataContainer):
