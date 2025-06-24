@@ -516,9 +516,6 @@ namespace sirf {
 		virtual size_t address() const {
 			THROW("data address defined only for data in memory");
 		}
-		virtual size_t address() {
-			THROW("data address defined only for data in memory");
-		}
 
 	protected:
 		static std::string _storage_scheme;
@@ -898,12 +895,10 @@ namespace sirf {
 			return STIR_VERSION >= 060200;
 		}
 		virtual size_t address() const {
-                    auto *pd_ptr = dynamic_cast<const stir::ProjDataInMemory*>(data().get());
-		    return reinterpret_cast<size_t>(pd_ptr->get_const_data_ptr());
-		}
-		virtual size_t address() {
-                    auto *pd_ptr = dynamic_cast<stir::ProjDataInMemory*>(data().get());
-		    return reinterpret_cast<size_t>(pd_ptr->get_data_ptr());
+			auto *pd_ptr = dynamic_cast<const stir::ProjDataInMemory*>(data().get());
+			if (is_null_ptr(pd_ptr))
+				THROW("address() defined only for data in memory");
+			return reinterpret_cast<size_t>(pd_ptr->get_const_data_ptr());
 		}
 
 	private:
@@ -1411,9 +1406,6 @@ namespace sirf {
 
 		size_t address() const {
 		    return reinterpret_cast<size_t>(_data->get_const_full_data_ptr());
-		}
-		size_t address() {
-		    return reinterpret_cast<size_t>(_data->get_full_data_ptr());
 		}
 
 	private:
