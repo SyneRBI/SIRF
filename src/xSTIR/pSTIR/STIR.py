@@ -403,7 +403,6 @@ class ContiguousError(ValueError):
     ValueError for discontiguous memory as per
     https://data-apis.org/array-api/latest/API_specification/generated/array_api.asarray.html
     """
-    pass
 
 
 # class ImageData(DataContainer):
@@ -631,7 +630,11 @@ class ImageData(SIRF.ImageData):
         return tm
 
     def as_array(self):
-        """Returns 3D Numpy ndarray with values at the voxels."""
+        """
+        WARNING: you probably should use `.asarray()` (no underscore) instead.
+
+        Returns 3D Numpy ndarray with values at the voxels.
+        """
         if self.handle is None:
             raise AssertionError()
         array = numpy.ndarray(self.dimensions(), dtype=numpy.float32)
@@ -1357,7 +1360,10 @@ class AcquisitionData(ScanData):
         return xp.asarray(self, **kwargs)
 
     def as_array(self):
-        """Returns bin values as ndarray.
+        """
+        WARNING: you probably should use `.asarray()` (no underscore) instead.
+
+        Returns bin values as ndarray.
 
         Return a copy of acquisition data stored in this object as a
         NumPy ndarray of 4 dimensions (in default C ordering of data):
@@ -1658,6 +1664,47 @@ class ListmodeToSinograms(object):
         v = pyiutil.floatDataFromHandle(h)
         pyiutil.deleteDataHandle(h)
         return v
+
+
+class PoissonNoiseGenerator(object):
+    """
+    Generates noise realisations according to Poisson statistics but allowing for scaling.
+
+    A scaling_factor is used to multiply the input data before generating
+    the Poisson random number. This means that a scaling_factor larger than 1
+    will result in data with lower relative noise.
+
+    If preserve_mean=false, the mean of the output data will
+    be equal to scaling_factor*mean_of_input, otherwise it
+    will be equal to mean_of_input, but then the output is no longer Poisson
+    distributed.
+    """
+
+    def __init__(self, scaling_factor=1.0, preserve_mean=False):
+        self.name = "PoissonNoiseGenerator"
+        self.handle = pystir.cSTIR_createPoissonNoiseGenerator(scaling_factor, preserve_mean)
+        check_status(self.handle)
+        self.output_handle = None
+
+    def set_seed(self, s):
+        parms.set_int_par(self.handle, self.name, 'seed', s)
+
+    def process(self, acq_data):
+        self.output_handle = pystir.cSTIR_generatePoissonNoise(self.handle, acq_data.handle)
+        check_status(self.output_handle)
+
+    def get_output(self):
+        if self.output_handle is None:
+            raise error('Noise generating not done')
+        output = AcquisitionData()
+        output.handle = self.output_handle
+        return output
+
+    def generate_noisy_data(self, acq_data):
+        noisy_data = AcquisitionData()
+        noisy_data.handle = pystir.cSTIR_generatePoissonNoise(self.handle, acq_data.handle)
+        check_status(noisy_data.handle)
+        return noisy_data
 
 
 class AcquisitionSensitivityModel(object):

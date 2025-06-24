@@ -76,6 +76,13 @@ extern "C" {
 		(const void* ptr_src, const char* src);
 	void* cSTIR_createPETAttenuationModel
 		(const void* ptr_img, const void* ptr_am);
+
+	// Poisson noise generator
+	void* cSTIR_createPoissonNoiseGenerator
+		(const float scaling_factor, const bool preserve_mean);
+	void* cSTIR_generatePoissonNoise
+		(const void* ptr_gen, const void* ptr_input);
+
 	void* cSTIR_computeACF
 		(const void* ptr_sino, const void* ptr_att, void* ptr_acf, void* ptr_iacf);
 	void* cSTIR_chainPETAcquisitionSensitivityModels

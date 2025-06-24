@@ -1,14 +1,18 @@
-'''ImageData.asarray usage demo.
+'''Poisson noise generation demo.
 
 Usage:
-  asarray.py [--help | options]
+  generate_noisy_data [--help | options]
 
 Options:
-  -f <file>, --file=<file>     raw data file [default: my_forward_projection.hs]
+  -f <file>, --file=<file>     prompts file [default: my_forward_projection.hs]
   -p <path>, --path=<path>     path to data files, defaults to data/examples/PET
                                subfolder of SIRF root folder
+  -o <file>, --output=<file>   output file for Poisson noisy data
+  -r <seed>, --seed=<seed>     random generator seed [default: 1]
+  -F <sf>, --sf=<sf>           scaling factor [default: 1.0] (use a higher value for lower relative noise)
+  -m, --pm                     preserve mean
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
-  -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: memory]
+  -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: file]
   --non-interactive            do not show plots
 '''
 
@@ -34,9 +38,6 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
-#import math
-import numpy
-
 from sirf.Utilities import error, examples_data_path, existing_filepath
 
 # import engine module
@@ -49,6 +50,10 @@ data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
     data_path = examples_data_path('PET')
+output_file = args['--output']
+seed = int(args['--seed'])
+sf = float(args['--sf'])
+pm = bool(args['--pm'])
 storage = args['--storage']
 show_plot = not args['--non-interactive']
 
@@ -68,69 +73,38 @@ else:
     print('using default storage scheme %s' % repr(scheme))
 
 
-def test_img_asarray(img_data):
-    try:
-        img_asarray = img_data.asarray(copy=False) # view
-        print('img_data.asarray() ok')
-    except Exception:
-        print('data not contiguous, working with its contiguous copy instead...')
-        img_data = img_data + 0
-        img_asarray = img_data.asarray(copy=False)
-    img_as_array = img_data.as_array() # deepcopy to compare with
-    diff = img_asarray - img_as_array # must be 0
-    print('norm of img_data.asarray() - img_data.as_array(): %f' % numpy.linalg.norm(diff))
-    img_asarray += 1 # img_data changed too
-    img_as_array = img_data.as_array() # must be 0
-    diff = img_asarray - img_as_array
-    print('norm of img_data.asarray() - img_data.as_array(): %f' % numpy.linalg.norm(diff))
-
-
 def main():
     engine_version = pet.get_engine_version_string()
-    print('Using %s version %s as the reconstruction engine' % (engine, engine_version))
-    print('%s doc path: %s' % (engine, pet.get_engine_doc_dir()))
-    print('%s examples path: %s' % (engine, pet.get_engine_examples_dir()))
+    print('using %s version %s as the reconstruction engine' % (engine, engine_version))
 
     # direct all engine's messages to files
     _ = pet.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     # PET acquisition data to be read from this file
-    raw_data_file = existing_filepath(data_path, data_file)
-    print('raw data: %s' % raw_data_file)
-    acq_data = pet.AcquisitionData(raw_data_file)
-
-    # copy the acquisition data into a Python array
+    prompts_file = existing_filepath(data_path, data_file)
+    print('reading prompts from %s' % prompts_file)
+    acq_data = pet.AcquisitionData(prompts_file)
     dim = acq_data.dimensions()
-    print('data dimensions: %d x %d x %d x %d' % dim)
-    acq_array = acq_data.as_array()
+    print(f'acquisition data norm: {acq_data.norm()}')
 
-    print('\n== Testing asarray() method of pet.AcquisitionData...')
+    png = pet.PoissonNoiseGenerator(sf, pm)
+    png.set_seed(seed)
+    png.process(acq_data)
+    noisy_data = png.get_output()
+    print(f'noisy data norm: {noisy_data.norm()}')
+    if show_plot:
+        noisy_data.show(range(dim[1]//4), title='selected noisy sinograms')
 
-#    acq_asarray = numpy.asarray(acq_data)
-    acq_asarray = acq_data.asarray() # same as above
-    diff = acq_array - acq_asarray
-    print('norm of acq_data.as_array() - acq_data.asarray(): %f' % numpy.linalg.norm(diff))
+    if output_file is not None:
+        noisy_data.write(output_file)
 
-    print('\n== Testing asarray() method of pet.ImageData...')
-
-    print('\n-- testing image from file:')
-    img_data = pet.ImageData(existing_filepath(data_path, 'mMR/mu_map.hv')) # contiguous
-    test_img_asarray(img_data)
-
-    print('\n-- testing image returned by AcquisitionData.create_uniform_image():')
-    img_data = acq_data.create_uniform_image(5)
-    test_img_asarray(img_data)
-
-    print('\n-- testing image constructed from acquisition data:')
-    img_data = pet.ImageData(acq_data)
-    test_img_asarray(img_data)
 
 try:
     main()
     print('\n=== done with %s' % __file__)
+
 except error as err:
     print('%s' % err.value)
 
-    if scheme != storage:
-        pet.AcquisitionData.set_storage_scheme(scheme)
-
+if scheme != storage:
+    pet.AcquisitionData.set_storage_scheme(scheme)
