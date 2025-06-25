@@ -5,10 +5,6 @@ Usage:
   tests_asarray.py [--help | options]
 
 Options:
-  -f <file>, --file=<file>     raw data file [default: my_forward_projection.hs]
-  -p <path>, --path=<path>     path to data files, defaults to data/examples/PET
-                               subfolder of SIRF root folder
-  -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
   -r, --record   not used
   -v, --verbose  report each test status
 
@@ -16,32 +12,13 @@ Options:
 
 {licence}
 '''
-from sirf.STIR import *
-from sirf.Utilities import runner, RE_PYEXT, __license__
-
-__version__ = "0.2.3"
-__author__ = "Evgueni Ovtchinnikov"
-
-__version__ = '0.1.0'
-from docopt import docopt
-args = docopt(__doc__, version=__version__)
-
-#import math
 import numpy
 
-from sirf.Utilities import error, examples_data_path, existing_filepath
+from sirf.STIR import pTest
+from sirf.Utilities import runner, RE_PYEXT, examples_data_path, existing_filepath
 
-# import engine module
-import importlib
-engine = args['--engine']
-pet = importlib.import_module('sirf.' + engine)
-
-# process command-line options
-data_file = args['--file']
-data_path = args['--path']
-if data_path is None:
-    data_path = examples_data_path('PET')
-pet.AcquisitionData.set_storage_scheme('memory')
+__version__ = '0.1.0'
+__author__ = "Evgueni Ovtchinnikov"
 
 
 def asarray4img(img_data, test):
@@ -64,12 +41,17 @@ def asarray4img(img_data, test):
     test.check_if_equal(numpy.linalg.norm(diff), 0)
 
 
-def test_main(rec=False, verb=False, throw=True):
+def test_main(rec=False, verb=False, throw=True, data_file='my_forward_projection.hs', data_path=examples_data_path('PET'), engine='STIR'):
+    # import engine module
+    import importlib
 
+    pet = importlib.import_module('sirf.' + engine)
+    pet.AcquisitionData.set_storage_scheme('memory')
+
+    # process command-line options
     datafile = RE_PYEXT.sub(".txt", __file__)
     test = pTest(datafile, rec, throw=throw)
     test.verbose = verb
-    data_path = examples_data_path('PET')
 
     engine_version = pet.get_engine_version_string()
     print('Using %s version %s as the reconstruction engine' % (engine, engine_version))
@@ -114,4 +96,3 @@ def test_main(rec=False, verb=False, throw=True):
 
 if __name__ == "__main__":
     runner(test_main, __doc__, __version__, __author__)
-
