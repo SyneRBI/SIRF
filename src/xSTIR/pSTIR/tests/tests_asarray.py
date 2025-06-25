@@ -22,24 +22,6 @@ from sirf.Utilities import runner, RE_PYEXT, __license__
 __version__ = "0.2.3"
 __author__ = "Evgueni Ovtchinnikov"
 
-## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2025 Rutherford Appleton Laboratory STFC
-## Copyright 2015 - 2025 University College London.
-##
-## This is software developed for the Collaborative Computational
-## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
-## (http://www.ccpsynerbi.ac.uk/).
-##
-## Licensed under the Apache License, Version 2.0 (the "License");
-##   you may not use this file except in compliance with the License.
-##   You may obtain a copy of the License at
-##       http://www.apache.org/licenses/LICENSE-2.0
-##   Unless required by applicable law or agreed to in writing, software
-##   distributed under the License is distributed on an "AS IS" BASIS,
-##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-##   See the License for the specific language governing permissions and
-##   limitations under the License.
-
 __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
@@ -62,7 +44,7 @@ if data_path is None:
 pet.AcquisitionData.set_storage_scheme('memory')
 
 
-def test_img_asarray(img_data, test):
+def asarray4img(img_data, test):
     try:
         img_asarray = img_data.asarray(copy=False) # view
         print('img_data.asarray() ok')
@@ -117,17 +99,18 @@ def test_main(rec=False, verb=False, throw=True):
 
     print('\n-- testing image from file:')
     img_data = pet.ImageData(existing_filepath(data_path, 'mMR/mu_map.hv')) # contiguous
-    test_img_asarray(img_data, test)
+    asarray4img(img_data, test)
 
     print('\n-- testing image returned by AcquisitionData.create_uniform_image():')
     img_data = acq_data.create_uniform_image(5)
-    test_img_asarray(img_data, test)
+    asarray4img(img_data, test)
 
     print('\n-- testing image constructed from acquisition data:')
     img_data = pet.ImageData(acq_data)
-    test_img_asarray(img_data, test)
+    asarray4img(img_data, test)
 
     return test.failed, test.ntest
+
 
 if __name__ == "__main__":
     runner(test_main, __doc__, __version__, __author__)
