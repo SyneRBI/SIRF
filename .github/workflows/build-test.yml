@@ -113,11 +113,12 @@ jobs:
           cmake -S ../SIRF-SuperBuild ${BUILD_FLAGS} ${{ matrix.EXTRA_BUILD_FLAGS }} ${DEVEL_BUILD};
     - name: build
       shell: bash
-      run: 
+      run:
           cd ${GITHUB_WORKSPACE}/build;
           source ~/virtualenv/bin/activate;
           source ~/install/bin/env_sirf.sh;
           cmake --build . -j 2;
+          python ~/install/share/SIRF-3.8/examples/Python/PET/asarray.py
     - name: tests
       shell: bash
       run:
