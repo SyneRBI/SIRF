@@ -23,8 +23,8 @@ __version__ = "0.2.3"
 __author__ = "Evgueni Ovtchinnikov"
 
 __version__ = '0.1.0'
-from docopt import docopt
-args = docopt(__doc__, version=__version__)
+#from docopt import docopt
+#args = docopt(__doc__, version=__version__)
 
 #import math
 import numpy
@@ -33,12 +33,12 @@ from sirf.Utilities import error, examples_data_path, existing_filepath
 
 # import engine module
 import importlib
-engine = args['--engine']
+engine = 'STIR' #args['--engine']
 pet = importlib.import_module('sirf.' + engine)
 
 # process command-line options
-data_file = args['--file']
-data_path = args['--path']
+data_file = 'my_forward_projection.hs' #args['--file']
+data_path = 'data/examples/PET' #args['--path']
 if data_path is None:
     data_path = examples_data_path('PET')
 pet.AcquisitionData.set_storage_scheme('memory')
