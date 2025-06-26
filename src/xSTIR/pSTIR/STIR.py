@@ -37,7 +37,7 @@ from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
      cpp_int_dtype, cpp_int_array, \
      examples_data_path, existing_filepath, pTest
 from sirf import SIRF
-from sirf.SIRF import DataContainer
+from sirf.SIRF import ContiguousError, DataContainer
 import sirf.pyiutilities as pyiutil
 import sirf.pystir as pystir
 
@@ -470,6 +470,14 @@ class ImageData(SIRF.ImageData):
         """
         return parms.set_char_par(self.handle, 'ImageData', 'modality', mod)
 
+    @property
+    def __array_interface__(self):
+        """As per https://numpy.org/doc/stable/reference/arrays.interface.html"""
+        if not self.supports_array_view:
+            raise ContiguousError("please make an array-copy first with `asarray(copy=True)` or `as_array()`")
+        return {'shape': self.shape, 'typestr': '<f4', 'version': 3,
+                'data': (parms.size_t_par(self.handle, 'ImageData', 'address'), False)}
+
     def initialise(self, dim, vsize=(1., 1., 1.), origin=(0., 0., 0.)):
         """
         Sets image size and geometric information.
@@ -606,7 +614,11 @@ class ImageData(SIRF.ImageData):
         return tm
 
     def as_array(self):
-        """Returns 3D Numpy ndarray with values at the voxels."""
+        """
+        WARNING: you probably should use `.asarray()` (no underscore) instead.
+
+        Returns 3D Numpy ndarray with values at the voxels.
+        """
         if self.handle is None:
             raise AssertionError()
         array = numpy.ndarray(self.dimensions(), dtype=numpy.float32)
@@ -1321,8 +1333,19 @@ class AcquisitionData(ScanData):
         """Returns imaging modality as Python string."""
         return parms.char_par(self.handle, 'AcquisitionData', 'modality')
 
+    @property
+    def __array_interface__(self):
+        """As per https://numpy.org/doc/stable/reference/arrays.interface.html"""
+        if not self.supports_array_view:
+            raise ContiguousError("please make an array-copy first with `asarray(copy=True)` or `as_array()`")
+        return {'shape': self.shape, 'typestr': '<f4', 'version': 3,
+                'data': (parms.size_t_par(self.handle, 'AcquisitionData', 'address'), False)}
+
     def as_array(self):
-        """Returns bin values as ndarray.
+        """
+        WARNING: you probably should use `.asarray()` (no underscore) instead.
+
+        Returns bin values as ndarray.
 
         Return a copy of acquisition data stored in this object as a
         NumPy ndarray of 4 dimensions (in default C ordering of data):

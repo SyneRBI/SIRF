@@ -7,6 +7,7 @@
   - Error raised in `AcquisitionSensitivityModel.[un]normalise` methods applied to a read-only object.
   - `DataContainer.supports_array_view` to test for zero-copy compatibility.
   - SIRF interfaces (C++ and Python) for STIR Poisson noise generation utilities provided.
+  - `ImageData` and `AcquisitionData` have `.asarray(copy=None)` (NumPy-like behaviour: default zero-copy if contiguous, fallback to deepcopy otherwise) via `__array_interface__`.
 
 ## v3.8.1
 

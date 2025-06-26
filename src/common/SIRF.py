@@ -44,6 +44,13 @@ else:
     ABC = abc.ABCMeta('ABC', (), {})
 
 
+class ContiguousError(ValueError):
+    """
+    ValueError for discontiguous memory as per
+    https://data-apis.org/array-api/latest/API_specification/generated/array_api.asarray.html
+    """
+
+
 class DataContainer(ABC):
     '''
     Abstract base class for an abstract data container.
@@ -226,6 +233,17 @@ class DataContainer(ABC):
         i = pyiutil.intDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return i != 0
+
+    def asarray(self, xp=numpy, copy=None, **kwargs):
+        """Returns view (or fallback copy) of self"""
+        try:
+            if not hasattr(self, '__array_interface__'):
+                raise ContiguousError("please make an array-copy first with `copy=True` or `None`")
+            return xp.asarray(self, copy=copy, **kwargs)
+        except ContiguousError:
+            if copy or copy is None:
+                return xp.asarray(self.as_array(), **kwargs)
+            raise
 
     def conjugate(self, out=None):
         ''' Computes complex conjugate of self.
