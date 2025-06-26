@@ -4,10 +4,11 @@ Usage:
   asarray.py [--help | options]
 
 Options:
-  -f=<file>, --file=<file>     raw data file [default: my_forward_projection.hs]
-  -p=<path>, --path=<path>     path to data files, defaults to data/examples/PET
+  -f <file>, --file=<file>     raw data file [default: my_forward_projection.hs]
+  -p <path>, --path=<path>     path to data files, defaults to data/examples/PET
                                subfolder of SIRF root folder
-  -e=<engn>, --engine=<engn>   reconstruction engine [default: STIR]
+  -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
+  --non-interactive            do not show plots
 '''
 
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
