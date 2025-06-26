@@ -212,7 +212,7 @@ namespace sirf {
 				max_in_segment_num_to_process,
 				num_tof_bins_to_combine
 			));
-			std::shared_ptr<STIRAcquisitionData> 
+			std::shared_ptr<STIRAcquisitionData>
 				sptr(same_acquisition_data
                                      (this->get_exam_info_sptr(), out_proj_data_info_sptr));
 			stir::SSRB(*sptr, *data(), do_normalisation);
@@ -311,7 +311,7 @@ namespace sirf {
 			const void* ptr_b, const DataContainer& a_y);
 		virtual void xapyb(
 			const DataContainer& a_x, const void* ptr_a,
-			const DataContainer& a_y, const void* ptr_b);	
+			const DataContainer& a_y, const void* ptr_b);
 		virtual void xapyb(
 			const DataContainer& a_x, const DataContainer& a_a,
 			const DataContainer& a_y, const DataContainer& a_b);
@@ -495,7 +495,7 @@ namespace sirf {
 			proj_data_info_from_scanner(std::string scanner_name,
 			int span = 1, int max_ring_diff = -1, int view_mash_factor = 1)
 		{
-			stir::shared_ptr<stir::Scanner> 
+			stir::shared_ptr<stir::Scanner>
 				sptr_s(stir::Scanner::get_scanner_from_name(scanner_name));
 			//std::cout << "scanner: " << sptr_s->get_name().c_str() << '\n';
 			if (sirf::iequals(sptr_s->get_name(), "unknown")) {
@@ -513,6 +513,10 @@ namespace sirf {
 		void semibinary_op(const DataContainer& a_x, float y, float(*f)(float, float));
 		void binary_op(const DataContainer& a_x, const DataContainer& a_y, float(*f)(float, float));
 
+		virtual size_t address() const {
+			THROW("data address defined only for data in memory");
+		}
+
 	protected:
 		static std::string _storage_scheme;
 		static std::shared_ptr<STIRAcquisitionData> _template;
@@ -521,7 +525,7 @@ namespace sirf {
 		STIRAcquisitionData* clone_base() const
 		{
 			stir::shared_ptr<stir::ProjDataInfo> sptr_pdi = this->get_proj_data_info_sptr()->create_shared_clone();
-			STIRAcquisitionData* ptr = 
+			STIRAcquisitionData* ptr =
 				_template->same_acquisition_data(this->get_exam_info_sptr(), sptr_pdi);
 			if (!this->is_empty())
 				ptr->fill(*this);
@@ -886,6 +890,17 @@ namespace sirf {
                 *iter++ = (*iter_x++) / (*iter_y++);
         }
 
+		virtual bool supports_array_view() const
+		{
+			return STIR_VERSION >= 060200;
+		}
+		virtual size_t address() const {
+			auto *pd_ptr = dynamic_cast<const stir::ProjDataInMemory*>(data().get());
+			if (is_null_ptr(pd_ptr))
+				THROW("address() defined only for data in memory");
+			return reinterpret_cast<size_t>(pd_ptr->get_const_data_ptr());
+		}
+
 	private:
 		virtual STIRAcquisitionDataInMemory* clone_impl() const
 		{
@@ -1121,6 +1136,14 @@ namespace sirf {
 		virtual bool is_complex() const
 		{
 			return false;
+		}
+		virtual bool supports_array_view() const
+		{
+#if STIR_VERSION >= 060200
+			return data().is_contiguous();
+#else
+			return false;
+#endif
 		}
 		unsigned int items() const
 		{
@@ -1367,7 +1390,7 @@ namespace sirf {
 			const stir::ZoomOptions zoom_options = stir::ZoomOptions::preserve_sum);
 
 		/// Zoom the image (modifies itself) using another image as a template.
-		void zoom_image_as_template(const STIRImageData& template_image, 
+		void zoom_image_as_template(const STIRImageData& template_image,
 		    const char* const zoom_options_str = "preserve_sum");
 
 		/// Move to scanner centre. The acquisition needs to be supplied such that in the future,
@@ -1380,6 +1403,10 @@ namespace sirf {
 		void unary_op(const DataContainer& a_x, float(*f)(float));
 		void semibinary_op(const DataContainer& a_x, float y, float(*f)(float, float));
 		void binary_op(const DataContainer& a_x, const DataContainer& a_y, float(*f)(float, float));
+
+		size_t address() const {
+		    return reinterpret_cast<size_t>(_data->get_const_full_data_ptr());
+		}
 
 	private:
 		/// Clone helper function. Don't use.

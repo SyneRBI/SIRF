@@ -43,7 +43,7 @@ extern "C"
 void* charDataHandle(const char* ptr);
 
 static void*
-handle_error(const std::string& error_string, const char* file, int line) 
+handle_error(const std::string& error_string, const char* file, int line)
 {
 	DataHandle* handle = new DataHandle;
 	ExecutionStatus status(error_string.c_str(), file, line);
@@ -53,7 +53,7 @@ handle_error(const std::string& error_string, const char* file, int line)
 
 // TODO write below in terms of handle_error() function above
 static void*
-parameterNotFound(const char* name, const char* file, int line) 
+parameterNotFound(const char* name, const char* file, int line)
 {
 	DataHandle* handle = new DataHandle;
 	std::string error = "parameter ";
@@ -105,6 +105,8 @@ sirf::cSTIR_AcquisitionDataParameter(void* hp, const char* name)
 		return dataHandle<int>(ad.get_tof_mash_factor());
 	if (sirf::iequals(name, "modality"))
 		return charDataHandleFromCharData(ad.modality().c_str());
+	else if (sirf::iequals(name, "address"))
+		return dataHandle<size_t>(ad.address());
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 }
@@ -126,6 +128,8 @@ sirf::cSTIR_ImageDataParameter(void* hp, const char* name)
 	STIRImageData& id = objectFromHandle<STIRImageData>(hp);
 	if (sirf::iequals(name, "modality"))
 		return charDataHandleFromCharData(id.modality().c_str());
+	else if (sirf::iequals(name, "address"))
+		return dataHandle<size_t>(id.address());
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 }
@@ -153,7 +157,7 @@ void*
 sirf::cSTIR_setSeparableGaussianImageFilterParameter
 (void* hp, const char* name, const void* hv)
 {
-	xSTIR_SeparableGaussianImageFilter& f = 
+	xSTIR_SeparableGaussianImageFilter& f =
 		objectFromHandle<xSTIR_SeparableGaussianImageFilter>(hp);
 	if (sirf::iequals(name, "fwhms_x")) {
 		float v = dataFromHandle<float>(hv);
@@ -351,7 +355,7 @@ void*
 sirf::cSTIR_setRayTracingMatrixParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
-	RayTracingMatrix& matrix = 
+	RayTracingMatrix& matrix =
 		objectFromHandle<RayTracingMatrix>(hp);
 	if (sirf::iequals(name, "num_tangential_LORs"))
           {
@@ -384,7 +388,7 @@ sirf::cSTIR_setRayTracingMatrixParameter
 void*
 sirf::cSTIR_rayTracingMatrixParameter(const DataHandle* handle, const char* name)
 {
-	RayTracingMatrix& matrix = 
+	RayTracingMatrix& matrix =
 		objectFromHandle<RayTracingMatrix>(handle);
 	if (sirf::iequals(name, "num_tangential_LORs"))
 		return dataHandle<int>(matrix.get_num_tangential_LORs());
@@ -438,8 +442,8 @@ sirf::cSTIR_setPinholeSPECTUBMatrixParameter(DataHandle* hp, const char* name, c
     handle->set(0, &status);
     return (void*)handle;
 #else
-        
-    PinholeSPECTUBMatrix& matrix = 
+
+    PinholeSPECTUBMatrix& matrix =
         objectFromHandle< PinholeSPECTUBMatrix >(hp);
     if (sirf::iequals(name, "maximum_number_of_sigmas"))
         matrix.set_maximum_number_of_sigmas(dataFromHandle<float>(hv));
@@ -529,7 +533,7 @@ sirf::cSTIR_PinholeSPECTUBMatrixParameter(const DataHandle* handle, const char* 
         return dataHandle<bool>(matrix.get_keep_all_views_in_cache());
     else
         return parameterNotFound(name, __FILE__, __LINE__);
-        
+
 #endif
 }
 
@@ -919,6 +923,16 @@ sirf::cSTIR_ScatterEstimatorParameter(DataHandle* hp, const char* name)
 }
 
 void*
+sirf::cSTIR_setPoissonNoiseGeneratorParameter
+(const DataHandle *hp, const char* name, const DataHandle* hv)
+{
+    auto& obj = objectFromHandle<PoissonNoiseGenerator>(hp);
+    if (sirf::iequals(name, "seed"))
+        obj.seed(dataFromHandle<int>(hv));
+    return new DataHandle;
+}
+
+void*
 sirf::cSTIR_setGeneralisedObjectiveFunctionParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
@@ -952,7 +966,7 @@ void*
 sirf::cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
-	PoissonLogLhLinModMean3DF& obj_fun = 
+	PoissonLogLhLinModMean3DF& obj_fun =
 		objectFromHandle<PoissonLogLhLinModMean3DF>(hp);
 	if (sirf::iequals(name, "sensitivity_filename"))
 		obj_fun.set_sensitivity_filename(charDataFromDataHandle(hv));
@@ -1159,7 +1173,7 @@ void*
 sirf::cSTIR_iterativeReconstructionParameter
 (const DataHandle* handle, const char* name)
 {
-	IterativeReconstruction3DF& recon = 
+	IterativeReconstruction3DF& recon =
 		objectFromHandle<IterativeReconstruction3DF>(handle);
 	if (sirf::iequals(name, "num_subsets"))
 		return dataHandle<int>(recon.get_num_subsets());
@@ -1201,7 +1215,7 @@ sirf::cSTIR_setOSMAPOSLParameter
 	return new DataHandle;
 }
 
-void* 
+void*
 sirf::cSTIR_OSMAPOSLParameter(const DataHandle* handle, const char* name)
 {
 	OSMAPOSLReconstruction<Image3DF>& recon =
@@ -1272,7 +1286,7 @@ sirf::cSTIR_setOSSPSParameter(DataHandle* hp, const char* name, const DataHandle
 	return new DataHandle;
 }
 
-void* 
+void*
 sirf::cSTIR_OSSPSParameter(const DataHandle* handle, const char* name)
 {
 	xSTIR_OSSPSReconstruction3DF& recon =
@@ -1327,4 +1341,3 @@ sirf::cSTIR_FBP2DParameter(DataHandle* hp, const char* name)
 		return newObjectHandle(recon.get_output());
 	return parameterNotFound(name, __FILE__, __LINE__);
 }
-

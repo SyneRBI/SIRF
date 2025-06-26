@@ -1,4 +1,7 @@
-'''Object-Oriented wrap for the cSIRF-to-Python interface pysirf.py'''
+'''
+Object-Oriented wrap for the cSIRF-to-Python interface pysirf.py
+'''
+
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
 ## Copyright 2015 - 2020 University College London
@@ -40,9 +43,12 @@ if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
 else:
     ABC = abc.ABCMeta('ABC', (), {})
 
-# In future, would be good to explicitly list all objects to import when doing `from sirf.SIRF import *`.
-# However, we will keep this for later to avoid mistakes in updating this variable.
-# __all__ = ['DataContainer', 'ImageData', 'GeometricalInfo', 'AdjointOperator']
+
+class ContiguousError(ValueError):
+    """
+    ValueError for discontiguous memory as per
+    https://data-apis.org/array-api/latest/API_specification/generated/array_api.asarray.html
+    """
 
 
 class DataContainer(ABC):
@@ -213,6 +219,31 @@ class DataContainer(ABC):
         i = pyiutil.intDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return i != 0
+
+    @property
+    def supports_array_view(self):
+        """
+        Returns True iff zero-copy compatible as per
+        https://data-apis.org/array-api/latest/API_specification/generated/array_api.asarray.html
+        https://numpy.org/doc/stable/reference/arrays.interface.html
+        """
+        assert self.handle is not None
+        handle = pysirf.cSIRF_supportsArrayView(self.handle)
+        check_status(handle)
+        i = pyiutil.intDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return i != 0
+
+    def asarray(self, xp=numpy, copy=None, **kwargs):
+        """Returns view (or fallback copy) of self"""
+        try:
+            if not hasattr(self, '__array_interface__'):
+                raise ContiguousError("please make an array-copy first with `copy=True` or `None`")
+            return xp.asarray(self, copy=copy, **kwargs)
+        except ContiguousError:
+            if copy or copy is None:
+                return xp.asarray(self.as_array(), **kwargs)
+            raise
 
     def conjugate(self, out=None):
         ''' Computes complex conjugate of self.
