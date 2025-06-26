@@ -37,7 +37,7 @@ from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
      cpp_int_dtype, cpp_int_array, \
      examples_data_path, existing_filepath, pTest
 from sirf import SIRF
-from sirf.SIRF import DataContainer
+from sirf.SIRF import ContiguousError, DataContainer
 import sirf.pyiutilities as pyiutil
 import sirf.pystir as pystir
 
@@ -398,13 +398,6 @@ class EllipticCylinder(Shape):
         return (rx, ry)
 
 
-class ContiguousError(ValueError):
-    """
-    ValueError for discontiguous memory as per
-    https://data-apis.org/array-api/latest/API_specification/generated/array_api.asarray.html
-    """
-
-
 # class ImageData(DataContainer):
 class ImageData(SIRF.ImageData):
     """Class for PET image data objects.
@@ -481,18 +474,9 @@ class ImageData(SIRF.ImageData):
     def __array_interface__(self):
         """As per https://numpy.org/doc/stable/reference/arrays.interface.html"""
         if not self.supports_array_view:
-            raise ContiguousError("please make an array-copy first with `as_array`")
+            raise ContiguousError("please make an array-copy first with `asarray(copy=True)` or `as_array()`")
         return {'shape': self.shape, 'typestr': '<f4', 'version': 3,
                 'data': (parms.size_t_par(self.handle, 'ImageData', 'address'), False)}
-
-    def asarray(self, xp=numpy, copy=None, **kwargs):
-        """Returns view (or fallback copy) of self"""
-        try:
-            return xp.asarray(self, copy=copy, **kwargs)
-        except ContiguousError:
-            if copy or copy is None:
-                return xp.asarray(self.as_array(), **kwargs)
-            raise
 
     def initialise(self, dim, vsize=(1., 1., 1.), origin=(0., 0., 0.)):
         """
@@ -1352,12 +1336,10 @@ class AcquisitionData(ScanData):
     @property
     def __array_interface__(self):
         """As per https://numpy.org/doc/stable/reference/arrays.interface.html"""
+        if not self.supports_array_view:
+            raise ContiguousError("please make an array-copy first with `asarray(copy=True)` or `as_array()`")
         return {'shape': self.shape, 'typestr': '<f4', 'version': 3,
                 'data': (parms.size_t_par(self.handle, 'AcquisitionData', 'address'), False)}
-
-    def asarray(self, xp=numpy, **kwargs):
-        """Returns view of self"""
-        return xp.asarray(self, **kwargs)
 
     def as_array(self):
         """
