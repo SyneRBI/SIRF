@@ -347,7 +347,7 @@ namespace sirf {
 		virtual void add(const DataContainer& x, const void* ptr_y)
 		{
 			float y = *static_cast<const float*>(ptr_y);
-			semibinary_op(x, y, DataContainer::sum<float>);
+			semibinary_op_templ(x, y, DataContainer::sum<float>);
 		}
 		virtual void divide(const DataContainer& x, const void* ptr_y)
 		{
@@ -511,6 +511,8 @@ namespace sirf {
 		}
 
 		void unary_op(const DataContainer& a_x, float(*f)(float));
+		template<class SemibinaryOp>
+			void semibinary_op_templ(const DataContainer& a_x, float y, SemibinaryOp f);
 		void semibinary_op(const DataContainer& a_x, float y, float(*f)(float, float));
 		void binary_op(const DataContainer& a_x, const DataContainer& a_y, float(*f)(float, float));
 
@@ -857,7 +859,7 @@ namespace sirf {
             auto *pd_ptr   = dynamic_cast<stir::ProjDataInMemory*>(data().get());
             auto *pd_x_ptr = dynamic_cast<const stir::ProjDataInMemory*>(a_x->data().get());
             // If either cast failed, fall back to general method
-            if (is_null_ptr(pd_ptr) || is_null_ptr(pd_x_ptr))
+            //if (is_null_ptr(pd_ptr) || is_null_ptr(pd_x_ptr))
                 return this->STIRAcquisitionData::add(x, ptr_y);
 
             // do it
