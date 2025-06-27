@@ -511,8 +511,8 @@ namespace sirf {
 		}
 
 		void unary_op(const DataContainer& a_x, float(*f)(float));
-		template<class SemibinaryOp>
-			void semibinary_op_templ(const DataContainer& a_x, float y, SemibinaryOp f);
+		template<class BinaryOp>
+			void semibinary_op_templ(const DataContainer& a_x, float y, BinaryOp f);
 		void semibinary_op(const DataContainer& a_x, float y, float(*f)(float, float));
 		void binary_op(const DataContainer& a_x, const DataContainer& a_y, float(*f)(float, float));
 

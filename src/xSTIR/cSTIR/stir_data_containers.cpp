@@ -294,12 +294,12 @@ STIRAcquisitionData::unary_op(
 
 }
 
-template<class SemibinaryOp>
+template<class BinaryOp>
 void
 STIRAcquisitionData::semibinary_op_templ(
 	const DataContainer& a_x,
 	float y,
-	SemibinaryOp f
+	BinaryOp f
 )
 {
 	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, x, a_x);
