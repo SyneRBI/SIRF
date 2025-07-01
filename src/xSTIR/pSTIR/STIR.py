@@ -3804,11 +3804,11 @@ def make_Poisson_loglikelihood(acq_data=None, likelihood_type=None,
                                acq_model=None):
     """Makes Poisson loglikelihood.
 
-    Selects the objective function based on the acquisition data and likelihood
-    model types.
+    Selects the objective function based on the acquisition data and
+    one of the following likelihood model types:
+    * LinearModelForMean
+    * LinearModelForMeanAndListModeDataWithProjMatrixByBin
     """
-    # only this objective function is implemented for now
-    #if likelihood_type == 'LinearModelForMean':
     if likelihood_type is None or likelihood_type=='LinearModelForMean':
         obj_fun = PoissonLogLikelihoodWithLinearModelForMeanAndProjData()
         if acq_data is not None:
