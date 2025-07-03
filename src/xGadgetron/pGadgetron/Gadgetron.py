@@ -889,7 +889,7 @@ class Acquisition(object):
     @property
     def __array_interface__(self):
         """As per https://numpy.org/doc/stable/reference/arrays.interface.html"""
-        return {'shape': self.shape, 'typestr': '<f4', 'version': 3,
+        return {'shape': self.shape, 'typestr': '<c8', 'version': 3,
                 'data': (parms.size_t_par(self.handle, 'Acquisition', 'address'), False)}
 
     def asarray(self, xp=numpy, copy=None, **kwargs):
