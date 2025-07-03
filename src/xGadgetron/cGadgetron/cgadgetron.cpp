@@ -687,6 +687,20 @@ cGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num)
 
 extern "C"
 void*
+cGT_acquisitionDataAddress(void* ptr_acqs, unsigned int acq_num)
+{
+	try {
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		MRAcquisitionData& acqs =
+			objectFromHandle<MRAcquisitionData>(h_acqs);
+		shared_ptr<ISMRMRD::Acquisition> sptr_acq = acqs.get_acquisition_sptr(acq_num);
+		return dataHandle(reinterpret_cast<size_t>(sptr_acq->getDataPtr()));
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cGT_appendAcquisition(void* ptr_acqs, void* ptr_acq)
 {
 	try {
@@ -859,6 +873,8 @@ cGT_acquisitionParameter(void* ptr_acq, const char* name)
 		return dataHandle((float*)acq.slice_dir());
 	if (sirf::iequals(name, "patient_table_position"))
 		return dataHandle((float*)acq.patient_table_position());
+	if (sirf::iequals(name, "address"))
+		return dataHandle(reinterpret_cast<size_t>(acq.getDataPtr()));
 	return parameterNotFound(name, __FILE__, __LINE__);
 }
 

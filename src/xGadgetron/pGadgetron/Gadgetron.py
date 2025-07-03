@@ -724,6 +724,13 @@ class CoilSensitivityData(ImageData):
 DataContainer.register(CoilSensitivityData)
 
 
+class ContiguousError(ValueError):
+    """
+    ValueError for discontiguous memory as per
+    https://data-apis.org/array-api/latest/API_specification/generated/array_api.asarray.html
+    """
+
+
 class Acquisition(object):
     ''' Provides access to ISMRMRD::Acquisition parameters (cf. ismrmrd.h).
     '''
@@ -878,6 +885,22 @@ class Acquisition(object):
             raise AssertionError(f"stampnum must be either 0, 1 or 2. You gave {stampnum}.")
         attribute = f"physiology_time_stamp{stampnum}"
         return parms.set_int_par(self.handle, 'acquisition', attribute, int(val))
+
+    @property
+    def __array_interface__(self):
+        """As per https://numpy.org/doc/stable/reference/arrays.interface.html"""
+        return {'shape': self.shape, 'typestr': '<f4', 'version': 3,
+                'data': (parms.size_t_par(self.handle, 'Acquisition', 'address'), False)}
+
+    def asarray(self, xp=numpy, copy=None, **kwargs):
+        """Returns view (or fallback copy) of self"""
+        try:
+            return xp.asarray(self, copy=copy, **kwargs)
+        except ContiguousError:
+            if copy or copy is None:
+                return xp.asarray(self.as_array(), **kwargs)
+            raise
+
 
 class AcquisitionData(DataContainer):
     '''

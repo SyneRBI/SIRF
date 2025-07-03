@@ -840,6 +840,11 @@ namespace sirf {
 				(new AcquisitionsVector(acqs_info_, ignore_mask_));
 		}
 
+		virtual bool supports_array_view() const
+		{
+			return true;
+		}
+
 	private:
 		std::vector<gadgetron::shared_ptr<ISMRMRD::Acquisition> > acqs_;
 		virtual AcquisitionsVector* clone_impl() const;
