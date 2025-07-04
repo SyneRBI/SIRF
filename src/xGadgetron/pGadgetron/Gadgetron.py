@@ -887,6 +887,10 @@ class Acquisition(object):
         return parms.set_int_par(self.handle, 'acquisition', attribute, int(val))
 
     @property
+    def shape(self):
+        return (self.number_of_samples(), self.active_channels())
+
+    @property
     def __array_interface__(self):
         """As per https://numpy.org/doc/stable/reference/arrays.interface.html"""
         return {'shape': self.shape, 'typestr': '<c8', 'version': 3,

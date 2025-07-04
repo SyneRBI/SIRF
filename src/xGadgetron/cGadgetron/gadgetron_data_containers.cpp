@@ -292,7 +292,7 @@ MRAcquisitionData::get_data(complex_float_t* z, int a)
 	}
 	for (unsigned int a = 0, i = 0; a < na; a++) {
 		if (!get_acquisition(a, acq)) {
-			std::cout << "ignoring acquisition " << a << '\n';
+			//std::cout << "ignoring acquisition " << a << '\n';
 			continue;
 		}
 		unsigned int nc = acq.active_channels();
@@ -710,18 +710,18 @@ MRAcquisitionData::axpby(
     bool isempty = (number() < 1);
     for (int ix = 0, iy = 0, k = 0; ix < nx && iy < ny;) {
         if (!x.get_acquisition(ix, ax)) {
-            std::cout << ix << " ignored (ax)\n";
+            //std::cout << ix << " ignored (ax)\n";
             ix++;
             continue;
         }
         if (!y.get_acquisition(iy, ay)) {
-            std::cout << iy << " ignored (ay)\n";
+            //std::cout << iy << " ignored (ay)\n";
             iy++;
             continue;
         }
         if (!isempty) {
             if (!get_acquisition(k, acq)) {
-                std::cout << k << " ignored (acq)\n";
+                //std::cout << k << " ignored (acq)\n";
                 k++;
                 continue;
             }
@@ -763,28 +763,28 @@ MRAcquisitionData::xapyb(
     for (int ix = 0, iy = 0, ia = 0, ib = 0, k = 0;
         ix < nx && iy < ny && ia < na && ib < nb;) {
         if (!x.get_acquisition(ix, ax)) {
-            std::cout << ix << " ignored (ax)\n";
+            //std::cout << ix << " ignored (ax)\n";
             ix++;
             continue;
         }
         if (!y.get_acquisition(iy, ay)) {
-            std::cout << iy << " ignored (ay)\n";
+            //std::cout << iy << " ignored (ay)\n";
             iy++;
             continue;
         }
         if (!a.get_acquisition(ia, aa)) {
-            std::cout << ia << " ignored (aa)\n";
+            //std::cout << ia << " ignored (aa)\n";
             ia++;
             continue;
         }
         if (!b.get_acquisition(ib, ab)) {
-            std::cout << ib << " ignored (ab)\n";
+            //std::cout << ib << " ignored (ab)\n";
             ib++;
             continue;
         }
         if (!isempty) {
             if (!get_acquisition(k, acq)) {
-                std::cout << k << " ignored (acq)\n";
+                //std::cout << k << " ignored (acq)\n";
                 k++;
                 continue;
             }
@@ -826,23 +826,23 @@ MRAcquisitionData::xapyb(
     for (int ix = 0, iy = 0, ib = 0, k = 0;
         ix < nx && iy < ny && ib < nb;) {
         if (!x.get_acquisition(ix, ax)) {
-            std::cout << ix << " ignored (ax)\n";
+            //std::cout << ix << " ignored (ax)\n";
             ix++;
             continue;
         }
         if (!y.get_acquisition(iy, ay)) {
-            std::cout << iy << " ignored (ay)\n";
+            //std::cout << iy << " ignored (ay)\n";
             iy++;
             continue;
         }
         if (!b.get_acquisition(ib, ab)) {
-            std::cout << ib << " ignored (ab)\n";
+            //std::cout << ib << " ignored (ab)\n";
             ib++;
             continue;
         }
         if (!isempty) {
             if (!get_acquisition(k, acq)) {
-                std::cout << k << " ignored (acq)\n";
+                //std::cout << k << " ignored (acq)\n";
                 k++;
                 continue;
             }
@@ -994,18 +994,18 @@ MRAcquisitionData::binary_op(
 	bool isempty = (number() < 1);
     for (int ix = 0, iy = 0, k = 0; ix < nx && iy < ny;) {
 		if (!x.get_acquisition(ix, ax)) {
-			std::cout << ix << " ignored (ax)\n";
+			//std::cout << ix << " ignored (ax)\n";
 			ix++;
 			continue;
 		}
 		if (!y.get_acquisition(iy, ay)) {
-			std::cout << iy << " ignored (ay)\n";
+			//std::cout << iy << " ignored (ay)\n";
 			iy++;
 			continue;
 		}
 		if (!isempty) {
 			if (!get_acquisition(k, acq)) {
-				std::cout << k << " ignored (acq)\n";
+				//std::cout << k << " ignored (acq)\n";
 				k++;
 				continue;
 			}
@@ -1038,13 +1038,13 @@ MRAcquisitionData::semibinary_op(const DataContainer& a_x, complex_float_t y,
     bool isempty = (number() < 1);
     for (int ix = 0, k = 0; ix < nx;) {
         if (!x.get_acquisition(ix, ax)) {
-            std::cout << ix << " ignored (ax)\n";
+            //std::cout << ix << " ignored (ax)\n";
             ix++;
             continue;
         }
         if (!isempty) {
             if (!get_acquisition(k, acq)) {
-                std::cout << k << " ignored (acq)\n";
+                //std::cout << k << " ignored (acq)\n";
                 k++;
                 continue;
             }
@@ -1077,13 +1077,13 @@ MRAcquisitionData::unary_op(const DataContainer& a_x,
     bool isempty = (number() < 1);
     for (int ix = 0, k = 0; ix < nx;) {
         if (!x.get_acquisition(ix, ax)) {
-            std::cout << ix << " ignored (ax)\n";
+            //std::cout << ix << " ignored (ax)\n";
             ix++;
             continue;
         }
         if (!isempty) {
             if (!get_acquisition(k, acq)) {
-                std::cout << k << " ignored (acq)\n";
+                //std::cout << k << " ignored (acq)\n";
                 k++;
                 continue;
             }
@@ -1112,6 +1112,8 @@ MRAcquisitionData::norm() const
 			continue;
 		}
 		float s = MRAcquisitionData::norm(a);
+		//if (i == 0)
+			std::cout << s << '\n';
 		r += s*s;
 	}
 	return std::sqrt(r);
@@ -1387,7 +1389,7 @@ AcquisitionsVector::set_data(const complex_float_t* z, int all)
 		ISMRMRD::Acquisition& acq = *acqs_[ia];
 		IgnoreMask ignore_mask = this->ignore_mask();
 		if (!all && ignore_mask.ignored(acq.flags())) {
-			std::cout << "ignoring acquisition " << ia << '\n';
+			//std::cout << "ignoring acquisition " << ia << '\n';
 			continue;
 		}
 		unsigned int nc = acq.active_channels();
