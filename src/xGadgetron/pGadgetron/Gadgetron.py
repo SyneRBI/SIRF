@@ -1257,8 +1257,30 @@ class AcquisitionData(DataContainer):
     def shape(self):
         return self.dimensions()
 
-    
 DataContainer.register(AcquisitionData)
+
+
+class AcquisitionDataView(object):
+    '''Class for AcquisitionData view.
+
+    '''
+    def __init__(self, acq_data, ignore_mask):
+        self.handle = None
+        self.acq_data = acq_data
+        self.views = ()
+        na = acq_data.number_of_acquisitions('all')
+        for i in range(na):
+            acq = acq_data.acquisition(i)
+            flags = acq.flags()
+            if flags & ignore_mask:
+                continue
+            view = acq.asarray()
+            self.views += (view,)
+
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
 
 class AcquisitionModel(object):
     '''
