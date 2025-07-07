@@ -1267,19 +1267,28 @@ class AcquisitionDataView(object):
     def __init__(self, acq_data, ignore_mask):
         self.handle = None
         self.acq_data = acq_data
-        self.views = ()
-        na = acq_data.number_of_acquisitions('all')
-        for i in range(na):
+        nacq = acq_data.number_of_acquisitions('all')
+        self.views = []
+        for i in range(nacq):
             acq = acq_data.acquisition(i)
             flags = acq.flags()
             if flags & ignore_mask:
                 continue
-            view = acq.asarray()
-            self.views += (view,)
+            self.views += [acq.asarray()]
 
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
+
+    def __iadd__(self, other):
+        if type(other) == type(self):
+            na = len(self.views)
+            for i in range(na):
+                self.views[i] += other.views[i]
+        else:
+            na = len(self.views)
+            for i in range(na):
+                self.views[i] += other
 
 
 class AcquisitionModel(object):
