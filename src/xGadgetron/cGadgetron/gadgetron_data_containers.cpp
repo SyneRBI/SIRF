@@ -1113,7 +1113,7 @@ MRAcquisitionData::norm() const
 		}
 		float s = MRAcquisitionData::norm(a);
 		//if (i == 0)
-			std::cout << s << '\n';
+			//std::cout << s << '\n';
 		r += s*s;
 	}
 	return std::sqrt(r);

@@ -1264,7 +1264,7 @@ class AcquisitionDataView(object):
     '''Class for AcquisitionData view.
 
     '''
-    def __init__(self, acq_data, ignore_mask):
+    def __init__(self, acq_data, ignore_mask=1<<18):
         self.handle = None
         self.acq_data = acq_data
         nacq = acq_data.number_of_acquisitions('all')
@@ -1281,14 +1281,43 @@ class AcquisitionDataView(object):
             pyiutil.deleteDataHandle(self.handle)
 
     def __iadd__(self, other):
+        na = len(self.views)
         if type(other) == type(self):
-            na = len(self.views)
             for i in range(na):
                 self.views[i] += other.views[i]
         else:
-            na = len(self.views)
             for i in range(na):
                 self.views[i] += other
+        return self
+
+    def __imul__(self, other):
+        na = len(self.views)
+        if type(other) == type(self):
+            for i in range(na):
+                self.views[i] *= other.views[i]
+        else:
+            for i in range(na):
+                self.views[i] *= other
+        return self
+
+    def __itruediv__(self, other):
+        na = len(self.views)
+        if type(other) == type(self):
+            for i in range(na):
+                self.views[i] /= other.views[i]
+        else:
+            for i in range(na):
+                self.views[i] /= other
+        return self
+
+    def copy(self, other):
+        na = len(self.views)
+        if type(other) == type(self):
+            for i in range(na):
+                numpy.copyto(self.views[i], other.views[i])
+        else:
+            for i in range(na):
+                self.views[i] = other
 
 
 class AcquisitionModel(object):
