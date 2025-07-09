@@ -1768,6 +1768,7 @@ GadgetronImageData::norm() const
 	for (unsigned int i = 0; i < number(); i++) {
 		const ImageWrap& u = image_wrap(i);
 		float s = u.norm();
+		//std::cout << s << '\n';
 		r += s*s;
 	}
 	r = std::sqrt(r);

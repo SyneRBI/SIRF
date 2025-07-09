@@ -292,6 +292,28 @@ class Image(object):
     def info(self, method):
         return eval('self.' + method + '()')
 
+    @property
+    def shape(self):
+        return self.matrix_size()
+
+    @property
+    def __array_interface__(self):
+        """As per https://numpy.org/doc/stable/reference/arrays.interface.html"""
+        dt = self.data_type()
+        typestr = ['<i2', '<i2', '<i4', '<i4', '<f4', '<f8', '<c8', '<c16']
+        return {'shape': self.shape, 'typestr': typestr[dt - 1], 'version': 3,
+                'data': (parms.size_t_par(self.handle, 'Image', 'address'), False)}
+
+    def asarray(self, xp=numpy, copy=None, **kwargs):
+        """Returns view (or fallback copy) of self"""
+        try:
+            return xp.asarray(self, copy=copy, **kwargs)
+        except ContiguousError:
+            if copy or copy is None:
+                return xp.asarray(self.as_array(), **kwargs)
+            raise
+
+
 #class ImageData(DataContainer):
 class ImageData(SIRF.ImageData):
     '''
@@ -577,6 +599,64 @@ class ImageData(SIRF.ImageData):
         return self.dimensions()
         
 SIRF.ImageData.register(ImageData)
+
+
+class ImageDataView(object):
+    '''Class for ImageData view.
+
+    '''
+    def __init__(self, img_data):
+        self.handle = None
+        self.img_data = img_data
+        ni = img_data.shape[0]
+        self.views = []
+        for i in range(ni):
+            img = img_data.image(i)
+            img_view = img.asarray()
+            self.views += [img_view]
+
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+    def __iadd__(self, other):
+        nv = len(self.views)
+        if type(other) == type(self):
+            for i in range(nv):
+                self.views[i] += other.views[i]
+        else:
+            for i in range(nv):
+                self.views[i] += other
+        return self
+
+    def __imul__(self, other):
+        nv = len(self.views)
+        if type(other) == type(self):
+            for i in range(nv):
+                self.views[i] *= other.views[i]
+        else:
+            for i in range(nv):
+                self.views[i] *= other
+        return self
+
+    def __itruediv__(self, other):
+        nv = len(self.views)
+        if type(other) == type(self):
+            for i in range(nv):
+                self.views[i] /= other.views[i]
+        else:
+            for i in range(nv):
+                self.views[i] /= other
+        return self
+
+    def copy(self, other):
+        nv = len(self.views)
+        if type(other) == type(self):
+            for i in range(nv):
+                numpy.copyto(self.views[i], other.views[i])
+        else:
+            for i in range(nv):
+                self.views[i] = other
 
 
 class CoilImagesData(ImageData):
