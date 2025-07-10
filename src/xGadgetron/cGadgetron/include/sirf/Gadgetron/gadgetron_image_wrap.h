@@ -332,6 +332,12 @@ namespace sirf {
 			IMAGE_PROCESSING_SWITCH_CONST(type_, get_size_, ptr_, s);
 			return s;
 		}
+		size_t address() const
+		{
+			size_t address;
+			IMAGE_PROCESSING_SWITCH_CONST(type_, get_data_ptr_, ptr_, address);
+			return address;
+		}
 		size_t num_data_elm() const
 		{
 			IMAGE_PROCESSING_SWITCH_CONST(type_, return num_data_elm_, ptr_);
@@ -644,6 +650,12 @@ namespace sirf {
 		void get_size_(const ISMRMRD::Image<T>* ptr_im, size_t& size) const
 		{
 			size = ptr_im->getDataSize();
+		}
+
+		template<typename T>
+		void get_data_ptr_(const ISMRMRD::Image<T>* ptr_im, size_t& ptr) const
+		{
+			ptr = reinterpret_cast<size_t>(ptr_im->getDataPtr());
 		}
 
 		template<typename T>

@@ -292,6 +292,28 @@ class Image(object):
     def info(self, method):
         return eval('self.' + method + '()')
 
+    @property
+    def shape(self):
+        return self.matrix_size()
+
+    @property
+    def __array_interface__(self):
+        """As per https://numpy.org/doc/stable/reference/arrays.interface.html"""
+        dt = self.data_type()
+        typestr = ['<i2', '<i2', '<i4', '<i4', '<f4', '<f8', '<c8', '<c16']
+        return {'shape': self.shape, 'typestr': typestr[dt - 1], 'version': 3,
+                'data': (parms.size_t_par(self.handle, 'Image', 'address'), False)}
+
+    def asarray(self, xp=numpy, copy=None, **kwargs):
+        """Returns view (or fallback copy) of self"""
+        try:
+            return xp.asarray(self, copy=copy, **kwargs)
+        except ContiguousError:
+            if copy or copy is None:
+                return xp.asarray(self.as_array(), **kwargs)
+            raise
+
+
 #class ImageData(DataContainer):
 class ImageData(SIRF.ImageData):
     '''
@@ -579,6 +601,64 @@ class ImageData(SIRF.ImageData):
 SIRF.ImageData.register(ImageData)
 
 
+class ImageDataView(object):
+    '''Class for ImageData view.
+
+    '''
+    def __init__(self, img_data):
+        self.handle = None
+        self.img_data = img_data
+        ni = img_data.shape[0]
+        self.views = []
+        for i in range(ni):
+            img = img_data.image(i)
+            img_view = img.asarray()
+            self.views += [img_view]
+
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+    def __iadd__(self, other):
+        nv = len(self.views)
+        if type(other) == type(self):
+            for i in range(nv):
+                self.views[i] += other.views[i]
+        else:
+            for i in range(nv):
+                self.views[i] += other
+        return self
+
+    def __imul__(self, other):
+        nv = len(self.views)
+        if type(other) == type(self):
+            for i in range(nv):
+                self.views[i] *= other.views[i]
+        else:
+            for i in range(nv):
+                self.views[i] *= other
+        return self
+
+    def __itruediv__(self, other):
+        nv = len(self.views)
+        if type(other) == type(self):
+            for i in range(nv):
+                self.views[i] /= other.views[i]
+        else:
+            for i in range(nv):
+                self.views[i] /= other
+        return self
+
+    def copy(self, other):
+        nv = len(self.views)
+        if type(other) == type(self):
+            for i in range(nv):
+                numpy.copyto(self.views[i], other.views[i])
+        else:
+            for i in range(nv):
+                self.views[i] = other
+
+
 class CoilImagesData(ImageData):
     '''
     Class for a coil images (ci) container.
@@ -722,6 +802,13 @@ class CoilSensitivityData(ImageData):
             raise error('Unknown method %s' % method_name)
 
 DataContainer.register(CoilSensitivityData)
+
+
+class ContiguousError(ValueError):
+    """
+    ValueError for discontiguous memory as per
+    https://data-apis.org/array-api/latest/API_specification/generated/array_api.asarray.html
+    """
 
 
 class Acquisition(object):
@@ -878,6 +965,26 @@ class Acquisition(object):
             raise AssertionError(f"stampnum must be either 0, 1 or 2. You gave {stampnum}.")
         attribute = f"physiology_time_stamp{stampnum}"
         return parms.set_int_par(self.handle, 'acquisition', attribute, int(val))
+
+    @property
+    def shape(self):
+        return (self.number_of_samples(), self.active_channels())
+
+    @property
+    def __array_interface__(self):
+        """As per https://numpy.org/doc/stable/reference/arrays.interface.html"""
+        return {'shape': self.shape, 'typestr': '<c8', 'version': 3,
+                'data': (parms.size_t_par(self.handle, 'Acquisition', 'address'), False)}
+
+    def asarray(self, xp=numpy, copy=None, **kwargs):
+        """Returns view (or fallback copy) of self"""
+        try:
+            return xp.asarray(self, copy=copy, **kwargs)
+        except ContiguousError:
+            if copy or copy is None:
+                return xp.asarray(self.as_array(), **kwargs)
+            raise
+
 
 class AcquisitionData(DataContainer):
     '''
@@ -1230,8 +1337,68 @@ class AcquisitionData(DataContainer):
     def shape(self):
         return self.dimensions()
 
-    
 DataContainer.register(AcquisitionData)
+
+
+class AcquisitionDataView(object):
+    '''Class for AcquisitionData view.
+
+    '''
+    def __init__(self, acq_data, ignore_mask=1<<18):
+        self.handle = None
+        self.acq_data = acq_data
+        nacq = acq_data.number_of_acquisitions('all')
+        self.views = []
+        for i in range(nacq):
+            acq = acq_data.acquisition(i)
+            flags = acq.flags()
+            if flags & ignore_mask:
+                continue
+            self.views += [acq.asarray()]
+
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+    def __iadd__(self, other):
+        na = len(self.views)
+        if type(other) == type(self):
+            for i in range(na):
+                self.views[i] += other.views[i]
+        else:
+            for i in range(na):
+                self.views[i] += other
+        return self
+
+    def __imul__(self, other):
+        na = len(self.views)
+        if type(other) == type(self):
+            for i in range(na):
+                self.views[i] *= other.views[i]
+        else:
+            for i in range(na):
+                self.views[i] *= other
+        return self
+
+    def __itruediv__(self, other):
+        na = len(self.views)
+        if type(other) == type(self):
+            for i in range(na):
+                self.views[i] /= other.views[i]
+        else:
+            for i in range(na):
+                self.views[i] /= other
+        return self
+
+    def copy(self, other):
+        na = len(self.views)
+        if type(other) == type(self):
+            for i in range(na):
+                numpy.copyto(self.views[i], other.views[i])
+        else:
+            for i in range(na):
+                self.views[i] = other
+
 
 class AcquisitionModel(object):
     '''

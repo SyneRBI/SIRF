@@ -97,6 +97,7 @@ extern "C" {
 		int from, int till, int n, PTR_UINT64 values);
 	void* cGT_acquisitionParameterValuesFloat(void* ptr_acqs, const char* name,
 		int from, int till, int n, PTR_FLOAT values);
+	void* cGT_acquisitionDataAddress(void* ptr_acqs, unsigned int acq_num);
 
 	// image methods
 	void* cGT_reconstructImages(void* ptr_recon, void* ptr_input, const char* dcm_prefix);
