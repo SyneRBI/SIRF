@@ -1,7 +1,6 @@
 import numpy
 import sirf.STIR as pet
 import sirf.Gadgetron as mr
-import sirf.Reg as reg
 import sys
 import timeit
 
@@ -9,45 +8,38 @@ from sirf.Utilities import examples_data_path, existing_filepath
 
 narg = len(sys.argv)
 if narg < 2:
-    print('Usage: images_algebra_timings <data filepath> [<number of tests>]')
+    print('Usage: acq_algebra_timings <acquisition data filepath> [<number of tests>, <check_norm>]')
     exit()
+
+data_file = sys.argv[1]
 
 if sys.argv[1].endswith('.h5'):
     data_path = examples_data_path('MR')
     data_file = existing_filepath(data_path, sys.argv[1])
+    acq = mr.AcquisitionData(data_file)
+    mr.AcquisitionData.set_storage_scheme('memory')
     mod = 'mr'
-    x = mr.ImageData(data_file)
-    data_type = x.data_type(0)
-    if data_type < 5:
-        print('integer data not supported, converting to real...')
-        x = x.real()
-elif sys.argv[1].endswith('.nii'):
-    data_path = examples_data_path('Registration')
-    data_file = existing_filepath(data_path, sys.argv[1])
-    mod = 'reg'
-    x = reg.ImageData(data_file)
 else:
     data_path = examples_data_path('PET')
     data_file = existing_filepath(data_path, sys.argv[1])
+    acq = pet.AcquisitionData(data_file)
+    pet.AcquisitionData.set_storage_scheme('memory')
     mod = 'pet'
-    x = pet.ImageData(data_file)
 
 if narg > 2:
     ntests = int(sys.argv[2])
 else:
     ntests = 1
-check_norm = narg > 3
+check_norm = (ntests == 1)
 
-if mod == 'pet':
-    y = x + 0
-    z = x + 0
-else:
-    y = x.clone()
-    z = x.clone()
+x = acq + 0
+y = x + 0
+z = x + 0
+
 if mod == 'mr':
-    x_view = mr.ImageDataView(x)
-    y_view = mr.ImageDataView(y)
-    z_view = mr.ImageDataView(z)
+    x_view = mr.AcquisitionDataView(x)
+    y_view = mr.AcquisitionDataView(y)
+    z_view = mr.AcquisitionDataView(z)
 else:
     x_view = x.asarray(copy=False)
     y_view = y.asarray(copy=False)
@@ -87,7 +79,7 @@ for test in range(ntests):
     y_view *= 2
     elapsed = timeit.default_timer() - start
     view_t[0] += elapsed
-    if ntests == 1:
+    if check_norm:
         print(f'norm(y): {norm_y} {y.norm()}')
 
     start = timeit.default_timer()
@@ -101,7 +93,7 @@ for test in range(ntests):
     y_view += 2
     elapsed = timeit.default_timer() - start
     view_t[1] += elapsed
-    if ntests == 1:
+    if check_norm:
         print(f'norm(y): {norm_y} {y.norm()}')
 
     start = timeit.default_timer()
@@ -115,7 +107,7 @@ for test in range(ntests):
     z_view += y_view
     elapsed = timeit.default_timer() - start
     view_t[2] += elapsed
-    if ntests == 1:
+    if check_norm:
         print(f'norm(z): {norm_z} {z.norm()}')
 
     start = timeit.default_timer()
@@ -124,16 +116,19 @@ for test in range(ntests):
     sirf_t[3] += elapsed
     norm_z = z.norm()
 
+#    '''
     start = timeit.default_timer()
     copy_view(mod, x_view, z_view)
     z_view *= y_view
     elapsed = timeit.default_timer() - start
     view_t[3] += elapsed
-    if ntests == 1:
+    if check_norm:
         print(f'norm(z): {norm_z} {z.norm()}')
 
     if mod == 'pet':
         y = y.maximum(1e-20)
+        y_view = y.asarray(copy=False)
+
     start = timeit.default_timer()
     z = x / y
     elapsed = timeit.default_timer() - start
@@ -142,9 +137,10 @@ for test in range(ntests):
 
     start = timeit.default_timer()
     copy_view(mod, x_view, z_view)
+    z_view /= y_view
     elapsed = timeit.default_timer() - start
     view_t[4] += elapsed
-    if ntests == 1:
+    if check_norm:
         print(f'norm(z): {norm_z} {z.norm()}')
 
 sirf_t /= ntests
