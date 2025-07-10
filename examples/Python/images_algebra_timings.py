@@ -22,8 +22,6 @@ if sys.argv[1].endswith('.h5'):
         print('integer data not supported, converting to real...')
         x = x.real()
 elif sys.argv[1].endswith('.nii'):
-    print('testing registration algebra not yet ready (need to merge array-ptr-reg and array-ptr-mr)')
-    exit()
     data_path = examples_data_path('Registration')
     data_file = existing_filepath(data_path, sys.argv[1])
     mod = 'reg'
@@ -40,12 +38,12 @@ else:
     ntests = 1
 check_norm = narg > 3
 
-if mod == 'mr':
-    y = x.clone()
-    z = x.clone()
 if mod == 'pet':
     y = x + 0
     z = x + 0
+else:
+    y = x.clone()
+    z = x.clone()
 if mod == 'mr':
     x_view = mr.ImageDataView(x)
     y_view = mr.ImageDataView(y)
