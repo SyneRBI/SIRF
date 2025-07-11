@@ -106,6 +106,8 @@ sirf::cReg_NiftiImageDataParameter(const DataHandle* handle, const char* name)
         return dataHandle<float>(s.get_sum());
     if (strcmp(name, "contains_nans") == 0)
         return dataHandle<bool>(s.get_contains_nans());
+    if (strcmp(name, "address") == 0)
+        return dataHandle<size_t>(s.address());
     return parameterNotFound(name, __FILE__, __LINE__);
 }
 // ------------------------------------------------------------------------------------ //

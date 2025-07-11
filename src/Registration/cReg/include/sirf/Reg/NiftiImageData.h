@@ -207,6 +207,16 @@ public:
             this->_data[i] = dataType(data[i]);
     }
 
+    virtual bool supports_array_view() const
+    {
+        return true;
+    }
+
+    virtual size_t address() const
+    {
+        return reinterpret_cast<size_t>(_data);
+    }
+
     /// Create NiftiImageData from geometrical info
     static std::shared_ptr<nifti_image> create_from_geom_info(const VoxelisedGeometricalInfo3D &geom, const bool is_tensor=false, const NREG_TRANS_TYPE tensor_type=NREG_TRANS_TYPE::DEF_FIELD);
 
