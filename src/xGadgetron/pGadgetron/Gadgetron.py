@@ -602,23 +602,10 @@ class ImageData(SIRF.ImageData):
 SIRF.ImageData.register(ImageData)
 
 
-class ImageDataView(object):
-    '''Class for ImageData view.
+class GadgetronDataView(object):
+    '''Class for gadgetron data container view.
 
     '''
-    def __init__(self, img_data):
-        self.handle = None
-        self.img_data = img_data
-        ni = img_data.shape[0]
-        self.views = []
-        for i in range(ni):
-            img = img_data.image(i)
-            img_view = img.asarray()
-            self.views += [img_view]
-
-    def __del__(self):
-        if self.handle is not None:
-            pyiutil.deleteDataHandle(self.handle)
 
     def __iadd__(self, other):
         nv = len(self.views)
@@ -683,6 +670,25 @@ class ImageDataView(object):
         for i in range(nv):
             s += numpy.vdot(other.views[i], self.views[i])
         return s
+
+
+class ImageDataView(GadgetronDataView):
+    '''Class for ImageData view.
+
+    '''
+    def __init__(self, img_data):
+        self.handle = None
+        self.img_data = img_data
+        ni = img_data.shape[0]
+        self.views = []
+        for i in range(ni):
+            img = img_data.image(i)
+            img_view = img.asarray()
+            self.views += [img_view]
+
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
 
 
 class CoilImagesData(ImageData):
@@ -1366,7 +1372,7 @@ class AcquisitionData(DataContainer):
 DataContainer.register(AcquisitionData)
 
 
-class AcquisitionDataView(object):
+class AcquisitionDataView(GadgetronDataView):
     '''Class for AcquisitionData view.
 
     '''
@@ -1385,45 +1391,6 @@ class AcquisitionDataView(object):
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
-
-    def __iadd__(self, other):
-        na = len(self.views)
-        if type(other) == type(self):
-            for i in range(na):
-                self.views[i] += other.views[i]
-        else:
-            for i in range(na):
-                self.views[i] += other
-        return self
-
-    def __imul__(self, other):
-        na = len(self.views)
-        if type(other) == type(self):
-            for i in range(na):
-                self.views[i] *= other.views[i]
-        else:
-            for i in range(na):
-                self.views[i] *= other
-        return self
-
-    def __itruediv__(self, other):
-        na = len(self.views)
-        if type(other) == type(self):
-            for i in range(na):
-                self.views[i] /= other.views[i]
-        else:
-            for i in range(na):
-                self.views[i] /= other
-        return self
-
-    def copy(self, other):
-        na = len(self.views)
-        if type(other) == type(self):
-            for i in range(na):
-                numpy.copyto(self.views[i], other.views[i])
-        else:
-            for i in range(na):
-                self.views[i] = other
 
 
 class AcquisitionModel(object):

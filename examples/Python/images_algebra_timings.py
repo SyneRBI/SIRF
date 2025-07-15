@@ -88,7 +88,7 @@ for test in range(ntests):
     elapsed = timeit.default_timer() - start
     view_t[0] += elapsed
     if ntests == 1:
-        print(f'norm(y): {norm_y} {y.norm()}')
+        print(f'norm(y): {norm_y} {y.norm()} {y_view.norm()}')
 
     start = timeit.default_timer()
     y = x + 2
@@ -102,7 +102,7 @@ for test in range(ntests):
     elapsed = timeit.default_timer() - start
     view_t[1] += elapsed
     if ntests == 1:
-        print(f'norm(y): {norm_y} {y.norm()}')
+        print(f'norm(y): {norm_y} {y.norm()} {y_view.norm()}')
 
     start = timeit.default_timer()
     z = x + y
@@ -116,7 +116,7 @@ for test in range(ntests):
     elapsed = timeit.default_timer() - start
     view_t[2] += elapsed
     if ntests == 1:
-        print(f'norm(z): {norm_z} {z.norm()}')
+        print(f'norm(z): {norm_z} {z.norm()} {z_view.norm()}')
 
     start = timeit.default_timer()
     z = x * y
@@ -130,7 +130,7 @@ for test in range(ntests):
     elapsed = timeit.default_timer() - start
     view_t[3] += elapsed
     if ntests == 1:
-        print(f'norm(z): {norm_z} {z.norm()}')
+        print(f'norm(z): {norm_z} {z.norm()} {z_view.norm()}')
 
     if mod == 'pet':
         y = y.maximum(1e-20)
@@ -142,10 +142,11 @@ for test in range(ntests):
 
     start = timeit.default_timer()
     copy_view(mod, x_view, z_view)
+    z_view /= y_view
     elapsed = timeit.default_timer() - start
     view_t[4] += elapsed
     if ntests == 1:
-        print(f'norm(z): {norm_z} {z.norm()}')
+        print(f'norm(z): {norm_z} {z.norm()} {z_view.norm()}')
 
 sirf_t /= ntests
 view_t /= ntests
