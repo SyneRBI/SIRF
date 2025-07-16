@@ -671,6 +671,13 @@ class GadgetronDataView(object):
             s += numpy.vdot(other.views[i], self.views[i])
         return s
 
+    def sum(self):
+        nv = len(self.views)
+        s = 0.0
+        for i in range(nv):
+            s += numpy.sum(self.views[i])
+        return s
+
 
 class ImageDataView(GadgetronDataView):
     '''Class for ImageData view.

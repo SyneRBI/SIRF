@@ -53,7 +53,7 @@ else:
     y_view = y.asarray(copy=False)
     z_view = z.asarray(copy=False)
 
-tests = 5
+tests = 8
 '''
 tests:
 x * 2
@@ -61,6 +61,9 @@ x + 2
 x + y
 x * y
 x / y
+norm
+sum
+dot
 '''
 
 view_t = numpy.zeros(tests)
@@ -83,6 +86,10 @@ for test in range(ntests):
     norm_y = y.norm()
 
     start = timeit.default_timer()
+    '''
+    we cannot do y_view = x_view * 2 because then y_view would no longer be a view of y,
+    and y would remain unchanged - so we employ this workaround:
+    '''
     copy_view(mod, x_view, y_view)
     y_view *= 2
     elapsed = timeit.default_timer() - start
@@ -148,6 +155,42 @@ for test in range(ntests):
     if ntests == 1:
         print(f'norm(z): {norm_z} {z.norm()} {z_view.norm()}')
 
+    start = timeit.default_timer()
+    s = x.norm()
+    elapsed = timeit.default_timer() - start
+    sirf_t[5] += elapsed
+
+    start = timeit.default_timer()
+    t = x_view.norm()
+    elapsed = timeit.default_timer() - start
+    view_t[5] += elapsed
+    if ntests == 1:
+        print(f'norm: {s} {t}')
+
+    start = timeit.default_timer()
+    s = x.sum()
+    elapsed = timeit.default_timer() - start
+    sirf_t[6] += elapsed
+
+    start = timeit.default_timer()
+    t = x_view.sum()
+    elapsed = timeit.default_timer() - start
+    view_t[6] += elapsed
+    if ntests == 1:
+        print(f'sum: {s} {t}')
+
+    start = timeit.default_timer()
+    s = x.dot(y)
+    elapsed = timeit.default_timer() - start
+    sirf_t[7] += elapsed
+
+    start = timeit.default_timer()
+    t = x_view.dot(y_view)
+    elapsed = timeit.default_timer() - start
+    view_t[7] += elapsed
+    if ntests == 1:
+        print(f'dot: {s} {t}')
+
 sirf_t /= ntests
 view_t /= ntests
 print('test     sirf    sirf with views')
@@ -156,4 +199,7 @@ print(f'x + 2  {sirf_t[1]:.2e}     {view_t[1]:.2e}')
 print(f'x + y  {sirf_t[2]:.2e}     {view_t[2]:.2e}')
 print(f'x * y  {sirf_t[3]:.2e}     {view_t[3]:.2e}')
 print(f'x / y  {sirf_t[4]:.2e}     {view_t[4]:.2e}')
+print(f'norm   {sirf_t[5]:.2e}     {view_t[5]:.2e}')
+print(f'sum    {sirf_t[6]:.2e}     {view_t[6]:.2e}')
+print(f'dot    {sirf_t[7]:.2e}     {view_t[7]:.2e}')
 
