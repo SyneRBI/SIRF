@@ -77,6 +77,20 @@ def copy_view(mod, x, y):
         numpy.copyto(y, x)
 
 
+def norm(mod, x):
+    if mod == 'mr':
+        return x.norm()
+    else:
+        return numpy.linalg.norm(x)
+
+
+def dot(mod, x, y):
+    if mod == 'mr':
+        return y.dot(x)
+    else:
+        return numpy.vdot(x, y)
+
+
 for test in range(ntests):
 
     start = timeit.default_timer()
@@ -95,7 +109,7 @@ for test in range(ntests):
     elapsed = timeit.default_timer() - start
     view_t[0] += elapsed
     if ntests == 1:
-        print(f'norm(y): {norm_y} {y.norm()} {y_view.norm()}')
+        print(f'norm(y): {norm_y} {y.norm()} {norm(mod, y_view)}')
 
     start = timeit.default_timer()
     y = x + 2
@@ -109,7 +123,7 @@ for test in range(ntests):
     elapsed = timeit.default_timer() - start
     view_t[1] += elapsed
     if ntests == 1:
-        print(f'norm(y): {norm_y} {y.norm()} {y_view.norm()}')
+        print(f'norm(y): {norm_y} {y.norm()} {norm(mod, y_view)}')
 
     start = timeit.default_timer()
     z = x + y
@@ -123,7 +137,7 @@ for test in range(ntests):
     elapsed = timeit.default_timer() - start
     view_t[2] += elapsed
     if ntests == 1:
-        print(f'norm(z): {norm_z} {z.norm()} {z_view.norm()}')
+        print(f'norm(z): {norm_z} {z.norm()} {norm(mod, z_view)}')
 
     start = timeit.default_timer()
     z = x * y
@@ -137,7 +151,7 @@ for test in range(ntests):
     elapsed = timeit.default_timer() - start
     view_t[3] += elapsed
     if ntests == 1:
-        print(f'norm(z): {norm_z} {z.norm()} {z_view.norm()}')
+        print(f'norm(z): {norm_z} {z.norm()} {norm(mod, z_view)}')
 
     if mod == 'pet':
         y = y.maximum(1e-20)
@@ -153,7 +167,7 @@ for test in range(ntests):
     elapsed = timeit.default_timer() - start
     view_t[4] += elapsed
     if ntests == 1:
-        print(f'norm(z): {norm_z} {z.norm()} {z_view.norm()}')
+        print(f'norm(z): {norm_z} {z.norm()} {norm(mod, z_view)}')
 
     start = timeit.default_timer()
     s = x.norm()
@@ -161,7 +175,7 @@ for test in range(ntests):
     sirf_t[5] += elapsed
 
     start = timeit.default_timer()
-    t = x_view.norm()
+    t = norm(mod, x_view)
     elapsed = timeit.default_timer() - start
     view_t[5] += elapsed
     if ntests == 1:
@@ -185,7 +199,7 @@ for test in range(ntests):
     sirf_t[7] += elapsed
 
     start = timeit.default_timer()
-    t = x_view.dot(y_view)
+    t = dot(mod, x_view, y_view)
     elapsed = timeit.default_timer() - start
     view_t[7] += elapsed
     if ntests == 1:
