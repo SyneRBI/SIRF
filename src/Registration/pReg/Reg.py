@@ -26,7 +26,7 @@ import inspect
 from sirf.Utilities import error, check_status, try_calling, \
      cpp_int_dtype, format_numpy_array_for_setter
 from sirf import SIRF
-from sirf.SIRF import ContiguousError, DataContainer
+from sirf.SIRF import ContiguousError
 import pyiutilities as pyiutil
 import pyreg
 
