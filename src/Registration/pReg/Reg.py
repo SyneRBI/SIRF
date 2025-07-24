@@ -26,6 +26,7 @@ import inspect
 from sirf.Utilities import error, check_status, try_calling, \
      cpp_int_dtype, format_numpy_array_for_setter
 from sirf import SIRF
+from sirf.SIRF import ContiguousError
 import pyiutilities as pyiutil
 import pyreg
 
@@ -501,6 +502,14 @@ class NiftiImageData(SIRF.ImageData):
     @property
     def shape(self):
         return self.dimensions()
+
+    @property
+    def __array_interface__(self):
+        """As per https://numpy.org/doc/stable/reference/arrays.interface.html"""
+        if not self.supports_array_view:
+            raise ContiguousError("please make an array-copy first with `asarray(copy=True)` or `as_array()`")
+        return {'shape': self.shape, 'typestr': '<f4', 'version': 3,
+                'data': (parms.size_t_par(self.handle, 'NiftiImageData', 'address'), False)}
 
 
 class NiftiImageData3D(NiftiImageData):
