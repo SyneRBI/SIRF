@@ -44,6 +44,20 @@ else:
     ABC = abc.ABCMeta('ABC', (), {})
 
 
+def norm(x):
+    if type(x) == type(numpy.array([])):
+        return numpy.linalg.norm(x)
+    else:
+        return x.norm()
+
+
+def dot(x, y):
+    if type(x) == type(numpy.array([])):
+        return numpy.vdot(x, y)
+    else:
+        return x.dot(y)
+
+
 class ContiguousError(ValueError):
     """
     ValueError for discontiguous memory as per
