@@ -601,7 +601,7 @@ class ImageData(SIRF.ImageData):
 SIRF.ImageData.register(ImageData)
 
 
-class GadgetronDataView(object):
+class GadgetronDataView:
     '''Class for gadgetron data container view.
 
     '''
@@ -669,11 +669,7 @@ class ImageDataView(GadgetronDataView):
         self.handle = None
         self.img_data = img_data
         ni = img_data.shape[0]
-        self.views = []
-        for i in range(ni):
-            img = img_data.image(i)
-            img_view = img.asarray()
-            self.views += [img_view]
+        self.views = [img_data.image(i).asarray() for i in range(ni)]
 
     def __del__(self):
         if self.handle is not None:
@@ -981,7 +977,7 @@ class Acquisition(object):
 
     @property
     def shape(self):
-        return (self.number_of_samples(), self.active_channels())
+        return self.number_of_samples(), self.active_channels()
 
     @property
     def __array_interface__(self):
