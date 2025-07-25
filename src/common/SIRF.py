@@ -45,21 +45,21 @@ else:
 
 
 def norm(x):
-    if type(x) == type(numpy.array([])):
+    if isinstance(x, numpy.ndarray):
         return numpy.linalg.norm(x)
     else:
         return x.norm()
 
 
 def dot(x, y):
-    if type(x) == type(numpy.array([])):
+    if isinstance(x, numpy.ndarray):
         return numpy.vdot(x, y)
     else:
         return x.dot(y)
 
 
 def copyto(y, x):
-    if type(x) == type(numpy.array([])):
+    if isinstance(x, numpy.ndarray):
         return numpy.copyto(y, x)
     else:
         return y.copy(x)
