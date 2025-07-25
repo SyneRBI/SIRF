@@ -58,6 +58,13 @@ def dot(x, y):
         return x.dot(y)
 
 
+def copyto(y, x):
+    if type(x) == type(numpy.array([])):
+        return numpy.copyto(y, x)
+    else:
+        return y.copy(x)
+
+
 class ContiguousError(ValueError):
     """
     ValueError for discontiguous memory as per
