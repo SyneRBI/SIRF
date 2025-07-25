@@ -7,10 +7,7 @@ import sys
 import timeit
 
 from sirf.Utilities import examples_data_path, existing_filepath
-
-norm = sirf.SIRF.norm
-dot = sirf.SIRF.dot
-copyto = sirf.SIRF.copyto
+from sirf.SIRF import norm, dot, copyto
 
 narg = len(sys.argv)
 if narg < 2:
