@@ -45,6 +45,9 @@ else:
 
 
 def norm(x):
+    '''Computes the norm of x for both types of x we are using
+       (numpy.ndarray or an object of a class that has method norm).
+    '''
     if isinstance(x, numpy.ndarray):
         return numpy.linalg.norm(x)
     else:
@@ -52,6 +55,10 @@ def norm(x):
 
 
 def dot(x, y):
+    '''Computes the dot product of x and y of both types we are using
+       (both numpy.ndarray's or else objects of a class that has method dot
+       that acts as numpy.vdot).
+    '''
     if isinstance(x, numpy.ndarray):
         return numpy.vdot(x, y)
     else:
@@ -59,6 +66,10 @@ def dot(x, y):
 
 
 def copyto(y, x):
+    '''Assigns the copy of x to y for both types we are using
+       (both numpy.ndarray's or else objects for which y.copy(x) that
+       acts as numpy.copy(y, x) is defined).
+    '''
     if isinstance(x, numpy.ndarray):
         return numpy.copyto(y, x)
     else:
