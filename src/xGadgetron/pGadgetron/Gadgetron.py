@@ -22,7 +22,6 @@ Object-Oriented wrap for the cGadgetron-to-Python interface pygadgetron.py
 #   limitations under the License.
 
 import abc
-import math
 import numpy
 import os
 from numbers import Number, Complex, Integral
@@ -608,43 +607,39 @@ class GadgetronDataView(object):
     '''
 
     def __iadd__(self, other):
-        nv = len(self.views)
-        if type(other) == type(self):
-            for i in range(nv):
-                self.views[i] += other.views[i]
+        if isinstance(other, GadgetronDataView):
+            for this, that in zip(self.views, other.views):
+                this += that
         else:
-            for i in range(nv):
-                self.views[i] += other
+            for v in self.views:
+                v += other
         return self
 
     def __isub__(self, other):
-        nv = len(self.views)
-        if type(other) == type(self):
-            for i in range(nv):
-                self.views[i] -= other.views[i]
+        if isinstance(other, GadgetronDataView):
+            for this, that in zip(self.views, other.views):
+                this -= that
         else:
-            for i in range(nv):
-                self.views[i] -= other
+            for v in self.views:
+                v -= other
         return self
 
     def __imul__(self, other):
-        nv = len(self.views)
-        if type(other) == type(self):
-            for i in range(nv):
-                self.views[i] *= other.views[i]
+        if isinstance(other, GadgetronDataView):
+            for this, that in zip(self.views, other.views):
+                this *= that
         else:
-            for i in range(nv):
-                self.views[i] *= other
+            for v in self.views:
+                v *= other
         return self
 
     def __itruediv__(self, other):
-        nv = len(self.views)
-        if type(other) == type(self):
-            for i in range(nv):
-                self.views[i] /= other.views[i]
+        if isinstance(other, GadgetronDataView):
+            for this, that in zip(self.views, other.views):
+                this /= that
         else:
-            for i in range(nv):
-                self.views[i] /= other
+            for v in self.views:
+                v /= other
         return self
 
     def copy(self, other):
@@ -657,26 +652,13 @@ class GadgetronDataView(object):
                 self.views[i] = other
 
     def norm(self):
-        nv = len(self.views)
-        s = 0.0
-        for i in range(nv):
-            t = numpy.linalg.norm(self.views[i])
-            s += t*t
-        return math.sqrt(s)
+        return numpy.linalg.norm([numpy.linalg.norm(v) for v in self.views])
 
     def dot(self, other):
-        nv = len(self.views)
-        s = 0.0
-        for i in range(nv):
-            s += numpy.vdot(other.views[i], self.views[i])
-        return s
+        return sum(numpy.vdot(that, this) for this, that in zip(self.views, other.views))
 
     def sum(self):
-        nv = len(self.views)
-        s = 0.0
-        for i in range(nv):
-            s += numpy.sum(self.views[i])
-        return s
+        return sum(map(numpy.sum, self.views))
 
 
 class ImageDataView(GadgetronDataView):
