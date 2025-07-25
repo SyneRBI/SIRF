@@ -602,7 +602,7 @@ class ImageData(SIRF.ImageData):
 SIRF.ImageData.register(ImageData)
 
 
-class GadgetronDataView(object):
+class GadgetronDataView:
     '''Class for gadgetron data container view.
 
     '''
@@ -657,26 +657,13 @@ class GadgetronDataView(object):
                 self.views[i] = other
 
     def norm(self):
-        nv = len(self.views)
-        s = 0.0
-        for i in range(nv):
-            t = numpy.linalg.norm(self.views[i])
-            s += t*t
-        return math.sqrt(s)
+        return numpy.linalg.norm([numpy.linalg.norm(v) for v in self.views])
 
     def dot(self, other):
-        nv = len(self.views)
-        s = 0.0
-        for i in range(nv):
-            s += numpy.vdot(other.views[i], self.views[i])
-        return s
+        return sum(numpy.vdot(s, o) for s, o in zip(self.views, other.views))
 
     def sum(self):
-        nv = len(self.views)
-        s = 0.0
-        for i in range(nv):
-            s += numpy.sum(self.views[i])
-        return s
+        return sum(map(numpy.sum, self.views))
 
 
 class ImageDataView(GadgetronDataView):
@@ -687,11 +674,7 @@ class ImageDataView(GadgetronDataView):
         self.handle = None
         self.img_data = img_data
         ni = img_data.shape[0]
-        self.views = []
-        for i in range(ni):
-            img = img_data.image(i)
-            img_view = img.asarray()
-            self.views += [img_view]
+        self.views = [img_data.image(i).asarray() for i in range(ni)]
 
     def __del__(self):
         if self.handle is not None:
@@ -999,7 +982,7 @@ class Acquisition(object):
 
     @property
     def shape(self):
-        return (self.number_of_samples(), self.active_channels())
+        return self.number_of_samples(), self.active_channels()
 
     @property
     def __array_interface__(self):
