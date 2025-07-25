@@ -1,5 +1,4 @@
 import numpy
-import sirf
 import sirf.STIR as pet
 import sirf.Gadgetron as mr
 import sys
