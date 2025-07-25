@@ -43,7 +43,7 @@ from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
      pTest, RE_PYEXT
 import sirf
 from sirf import SIRF
-from sirf.SIRF import DataContainer
+from sirf.SIRF import DataContainer, ContiguousError
 import sirf.pyiutilities as pyiutil
 import sirf.pygadgetron as pygadgetron
 import sirf.pysirf as pysirf
@@ -841,14 +841,6 @@ class CoilSensitivityData(ImageData):
             raise error('Unknown method %s' % method_name)
 
 DataContainer.register(CoilSensitivityData)
-
-
-class ContiguousError(ValueError):
-    """
-    ValueError for discontiguous memory as per
-    https://data-apis.org/array-api/latest/API_specification/generated/array_api.asarray.html
-    """
-
 
 class Acquisition(object):
     ''' Provides access to ISMRMRD::Acquisition parameters (cf. ismrmrd.h).
