@@ -2499,7 +2499,7 @@ GadgetronImagesVector::set_up_geom_info()
 
         // Calculate the spacing!
         ISMRMRD::ImageHeader &ih2 = image_wrap(1).head();
-
+/*
         const float tolerance_mm = 0.01f;
         if( std::abs(spacing[2] - get_slice_spacing(ih1, ih2)) > tolerance_mm )
         {
@@ -2507,6 +2507,7 @@ GadgetronImagesVector::set_up_geom_info()
                         "Warning, you set up geometry for slices whose width is not their distance."
                         "This setup does probably not account for overlaps or gaps between slices.\n";
         }
+*/
         // just making sure they are the same, as opposed to "up to tolerance"
         spacing[2] = get_slice_spacing(ih1, ih2);
 
