@@ -270,7 +270,7 @@ class DataContainer(ABC):
         """Returns view (or fallback copy) of self"""
         try:
             if not hasattr(self, '__array_interface__'):
-                raise ContiguousError("please make an array-copy first with `copy=True` or `None`")
+                raise ContiguousError("please make an array-copy instead with `copy=True` or `None`")
             return xp.asarray(self, copy=copy, **kwargs)
         except ContiguousError:
             if copy or copy is None:
