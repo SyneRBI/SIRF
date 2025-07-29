@@ -16,7 +16,7 @@ Options:
 {licence}
 """
 from sirf.SIRF import norm, dot, copyto
-from sirf.Gadgetron import AcquisitionData, ImageData, \
+from sirf.Gadgetron import AcquisitionData, \
     AcquisitionDataView, ImageDataView, FullySampledReconstructor
 from sirf.Utilities import pTest, runner, RE_PYEXT, examples_data_path
 import numpy

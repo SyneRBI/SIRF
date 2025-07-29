@@ -605,9 +605,8 @@ class GadgetronDataView:
     '''Class for gadgetron data container view.
 
     '''
-
     def __iadd__(self, other):
-        if isinstance(other, GadgetronDataView):
+        if type(other) is type(self):
             for this, that in zip(self.views, other.views):
                 this += that
         else:
@@ -616,7 +615,7 @@ class GadgetronDataView:
         return self
 
     def __isub__(self, other):
-        if isinstance(other, GadgetronDataView):
+        if type(other) is type(self):
             for this, that in zip(self.views, other.views):
                 this -= that
         else:
@@ -625,7 +624,7 @@ class GadgetronDataView:
         return self
 
     def __imul__(self, other):
-        if isinstance(other, GadgetronDataView):
+        if type(other) is type(self):
             for this, that in zip(self.views, other.views):
                 this *= that
         else:
@@ -634,7 +633,7 @@ class GadgetronDataView:
         return self
 
     def __itruediv__(self, other):
-        if isinstance(other, GadgetronDataView):
+        if type(other) is type(self):
             for this, that in zip(self.views, other.views):
                 this /= that
         else:
@@ -644,7 +643,7 @@ class GadgetronDataView:
 
     def copy(self, other):
         nv = len(self.views)
-        if type(other) == type(self):
+        if type(other) is type(self):
             for i in range(nv):
                 numpy.copyto(self.views[i], other.views[i])
         else:
