@@ -400,7 +400,7 @@ class CheckRaise(pTest):
         super(CheckRaise, self).__init__(*a, **k)
 
 
-def runner(main_test, doc, version, author="", licence=None):
+def runner(main_test, doc, version, author="", licence=None, no_ret_val=True):
     """
     :param main_test: function(record : bool, verbose : bool, throw : bool)
     """
@@ -414,7 +414,7 @@ def runner(main_test, doc, version, author="", licence=None):
     record = args['--record']
     verbose = args['--verbose']
 
-    failed, ntest = main_test(record, verbose, throw=False)
+    failed, ntest = main_test(record, verbose, throw=False, no_ret_val=no_ret_val)
     if failed:
         import sys
         print('%d of %d tests failed' % (failed, ntest))
