@@ -22,7 +22,7 @@ if sys.argv[1].endswith('.h5'):
     if data_type < 5:
         print('integer data not supported, converting to real...')
         x = x.real()
-elif sys.argv[1].endswith('.nii'):
+elif sys.argv[1].endswith('.nii') or sys.argv[1].endswith('.nii.gz'):
     data_path = examples_data_path('Registration')
     data_file = existing_filepath(data_path, sys.argv[1])
     mod = 'reg'
