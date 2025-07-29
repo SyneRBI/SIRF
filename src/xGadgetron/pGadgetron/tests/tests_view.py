@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""sirf.Gadgetron Test set 1.
+"""sirf.Gadgetron Views Test.
 v{version}
 
 DataContainer algebra tests
@@ -16,8 +16,9 @@ Options:
 {licence}
 """
 from sirf.SIRF import norm, dot, copyto
-from sirf.Gadgetron import *
-from sirf.Utilities import runner, RE_PYEXT, __license__
+from sirf.Gadgetron import AcquisitionData, ImageData, \
+    AcquisitionDataView, ImageDataView, FullySampledReconstructor
+from sirf.Utilities import pTest, runner, RE_PYEXT, examples_data_path
 import numpy
 __version__ = "3.1.0"
 __author__ = "Evgueni Ovtchinnikov, Casper da Costa-Luis"

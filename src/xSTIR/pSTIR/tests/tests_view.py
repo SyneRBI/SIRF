@@ -13,9 +13,10 @@ Options:
 
 {licence}
 """
+import numpy
 from sirf.SIRF import norm, dot, copyto
-from sirf.STIR import *
-from sirf.Utilities import runner, RE_PYEXT, __license__
+from sirf.STIR import MessageRedirector, AcquisitionData, ImageData
+from sirf.Utilities import pTest, runner, RE_PYEXT, examples_data_path, existing_filepath
 __version__ = "0.2.4"
 __author__ = "Evgueni Ovtchinnikov, Casper da Costa-Luis"
 
@@ -25,7 +26,7 @@ def test_main(rec=False, verb=False, throw=True, no_ret_val=True):
     test = pTest(datafile, rec, throw=throw)
     test.verbose = verb
 
-    msg_red = MessageRedirector(warn=None)
+    _ = MessageRedirector(warn=None)
     AcquisitionData.set_storage_scheme('memory')
 
     data_path = examples_data_path('PET')
