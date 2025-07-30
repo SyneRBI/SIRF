@@ -2261,6 +2261,7 @@ class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
         optionally setting the ray tracing matrix to be used for projecting;
         matrix: a RayTracingMatrix object to represent G in (F).
         """
+        self.handle = None
         if matrix is None:
             matrix = RayTracingMatrix()
         assert_validity(matrix, RayTracingMatrix)
