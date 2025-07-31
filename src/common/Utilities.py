@@ -440,7 +440,7 @@ class Param:
         pyiutil.deleteDataHandle(h)
 
     def set_bool(self, handle, group, par, value):
-        h = pyiutil.boolDataHandle(value)
+        h = pyiutil.boolDataHandle(bool(value))
         self.set(handle, group, par, h, inspect.stack()[1])
         pyiutil.deleteDataHandle(h)
 
@@ -450,12 +450,12 @@ class Param:
         pyiutil.deleteDataHandle(h)
 
     def set_int(self, handle, group, par, value):
-        h = pyiutil.intDataHandle(value)
+        h = pyiutil.intDataHandle(int(value))
         self.set(handle, group, par, h, inspect.stack()[1])
         pyiutil.deleteDataHandle(h)
 
     def set_float(self, handle, group, par, value):
-        h = pyiutil.floatDataHandle(value)
+        h = pyiutil.floatDataHandle(float(value))
         self.set(handle, group, par, h, inspect.stack()[1])
         pyiutil.deleteDataHandle(h)
 
