@@ -13,7 +13,6 @@ Options:
 
 {licence}
 """
-import numpy
 import sirf.STIR as pet
 import os
 from sirf.Utilities import runner, RE_PYEXT, __license__

@@ -13,6 +13,7 @@ Options:
 
 {licence}
 """
+import numpy
 from sirf.Gadgetron import *
 from sirf.Utilities import runner, RE_PYEXT, __license__
 from sirf.Utilities import data_container_algebra_tests

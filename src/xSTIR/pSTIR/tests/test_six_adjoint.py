@@ -13,7 +13,6 @@ Options:
 
 {licence}
 """
-import numpy
 import sirf.STIR as pet
 from sirf.Utilities import is_operator_adjoint, runner, __license__
 __version__ = "0.2.3"
