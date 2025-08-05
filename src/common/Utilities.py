@@ -956,12 +956,10 @@ def data_container_algebra_tests(test, x, eps=1e-4):
     t = y.norm()
     test.check_if_zero_within_tolerance(s, eps * t)
 
-    '''
     y = x.sign()
     ay = y.as_array()
     ay -= numpy.sign(ax)
     s = numpy.linalg.norm(ay)
-    print(s)
     t = y.norm()
     test.check_if_zero_within_tolerance(s, eps * t)
 
@@ -970,10 +968,8 @@ def data_container_algebra_tests(test, x, eps=1e-4):
     ay = y.as_array()
     ay -= numpy.sign(ax)
     s = numpy.linalg.norm(ay)
-    print(s)
     t = y.norm()
     test.check_if_zero_within_tolerance(s, eps * t)
-    '''
 
     y = x.abs()
     ay = y.as_array()
