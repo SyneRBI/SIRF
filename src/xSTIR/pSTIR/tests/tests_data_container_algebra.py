@@ -21,7 +21,7 @@ __version__ = "0.2.3"
 __author__ = "Evgueni Ovtchinnikov"
 
 
-def test_main(rec=False, verb=False, throw=True):
+def test_main(rec=False, verb=False, throw=True, no_ret_val=True):
     MessageRedirector()
 
     datafile = RE_PYEXT.sub(".txt", __file__)
@@ -42,8 +42,11 @@ def test_main(rec=False, verb=False, throw=True):
         image.fill(1.0)
         data_container_algebra_tests(test, image)
 
+    numpy.testing.assert_equal(test.failed, 0)
+    if no_ret_val:
+        return
     return test.failed, test.ntest
 
 
 if __name__ == "__main__":
-    runner(test_main, __doc__, __version__, __author__)
+    runner(test_main, __doc__, __version__, __author__, no_ret_val=False)

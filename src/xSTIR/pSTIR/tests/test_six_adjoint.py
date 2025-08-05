@@ -13,12 +13,13 @@ Options:
 
 {licence}
 """
+import numpy
 import sirf.STIR as pet
 from sirf.Utilities import is_operator_adjoint, runner, __license__
 __version__ = "0.2.3"
 __author__ = "Ander Biguri"
 
-def test_main(rec=False, verb=False, throw=True):
+def test_main(rec=False, verb=False, throw=True, no_ret_val=True):
 
     pet.MessageRedirector()
 
@@ -44,8 +45,11 @@ def test_main(rec=False, verb=False, throw=True):
 
     # Reset original verbose-ness
     pet.set_verbosity(original_verb)
+
+    if no_ret_val:
+        return
     return 0, 1
 
 
 if __name__ == "__main__":
-    runner(test_main, __doc__, __version__, __author__)
+    runner(test_main, __doc__, __version__, __author__, no_ret_val=False)

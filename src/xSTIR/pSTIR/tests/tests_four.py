@@ -20,7 +20,7 @@ __version__ = "0.2.4"
 __author__ = "Evgueni Ovtchinnikov, Casper da Costa-Luis"
 
 
-def test_main(rec=False, verb=False, throw=True):
+def test_main(rec=False, verb=False, throw=True, no_ret_val=True):
     datafile = RE_PYEXT.sub(".txt", __file__)
     test = pTest(datafile, rec, throw=throw)
     test.verbose = verb
@@ -56,8 +56,11 @@ def test_main(rec=False, verb=False, throw=True):
         new_image_data = image_data * 10
         test.check_if_equal_within_tolerance(10 * image_data_norm, new_image_data.norm())
 
+    numpy.testing.assert_equal(test.failed, 0)
+    if no_ret_val:
+        return
     return test.failed, test.ntest
 
 
 if __name__ == "__main__":
-    runner(test_main, __doc__, __version__, __author__)
+    runner(test_main, __doc__, __version__, __author__, no_ret_val=False)

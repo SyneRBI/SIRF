@@ -13,6 +13,7 @@ Options:
 
 {licence}
 """
+import numpy
 import sirf.STIR as pet
 import os
 from sirf.Utilities import runner, __license__
@@ -20,7 +21,7 @@ __version__ = "0.1.0"
 __author__ = "Kris Thielemans"
 
 
-def test_main(rec=False, verb=False, throw=True):
+def test_main(rec=False, verb=False, throw=True, no_ret_val=True):
     _ = pet.MessageRedirector()
 
     #data_path = pet.examples_data_path('PET')
@@ -101,8 +102,10 @@ def test_main(rec=False, verb=False, throw=True):
         unscattered_data.write("out_unscattered.hs")
         assert False, f"Difference between simulated and estimated scatter is too large (rel err {rel_err}). Data written to file as out*.hs"
 
+    if no_ret_val:
+        return
     return 0, 1
 
 
 if __name__ == "__main__":
-    runner(test_main, __doc__, __version__, __author__)
+    runner(test_main, __doc__, __version__, __author__, no_ret_val=False)
