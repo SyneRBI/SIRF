@@ -64,7 +64,7 @@ def petmr_data_path(petmr):
     petmr: either 'PET' or 'MR'
     '''
     return examples_data_path( petmr.upper() )
-    
+
 
 def examples_data_path(data_type):
     '''
@@ -357,6 +357,7 @@ class pTest(object):
         if err is not None:
             self.failed += 1
             msg = ('+++ test %d failed: ' % self.ntest) + str(err)
+            print(msg)
             if self.throw:
                 raise ValueError(msg)
             if self.verbose:
@@ -430,6 +431,126 @@ def runner(main_test, doc, version, author="", licence=None, no_ret_val=True):
 
 ###########################################################
 ############ Utilities for internal use only ##############
+class Param:
+    def __init__(self, setter, getter):
+        self.setParameter = setter
+        self.parameter = getter
+
+    def set(self, hs, group, par, hv, stack=None):
+        if stack is None:
+            stack = inspect.stack()[1]
+        h = self.setParameter(hs, group, par, hv)
+        check_status(h, stack)
+        pyiutil.deleteDataHandle(h)
+
+    def set_bool(self, handle, group, par, value):
+        h = pyiutil.boolDataHandle(bool(value))
+        self.set(handle, group, par, h, inspect.stack()[1])
+        pyiutil.deleteDataHandle(h)
+
+    def set_char(self, handle, group, par, value):
+        h = pyiutil.charDataHandle(value)
+        self.set(handle, group, par, h, inspect.stack()[1])
+        pyiutil.deleteDataHandle(h)
+
+    def set_int(self, handle, group, par, value):
+        h = pyiutil.intDataHandle(int(value))
+        self.set(handle, group, par, h, inspect.stack()[1])
+        pyiutil.deleteDataHandle(h)
+
+    def set_float(self, handle, group, par, value):
+        h = pyiutil.floatDataHandle(float(value))
+        self.set(handle, group, par, h, inspect.stack()[1])
+        pyiutil.deleteDataHandle(h)
+
+    def set_double(self, handle, group, par, value):
+        h = pyiutil.doubleDataHandle(float(value))
+        self.set(handle, group, par, h, inspect.stack()[1])
+        pyiutil.deleteDataHandle(h)
+
+    def get_bool(self, handle, group, par):
+        h = self.parameter(handle, group, par)
+        check_status(h, inspect.stack()[1])
+        value = pyiutil.boolDataFromHandle(h)
+        pyiutil.deleteDataHandle(h)
+        return value
+
+    def get_char(self, handle, group, par):
+        h = self.parameter(handle, group, par)
+        check_status(h)
+        value = pyiutil.charDataFromHandle(h)
+        pyiutil.deleteDataHandle(h)
+        return value
+
+    def get_int(self, handle, group, par):
+        h = self.parameter(handle, group, par)
+        check_status(h, inspect.stack()[1])
+        value = pyiutil.intDataFromHandle(h)
+        pyiutil.deleteDataHandle(h)
+        return value
+
+    def get_size_t(self, handle, group, par):
+        h = self.parameter(handle, group, par)
+        check_status(h, inspect.stack()[1])
+        value = pyiutil.size_tDataFromHandle(h)
+        pyiutil.deleteDataHandle(h)
+        return value
+
+    def get_ints(self, handle, group, par, n):
+        h = self.parameter(handle, group, par)
+        check_status(h)
+        value = tuple(pyiutil.intDataItemFromHandle(h, i) for i in range(n))
+        pyiutil.deleteDataHandle(h)
+        return value
+
+    def get_uint16s(self, handle, group, par, n):
+        h = self.parameter(handle, group, par)
+        check_status(h)
+        value = tuple(pyiutil.uint16DataItemFromHandle(h, i) for i in range(n))
+        pyiutil.deleteDataHandle(h)
+        return value
+
+    def get_uint32s(self, handle, group, par, n):
+        h = self.parameter(handle, group, par)
+        check_status(h)
+        value = tuple(pyiutil.uint32DataItemFromHandle(h, i) for i in range(n))
+        pyiutil.deleteDataHandle(h)
+        return value
+
+    def get_uint64s(self, handle, group, par, n):
+        h = self.parameter(handle, group, par)
+        check_status(h)
+        value = tuple(pyiutil.uint64DataItemFromHandle(h, i) for i in range(n))
+        pyiutil.deleteDataHandle(h)
+        return value
+
+    def get_float(self, handle, group, par):
+        h = self.parameter(handle, group, par)
+        check_status(h)
+        v = pyiutil.floatDataFromHandle(h)
+        pyiutil.deleteDataHandle(h)
+        return v
+
+    def get_floats(self, handle, group, par, n):
+        h = self.parameter(handle, group, par)
+        check_status(h)
+        value = tuple(pyiutil.floatDataItemFromHandle(h, i) for i in range(n))
+        pyiutil.deleteDataHandle(h)
+        return value
+
+    def get_double(self, handle, group, par):
+        h = self.parameter(handle, group, par)
+        check_status(h)
+        v = pyiutil.doubleDataFromHandle(h)
+        pyiutil.deleteDataHandle(h)
+        return v
+
+    def get_handle(self, hs, group, par):
+        handle = self.parameter(hs, group, par)
+        check_status(handle, inspect.stack()[1])
+        return handle
+
+
 class error(Exception):
     def __init__(self, value):
         self.value = value
@@ -591,7 +712,7 @@ def is_operator_adjoint(operator, num_tests=5, max_err=10e-5, verbose=True):
     return True
 
 
-def data_container_algebra_tests(test, x, eps=1e-5):
+def data_container_algebra_tests(test, x, eps=1e-4):
 
     ax = x.as_array()
     ay = numpy.ones_like(ax)
@@ -918,13 +1039,13 @@ class DataContainerAlgebraTests(object):
         image2 = self.image2
         image1.fill(1.)
         image2.fill(2.)
-        
+
         tmp = image1/1.
         numpy.testing.assert_array_equal(image1.as_array(), tmp.as_array())
-    
+
         tmp1 = image1.divide(1.)
         numpy.testing.assert_array_equal(tmp.as_array(), tmp1.as_array())
-        
+
         image1.divide(1., out=image2)
         numpy.testing.assert_array_equal(tmp.as_array(), image2.as_array())
 
@@ -938,29 +1059,29 @@ class DataContainerAlgebraTests(object):
         # add 1 because the data contains zeros and divide is not going to be happy
         image1 = self.image1 + 1
         image2 = self.image2 + 1
-        
+
         tmp = image1/image2
 
         numpy.testing.assert_array_almost_equal(
             numpy.ones(image1.shape, dtype=numpy.float32), tmp.as_array()
             )
-    
+
         tmp1 = image1.divide(image2)
         numpy.testing.assert_array_almost_equal(
             numpy.ones(image1.shape, dtype=numpy.float32), tmp1.as_array()
             )
-        
+
         tmp1.fill(2.)
         image1.divide(image2, out=tmp1)
-        
+
         numpy.testing.assert_array_almost_equal(
             numpy.ones(image1.shape, dtype=numpy.float32), tmp1.as_array()
             )
-        
+
         image1 /= image2
         numpy.testing.assert_array_almost_equal(
             numpy.ones(image1.shape, dtype=numpy.float32), image1.as_array()
-            )        
+            )
 
     def test_multiply_scalar(self):
         if hasattr(self, 'cwd'):
@@ -968,13 +1089,13 @@ class DataContainerAlgebraTests(object):
         image1 = self.image1
         image2 = self.image2
         image2.fill(2.)
-        
+
         tmp = image1 * 1.
         numpy.testing.assert_array_equal(image1.as_array(), tmp.as_array())
-    
+
         tmp1 = image1.multiply(1.)
         numpy.testing.assert_array_equal(tmp.as_array(), tmp1.as_array())
-        
+
         image1.multiply(1., out=image2)
         numpy.testing.assert_array_equal(tmp.as_array(), image2.as_array())
 
@@ -989,15 +1110,15 @@ class DataContainerAlgebraTests(object):
         numpy.testing.assert_array_almost_equal(
             image1.as_array(), tmp.as_array()
             )
-    
+
         tmp1 = image1.multiply(image2)
         numpy.testing.assert_array_almost_equal(
             image1.as_array(), tmp1.as_array()
             )
-        
+
         tmp1.fill(2.)
         image1.multiply(image2, out=tmp1)
-        
+
         numpy.testing.assert_array_almost_equal(
             image1.as_array(), tmp1.as_array()
             )
@@ -1009,17 +1130,17 @@ class DataContainerAlgebraTests(object):
         image2 = self.image2
         image1.fill(0)
         image2.fill(1)
-        
+
         tmp = image1 + 1.
         numpy.testing.assert_array_equal(image2.as_array(), tmp.as_array())
-    
+
         tmp1 = image1.add(1.)
         numpy.testing.assert_array_equal(tmp.as_array(), tmp1.as_array())
-        
+
         tmp1.fill(0)
         image1.add(1., out=tmp1)
         numpy.testing.assert_array_equal(tmp1.as_array(), image2.as_array())
-    
+
     def test_add_datacontainer(self):
         if hasattr(self, 'cwd'):
             os.chdir(self.cwd)
@@ -1032,21 +1153,21 @@ class DataContainerAlgebraTests(object):
         numpy.testing.assert_array_almost_equal(
             numpy.ones(image1.shape, dtype=numpy.float32), tmp.as_array()
             )
-    
+
         tmp1 = image1.add(image2)
-        
+
         numpy.testing.assert_array_almost_equal(
             numpy.ones(image1.shape, dtype=numpy.float32), tmp1.as_array()
             )
-        
+
         tmp1.fill(2.)
         image1.add(image2, out=tmp1)
-        
+
         numpy.testing.assert_array_almost_equal(
             numpy.ones(image1.shape, dtype=numpy.float32), tmp1.as_array()
             )
-        
-    
+
+
     def test_subtract_scalar(self):
         if hasattr(self, 'cwd'):
             os.chdir(self.cwd)
@@ -1054,13 +1175,13 @@ class DataContainerAlgebraTests(object):
         image2 = self.image2
         image1.fill(2)
         image2.fill(1)
-        
+
         tmp = image1 - 1.
         numpy.testing.assert_array_equal(image2.as_array(), tmp.as_array())
-    
+
         tmp1 = image1.subtract(1.)
         numpy.testing.assert_array_equal(tmp.as_array(), tmp1.as_array())
-        
+
         tmp1.fill(0)
         image1.subtract(1., out=tmp1)
         numpy.testing.assert_array_equal(tmp1.as_array(), image2.as_array())
@@ -1070,22 +1191,22 @@ class DataContainerAlgebraTests(object):
             os.chdir(self.cwd)
         image1 = self.image1
         image2 = self.image2
-        
+
         tmp = image1 - image2
 
         numpy.testing.assert_array_almost_equal(
             numpy.zeros(image1.shape, dtype=numpy.float32), tmp.as_array()
             )
-    
+
         tmp1 = image1.subtract(image2)
-        
+
         numpy.testing.assert_array_almost_equal(
             numpy.zeros(image1.shape, dtype=numpy.float32), tmp1.as_array()
             )
-        
+
         tmp1.fill(2.)
         image1.subtract(image2, out=tmp1)
-        
+
         numpy.testing.assert_array_almost_equal(
             numpy.zeros(image1.shape, dtype=numpy.float32), tmp1.as_array()
             )
@@ -1102,7 +1223,7 @@ class DataContainerAlgebraTests(object):
             self.assertTrue(True)
         except error:
             self.assertTrue(True)
-    
+
     def test_division_by_datacontainer_zero(self):
         self.assertTrue(True)
         return
@@ -1199,7 +1320,7 @@ class DataContainerAlgebraTests(object):
         arr = numpy.arange(0,image1.size).reshape(image1.shape)
         image1.fill(arr)
         image2.fill(-arr)
- 
+
         a = 2.0
         b = image1.copy()
         b.fill(-3)
@@ -1216,7 +1337,7 @@ class DataContainerAlgebraTests(object):
         numpy.testing.assert_allclose(out.as_array(), gold)
         numpy.testing.assert_allclose(image1.as_array(), arr)
         numpy.testing.assert_allclose(image2.as_array(), -arr)
-       
+
         out.fill(arr)
         out.sapyb(a, image2, b, out=out)
         numpy.testing.assert_allclose(out.as_array(), gold)

@@ -14,7 +14,7 @@ Options:
 
 {licence}
 """
-
+import numpy
 from sirf.Gadgetron import AcquisitionData, examples_data_path
 from sirf.Utilities import runner
 __version__ = "0.2.3"
@@ -37,6 +37,7 @@ def test_main(rec=False, verb=False, throw=True, no_ret_val=True):
     test_successful = True
 
     test_failed = not test_successful
+    numpy.testing.assert_equal(test_failed, 0)
     if no_ret_val:
         return
     return test_failed, 1

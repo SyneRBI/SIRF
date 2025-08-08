@@ -168,6 +168,10 @@ namespace sirf {
                 cSTIR_ScatterEstimatorParameter
                 (DataHandle* hp, const char* name);
 
+        void*
+                cSTIR_setPoissonNoiseGeneratorParameter
+                (const DataHandle *hp, const char* name, const DataHandle* hv);
+
 	void*
 		cSTIR_setGeneralisedObjectiveFunctionParameter
 		(DataHandle* hp, const char* name, const DataHandle* hv);

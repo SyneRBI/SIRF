@@ -35,4 +35,4 @@ for i in sorted(glob.glob('*.py')):
     exe = '"' + sys.executable + '" ' + i + args
     err = os.system(exe)
     if err:
-        raise RuntimeError(i + ' failed')
+        raise RuntimeError(i + args + ' failed')

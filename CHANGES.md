@@ -1,12 +1,17 @@
 # ChangeLog
 ## vx.x.x
 
+* CI
+  - made tests return value handling compatible with a future version of pytest.
+
 * SIRF/STIR
-  - `ScatterEstimation` has extra methods that allow setting masks for the tail-fitting
+  - `ScatterEstimation` has extra methods that allow setting masks for the tail-fitting.
   - `ImageData` has extra method to zoom image using information from a template image, `zoom_image_as_template`.
   - Error raised in `AcquisitionSensitivityModel.[un]normalise` methods applied to a read-only object.
   - Performance of acquisitions and images data algebra improved, acquisitions algebra running up to 3 times faster and images algebra up to 15 times faster.
   - `DataContainer.supports_array_view` to test for zero-copy compatibility.
+  - SIRF interfaces (C++ and Python) for STIR Poisson noise generation utilities provided.
+  - `ImageData` and `AcquisitionData` have `.asarray(copy=None)` (NumPy-like behaviour: default zero-copy if contiguous, fallback to deepcopy otherwise) via `__array_interface__`.
 
 ## v3.8.1
 

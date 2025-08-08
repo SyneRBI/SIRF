@@ -105,6 +105,8 @@ sirf::cSTIR_AcquisitionDataParameter(void* hp, const char* name)
 		return dataHandle<int>(ad.get_tof_mash_factor());
 	if (sirf::iequals(name, "modality"))
 		return charDataHandleFromCharData(ad.modality().c_str());
+	else if (sirf::iequals(name, "address"))
+		return dataHandle<size_t>(ad.address());
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 }
@@ -126,7 +128,8 @@ sirf::cSTIR_ImageDataParameter(void* hp, const char* name)
 	STIRImageData& id = objectFromHandle<STIRImageData>(hp);
 	if (sirf::iequals(name, "modality"))
 		return charDataHandleFromCharData(id.modality().c_str());
-
+	else if (sirf::iequals(name, "address"))
+		return dataHandle<size_t>(id.address());
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 }
@@ -917,6 +920,16 @@ sirf::cSTIR_ScatterEstimatorParameter(DataHandle* hp, const char* name)
 	if (sirf::iequals(name, "OSEM_num_subsets"))
           return dataHandle<int>(processor.get_OSEM_num_subsets());
 	return parameterNotFound(name, __FILE__, __LINE__);
+}
+
+void*
+sirf::cSTIR_setPoissonNoiseGeneratorParameter
+(const DataHandle *hp, const char* name, const DataHandle* hv)
+{
+    auto& obj = objectFromHandle<PoissonNoiseGenerator>(hp);
+    if (sirf::iequals(name, "seed"))
+        obj.seed(dataFromHandle<int>(hv));
+    return new DataHandle;
 }
 
 void*

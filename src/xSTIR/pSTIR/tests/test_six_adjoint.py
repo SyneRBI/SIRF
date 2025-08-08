@@ -44,6 +44,7 @@ def test_main(rec=False, verb=False, throw=True, no_ret_val=True):
 
     # Reset original verbose-ness
     pet.set_verbosity(original_verb)
+
     if no_ret_val:
         return
     return 0, 1

@@ -13,11 +13,11 @@ Options:
 
 {licence}
 """
+import numpy
 import os
 from sirf.Utilities import runner, pTest, RE_PYEXT, __license__
 from sirf.Utilities import examples_data_path
 from sirf.Utilities import data_container_algebra_tests
-#from sirf.Utilities import test_data_container_algebra
 from sirf.Reg import MessageRedirector
 import sirf.Reg as reg
 
@@ -35,9 +35,8 @@ def test_main(rec=False, verb=False, throw=True, no_ret_val=True):
     image = reg.ImageData(os.path.join(data_path, 'test2.nii.gz'))
     image /= image.norm()
     data_container_algebra_tests(test, image)
-    #test_data_container_algebra(test, image)
 
-    #return test.failed, test.ntest
+ F   numpy.testing.assert_equal(test.failed, 0)
     if no_ret_val:
         return
     return test.failed, test.ntest

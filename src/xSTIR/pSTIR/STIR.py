@@ -37,7 +37,7 @@ from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
      cpp_int_dtype, cpp_int_array, \
      examples_data_path, existing_filepath, pTest
 from sirf import SIRF
-from sirf.SIRF import DataContainer
+from sirf.SIRF import ContiguousError, DataContainer
 import sirf.pyiutilities as pyiutil
 import sirf.pystir as pystir
 
@@ -470,6 +470,14 @@ class ImageData(SIRF.ImageData):
         """
         return parms.set_char_par(self.handle, 'ImageData', 'modality', mod)
 
+    @property
+    def __array_interface__(self):
+        """As per https://numpy.org/doc/stable/reference/arrays.interface.html"""
+        if not self.supports_array_view:
+            raise ContiguousError("please make an array-copy first with `asarray(copy=True)` or `as_array()`")
+        return {'shape': self.shape, 'typestr': '<f4', 'version': 3,
+                'data': (parms.size_t_par(self.handle, 'ImageData', 'address'), False)}
+
     def initialise(self, dim, vsize=(1., 1., 1.), origin=(0., 0., 0.)):
         """
         Sets image size and geometric information.
@@ -606,7 +614,11 @@ class ImageData(SIRF.ImageData):
         return tm
 
     def as_array(self):
-        """Returns 3D Numpy ndarray with values at the voxels."""
+        """
+        WARNING: you probably should use `.asarray()` (no underscore) instead.
+
+        Returns 3D Numpy ndarray with values at the voxels.
+        """
         if self.handle is None:
             raise AssertionError()
         array = numpy.ndarray(self.dimensions(), dtype=numpy.float32)
@@ -1321,8 +1333,19 @@ class AcquisitionData(ScanData):
         """Returns imaging modality as Python string."""
         return parms.char_par(self.handle, 'AcquisitionData', 'modality')
 
+    @property
+    def __array_interface__(self):
+        """As per https://numpy.org/doc/stable/reference/arrays.interface.html"""
+        if not self.supports_array_view:
+            raise ContiguousError("please make an array-copy first with `asarray(copy=True)` or `as_array()`")
+        return {'shape': self.shape, 'typestr': '<f4', 'version': 3,
+                'data': (parms.size_t_par(self.handle, 'AcquisitionData', 'address'), False)}
+
     def as_array(self):
-        """Returns bin values as ndarray.
+        """
+        WARNING: you probably should use `.asarray()` (no underscore) instead.
+
+        Returns bin values as ndarray.
 
         Return a copy of acquisition data stored in this object as a
         NumPy ndarray of 4 dimensions (in default C ordering of data):
@@ -1623,6 +1646,47 @@ class ListmodeToSinograms(object):
         v = pyiutil.floatDataFromHandle(h)
         pyiutil.deleteDataHandle(h)
         return v
+
+
+class PoissonNoiseGenerator(object):
+    """
+    Generates noise realisations according to Poisson statistics but allowing for scaling.
+
+    A scaling_factor is used to multiply the input data before generating
+    the Poisson random number. This means that a scaling_factor larger than 1
+    will result in data with lower relative noise.
+
+    If preserve_mean=false, the mean of the output data will
+    be equal to scaling_factor*mean_of_input, otherwise it
+    will be equal to mean_of_input, but then the output is no longer Poisson
+    distributed.
+    """
+
+    def __init__(self, scaling_factor=1.0, preserve_mean=False):
+        self.name = "PoissonNoiseGenerator"
+        self.handle = pystir.cSTIR_createPoissonNoiseGenerator(scaling_factor, preserve_mean)
+        check_status(self.handle)
+        self.output_handle = None
+
+    def set_seed(self, s):
+        parms.set_int_par(self.handle, self.name, 'seed', s)
+
+    def process(self, acq_data):
+        self.output_handle = pystir.cSTIR_generatePoissonNoise(self.handle, acq_data.handle)
+        check_status(self.output_handle)
+
+    def get_output(self):
+        if self.output_handle is None:
+            raise error('Noise generating not done')
+        output = AcquisitionData()
+        output.handle = self.output_handle
+        return output
+
+    def generate_noisy_data(self, acq_data):
+        noisy_data = AcquisitionData()
+        noisy_data.handle = pystir.cSTIR_generatePoissonNoise(self.handle, acq_data.handle)
+        check_status(noisy_data.handle)
+        return noisy_data
 
 
 class AcquisitionSensitivityModel(object):
@@ -3740,11 +3804,11 @@ def make_Poisson_loglikelihood(acq_data=None, likelihood_type=None,
                                acq_model=None):
     """Makes Poisson loglikelihood.
 
-    Selects the objective function based on the acquisition data and likelihood
-    model types.
+    Selects the objective function based on the acquisition data and
+    one of the following likelihood model types:
+    * LinearModelForMean
+    * LinearModelForMeanAndListModeDataWithProjMatrixByBin
     """
-    # only this objective function is implemented for now
-    #if likelihood_type == 'LinearModelForMean':
     if likelihood_type is None or likelihood_type=='LinearModelForMean':
         obj_fun = PoissonLogLikelihoodWithLinearModelForMeanAndProjData()
         if acq_data is not None:

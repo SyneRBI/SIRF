@@ -81,6 +81,8 @@ def test_main(rec=False, verb=False, throw=True, no_ret_val=True):
     try:
         acq_model = pet.AcquisitionModelUsingNiftyPET()
     except:
+        if no_ret_val:
+            return
         return 1, 1
     acq_model.set_cuda_verbosity(verb)
 

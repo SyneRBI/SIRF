@@ -113,7 +113,7 @@ jobs:
           cmake -S ../SIRF-SuperBuild ${BUILD_FLAGS} ${{ matrix.EXTRA_BUILD_FLAGS }} ${DEVEL_BUILD};
     - name: build
       shell: bash
-      run: 
+      run:
           cd ${GITHUB_WORKSPACE}/build;
           source ~/virtualenv/bin/activate;
           source ~/install/bin/env_sirf.sh;
