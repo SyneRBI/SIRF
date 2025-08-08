@@ -41,7 +41,8 @@ def asarray4img(img_data, test):
     test.check_if_equal(numpy.linalg.norm(diff), 0)
 
 
-def test_main(rec=False, verb=False, throw=True, data_file='my_forward_projection.hs', data_path=examples_data_path('PET'), engine='STIR'):
+def test_main(rec=False, verb=False, throw=True, no_ret_val=True, \
+        data_file='my_forward_projection.hs', data_path=examples_data_path('PET'), engine='STIR'):
     # import engine module
     import importlib
 
@@ -116,8 +117,11 @@ def test_main(rec=False, verb=False, throw=True, data_file='my_forward_projectio
         test.failed = True
         print(e)
 
+    numpy.testing.assert_equal(test.failed, 0)
+    if no_ret_val:
+        return
     return test.failed, test.ntest
 
 
 if __name__ == "__main__":
-    runner(test_main, __doc__, __version__, __author__)
+    runner(test_main, __doc__, __version__, __author__, no_ret_val=False)

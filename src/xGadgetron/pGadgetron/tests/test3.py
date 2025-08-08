@@ -16,6 +16,7 @@ Options:
 {licence}
 """
 import math
+import numpy
 # Created on Tue Nov 21 10:17:28 2017
 from sirf.Gadgetron import *
 from sirf.Utilities import runner, RE_PYEXT, __license__
@@ -23,7 +24,7 @@ __version__ = "0.2.3"
 __author__ = "Evgueni Ovtchinnikov, Casper da Costa-Luis"
 
 
-def test_main(rec=False, verb=False, throw=True):
+def test_main(rec=False, verb=False, throw=True, no_ret_val=True):
     datafile = RE_PYEXT.sub(".txt", __file__)
     test = pTest(datafile, rec, throw=throw)
     test.verbose = verb
@@ -73,8 +74,11 @@ def test_main(rec=False, verb=False, throw=True):
             test.check(complex_image.info(p))
             #print(form % complex_image.info(p))
 
+    numpy.testing.assert_equal(test.failed, 0)
+    if no_ret_val:
+        return
     return test.failed, test.ntest
 
 
 if __name__ == "__main__":
-    runner(test_main, __doc__, __version__, __author__)
+    runner(test_main, __doc__, __version__, __author__, no_ret_val=False)

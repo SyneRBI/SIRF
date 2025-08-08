@@ -62,7 +62,7 @@ def add_noise(proj_data,noise_factor = 1):
     noisy_proj_data.fill(noisy_proj_data_arr);
     return noisy_proj_data
 @unittest.skipUnless(has_niftypet, "NiftyPET not installed")
-def test_main(rec=False, verb=False, throw=True):
+def test_main(rec=False, verb=False, throw=True, no_ret_val=True):
 
     # Set STIR verbosity to off
     original_verb = pet.get_verbosity()
@@ -81,6 +81,8 @@ def test_main(rec=False, verb=False, throw=True):
     try:
         acq_model = pet.AcquisitionModelUsingNiftyPET()
     except:
+        if no_ret_val:
+            return
         return 1, 1
     acq_model.set_cuda_verbosity(verb)
 
@@ -125,7 +127,9 @@ def test_main(rec=False, verb=False, throw=True):
     # Reset original verbose-ness
     pet.set_verbosity(original_verb)
 
+    if no_ret_val:
+        return
     return 0, 1
 
 if __name__ == "__main__":
-    runner(test_main, __doc__, __version__, __author__)
+    runner(test_main, __doc__, __version__, __author__, no_ret_val=False)

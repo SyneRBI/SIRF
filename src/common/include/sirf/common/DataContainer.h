@@ -262,7 +262,17 @@ which rely on the same features of the items.
 		template<typename T>
 		static T sign(T x)
 		{
-			return (std::real(x) > 0) - (std::real(x) < 0);
+			float re = std::real(x);
+			float im = std::imag(x);
+			if (im == 0.0) {
+				if (re == 0.0)
+					return 0.0;
+				else
+					return re/fabs(re);
+			}
+			T abs_x(std::sqrt(re*re + im*im));
+			return x/abs_x;
+			//return (std::real(x) > 0) - (std::real(x) < 0);
 		}
 		template<typename T>
 		static T abs(T x)
