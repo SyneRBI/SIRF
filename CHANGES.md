@@ -1,6 +1,9 @@
 # ChangeLog
 ## vx.x.x
 
+* CI
+  - made tests return value handling compatible with a future version of pytest.
+
 * SIRF/STIR
   - `ScatterEstimation` has extra methods that allow setting masks for the tail-fitting.
   - `ImageData` has extra method to zoom image using information from a template image, `zoom_image_as_template`.
