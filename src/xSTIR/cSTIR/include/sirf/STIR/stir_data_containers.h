@@ -859,7 +859,7 @@ namespace sirf {
             auto *pd_ptr   = dynamic_cast<stir::ProjDataInMemory*>(data().get());
             auto *pd_x_ptr = dynamic_cast<const stir::ProjDataInMemory*>(a_x->data().get());
             // If either cast failed, fall back to general method
-            //if (is_null_ptr(pd_ptr) || is_null_ptr(pd_x_ptr))
+            if (is_null_ptr(pd_ptr) || is_null_ptr(pd_x_ptr))
                 return this->STIRAcquisitionData::add(x, ptr_y);
 
             // do it
