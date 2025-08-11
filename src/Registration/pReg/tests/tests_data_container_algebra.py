@@ -36,7 +36,7 @@ def test_main(rec=False, verb=False, throw=True, no_ret_val=True):
     image /= image.norm()
     data_container_algebra_tests(test, image)
 
- F   numpy.testing.assert_equal(test.failed, 0)
+    numpy.testing.assert_equal(test.failed, 0)
     if no_ret_val:
         return
     return test.failed, test.ntest
