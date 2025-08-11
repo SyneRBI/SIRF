@@ -415,7 +415,6 @@ def runner(main_test, doc, version, author="", licence=None, no_ret_val=True):
     record = args['--record']
     verbose = args['--verbose']
 
-#    failed, ntest = main_test(record, verbose, throw=False)
     if no_ret_val:
         main_test(record, verbose, throw=False)
         return
