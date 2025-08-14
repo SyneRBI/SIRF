@@ -921,68 +921,6 @@ namespace sirf {
             *ptr_t = (float)t;
         }
 
-/*
-        virtual void add(const DataContainer& x, const void* ptr_y)
-        {
-            auto a_x = dynamic_cast<const STIRAcquisitionData*>(&x);
-            float y = *static_cast<const float*>(ptr_y);
-            auto *pd_ptr   = dynamic_cast<stir::ProjDataInMemory*>(data().get());
-            auto *pd_x_ptr = dynamic_cast<const stir::ProjDataInMemory*>(a_x->data().get());
-            // If either cast failed, fall back to general method
-            if (is_null_ptr(pd_ptr) || is_null_ptr(pd_x_ptr))
-                return this->STIRAcquisitionData::add(x, ptr_y);
-
-            // do it
-            auto iter = pd_ptr->begin();
-            auto iter_x = pd_x_ptr->begin();
-            while (iter != pd_ptr->end())
-                *iter++ = (*iter_x++) + y;
-
-        }
-        virtual void multiply(const DataContainer& x, const DataContainer& y)
-        {
-            auto a_x = dynamic_cast<const STIRAcquisitionData*>(&x);
-            auto a_y = dynamic_cast<const STIRAcquisitionData*>(&y);
-
-            // Can only do this if all are STIRAcquisitionDataInMemory
-            auto *pd_ptr   = dynamic_cast<stir::ProjDataInMemory*>(data().get());
-            auto *pd_x_ptr = dynamic_cast<const stir::ProjDataInMemory*>(a_x->data().get());
-            auto *pd_y_ptr = dynamic_cast<const stir::ProjDataInMemory*>(a_y->data().get());
-
-            // If either cast failed, fall back to general method
-            if (is_null_ptr(pd_ptr) || is_null_ptr(pd_x_ptr) || is_null_ptr(pd_y_ptr))
-                return this->STIRAcquisitionData::multiply(x,y);
-
-            // do it
-            auto iter = pd_ptr->begin();
-            auto iter_x = pd_x_ptr->begin();
-            auto iter_y = pd_y_ptr->begin();
-            while (iter != pd_ptr->end())
-                *iter++ = (*iter_x++) * (*iter_y++);
-        }
-        virtual void divide(const DataContainer& x, const DataContainer& y)
-        {
-            auto a_x = dynamic_cast<const STIRAcquisitionData*>(&x);
-            auto a_y = dynamic_cast<const STIRAcquisitionData*>(&y);
-
-            // Can only do this if all are STIRAcquisitionDataInMemory
-            auto *pd_ptr   = dynamic_cast<stir::ProjDataInMemory*>(data().get());
-            auto *pd_x_ptr = dynamic_cast<const stir::ProjDataInMemory*>(a_x->data().get());
-            auto *pd_y_ptr = dynamic_cast<const stir::ProjDataInMemory*>(a_y->data().get());
-
-            // If either cast failed, fall back to general method
-            if (is_null_ptr(pd_ptr) || is_null_ptr(pd_x_ptr) || is_null_ptr(pd_x_ptr))
-                return this->STIRAcquisitionData::divide(x,y);
-
-            // do it
-            auto iter = pd_ptr->begin();
-            auto iter_x = pd_x_ptr->begin();
-            auto iter_y = pd_y_ptr->begin();
-            while (iter != pd_ptr->end())
-                *iter++ = (*iter_x++) / (*iter_y++);
-        }
-*/
-
         STIR_ACQ_SEMIBINARY_OP(add, *iter++ = (*iter_x++) + y)
         STIR_ACQ_BINARY_OP(multiply, *iter++ = (*iter_x++) * (*iter_y++))
         STIR_ACQ_BINARY_OP(divide, *iter++ = (*iter_x++) / (*iter_y++))
@@ -1321,11 +1259,13 @@ namespace sirf {
 		{
 			unary_op(x, DataContainer::sign);
 		}
+		/*
 		virtual void multiply(const DataContainer& x, const void* ptr_y)
 		{
 			float y = *static_cast<const float*>(ptr_y);
 			semibinary_op(x, y, DataContainer::product<float>);
 		}
+		*/
 		STIR_IMG_SEMIBINARY_OP(add, *iter = (*iter_x) + y);
 		/*
 		virtual void add(const DataContainer& x, const void* ptr_y)
@@ -1333,11 +1273,13 @@ namespace sirf {
 			float y = *static_cast<const float*>(ptr_y);
 			semibinary_op(x, y, DataContainer::sum<float>);
 		}*/
+		/*
 		virtual void divide(const DataContainer& x, const void* ptr_y)
 		{
 			float y = *static_cast<const float*>(ptr_y);
 			semibinary_op(x, y, DataContainer::ratio<float>);
 		}
+		*/
 		virtual void maximum(const DataContainer& x, const void* ptr_y)
 		{
 			float y = *static_cast<const float*>(ptr_y);
