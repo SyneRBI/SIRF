@@ -852,6 +852,53 @@ namespace sirf {
 
 	*/
 
+#define ISMRMRD_IMG_BINARY_OP(OP)\
+virtual void OP(const DataContainer& a_x, const DataContainer& a_y) {\
+    SIRF_DYNAMIC_CAST(const ISMRMRDImageData, x, a_x);\
+    SIRF_DYNAMIC_CAST(const ISMRMRDImageData, y, a_y);\
+    unsigned int nx = x.number();\
+    unsigned int ny = y.number();\
+    if (nx != ny)\
+        THROW("ImageData sizes mismatch in OP");\
+    unsigned int n = number();\
+    if (n > 0) {\
+        if (n != nx)\
+            THROW("ImageData sizes mismatch in OP");\
+        for (unsigned int i = 0; i < nx && i < ny; i++)\
+            image_wrap(i).OP(x.image_wrap(i), y.image_wrap(i));\
+    }\
+    else {\
+        for (unsigned int i = 0; i < nx && i < ny; i++) {\
+            ImageWrap w(x.image_wrap(i));\
+            w.OP(x.image_wrap(i), y.image_wrap(i));\
+            append(w);\
+        }\
+    }\
+    this->set_meta_data(x.get_meta_data());\
+}
+
+#define ISMRMRD_IMG_SEMIBINARY_OP(OP)\
+virtual void OP(const DataContainer& a_x, const void* ptr_y) {\
+    SIRF_DYNAMIC_CAST(const ISMRMRDImageData, x, a_x);\
+    complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);\
+    unsigned int nx = x.number();\
+    unsigned int n = number();\
+    if (n > 0) {\
+        if (n != nx)\
+            THROW("ImageData sizes mismatch in OP(const DataContainer& a_x, const void* ptr_y)");\
+        for (unsigned int i = 0; i < nx; i++)\
+            image_wrap(i).OP(x.image_wrap(i), y);\
+    }\
+    else {\
+        for (unsigned int i = 0; i < nx; i++) {\
+            ImageWrap w(x.image_wrap(i));\
+            w.OP(x.image_wrap(i), y);\
+            append(w);\
+        }\
+    }\
+    this->set_meta_data(x.get_meta_data());\
+}
+
 	class ISMRMRDImageData : public ImageData {
 	public:
 		//ISMRMRDImageData(ISMRMRDImageData& id, const char* attr, 
@@ -995,13 +1042,14 @@ namespace sirf {
 			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, b, a_b);
 			xapyb_(a_x, a, a_y, b);
 		}
-		virtual void multiply(const DataContainer& x, const DataContainer& y);
-		virtual void divide(const DataContainer& x, const DataContainer& y);
+
+		ISMRMRD_IMG_BINARY_OP(multiply);
+		ISMRMRD_IMG_BINARY_OP(divide);
+		ISMRMRD_IMG_SEMIBINARY_OP(add);
+
 		virtual void maximum(const DataContainer& x, const DataContainer& y);
 		virtual void minimum(const DataContainer& x, const DataContainer& y);
 		virtual void power(const DataContainer& x, const DataContainer& y);
-		//virtual void multiply(const DataContainer& x, const void* ptr_y);
-		virtual void add(const DataContainer& x, const void* ptr_y);
 		virtual void maximum(const DataContainer& x, const void* ptr_y);
 		virtual void minimum(const DataContainer& x, const void* ptr_y);
 		virtual void power(const DataContainer& x, const void* ptr_y);
