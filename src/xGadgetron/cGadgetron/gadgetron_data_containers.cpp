@@ -1642,15 +1642,18 @@ GadgetronImageData::divide_(
 }
 
 void
-GadgetronImageData::add_(
-    const DataContainer& a_x, complex_float_t y)
+GadgetronImageData::add(const DataContainer& a_x, const void* ptr_y)
 {
+    complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
+//GadgetronImageData::add_(
+//    const DataContainer& a_x, complex_float_t y)
+//{
     SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
     unsigned int nx = x.number();
     unsigned int n = number();
     if (n > 0) {
         if (n != nx)
-            THROW("ImageData sizes mismatch in semibinary_op");
+            THROW("ImageData sizes mismatch in add(const DataContainer& a_x, const void* ptr_y)");
         for (unsigned int i = 0; i < nx; i++)
             image_wrap(i).add(x.image_wrap(i), y);
     }
@@ -1747,7 +1750,7 @@ GadgetronImageData::multiply(const DataContainer& a_x, const DataContainer& a_y)
 //    SIRF_DYNAMIC_CAST(const GadgetronImageData, y, a_y);
 //    binary_op(x, y, DataContainer::product<complex_float_t>);
 }
-
+/*
 void
 GadgetronImageData::multiply(const DataContainer& a_x, const void* ptr_y)
 {
@@ -1765,6 +1768,7 @@ GadgetronImageData::add(const DataContainer& a_x, const void* ptr_y)
 //    complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
 //    semibinary_op(x, y, DataContainer::sum<complex_float_t>);
 }
+*/
 
 void
 GadgetronImageData::divide(const DataContainer& a_x, const DataContainer& a_y)

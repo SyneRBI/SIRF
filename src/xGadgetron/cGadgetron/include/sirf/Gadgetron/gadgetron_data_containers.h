@@ -1000,7 +1000,7 @@ namespace sirf {
 		virtual void maximum(const DataContainer& x, const DataContainer& y);
 		virtual void minimum(const DataContainer& x, const DataContainer& y);
 		virtual void power(const DataContainer& x, const DataContainer& y);
-		virtual void multiply(const DataContainer& x, const void* ptr_y);
+		//virtual void multiply(const DataContainer& x, const void* ptr_y);
 		virtual void add(const DataContainer& x, const void* ptr_y);
 		virtual void maximum(const DataContainer& x, const void* ptr_y);
 		virtual void minimum(const DataContainer& x, const void* ptr_y);
@@ -1105,7 +1105,7 @@ namespace sirf {
 
 		virtual void multiply_(const DataContainer& x, const DataContainer& y);
 		virtual void divide_(const DataContainer& x, const DataContainer& y);
-		virtual void add_(const DataContainer& x, complex_float_t y);
+		//virtual void add_(const DataContainer& x, complex_float_t y);
 
 		template<class A, class B>
 		void xapyb_(const DataContainer& a_x, A& a, const DataContainer& a_y, B& b)

@@ -95,8 +95,8 @@ which rely on the same features of the items.
 		virtual void multiply
 			(const DataContainer& x, const DataContainer& y) = 0;
 		/// \c *this = the product \c x * y with scalar y
-		virtual void multiply
-			(const DataContainer& x, const void* ptr_y) = 0;
+		//virtual void multiply
+		//	(const DataContainer& x, const void* ptr_y) = 0;
 
 		/// \c *this = the sum \c x + y with scalar y
 		virtual void add
