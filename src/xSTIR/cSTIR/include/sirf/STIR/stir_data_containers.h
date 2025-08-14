@@ -1259,31 +1259,18 @@ namespace sirf {
 		{
 			unary_op(x, DataContainer::sign);
 		}
-		/*
-		virtual void maximum(const DataContainer& x, const void* ptr_y)
-		{
-			float y = *static_cast<const float*>(ptr_y);
-			semibinary_op(x, y, DataContainer::maximum<float>);
-		}
-		virtual void minimum(const DataContainer& x, const void* ptr_y)
-		{
-			float y = *static_cast<const float*>(ptr_y);
-			semibinary_op(x, y, DataContainer::minimum<float>);
-		}
-		virtual void power(const DataContainer& x, const void* ptr_y)
-		{
-			float y = *static_cast<const float*>(ptr_y);
-			semibinary_op(x, y, std::pow);
-		}
-		*/
 		STIR_IMG_BINARY_OP(multiply, *iter = (*iter_x) * (*iter_y));
 		STIR_IMG_BINARY_OP(divide, *iter = (*iter_x) / (*iter_y));
-		STIR_IMG_BINARY_OP(maximum, *iter = DataContainer::maximum<float>(*iter_x,*iter_y));
-		STIR_IMG_BINARY_OP(minimum, *iter = DataContainer::minimum<float>(*iter_x,*iter_y));
+		STIR_IMG_BINARY_OP(maximum, *iter = std::max(*iter_x,*iter_y));
+		STIR_IMG_BINARY_OP(minimum, *iter = std::min(*iter_x,*iter_y));
+		//STIR_IMG_BINARY_OP(maximum, *iter = DataContainer::maximum<float>(*iter_x,*iter_y));
+		//STIR_IMG_BINARY_OP(minimum, *iter = DataContainer::minimum<float>(*iter_x,*iter_y));
 		STIR_IMG_BINARY_OP(power, *iter = std::pow(*iter_x,*iter_y));
 		STIR_IMG_SEMIBINARY_OP(add, *iter = (*iter_x) + y);
-		STIR_IMG_SEMIBINARY_OP(maximum, *iter = DataContainer::maximum<float>(*iter_x, y));
-		STIR_IMG_SEMIBINARY_OP(minimum, *iter = DataContainer::minimum<float>(*iter_x, y));
+		STIR_IMG_SEMIBINARY_OP(maximum, *iter = std::max(*iter_x, y));
+		STIR_IMG_SEMIBINARY_OP(minimum, *iter = std::min(*iter_x, y));
+		//STIR_IMG_SEMIBINARY_OP(maximum, *iter = DataContainer::maximum<float>(*iter_x, y));
+		//STIR_IMG_SEMIBINARY_OP(minimum, *iter = DataContainer::minimum<float>(*iter_x, y));
 		STIR_IMG_SEMIBINARY_OP(power, *iter = std::pow(*iter_x, y));
 
 		Image3DF& data()
