@@ -86,6 +86,43 @@ limitations under the License.
 	else\
 		throw std::domain_error("unknown data type in IMAGE_PROCESSING_SWITCH_CONST");
 
+#define BINARY_OP(NAME, OP)\
+		void NAME(const ISMRMRD::Image<T>* ptr_x, const void* vptr_y)\
+		{\
+			ISMRMRD::Image<T>* ptr = (ISMRMRD::Image<T>*)ptr_;\
+			ISMRMRD::Image<T>* ptr_y = (ISMRMRD::Image<T>*)vptr_y;\
+			size_t nx = ptr_x->getNumberOfDataElements();\
+			size_t ny = ptr_y->getNumberOfDataElements();\
+			size_t n = ptr->getNumberOfDataElements();\
+			if (!(n == nx && n == ny))\
+				THROW("sizes mismatch in ImageWrap NAME");\
+			const T* i = ptr_x->getDataPtr();\
+			const T* j = ptr_y->getDataPtr();\
+			T* k = ptr->getDataPtr();\
+			size_t ii = 0;\
+			for (; ii < n; i++, j++, k++, ii++) {\
+				OP;\
+				xGadgetronUtilities::convert_complex(u, *k);\
+			}\
+		}
+
+#define SEMIBINARY_OP(NAME, OP)\
+		void NAME(const ISMRMRD::Image<T>* ptr_x, complex_float_t y)\
+		{\
+			ISMRMRD::Image<T>* ptr = (ISMRMRD::Image<T>*)ptr_;\
+			size_t nx = ptr_x->getNumberOfDataElements();\
+			size_t n = ptr->getNumberOfDataElements();\
+			if (n != nx)\
+				THROW("sizes mismatch in ImageWrap NAME");\
+			const T* i = ptr_x->getDataPtr();\
+			T* k = ptr->getDataPtr();\
+			size_t ii = 0;\
+			for (; ii < n; i++, k++, ii++) {\
+				OP;\
+				xGadgetronUtilities::convert_complex(x, *k);\
+			}\
+		}
+
 
 typedef ISMRMRD::Image<complex_float_t> CFImage;
 typedef ISMRMRD::Image<complex_double_t> CDImage;
@@ -523,15 +560,15 @@ namespace sirf {
 		}
 		void multiply(const ImageWrap& x, const ImageWrap& y)
 		{
-			IMAGE_PROCESSING_SWITCH(type_, multiply_, x.ptr_image(), y.ptr_image());
+			IMAGE_PROCESSING_SWITCH(type_, Multiply, x.ptr_image(), y.ptr_image());
 		}
 		void divide(const ImageWrap& x, const ImageWrap& y)
 		{
-			IMAGE_PROCESSING_SWITCH(type_, divide_, x.ptr_image(), y.ptr_image());
+			IMAGE_PROCESSING_SWITCH(type_, Divide, x.ptr_image(), y.ptr_image());
 		}
 		void add(const ImageWrap& x, complex_float_t y)
 		{
-			IMAGE_PROCESSING_SWITCH(type_, add_, x.ptr_image(), y);
+			IMAGE_PROCESSING_SWITCH(type_, Add, x.ptr_image(), y);
 		}
 		void binary_op(const ImageWrap& x, const ImageWrap& y, complex_float_t(*f)(complex_float_t, complex_float_t))
 		{
@@ -878,61 +915,13 @@ namespace sirf {
 		}
 
 		template<typename T>
-		void multiply_(const ISMRMRD::Image<T>* ptr_x, const void* vptr_y)
-		{
-			ISMRMRD::Image<T>* ptr = (ISMRMRD::Image<T>*)ptr_;
-			ISMRMRD::Image<T>* ptr_y = (ISMRMRD::Image<T>*)vptr_y;
-			size_t nx = ptr_x->getNumberOfDataElements();
-			size_t ny = ptr_y->getNumberOfDataElements();
-			size_t n = ptr->getNumberOfDataElements();
-			if (!(n == nx && n == ny))
-				THROW("sizes mismatch in ImageWrap multiply_");
-			const T* i = ptr_x->getDataPtr();
-			const T* j = ptr_y->getDataPtr();
-			T* k = ptr->getDataPtr();
-			size_t ii = 0;
-			for (; ii < n; i++, j++, k++, ii++) {
-				complex_float_t u = (complex_float_t)*i * (complex_float_t)*j;
-				xGadgetronUtilities::convert_complex(u, *k);
-			}
-		}
+		BINARY_OP(Multiply, complex_float_t u = (complex_float_t)*i * (complex_float_t)*j)
 
 		template<typename T>
-		void divide_(const ISMRMRD::Image<T>* ptr_x, const void* vptr_y)
-		{
-			ISMRMRD::Image<T>* ptr = (ISMRMRD::Image<T>*)ptr_;
-			ISMRMRD::Image<T>* ptr_y = (ISMRMRD::Image<T>*)vptr_y;
-			size_t nx = ptr_x->getNumberOfDataElements();
-			size_t ny = ptr_y->getNumberOfDataElements();
-			size_t n = ptr->getNumberOfDataElements();
-			if (!(n == nx && n == ny))
-				THROW("sizes mismatch in ImageWrap divide_");
-			const T* i = ptr_x->getDataPtr();
-			const T* j = ptr_y->getDataPtr();
-			T* k = ptr->getDataPtr();
-			size_t ii = 0;
-			for (; ii < n; i++, j++, k++, ii++) {
-				complex_float_t u = (complex_float_t)*i/(complex_float_t)*j;
-				xGadgetronUtilities::convert_complex(u, *k);
-			}
-		}
+		BINARY_OP(Divide, complex_float_t u = (complex_float_t)*i / (complex_float_t)*j)
 
 		template<typename T>
-		void add_(const ISMRMRD::Image<T>* ptr_x, complex_float_t y)
-		{
-			ISMRMRD::Image<T>* ptr = (ISMRMRD::Image<T>*)ptr_;
-			size_t nx = ptr_x->getNumberOfDataElements();
-			size_t n = ptr->getNumberOfDataElements();
-			if (n != nx)
-				THROW("sizes mismatch in ImageWrap add_");
-			const T* i = ptr_x->getDataPtr();
-			T* k = ptr->getDataPtr();
-			size_t ii = 0;
-			for (; ii < n; i++, k++, ii++) {
-				complex_float_t x = (complex_float_t)*i + y;
-				xGadgetronUtilities::convert_complex(x, *k);
-			}
-		}
+		SEMIBINARY_OP(Add, complex_float_t x = (complex_float_t)*i + y)
 
 		template<typename T>
 		void binary_op_(const ISMRMRD::Image<T>* ptr_x, const void* vptr_y,
