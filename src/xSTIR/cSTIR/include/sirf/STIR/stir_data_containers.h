@@ -921,9 +921,15 @@ namespace sirf {
             *ptr_t = (float)t;
         }
 
-        STIR_ACQ_SEMIBINARY_OP(add, *iter++ = (*iter_x++) + y)
         STIR_ACQ_BINARY_OP(multiply, *iter++ = (*iter_x++) * (*iter_y++))
         STIR_ACQ_BINARY_OP(divide, *iter++ = (*iter_x++) / (*iter_y++))
+        STIR_ACQ_BINARY_OP(maximum, *iter++ = std::max(*iter_x++, *iter_y++));
+        STIR_ACQ_BINARY_OP(minimum, *iter++ = std::min(*iter_x++, *iter_y++));
+        STIR_ACQ_BINARY_OP(power, *iter++ = std::pow(*iter_x++, *iter_y++));
+        STIR_ACQ_SEMIBINARY_OP(add, *iter++ = (*iter_x++) + y);
+        STIR_ACQ_SEMIBINARY_OP(maximum, *iter++ = std::max(*iter_x++, y));
+        STIR_ACQ_SEMIBINARY_OP(minimum, *iter++ = std::min(*iter_x++, y));
+        STIR_ACQ_SEMIBINARY_OP(power, *iter++ = std::pow(*iter_x++, y));
 
         virtual bool supports_array_view() const
         {
@@ -1399,8 +1405,8 @@ namespace sirf {
 		virtual void set_up_geom_info();
 
 		void unary_op(const DataContainer& a_x, float(*f)(float));
-		void semibinary_op(const DataContainer& a_x, float y, float(*f)(float, float));
-		void binary_op(const DataContainer& a_x, const DataContainer& a_y, float(*f)(float, float));
+		//void semibinary_op(const DataContainer& a_x, float y, float(*f)(float, float));
+		//void binary_op(const DataContainer& a_x, const DataContainer& a_y, float(*f)(float, float));
 
 		size_t address() const {
 		    return reinterpret_cast<size_t>(_data->get_const_full_data_ptr());

@@ -656,7 +656,7 @@ STIRImageData::unary_op(
 		iter++, iter_x++)
 		*iter = f(*iter_x);
 }
-
+/*
 void
 STIRImageData::semibinary_op(
 	const DataContainer& a_x,
@@ -705,7 +705,7 @@ STIRImageData::binary_op(
 		iter++, iter_x++, iter_y++)
 		*iter = f(*iter_x, *iter_y);
 }
-
+*/
 int
 STIRImageData::get_dimensions(int* dim) const
 {
