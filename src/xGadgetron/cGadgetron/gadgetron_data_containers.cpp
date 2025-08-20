@@ -1663,60 +1663,6 @@ GadgetronImageData::unary_op(const DataContainer& a_x,
 }
 
 void
-GadgetronImageData::maximum(
-    const DataContainer& a_x,
-    const DataContainer& a_y)
-{
-    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-    SIRF_DYNAMIC_CAST(const GadgetronImageData, y, a_y);
-    binary_op(x, y, DataContainer::maxreal<complex_float_t>);
-}
-
-void
-GadgetronImageData::maximum(const DataContainer& a_x, const void* ptr_y)
-{
-    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-    complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
-    semibinary_op(x, y, DataContainer::maxreal<complex_float_t>);
-}
-
-void
-GadgetronImageData::minimum(
-    const DataContainer& a_x,
-    const DataContainer& a_y)
-{
-    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-    SIRF_DYNAMIC_CAST(const GadgetronImageData, y, a_y);
-    binary_op(x, y, DataContainer::minreal<complex_float_t>);
-}
-
-void
-GadgetronImageData::minimum(const DataContainer& a_x, const void* ptr_y)
-{
-    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-    complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
-    semibinary_op(x, y, DataContainer::minreal<complex_float_t>);
-}
-
-void
-GadgetronImageData::power(
-    const DataContainer& a_x,
-    const DataContainer& a_y)
-{
-    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-    SIRF_DYNAMIC_CAST(const GadgetronImageData, y, a_y);
-    binary_op(x, y, DataContainer::power);
-}
-
-void
-GadgetronImageData::power(const DataContainer& a_x, const void* ptr_y)
-{
-    SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);
-    complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
-    semibinary_op(x, y, DataContainer::power);
-}
-
-void
 GadgetronImageData::exp(const DataContainer& a_x)
 {
     SIRF_DYNAMIC_CAST(const GadgetronImageData, x, a_x);

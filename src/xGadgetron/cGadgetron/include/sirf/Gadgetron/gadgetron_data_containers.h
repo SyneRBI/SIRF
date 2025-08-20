@@ -1045,14 +1045,14 @@ virtual void OP(const DataContainer& a_x, const void* ptr_y) {\
 
 		ISMRMRD_IMG_BINARY_OP(multiply);
 		ISMRMRD_IMG_BINARY_OP(divide);
+		ISMRMRD_IMG_BINARY_OP(maximum);
+		ISMRMRD_IMG_BINARY_OP(minimum);
+		ISMRMRD_IMG_BINARY_OP(power);
 		ISMRMRD_IMG_SEMIBINARY_OP(add);
+		ISMRMRD_IMG_SEMIBINARY_OP(maximum);
+		ISMRMRD_IMG_SEMIBINARY_OP(minimum);
+		ISMRMRD_IMG_SEMIBINARY_OP(power);
 
-		virtual void maximum(const DataContainer& x, const DataContainer& y);
-		virtual void minimum(const DataContainer& x, const DataContainer& y);
-		virtual void power(const DataContainer& x, const DataContainer& y);
-		virtual void maximum(const DataContainer& x, const void* ptr_y);
-		virtual void minimum(const DataContainer& x, const void* ptr_y);
-		virtual void power(const DataContainer& x, const void* ptr_y);
 		virtual void exp(const DataContainer& x);
 		virtual void log(const DataContainer& x);
 		virtual void sqrt(const DataContainer& x);

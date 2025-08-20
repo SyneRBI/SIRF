@@ -87,6 +87,7 @@ limitations under the License.
 		throw std::domain_error("unknown data type in IMAGE_PROCESSING_SWITCH_CONST");
 
 #define BINARY_OP(NAME, OP)\
+		template<typename T>\
 		void NAME(const ISMRMRD::Image<T>* ptr_x, const void* vptr_y)\
 		{\
 			ISMRMRD::Image<T>* ptr = (ISMRMRD::Image<T>*)ptr_;\
@@ -101,12 +102,15 @@ limitations under the License.
 			T* k = ptr->getDataPtr();\
 			size_t ii = 0;\
 			for (; ii < n; i++, j++, k++, ii++) {\
+				complex_float_t x = (complex_float_t)*i;\
+				complex_float_t y = (complex_float_t)*j;\
 				OP;\
 				xGadgetronUtilities::convert_complex(u, *k);\
 			}\
 		}
 
 #define SEMIBINARY_OP(NAME, OP)\
+		template<typename T>\
 		void NAME(const ISMRMRD::Image<T>* ptr_x, complex_float_t y)\
 		{\
 			ISMRMRD::Image<T>* ptr = (ISMRMRD::Image<T>*)ptr_;\
@@ -118,8 +122,9 @@ limitations under the License.
 			T* k = ptr->getDataPtr();\
 			size_t ii = 0;\
 			for (; ii < n; i++, k++, ii++) {\
+				complex_float_t x = (complex_float_t)*i;\
 				OP;\
-				xGadgetronUtilities::convert_complex(x, *k);\
+				xGadgetronUtilities::convert_complex(u, *k);\
 			}\
 		}
 
@@ -566,10 +571,35 @@ namespace sirf {
 		{
 			IMAGE_PROCESSING_SWITCH(type_, Divide, x.ptr_image(), y.ptr_image());
 		}
+		void maximum(const ImageWrap& x, const ImageWrap& y)
+		{
+			IMAGE_PROCESSING_SWITCH(type_, Maximum, x.ptr_image(), y.ptr_image());
+		}
+		void minimum(const ImageWrap& x, const ImageWrap& y)
+		{
+			IMAGE_PROCESSING_SWITCH(type_, Minimum, x.ptr_image(), y.ptr_image());
+		}
+		void power(const ImageWrap& x, const ImageWrap& y)
+		{
+			IMAGE_PROCESSING_SWITCH(type_, Power, x.ptr_image(), y.ptr_image());
+		}
 		void add(const ImageWrap& x, complex_float_t y)
 		{
 			IMAGE_PROCESSING_SWITCH(type_, Add, x.ptr_image(), y);
 		}
+		void maximum(const ImageWrap& x, complex_float_t y)
+		{
+			IMAGE_PROCESSING_SWITCH(type_, Maximum, x.ptr_image(), y);
+		}
+		void minimum(const ImageWrap& x, complex_float_t y)
+		{
+			IMAGE_PROCESSING_SWITCH(type_, Minimum, x.ptr_image(), y);
+		}
+		void power(const ImageWrap& x, complex_float_t y)
+		{
+			IMAGE_PROCESSING_SWITCH(type_, Power, x.ptr_image(), y);
+		}
+
 		void binary_op(const ImageWrap& x, const ImageWrap& y, complex_float_t(*f)(complex_float_t, complex_float_t))
 		{
 			IMAGE_PROCESSING_SWITCH(type_, binary_op_, x.ptr_image(), y.ptr_image(), f);
@@ -582,6 +612,7 @@ namespace sirf {
 		{
 			IMAGE_PROCESSING_SWITCH(type_, unary_op_, x.ptr_image(), f);
 		}
+
 		complex_float_t dot(const ImageWrap& iw) const
 		{
 			complex_float_t z;
@@ -914,14 +945,15 @@ namespace sirf {
 			}
 		}
 
-		template<typename T>
-		BINARY_OP(Multiply, complex_float_t u = (complex_float_t)*i * (complex_float_t)*j)
-
-		template<typename T>
-		BINARY_OP(Divide, complex_float_t u = (complex_float_t)*i / (complex_float_t)*j)
-
-		template<typename T>
-		SEMIBINARY_OP(Add, complex_float_t x = (complex_float_t)*i + y)
+		BINARY_OP(Multiply, complex_float_t u = x * y)
+		BINARY_OP(Divide, complex_float_t u = x / y)
+		BINARY_OP(Maximum, complex_float_t u = DataContainer::maxreal<complex_float_t>(x, y))
+		BINARY_OP(Minimum, complex_float_t u = DataContainer::minreal<complex_float_t>(x, y))
+		BINARY_OP(Power, complex_float_t u = DataContainer::power(x, y))
+		SEMIBINARY_OP(Add, complex_float_t u = x + y)
+		SEMIBINARY_OP(Maximum, complex_float_t u = DataContainer::maxreal<complex_float_t>(x, y))
+		SEMIBINARY_OP(Minimum, complex_float_t u = DataContainer::minreal<complex_float_t>(x, y))
+		SEMIBINARY_OP(Power, complex_float_t u = DataContainer::power(x, y))
 
 		template<typename T>
 		void binary_op_(const ISMRMRD::Image<T>* ptr_x, const void* vptr_y,
