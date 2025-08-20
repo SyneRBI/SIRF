@@ -48,6 +48,7 @@ limitations under the License.
 using namespace gadgetron;
 using namespace sirf;
 
+
 shared_ptr<MRAcquisitionData> MRAcquisitionData::acqs_templ_;
 
 static std::string get_date_time_string()
@@ -419,6 +420,7 @@ MRAcquisitionData::unary_op
     }
 }
 
+/*
 void
 MRAcquisitionData::multiply
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
@@ -484,6 +486,7 @@ MRAcquisitionData::maximum
 {
     MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainer::maxreal<complex_float_t>);
 }
+*/
 
 void
 MRAcquisitionData::minimum
