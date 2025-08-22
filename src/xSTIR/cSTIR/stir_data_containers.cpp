@@ -291,42 +291,6 @@ STIRAcquisitionData::unary_op(
 			set_segment(seg);
 		}
 	}
-
-}
-
-template<class BinaryOp>
-void
-STIRAcquisitionData::semibinary_op_templ(
-	const DataContainer& a_x,
-	float y,
-	BinaryOp f
-)
-{
-	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, x, a_x);
-	int n = get_max_segment_num();
-	int nx = x.get_max_segment_num();
-        TOF_LOOP
-	for (int s = 0; s <= n && s <= nx; ++s) {
-		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s TOF_ARG);
-		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s TOF_ARG);
-		SegmentBySinogram<float>::full_iterator seg_iter;
-		SegmentBySinogram<float>::full_iterator sx_iter;
-		for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
-			seg_iter != seg.end_all() && sx_iter != sx.end_all(); /*empty*/)
-			*seg_iter++ = f(*sx_iter++, y);
-		set_segment(seg);
-		if (s > 0) {
-			SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(-s TOF_ARG);
-			SegmentBySinogram<float> sx = x.get_segment_by_sinogram(-s TOF_ARG);
-			SegmentBySinogram<float>::full_iterator seg_iter;
-			SegmentBySinogram<float>::full_iterator sx_iter;
-			for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
-				seg_iter != seg.end_all() && sx_iter != sx.end_all(); /*empty*/)
-				*seg_iter++ = f(*sx_iter++, y);
-			set_segment(seg);
-		}
-	}
-
 }
 
 void
@@ -360,7 +324,6 @@ STIRAcquisitionData::semibinary_op(
 			set_segment(seg);
 		}
 	}
-
 }
 
 void

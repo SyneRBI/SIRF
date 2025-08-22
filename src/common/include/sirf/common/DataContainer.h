@@ -206,8 +206,7 @@ which rely on the same features of the items.
 			return y / x;
 		}
 
-		template<typename T> static inline
-/*
+		template<typename T> static
 #if defined(__clang__)
 		inline
 #elif defined(__GNUC__)
@@ -217,7 +216,7 @@ which rely on the same features of the items.
 #else
 		inline
 #endif
-*/		T sum(T x, T y)
+		T sum(T x, T y)
 		{
 			return x + y;
 		}

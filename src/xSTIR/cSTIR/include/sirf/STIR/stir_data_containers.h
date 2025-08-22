@@ -32,6 +32,8 @@ limitations under the License.
 #ifndef STIR_DATA_CONTAINER_TYPES
 #define STIR_DATA_CONTAINER_TYPES
 
+#define SIRF_DYNAMIC_CAST(T, X, Y) T& X = dynamic_cast<T&>(Y)
+
 #include <stdlib.h>
 
 #include <chrono>
@@ -347,7 +349,8 @@ namespace sirf {
 		virtual void add(const DataContainer& x, const void* ptr_y)
 		{
 			float y = *static_cast<const float*>(ptr_y);
-			semibinary_op_templ(x, y, DataContainer::sum<float>);
+			semibinary_op_templ<DataContainer::sum<float> >(x, y);
+//			semibinary_op_templ(x, y, DataContainer::sum<float>);
 		}
 		virtual void divide(const DataContainer& x, const void* ptr_y)
 		{
@@ -511,8 +514,45 @@ namespace sirf {
 		}
 
 		void unary_op(const DataContainer& a_x, float(*f)(float));
-		template<class BinaryOp>
-			void semibinary_op_templ(const DataContainer& a_x, float y, BinaryOp f);
+
+#ifdef STIR_TOF
+#define TOF_LOOP  for (int k=data()->get_min_tof_pos_num(); k<=data()->get_max_tof_pos_num(); ++k)
+#define TOF_ARG , k
+#else
+#define TOF_LOOP
+#define TOF_ARG
+#endif
+
+typedef float (BinaryOp)(float, float);
+
+template<BinaryOp op>
+void semibinary_op_templ(const DataContainer& a_x, float y)
+{
+	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, x, a_x);
+	int n = get_max_segment_num();
+	int nx = x.get_max_segment_num();
+        TOF_LOOP
+	for (int s = 0; s <= n && s <= nx; ++s) {
+		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s TOF_ARG);
+		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s TOF_ARG);
+		SegmentBySinogram<float>::full_iterator seg_iter;
+		SegmentBySinogram<float>::full_iterator sx_iter;
+		for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
+			seg_iter != seg.end_all() && sx_iter != sx.end_all(); /*empty*/)
+			*seg_iter++ = op(*sx_iter++, y);
+		set_segment(seg);
+		if (s > 0) {
+			SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(-s TOF_ARG);
+			SegmentBySinogram<float> sx = x.get_segment_by_sinogram(-s TOF_ARG);
+			SegmentBySinogram<float>::full_iterator seg_iter;
+			SegmentBySinogram<float>::full_iterator sx_iter;
+			for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
+				seg_iter != seg.end_all() && sx_iter != sx.end_all(); /*empty*/)
+				*seg_iter++ = op(*sx_iter++, y);
+			set_segment(seg);
+		}
+	}
+}
 		void semibinary_op(const DataContainer& a_x, float y, float(*f)(float, float));
 		void binary_op(const DataContainer& a_x, const DataContainer& a_y, float(*f)(float, float));
 
