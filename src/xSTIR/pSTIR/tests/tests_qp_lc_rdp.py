@@ -14,6 +14,7 @@ Options:
 
 {licence}
 """
+import numpy
 import sirf.STIR
 import sirf.config
 from sirf.Utilities import runner, RE_PYEXT, __license__, examples_data_path, pTest
@@ -52,7 +53,7 @@ def Hessian_test(test, prior, x, eps=1e-3):
     test.check_if_less(q, .01*eps)
 
 
-def test_main(rec=False, verb=False, throw=True):
+def test_main(rec=False, verb=False, throw=True, no_ret_val=True):
     datafile = RE_PYEXT.sub(".txt", __file__)
     test = pTest(datafile, rec, throw=throw)
     test.verbose = verb
@@ -96,8 +97,11 @@ def test_main(rec=False, verb=False, throw=True):
                 prior.set_epsilon(im.max()*.01)
             Hessian_test(test, prior, im, 0.03)
             
+    numpy.testing.assert_equal(test.failed, 0)
+    if no_ret_val:
+        return
     return test.failed, test.ntest
 
 
 if __name__ == "__main__":
-    runner(test_main, __doc__, __version__, __author__)
+    runner(test_main, __doc__, __version__, __author__, no_ret_val=False)
