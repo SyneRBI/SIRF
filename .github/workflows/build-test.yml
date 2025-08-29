@@ -118,7 +118,6 @@ jobs:
           source ~/virtualenv/bin/activate;
           source ~/install/bin/env_sirf.sh;
           cmake --build . -j 2;
-          python ~/install/share/SIRF-3.8/examples/Python/PET/asarray.py
     - name: tests
       shell: bash
       run:

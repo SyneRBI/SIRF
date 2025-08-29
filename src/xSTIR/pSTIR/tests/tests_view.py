@@ -3,7 +3,7 @@
 v{version}
 
 Usage:
-  tests_three [--help | options]
+  tests_view [--help | options]
 
 Options:
   -r, --record   record the measurements rather than check them

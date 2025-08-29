@@ -5,7 +5,7 @@ v{version}
 DataContainer algebra tests
 
 Usage:
-  test4 [--help | options]
+  tests_view [--help | options]
 
 Options:
   -r, --record   record the measurements rather than check them
