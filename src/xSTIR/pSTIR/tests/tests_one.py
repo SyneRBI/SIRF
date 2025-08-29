@@ -14,6 +14,7 @@ Options:
 {licence}
 """
 import math
+import numpy
 import warnings
 from sirf.STIR import *
 from sirf.Utilities import runner, RE_PYEXT, __license__
@@ -35,7 +36,7 @@ def var(v):
     return v.astype(float64).var()
 
 
-def test_main(rec=False, verb=False, throw=True):
+def test_main(rec=False, verb=False, throw=True, no_ret_val=True):
     msg_red = MessageRedirector()
 
     datafile = RE_PYEXT.sub(".txt", __file__)
@@ -150,8 +151,11 @@ def test_main(rec=False, verb=False, throw=True):
     # Test move to scanner centre
     moved_im = image.move_to_scanner_centre(ad)
 
+    numpy.testing.assert_equal(test.failed, 0)
+    if no_ret_val:
+        return
     return test.failed, test.ntest
 
 
 if __name__ == "__main__":
-    runner(test_main, __doc__, __version__, __author__)
+    runner(test_main, __doc__, __version__, __author__, no_ret_val=False)
