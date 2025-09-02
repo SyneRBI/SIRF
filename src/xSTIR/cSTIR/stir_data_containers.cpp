@@ -302,6 +302,16 @@ STIRAcquisitionData::semibinary_op(
 )
 {
 	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, x, a_x);
+	auto *pd_ptr   = dynamic_cast<stir::ProjDataInMemory*>(data().get());
+	auto *pd_x_ptr = dynamic_cast<const stir::ProjDataInMemory*>(x.data().get());
+	if (!is_null_ptr(pd_ptr) && !is_null_ptr(pd_x_ptr)) {
+		//std::cout << "using simple loop...\n";
+		auto iter = pd_ptr->begin();
+		auto iter_x = pd_x_ptr->begin();
+		while (iter != pd_ptr->end())
+			*iter++ = f(*iter_x++, y);
+		return;
+	}
 	int n = get_max_segment_num();
 	int nx = x.get_max_segment_num();
         TOF_LOOP
