@@ -207,7 +207,7 @@ which rely on the same features of the items.
 		}
 
 		template<typename T>
-		static inline T sum(T x, T y)
+		static T sum(T x, T y)
 		{
 			return x + y;
 		}

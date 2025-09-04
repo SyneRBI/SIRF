@@ -294,6 +294,7 @@ STIRAcquisitionData::unary_op(
 
 }
 
+#if 0
 void
 STIRAcquisitionData::semibinary_op(
 	const DataContainer& a_x,
@@ -380,6 +381,7 @@ STIRAcquisitionData::binary_op(
 		}
 	}
 }
+#endif
 
 void
 STIRAcquisitionData::xapyb(

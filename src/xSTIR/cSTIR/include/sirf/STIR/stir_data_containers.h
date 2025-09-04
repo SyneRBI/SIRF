@@ -34,10 +34,11 @@ limitations under the License.
 
 #include <stdlib.h>
 
+#include <algorithm>
 #include <chrono>
+#include <exception>
 #include <fstream>
 #include <functional>
-#include <exception>
 #include <iterator>
 #include "sirf/STIR/stir_types.h"
 #include "sirf/iUtilities/LocalisedException.h"
@@ -56,16 +57,15 @@ limitations under the License.
 #define SPTR_WRAP(X) X
 #endif
 
+/*
 #define STIR_ACQ_SEMIBINARY_OP(NAME, OP) \
         virtual void NAME(const DataContainer& x, const void* ptr_y) {\
             auto a_x = dynamic_cast<const STIRAcquisitionData*>(&x);\
             float y = *static_cast<const float*>(ptr_y);\
             auto *pd_ptr   = dynamic_cast<stir::ProjDataInMemory*>(data().get());\
             auto *pd_x_ptr = dynamic_cast<const stir::ProjDataInMemory*>(a_x->data().get());\
-            /* If either cast failed, fall back to general method */\
             if (is_null_ptr(pd_ptr) || is_null_ptr(pd_x_ptr))\
                 return this->STIRAcquisitionData::NAME(x, ptr_y);\
-            /* do it */\
             auto iter = pd_ptr->begin();\
             auto iter_x = pd_x_ptr->begin();\
             while (iter != pd_ptr->end())\
@@ -77,14 +77,11 @@ limitations under the License.
         virtual void NAME(const DataContainer& x, const DataContainer& y) {\
             auto a_x = dynamic_cast<const STIRAcquisitionData*>(&x);\
             auto a_y = dynamic_cast<const STIRAcquisitionData*>(&y);\
-            /* Can only do this if all are STIRAcquisitionDataInMemory */\
             auto *pd_ptr   = dynamic_cast<stir::ProjDataInMemory*>(data().get());\
             auto *pd_x_ptr = dynamic_cast<const stir::ProjDataInMemory*>(a_x->data().get());\
             auto *pd_y_ptr = dynamic_cast<const stir::ProjDataInMemory*>(a_y->data().get());\
-            /* If either cast failed, fall back to general method */\
             if (is_null_ptr(pd_ptr) || is_null_ptr(pd_x_ptr) || is_null_ptr(pd_y_ptr))\
                 return this->STIRAcquisitionData::NAME(x,y);\
-            /* do it */\
             auto iter = pd_ptr->begin();\
             auto iter_x = pd_x_ptr->begin();\
             auto iter_y = pd_y_ptr->begin();\
@@ -92,7 +89,7 @@ limitations under the License.
                 OP;\
         }
 //                *iter++ = (*iter_x++) OP (*iter_y++);\
-
+*/
 
 #define STIR_IMG_BINARY_OP(NAME, OP) \
     virtual void NAME(const DataContainer& x, const DataContainer& y) {\
@@ -120,7 +117,6 @@ limitations under the License.
             iter++, iter_x++)\
                 OP;\
 }
-
 
 namespace sirf {
 
@@ -215,6 +211,28 @@ namespace sirf {
 		//virtual void set_data_sptr(stir::shared_ptr<stir::ExamData> data) = 0;
 	};
 #endif
+
+	template< class T >
+	struct my_max {
+		T operator()(const T& a, const T&b) const {
+			return std::max(a, b);
+		}
+	};
+
+	template< class T >
+	struct my_min {
+		T operator()(const T& a, const T&b) const {
+			return std::min(a, b);
+		}
+	};
+
+	template< class T >
+	struct my_pow {
+		T operator()(const T& a, const T&b) const {
+			return std::pow(a, b);
+		}
+	};
+
 	/*!
 	\ingroup PET
 	\brief STIR ProjData wrapper with added functionality.
@@ -409,58 +427,52 @@ namespace sirf {
 		virtual void multiply(const DataContainer& x, const void* ptr_y)
 		{
 			float y = *static_cast<const float*>(ptr_y);
-			//semibinary_op(x, y, DataContainer::product<float>);
 			semibinary_op_templ(x, y, std::multiplies<float>());
 		}
 		virtual void add(const DataContainer& x, const void* ptr_y)
 		{
 			float y = *static_cast<const float*>(ptr_y);
-			//semibinary_op(x, y, DataContainer::sum<float>);
-			//semibinary_op_templ(x, y, DataContainer::sum<float>);
 			semibinary_op_templ(x, y, std::plus<float>());
 		}
 		virtual void divide(const DataContainer& x, const void* ptr_y)
 		{
 			float y = *static_cast<const float*>(ptr_y);
-			//semibinary_op(x, y, DataContainer::ratio<float>);
 			semibinary_op_templ(x, y, std::divides<float>());
 		}
 		virtual void maximum(const DataContainer& x, const void* ptr_y)
 		{
 			float y = *static_cast<const float*>(ptr_y);
-			semibinary_op(x, y, DataContainer::maximum<float>);
+			semibinary_op_templ(x, y, my_max<float>());
 		}
 		virtual void minimum(const DataContainer& x, const void* ptr_y)
 		{
 			float y = *static_cast<const float*>(ptr_y);
-			semibinary_op(x, y, DataContainer::minimum<float>);
+			semibinary_op_templ(x, y, my_min<float>());
 		}
 		virtual void power(const DataContainer& x, const void* ptr_y)
 		{
 			float y = *static_cast<const float*>(ptr_y);
-			semibinary_op(x, y, std::pow);
+			semibinary_op_templ(x, y, my_pow<float>());
 		}
 		virtual void multiply(const DataContainer& x, const DataContainer& y)
 		{
 			binary_op_templ(x, y, std::multiplies<float>());
-			//binary_op(x, y, DataContainer::product<float>);
 		}
 		virtual void divide(const DataContainer& x, const DataContainer& y)
 		{
 			binary_op_templ(x, y, std::divides<float>());
-			//binary_op(x, y, DataContainer::ratio<float>);
 		}
 		virtual void maximum(const DataContainer& x, const DataContainer& y)
 		{
-			binary_op(x, y, DataContainer::maximum<float>);
+			binary_op_templ(x, y, my_max<float>());
 		}
 		virtual void minimum(const DataContainer& x, const DataContainer& y)
 		{
-			binary_op(x, y, DataContainer::minimum<float>);
+			binary_op_templ(x, y, my_min<float>());
 		}
 		virtual void power(const DataContainer& x, const DataContainer& y)
 		{
-			binary_op(x, y, std::pow);
+			binary_op_templ(x, y, my_pow<float>());
 		}
 		virtual void inv(float a, const DataContainer& x);
 		virtual void write(const std::string &filename) const
@@ -584,8 +596,8 @@ namespace sirf {
 		}
 
 		void unary_op(const DataContainer& a_x, float(*f)(float));
-		void semibinary_op(const DataContainer& a_x, float y, float(*f)(float, float));
-		void binary_op(const DataContainer& a_x, const DataContainer& a_y, float(*f)(float, float));
+		//void semibinary_op(const DataContainer& a_x, float y, float(*f)(float, float));
+		//void binary_op(const DataContainer& a_x, const DataContainer& a_y, float(*f)(float, float));
 
 #ifdef STIR_TOF
 #define TOF_LOOP  for (int k=data()->get_min_tof_pos_num(); k<=data()->get_max_tof_pos_num(); ++k)
@@ -1029,17 +1041,17 @@ binary_op_templ(const DataContainer& a_x, const DataContainer& a_y, Operation f)
             float* ptr_t = static_cast<float*>(ptr);
             *ptr_t = (float)t;
         }
-
-        //STIR_ACQ_BINARY_OP(multiply, *iter++ = (*iter_x++) * (*iter_y++))
-        //STIR_ACQ_BINARY_OP(divide, *iter++ = (*iter_x++) / (*iter_y++))
+/*
+        STIR_ACQ_BINARY_OP(multiply, *iter++ = (*iter_x++) * (*iter_y++))
+        STIR_ACQ_BINARY_OP(divide, *iter++ = (*iter_x++) / (*iter_y++))
         STIR_ACQ_BINARY_OP(maximum, *iter++ = std::max(*iter_x++, *iter_y++));
         STIR_ACQ_BINARY_OP(minimum, *iter++ = std::min(*iter_x++, *iter_y++));
         STIR_ACQ_BINARY_OP(power, *iter++ = std::pow(*iter_x++, *iter_y++));
-        //STIR_ACQ_SEMIBINARY_OP(add, *iter++ = (*iter_x++) + y);
+        STIR_ACQ_SEMIBINARY_OP(add, *iter++ = (*iter_x++) + y);
         STIR_ACQ_SEMIBINARY_OP(maximum, *iter++ = std::max(*iter_x++, y));
         STIR_ACQ_SEMIBINARY_OP(minimum, *iter++ = std::min(*iter_x++, y));
         STIR_ACQ_SEMIBINARY_OP(power, *iter++ = std::pow(*iter_x++, y));
-
+*/
         virtual bool supports_array_view() const
         {
             return STIR_VERSION >= 060200;
