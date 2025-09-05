@@ -89,7 +89,6 @@ limitations under the License.
                 OP;\
         }
 //                *iter++ = (*iter_x++) OP (*iter_y++);\
-*/
 
 #define STIR_IMG_BINARY_OP(NAME, OP) \
     virtual void NAME(const DataContainer& x, const DataContainer& y) {\
@@ -117,6 +116,7 @@ limitations under the License.
             iter++, iter_x++)\
                 OP;\
 }
+*/
 
 namespace sirf {
 
@@ -1348,6 +1348,47 @@ binary_op_templ(const DataContainer& a_x, const DataContainer& a_y, Operation f)
 		*/
 		virtual void write(const std::string& filename, const std::string& format_file) const;
 
+		template<class Operation>
+		void
+		semibinary_op_templ(const DataContainer& a_x, float y, Operation f)
+		{
+			SIRF_DYNAMIC_CAST(const STIRImageData, x, a_x);
+#if defined(_MSC_VER) && _MSC_VER < 1900
+			Image3DF::full_iterator iter;
+			Image3DF::const_full_iterator iter_x;
+#else
+			typename Array<3, float>::full_iterator iter;
+			typename Array<3, float>::const_full_iterator iter_x;
+#endif
+			for (iter = data().begin_all(), iter_x = x.data().begin_all();
+				iter != data().end_all() && iter_x != x.data().end_all();
+				iter++, iter_x++)
+				*iter = f(*iter_x, y);
+		}
+
+		template<class Operation>
+		void
+		binary_op_templ(const DataContainer& a_x, const DataContainer& a_y, Operation f)
+		{
+			SIRF_DYNAMIC_CAST(const STIRImageData, x, a_x);
+			SIRF_DYNAMIC_CAST(const STIRImageData, y, a_y);
+#if defined(_MSC_VER) && _MSC_VER < 1900
+			Image3DF::full_iterator iter;
+			Image3DF::const_full_iterator iter_x;
+			Image3DF::const_full_iterator iter_y;
+#else
+			typename Array<3, float>::full_iterator iter;
+			typename Array<3, float>::const_full_iterator iter_x;
+			typename Array<3, float>::const_full_iterator iter_y;
+#endif
+			for (iter = data().begin_all(),
+				iter_x = x.data().begin_all(), iter_y = y.data().begin_all();
+				iter != data().end_all() &&
+				iter_x != x.data().end_all() && iter_y != y.data().end_all();
+				iter++, iter_x++, iter_y++)
+				*iter = f(*iter_x, *iter_y);
+		}
+
 		virtual float norm() const;
 		/// below all void* are actually float*
 		virtual void sum(void* ptr) const;
@@ -1386,19 +1427,67 @@ binary_op_templ(const DataContainer& a_x, const DataContainer& a_y, Operation f)
 		{
 			unary_op(x, DataContainer::sign);
 		}
-		STIR_IMG_BINARY_OP(multiply, *iter = (*iter_x) * (*iter_y));
-		STIR_IMG_BINARY_OP(divide, *iter = (*iter_x) / (*iter_y));
-		STIR_IMG_BINARY_OP(maximum, *iter = std::max(*iter_x,*iter_y));
-		STIR_IMG_BINARY_OP(minimum, *iter = std::min(*iter_x,*iter_y));
-		//STIR_IMG_BINARY_OP(maximum, *iter = DataContainer::maximum<float>(*iter_x,*iter_y));
-		//STIR_IMG_BINARY_OP(minimum, *iter = DataContainer::minimum<float>(*iter_x,*iter_y));
-		STIR_IMG_BINARY_OP(power, *iter = std::pow(*iter_x,*iter_y));
-		STIR_IMG_SEMIBINARY_OP(add, *iter = (*iter_x) + y);
-		STIR_IMG_SEMIBINARY_OP(maximum, *iter = std::max(*iter_x, y));
-		STIR_IMG_SEMIBINARY_OP(minimum, *iter = std::min(*iter_x, y));
-		//STIR_IMG_SEMIBINARY_OP(maximum, *iter = DataContainer::maximum<float>(*iter_x, y));
-		//STIR_IMG_SEMIBINARY_OP(minimum, *iter = DataContainer::minimum<float>(*iter_x, y));
-		STIR_IMG_SEMIBINARY_OP(power, *iter = std::pow(*iter_x, y));
+		virtual void multiply(const DataContainer& x, const void* ptr_y)
+		{
+			float y = *static_cast<const float*>(ptr_y);
+			semibinary_op_templ(x, y, std::multiplies<float>());
+		}
+		virtual void add(const DataContainer& x, const void* ptr_y)
+		{
+			float y = *static_cast<const float*>(ptr_y);
+			semibinary_op_templ(x, y, std::plus<float>());
+		}
+		/*
+		virtual void divide(const DataContainer& x, const void* ptr_y)
+		{
+			float y = *static_cast<const float*>(ptr_y);
+			semibinary_op_templ(x, y, std::divides<float>());
+		}
+		*/
+		virtual void maximum(const DataContainer& x, const void* ptr_y)
+		{
+			float y = *static_cast<const float*>(ptr_y);
+			semibinary_op_templ(x, y, my_max<float>());
+		}
+		virtual void minimum(const DataContainer& x, const void* ptr_y)
+		{
+			float y = *static_cast<const float*>(ptr_y);
+			semibinary_op_templ(x, y, my_min<float>());
+		}
+		virtual void power(const DataContainer& x, const void* ptr_y)
+		{
+			float y = *static_cast<const float*>(ptr_y);
+			semibinary_op_templ(x, y, my_pow<float>());
+		}
+		virtual void multiply(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op_templ(x, y, std::multiplies<float>());
+		}
+		virtual void divide(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op_templ(x, y, std::divides<float>());
+		}
+		virtual void maximum(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op_templ(x, y, my_max<float>());
+		}
+		virtual void minimum(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op_templ(x, y, my_min<float>());
+		}
+		virtual void power(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op_templ(x, y, my_pow<float>());
+		}
+		//STIR_IMG_BINARY_OP(multiply, *iter = (*iter_x) * (*iter_y));
+		//STIR_IMG_BINARY_OP(divide, *iter = (*iter_x) / (*iter_y));
+		//STIR_IMG_BINARY_OP(maximum, *iter = std::max(*iter_x,*iter_y));
+		//STIR_IMG_BINARY_OP(minimum, *iter = std::min(*iter_x,*iter_y));
+		//STIR_IMG_BINARY_OP(power, *iter = std::pow(*iter_x,*iter_y));
+		//STIR_IMG_SEMIBINARY_OP(add, *iter = (*iter_x) + y);
+		//STIR_IMG_SEMIBINARY_OP(maximum, *iter = std::max(*iter_x, y));
+		//STIR_IMG_SEMIBINARY_OP(minimum, *iter = std::min(*iter_x, y));
+		//STIR_IMG_SEMIBINARY_OP(power, *iter = std::pow(*iter_x, y));
 
 		Image3DF& data()
 		{
