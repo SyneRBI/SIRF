@@ -299,6 +299,33 @@ namespace sirf {
 
 		// ISMRMRD acquisitions algebra: acquisitions viewed as vectors of 
 		// acquisition data
+
+		template<class Operation>
+		static void
+		semibinary_op_templ
+		(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y, Operation f)
+		{
+		    const complex_float_t* px;
+		    complex_float_t* py;
+		    for (px = acq_x.data_begin(), py = acq_y.data_begin();
+		        px != acq_x.data_end() && py != acq_y.data_end(); px++, py++) {
+		        *py = f(*px, y);
+		    }
+		}
+
+		template<class Operation>
+		static void
+		binary_op_templ
+		(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, Operation f)
+		{
+		    const complex_float_t* px;
+		    complex_float_t* py;
+		    for (px = acq_x.data_begin(), py = acq_y.data_begin();
+		        px != acq_x.data_end() && py != acq_y.data_end(); px++, py++) {
+		        *py = f(*px, *py);
+		    }
+		}
+
 		static void binary_op
 		(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y,
 			complex_float_t (*f)(complex_float_t, complex_float_t));
@@ -332,26 +359,26 @@ namespace sirf {
 		static complex_float_t min(const ISMRMRD::Acquisition& acq_x);
 		// elementwise multiplication
 		// y := x .* y
-		ISMRMRD_ACQ_BINARY_OP(multiply, (*px) * (*py))
-		//static void multiply(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
+		//ISMRMRD_ACQ_BINARY_OP(multiply, (*px) * (*py))
+		static void multiply(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
 		// multiply by scalar
 		// y := x * y
-		ISMRMRD_ACQ_SEMIBINARY_OP(multiply, (*px) * y)
-		//static void multiply(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y);
+		//ISMRMRD_ACQ_SEMIBINARY_OP(multiply, (*px) * y)
+		static void multiply(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y);
 		// add scalar
 		// y := x + y
-		ISMRMRD_ACQ_SEMIBINARY_OP(add, (*px) + y)
-		//static void add(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y);
+		//ISMRMRD_ACQ_SEMIBINARY_OP(add, (*px) + y)
+		static void add(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y);
 		// elementwise division
 		// y := x ./ y
-		ISMRMRD_ACQ_BINARY_OP(divide, (*px) / (*py))
-		//static void divide(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
+		//ISMRMRD_ACQ_BINARY_OP(divide, (*px) / (*py))
+		static void divide(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
 		// elementwise maximum
 		// y := std::real(x) > std::real(y) ? x : y
-		ISMRMRD_ACQ_BINARY_OP(maximum, DataContainer::maxreal<complex_float_t>(*px, *py))
-		//static void maximum(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
-		ISMRMRD_ACQ_SEMIBINARY_OP(maximum, DataContainer::maxreal<complex_float_t>(*px, y))
-		//static void maximum(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y);
+		//ISMRMRD_ACQ_BINARY_OP(maximum, DataContainer::maxreal<complex_float_t>(*px, *py))
+		static void maximum(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
+		//ISMRMRD_ACQ_SEMIBINARY_OP(maximum, DataContainer::maxreal<complex_float_t>(*px, y))
+		static void maximum(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y);
 		// elementwise minimum
 		// y := std::real(x) < std::real(y) ? x : y
 		static void minimum

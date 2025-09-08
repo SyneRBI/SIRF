@@ -420,12 +420,13 @@ MRAcquisitionData::unary_op
     }
 }
 
-/*
 void
 MRAcquisitionData::multiply
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
-//    MRAcquisitionData::binary_op(acq_x, acq_y, DataContainer::product<complex_float_t>);
+    MRAcquisitionData::binary_op_templ(acq_x, acq_y, std::multiplies<complex_float_t>());
+    //MRAcquisitionData::binary_op(acq_x, acq_y, DataContainer::product<complex_float_t>);
+    return;
     const complex_float_t* px;
     complex_float_t* py;
     for (px = acq_x.data_begin(), py = acq_y.data_begin();
@@ -438,7 +439,9 @@ void
 MRAcquisitionData::multiply
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y)
 {
-//    MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainer::product<complex_float_t>);
+    MRAcquisitionData::semibinary_op_templ(acq_x, acq_y, y, std::multiplies<complex_float_t>());
+    //MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainer::product<complex_float_t>);
+    return;
     const complex_float_t* px;
     complex_float_t* py;
     for (px = acq_x.data_begin(), py = acq_y.data_begin();
@@ -451,7 +454,9 @@ void
 MRAcquisitionData::add
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y)
 {
-//    MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainer::sum<complex_float_t>);
+    MRAcquisitionData::semibinary_op_templ(acq_x, acq_y, y, std::plus<complex_float_t>());
+    //MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainer::sum<complex_float_t>);
+    return;
     const complex_float_t* px;
     complex_float_t* py;
     for (px = acq_x.data_begin(), py = acq_y.data_begin();
@@ -464,7 +469,9 @@ void
 MRAcquisitionData::divide
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
-//    MRAcquisitionData::binary_op(acq_x, acq_y, DataContainer::ratio<complex_float_t>);
+    MRAcquisitionData::binary_op_templ(acq_x, acq_y, std::divides<complex_float_t>());
+    //MRAcquisitionData::binary_op(acq_x, acq_y, DataContainer::ratio<complex_float_t>);
+    return;
     const complex_float_t* px;
     complex_float_t* py;
     for (px = acq_x.data_begin(), py = acq_y.data_begin();
@@ -486,7 +493,6 @@ MRAcquisitionData::maximum
 {
     MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainer::maxreal<complex_float_t>);
 }
-*/
 
 void
 MRAcquisitionData::minimum
