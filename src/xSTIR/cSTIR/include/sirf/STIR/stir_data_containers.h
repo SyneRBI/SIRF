@@ -210,26 +210,26 @@ namespace sirf {
 		virtual stir::shared_ptr<stir::ExamData> data_sptr() const = 0;
 		//virtual void set_data_sptr(stir::shared_ptr<stir::ExamData> data) = 0;
 	};
+
+	template< class T >
+	struct sirf_pow {
+		T operator()(const T& a, const T&b) const {
+			return std::pow(a, b);
+		}
+	};
 #endif
 
 	template< class T >
-	struct my_max {
-		T operator()(const T& a, const T&b) const {
+	struct sirf_max {
+		T operator()(const T& a, const T& b) const {
 			return std::max(a, b);
 		}
 	};
 
 	template< class T >
-	struct my_min {
-		T operator()(const T& a, const T&b) const {
+	struct sirf_min {
+		T operator()(const T& a, const T& b) const {
 			return std::min(a, b);
-		}
-	};
-
-	template< class T >
-	struct my_pow {
-		T operator()(const T& a, const T&b) const {
-			return std::pow(a, b);
 		}
 	};
 
@@ -442,17 +442,17 @@ namespace sirf {
 		virtual void maximum(const DataContainer& x, const void* ptr_y)
 		{
 			float y = *static_cast<const float*>(ptr_y);
-			semibinary_op_templ(x, y, my_max<float>());
+			semibinary_op_templ(x, y, sirf_max<float>());
 		}
 		virtual void minimum(const DataContainer& x, const void* ptr_y)
 		{
 			float y = *static_cast<const float*>(ptr_y);
-			semibinary_op_templ(x, y, my_min<float>());
+			semibinary_op_templ(x, y, sirf_min<float>());
 		}
 		virtual void power(const DataContainer& x, const void* ptr_y)
 		{
 			float y = *static_cast<const float*>(ptr_y);
-			semibinary_op_templ(x, y, my_pow<float>());
+			semibinary_op_templ(x, y, sirf_pow<float>());
 		}
 		virtual void multiply(const DataContainer& x, const DataContainer& y)
 		{
@@ -464,15 +464,15 @@ namespace sirf {
 		}
 		virtual void maximum(const DataContainer& x, const DataContainer& y)
 		{
-			binary_op_templ(x, y, my_max<float>());
+			binary_op_templ(x, y, sirf_max<float>());
 		}
 		virtual void minimum(const DataContainer& x, const DataContainer& y)
 		{
-			binary_op_templ(x, y, my_min<float>());
+			binary_op_templ(x, y, sirf_min<float>());
 		}
 		virtual void power(const DataContainer& x, const DataContainer& y)
 		{
-			binary_op_templ(x, y, my_pow<float>());
+			binary_op_templ(x, y, sirf_pow<float>());
 		}
 		virtual void inv(float a, const DataContainer& x);
 		virtual void write(const std::string &filename) const
@@ -1447,17 +1447,17 @@ binary_op_templ(const DataContainer& a_x, const DataContainer& a_y, Operation f)
 		virtual void maximum(const DataContainer& x, const void* ptr_y)
 		{
 			float y = *static_cast<const float*>(ptr_y);
-			semibinary_op_templ(x, y, my_max<float>());
+			semibinary_op_templ(x, y, sirf_max<float>());
 		}
 		virtual void minimum(const DataContainer& x, const void* ptr_y)
 		{
 			float y = *static_cast<const float*>(ptr_y);
-			semibinary_op_templ(x, y, my_min<float>());
+			semibinary_op_templ(x, y, sirf_min<float>());
 		}
 		virtual void power(const DataContainer& x, const void* ptr_y)
 		{
 			float y = *static_cast<const float*>(ptr_y);
-			semibinary_op_templ(x, y, my_pow<float>());
+			semibinary_op_templ(x, y, sirf_pow<float>());
 		}
 		virtual void multiply(const DataContainer& x, const DataContainer& y)
 		{
@@ -1469,15 +1469,15 @@ binary_op_templ(const DataContainer& a_x, const DataContainer& a_y, Operation f)
 		}
 		virtual void maximum(const DataContainer& x, const DataContainer& y)
 		{
-			binary_op_templ(x, y, my_max<float>());
+			binary_op_templ(x, y, sirf_max<float>());
 		}
 		virtual void minimum(const DataContainer& x, const DataContainer& y)
 		{
-			binary_op_templ(x, y, my_min<float>());
+			binary_op_templ(x, y, sirf_min<float>());
 		}
 		virtual void power(const DataContainer& x, const DataContainer& y)
 		{
-			binary_op_templ(x, y, my_pow<float>());
+			binary_op_templ(x, y, sirf_pow<float>());
 		}
 		//STIR_IMG_BINARY_OP(multiply, *iter = (*iter_x) * (*iter_y));
 		//STIR_IMG_BINARY_OP(divide, *iter = (*iter_x) / (*iter_y));

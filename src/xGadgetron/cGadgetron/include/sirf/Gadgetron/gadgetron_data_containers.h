@@ -67,6 +67,20 @@ namespace sirf {
     class RPEFourierEncoding;
 #endif
 
+	template< class T >
+	struct sirf_maxreal {
+		T operator()(const T& x, const T& y) const {
+			return std::real(x) > std::real(y) ? x : y;
+		}
+	};
+
+	template< class T >
+	struct sirf_minreal {
+		T operator()(const T& x, const T& y) const {
+			return std::real(x) < std::real(y) ? x : y;
+		}
+	};
+
 	class AcquisitionsInfo {
 	public:
 		AcquisitionsInfo(std::string data = "") : data_(data)
@@ -299,6 +313,19 @@ namespace sirf {
 
 		// ISMRMRD acquisitions algebra: acquisitions viewed as vectors of 
 		// acquisition data
+
+		template<class Operation>
+		static void
+		unary_op_templ
+		(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, Operation f)
+		{
+		    const complex_float_t* px;
+		    complex_float_t* py;
+		    for (px = acq_x.data_begin(), py = acq_y.data_begin();
+		        px != acq_x.data_end() && py != acq_y.data_end(); px++, py++) {
+		        *py = f(*px);
+		    }
+		}
 
 		template<class Operation>
 		static void
@@ -673,13 +700,160 @@ namespace sirf {
 			const DataContainer& a_x, const void* ptr_a,
 			const DataContainer& a_y, const DataContainer& a_b);
 
-		virtual void multiply(const DataContainer& x, const DataContainer& y);
-		virtual void divide(const DataContainer& x,	const DataContainer& y);
+		template<class Operation>
+		void
+		binary_op_templ(const DataContainer& a_x, const DataContainer& a_y, Operation f)
+		{
+			SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+			SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
+			if (!x.sorted() || !y.sorted())
+			THROW("binary algebraic operations cannot be applied to unsorted data");
+			int nx = x.number();
+			int ny = y.number();
+			ISMRMRD::Acquisition ax;
+			ISMRMRD::Acquisition ay;
+			ISMRMRD::Acquisition acq;
+			const complex_float_t* px;
+			complex_float_t* py;
+			bool isempty = (number() < 1);
+			for (int ix = 0, iy = 0, k = 0; ix < nx && iy < ny;) {
+				if (!x.get_acquisition(ix, ax)) {
+					ix++;
+					continue;
+				}
+				if (!y.get_acquisition(iy, ay)) {
+					iy++;
+					continue;
+				}
+				if (!isempty) {
+					if (!get_acquisition(k, acq)) {
+						k++;
+						continue;
+					}
+				}
+				for (px = ax.data_begin(), py = ay.data_begin();
+					px != ax.data_end() && py != ay.data_end(); px++, py++)
+					*py = f(*px, *py);
+				//f(ax, ay);
+				if (isempty)
+					append_acquisition(ay);
+				else
+					set_acquisition(k, ay);
+				ix++;
+				iy++;
+				k++;
+			}
+			this->set_sorted(true);
+			this->organise_kspace();
+		}
+
+		template<class Operation>
+		void
+		semibinary_op_templ(const DataContainer& a_x, complex_float_t y, Operation f)
+		{
+			SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+			if (!x.sorted())
+				THROW("binary algebraic operations cannot be applied to unsorted data");
+			int nx = x.number();
+			ISMRMRD::Acquisition ax;
+			ISMRMRD::Acquisition ay;
+			ISMRMRD::Acquisition acq;
+			const complex_float_t* px;
+			complex_float_t* py;
+			bool isempty = (number() < 1);
+			for (int ix = 0, k = 0; ix < nx;) {
+				if (!x.get_acquisition(ix, ax)) {
+					ix++;
+					continue;
+				}
+				if (!isempty) {
+					if (!get_acquisition(k, acq)) {
+						k++;
+						continue;
+					}
+				}
+				x.get_acquisition(ix, ay);
+				for (px = ax.data_begin(), py = ay.data_begin();
+					px != ax.data_end() && py != ay.data_end(); px++, py++)
+					*py = f(*px, y);
+				//f(ax, ay, y);
+				if (isempty)
+					append_acquisition(ay);
+				else
+					set_acquisition(k, ay);
+				ix++;
+				k++;
+			}
+			this->set_sorted(true);
+			this->organise_kspace();
+		}
+
+/*
+		template<class Operation>
+		void
+		semibinary_op_templ(const DataContainer& a_x, const DataContainer& a_y, complex_float_t v, Operation f)
+		{
+			SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+			SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
+			if (!x.sorted() || !y.sorted())
+				THROW("binary algebraic operations cannot be applied to unsorted data");
+			int nx = x.number();
+			int ny = y.number();
+			ISMRMRD::Acquisition ax;
+			ISMRMRD::Acquisition ay;
+			ISMRMRD::Acquisition acq;
+			const complex_float_t* px;
+			complex_float_t* py;
+			bool isempty = (number() < 1);
+			for (int ix = 0, iy = 0, k = 0; ix < nx && iy < ny;) {
+				if (!x.get_acquisition(ix, ax)) {
+					ix++;
+					continue;
+				}
+				if (!y.get_acquisition(iy, ay)) {
+					iy++;
+					continue;
+				}
+				if (!isempty) {
+					if (!get_acquisition(k, acq)) {
+						k++;
+						continue;
+					}
+				}
+				for (px = ax.data_begin(), py = ay.data_begin();
+					px != ax.data_end() && py != ay.data_end(); px++, py++)
+					*py = f(*px, v);
+				//f(ax, ay);
+				if (isempty)
+					append_acquisition(ay);
+				else
+					set_acquisition(k, ay);
+				ix++;
+				iy++;
+				k++;
+			}
+			this->set_sorted(true);
+			this->organise_kspace();
+		}
+*/
+		virtual void multiply(const DataContainer& x, const DataContainer& y) //;
+		{
+			binary_op_templ(x, y, std::multiplies<complex_float_t>());
+		}
+		virtual void divide(const DataContainer& x, const DataContainer& y);
 		virtual void maximum(const DataContainer& x, const DataContainer& y);
 		virtual void minimum(const DataContainer& x, const DataContainer& y);
 		virtual void power(const DataContainer& x, const DataContainer& y);
-		virtual void multiply(const DataContainer& x, const void* y);
-		virtual void add(const DataContainer& x, const void* ptr_y);
+		virtual void multiply(const DataContainer& x, const void* ptr_y) //;
+		{
+			complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
+			semibinary_op_templ(x, y, std::multiplies<complex_float_t>());
+		}
+		virtual void add(const DataContainer& x, const void* ptr_y) //;
+		{
+			complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
+			semibinary_op_templ(x, y, std::plus<complex_float_t>());
+		}
 		virtual void maximum(const DataContainer& x, const void* y);
 		virtual void minimum(const DataContainer& x, const void* y);
 		virtual void power(const DataContainer& x, const void* y);

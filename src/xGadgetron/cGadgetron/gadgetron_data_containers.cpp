@@ -484,56 +484,64 @@ void
 MRAcquisitionData::maximum
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
-    MRAcquisitionData::binary_op(acq_x, acq_y, DataContainer::maxreal<complex_float_t>);
+    MRAcquisitionData::binary_op_templ(acq_x, acq_y, sirf_maxreal<complex_float_t>());
+    //MRAcquisitionData::binary_op(acq_x, acq_y, DataContainer::maxreal<complex_float_t>);
 }
 
 void
 MRAcquisitionData::maximum
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y)
 {
-    MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainer::maxreal<complex_float_t>);
+    MRAcquisitionData::semibinary_op_templ(acq_x, acq_y, y, sirf_maxreal<complex_float_t>());
+    //MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainer::maxreal<complex_float_t>);
 }
 
 void
 MRAcquisitionData::minimum
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
-    MRAcquisitionData::binary_op(acq_x, acq_y, DataContainer::minreal<complex_float_t>);
+    MRAcquisitionData::binary_op_templ(acq_x, acq_y, sirf_minreal<complex_float_t>());
+    //MRAcquisitionData::binary_op(acq_x, acq_y, DataContainer::minreal<complex_float_t>);
 }
 
 void
 MRAcquisitionData::minimum
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y)
 {
-    MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainer::minreal<complex_float_t>);
+    MRAcquisitionData::semibinary_op_templ(acq_x, acq_y, y, sirf_minreal<complex_float_t>());
+    //MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainer::minreal<complex_float_t>);
 }
 
 void
 MRAcquisitionData::power
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
-    MRAcquisitionData::binary_op(acq_x, acq_y, DataContainer::power);
+    MRAcquisitionData::binary_op_templ(acq_x, acq_y, sirf_pow<complex_float_t>());
+    //MRAcquisitionData::binary_op(acq_x, acq_y, DataContainer::power);
 }
 
 void
 MRAcquisitionData::power
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y)
 {
-    MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainer::power);
+    MRAcquisitionData::semibinary_op_templ(acq_x, acq_y, y, sirf_pow<complex_float_t>());
+    //MRAcquisitionData::semibinary_op(acq_x, acq_y, y, DataContainer::power);
 }
 
 void
 MRAcquisitionData::exp
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
-    MRAcquisitionData::unary_op(acq_x, acq_y, DataContainer::exp);
+    MRAcquisitionData::unary_op_templ(acq_x, acq_y, sirf_exp<complex_float_t>());
+    //MRAcquisitionData::unary_op(acq_x, acq_y, DataContainer::exp);
 }
 
 void
 MRAcquisitionData::log
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
-    MRAcquisitionData::unary_op(acq_x, acq_y, DataContainer::log);
+    MRAcquisitionData::unary_op_templ(acq_x, acq_y, sirf_log<complex_float_t>());
+    //MRAcquisitionData::unary_op(acq_x, acq_y, DataContainer::log);
 }
 
 void
@@ -893,7 +901,7 @@ MRAcquisitionData::xapyb(
     this->set_sorted(true);
     this->organise_kspace();
 }
-
+/*
 void
 MRAcquisitionData::multiply(const DataContainer& a_x, const DataContainer& a_y)
 {
@@ -901,7 +909,6 @@ MRAcquisitionData::multiply(const DataContainer& a_x, const DataContainer& a_y)
 	SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
 	binary_op(x, y, MRAcquisitionData::multiply);
 }
-
 void
 MRAcquisitionData::multiply(const DataContainer& a_x, const void* ptr_y)
 {
@@ -917,6 +924,7 @@ MRAcquisitionData::add(const DataContainer& a_x, const void* ptr_y)
     complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
     semibinary_op(x, y, MRAcquisitionData::add);
 }
+*/
 
 void
 MRAcquisitionData::divide(const DataContainer& a_x, const DataContainer& a_y)

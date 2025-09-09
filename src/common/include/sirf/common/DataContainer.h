@@ -46,6 +46,28 @@ use it directly therefore.
 		virtual ~ContainerBase() {}
 		//virtual ObjectHandle<DataContainer>* new_data_container_handle() const = 0;
         };
+
+	template< class T >
+	struct sirf_pow {
+		T operator()(const T& a, const T&b) const {
+			return std::pow(a, b);
+		}
+	};
+
+	template< class T >
+	struct sirf_exp {
+		T operator()(const T& a) const {
+			return std::exp(a);
+		}
+	};
+
+	template< class T >
+	struct sirf_log {
+		T operator()(const T& a) const {
+			return std::log(a);
+		}
+	};
+
 /*!
 \ingroup Common
 \brief Abstract data container with numerical operations.
