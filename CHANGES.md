@@ -7,7 +7,8 @@
   - Error raised in `AcquisitionSensitivityModel.[un]normalise` methods applied to a read-only object.
   - `DataContainer.supports_array_view` to test for zero-copy compatibility.
   - SIRF interfaces (C++ and Python) for STIR Poisson noise generation utilities provided.
-  - `ImageData` and `AcquisitionData` have `.asarray(copy=None)` (NumPy-like behaviour: default zero-copy if contiguous, fallback to deepcopy otherwise) via `__array_interface__`.  - Error raised if `AcquisitionModel.adjoint` ran when the model is not linear.
+  - `ImageData` and `AcquisitionData` have `.asarray(copy=None)` (NumPy-like behaviour: default zero-copy if contiguous, fallback to deepcopy otherwise) via `__array_interface__`. 
+  - Error raised if `AcquisitionModel.adjoint` ran when the model is not linear.
   - `cmake/sirf.__init__.py.in` import sirf.SIRF content into the `sirf` namespace for convenience
   - `common/SIRF.py` adding adjoint operator
 * SIRF-torch
