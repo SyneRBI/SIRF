@@ -4,4 +4,4 @@ __version_patch__ = '@VERSION_PATCH@'
 __version__ = '@VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_PATCH@'
 
 # import sirf.SIRF content into the `sirf` namespace for convenience
-from sirf.SIRF import *
+# from sirf.SIRF import *
