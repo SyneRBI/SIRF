@@ -788,30 +788,23 @@ namespace sirf {
 			this->organise_kspace();
 		}
 
-/*
 		template<class Operation>
 		void
-		semibinary_op_templ(const DataContainer& a_x, const DataContainer& a_y, complex_float_t v, Operation f)
+		unary_op_templ(const DataContainer& a_x, Operation f)
 		{
 			SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-			SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
-			if (!x.sorted() || !y.sorted())
+			if (!x.sorted())
 				THROW("binary algebraic operations cannot be applied to unsorted data");
 			int nx = x.number();
-			int ny = y.number();
 			ISMRMRD::Acquisition ax;
 			ISMRMRD::Acquisition ay;
 			ISMRMRD::Acquisition acq;
 			const complex_float_t* px;
 			complex_float_t* py;
 			bool isempty = (number() < 1);
-			for (int ix = 0, iy = 0, k = 0; ix < nx && iy < ny;) {
+			for (int ix = 0, k = 0; ix < nx;) {
 				if (!x.get_acquisition(ix, ax)) {
 					ix++;
-					continue;
-				}
-				if (!y.get_acquisition(iy, ay)) {
-					iy++;
 					continue;
 				}
 				if (!isempty) {
@@ -820,48 +813,88 @@ namespace sirf {
 						continue;
 					}
 				}
+				x.get_acquisition(ix, ay);
+				//f(ax, ay);
 				for (px = ax.data_begin(), py = ay.data_begin();
 					px != ax.data_end() && py != ay.data_end(); px++, py++)
-					*py = f(*px, v);
-				//f(ax, ay);
+					*py = f(*px);
 				if (isempty)
 					append_acquisition(ay);
 				else
 					set_acquisition(k, ay);
 				ix++;
-				iy++;
 				k++;
 			}
 			this->set_sorted(true);
 			this->organise_kspace();
 		}
-*/
-		virtual void multiply(const DataContainer& x, const DataContainer& y) //;
+
+		virtual void multiply(const DataContainer& x, const DataContainer& y)
 		{
 			binary_op_templ(x, y, std::multiplies<complex_float_t>());
 		}
-		virtual void divide(const DataContainer& x, const DataContainer& y);
-		virtual void maximum(const DataContainer& x, const DataContainer& y);
-		virtual void minimum(const DataContainer& x, const DataContainer& y);
-		virtual void power(const DataContainer& x, const DataContainer& y);
-		virtual void multiply(const DataContainer& x, const void* ptr_y) //;
+		virtual void divide(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op_templ(x, y, std::divides<complex_float_t>());
+		}
+		virtual void maximum(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op_templ(x, y, sirf_maxreal<complex_float_t>());
+		}
+		virtual void minimum(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op_templ(x, y, sirf_minreal<complex_float_t>());
+		}
+		virtual void power(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op_templ(x, y, sirf_pow<complex_float_t>());
+		}
+		virtual void multiply(const DataContainer& x, const void* ptr_y)
 		{
 			complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
 			semibinary_op_templ(x, y, std::multiplies<complex_float_t>());
 		}
-		virtual void add(const DataContainer& x, const void* ptr_y) //;
+		virtual void add(const DataContainer& x, const void* ptr_y)
 		{
 			complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
 			semibinary_op_templ(x, y, std::plus<complex_float_t>());
 		}
-		virtual void maximum(const DataContainer& x, const void* y);
-		virtual void minimum(const DataContainer& x, const void* y);
-		virtual void power(const DataContainer& x, const void* y);
-		virtual void exp(const DataContainer& x);
-		virtual void log(const DataContainer& x);
-		virtual void sqrt(const DataContainer& x);
-		virtual void sign(const DataContainer& x);
-		virtual void abs(const DataContainer& x);
+		virtual void maximum(const DataContainer& x, const void* ptr_y)
+		{
+			complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
+			semibinary_op_templ(x, y, sirf_maxreal<complex_float_t>());
+		}
+		virtual void minimum(const DataContainer& x, const void* ptr_y)
+		{
+			complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
+			semibinary_op_templ(x, y, sirf_minreal<complex_float_t>());
+		}
+		virtual void power(const DataContainer& x, const void* ptr_y)
+		{
+			complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
+			semibinary_op_templ(x, y, sirf_pow<complex_float_t>());
+		}
+		virtual void exp(const DataContainer& x)
+		{
+			unary_op_templ(x, sirf_exp<complex_float_t>());
+		}
+		virtual void log(const DataContainer& x)
+		{
+			unary_op_templ(x, sirf_log<complex_float_t>());
+		}
+		virtual void sqrt(const DataContainer& x)
+		{
+			unary_op_templ(x, sirf_sqrt<complex_float_t>());
+		}
+		virtual void sign(const DataContainer& x)
+		{
+			unary_op_templ(x, sirf_sign<complex_float_t>());
+		}
+		virtual void abs(const DataContainer& x)
+		{
+			unary_op_templ(x, sirf_abs<complex_float_t>());
+		}
+
 		virtual float norm() const;
 
 		virtual void write(const std::string &filename) const;

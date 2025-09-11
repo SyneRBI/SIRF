@@ -68,6 +68,20 @@ use it directly therefore.
 		}
 	};
 
+	template< class T >
+	struct sirf_sqrt {
+		T operator()(const T& a) const {
+			return std::sqrt(a);
+		}
+	};
+
+	template< class T >
+	struct sirf_abs {
+		T operator()(const T& a) const {
+			return std::abs(a);
+		}
+	};
+
 /*!
 \ingroup Common
 \brief Abstract data container with numerical operations.
@@ -309,6 +323,13 @@ which rely on the same features of the items.
 		{
 			if (is_complex())
 				THROW("complex data containes must override conjugate_impl()");
+		}
+	};
+
+	template< class T >
+	struct sirf_sign {
+		T operator()(const T& a) const {
+			return DataContainer::sign<T>(a);
 		}
 	};
 }
