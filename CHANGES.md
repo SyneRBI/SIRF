@@ -15,7 +15,6 @@
   - `torch/CMakeList.txt` installation of sirf.torch
   - `src/CMakeList.txt` installation of sirf.torch
 * SIRF
-  - `cmake/sirf.__init__.py.in` import sirf.SIRF content into the `sirf` namespace for convenience
   - `common/SIRF.py` adding adjoint operator
 
 ## v3.9.0
