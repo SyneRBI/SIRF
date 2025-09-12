@@ -57,67 +57,6 @@ limitations under the License.
 #define SPTR_WRAP(X) X
 #endif
 
-/*
-#define STIR_ACQ_SEMIBINARY_OP(NAME, OP) \
-        virtual void NAME(const DataContainer& x, const void* ptr_y) {\
-            auto a_x = dynamic_cast<const STIRAcquisitionData*>(&x);\
-            float y = *static_cast<const float*>(ptr_y);\
-            auto *pd_ptr   = dynamic_cast<stir::ProjDataInMemory*>(data().get());\
-            auto *pd_x_ptr = dynamic_cast<const stir::ProjDataInMemory*>(a_x->data().get());\
-            if (is_null_ptr(pd_ptr) || is_null_ptr(pd_x_ptr))\
-                return this->STIRAcquisitionData::NAME(x, ptr_y);\
-            auto iter = pd_ptr->begin();\
-            auto iter_x = pd_x_ptr->begin();\
-            while (iter != pd_ptr->end())\
-                OP;\
-        }
-//                *iter++ = (*iter_x++) OP y;\
-
-#define STIR_ACQ_BINARY_OP(NAME, OP) \
-        virtual void NAME(const DataContainer& x, const DataContainer& y) {\
-            auto a_x = dynamic_cast<const STIRAcquisitionData*>(&x);\
-            auto a_y = dynamic_cast<const STIRAcquisitionData*>(&y);\
-            auto *pd_ptr   = dynamic_cast<stir::ProjDataInMemory*>(data().get());\
-            auto *pd_x_ptr = dynamic_cast<const stir::ProjDataInMemory*>(a_x->data().get());\
-            auto *pd_y_ptr = dynamic_cast<const stir::ProjDataInMemory*>(a_y->data().get());\
-            if (is_null_ptr(pd_ptr) || is_null_ptr(pd_x_ptr) || is_null_ptr(pd_y_ptr))\
-                return this->STIRAcquisitionData::NAME(x,y);\
-            auto iter = pd_ptr->begin();\
-            auto iter_x = pd_x_ptr->begin();\
-            auto iter_y = pd_y_ptr->begin();\
-            while (iter != pd_ptr->end())\
-                OP;\
-        }
-//                *iter++ = (*iter_x++) OP (*iter_y++);\
-
-#define STIR_IMG_BINARY_OP(NAME, OP) \
-    virtual void NAME(const DataContainer& x, const DataContainer& y) {\
-        auto a_x = dynamic_cast<const STIRImageData*>(&x);\
-        auto a_y = dynamic_cast<const STIRImageData*>(&y);\
-        typename Array<3, float>::full_iterator iter;\
-        typename Array<3, float>::const_full_iterator iter_x;\
-        typename Array<3, float>::const_full_iterator iter_y;\
-        for (iter = data().begin_all(),\
-            iter_x = a_x->data().begin_all(), iter_y = a_y->data().begin_all();\
-            iter != data().end_all() &&\
-            iter_x != a_x->data().end_all() && iter_y != a_y->data().end_all();\
-            iter++, iter_x++, iter_y++)\
-                OP;\
-}
-
-#define STIR_IMG_SEMIBINARY_OP(NAME, OP) \
-    virtual void NAME(const DataContainer& x, const void* ptr_y) {\
-        auto a_x = dynamic_cast<const STIRImageData*>(&x);\
-        float y = *static_cast<const float*>(ptr_y);\
-        typename Array<3, float>::full_iterator iter;\
-        typename Array<3, float>::const_full_iterator iter_x;\
-        for (iter = data().begin_all(), iter_x = a_x->data().begin_all();\
-            iter != data().end_all() &&iter_x != a_x->data().end_all();\
-            iter++, iter_x++)\
-                OP;\
-}
-*/
-
 namespace sirf {
 
 	class SIRFUtilities {
@@ -1041,17 +980,7 @@ binary_op_templ(const DataContainer& a_x, const DataContainer& a_y, Operation f)
             float* ptr_t = static_cast<float*>(ptr);
             *ptr_t = (float)t;
         }
-/*
-        STIR_ACQ_BINARY_OP(multiply, *iter++ = (*iter_x++) * (*iter_y++))
-        STIR_ACQ_BINARY_OP(divide, *iter++ = (*iter_x++) / (*iter_y++))
-        STIR_ACQ_BINARY_OP(maximum, *iter++ = std::max(*iter_x++, *iter_y++));
-        STIR_ACQ_BINARY_OP(minimum, *iter++ = std::min(*iter_x++, *iter_y++));
-        STIR_ACQ_BINARY_OP(power, *iter++ = std::pow(*iter_x++, *iter_y++));
-        STIR_ACQ_SEMIBINARY_OP(add, *iter++ = (*iter_x++) + y);
-        STIR_ACQ_SEMIBINARY_OP(maximum, *iter++ = std::max(*iter_x++, y));
-        STIR_ACQ_SEMIBINARY_OP(minimum, *iter++ = std::min(*iter_x++, y));
-        STIR_ACQ_SEMIBINARY_OP(power, *iter++ = std::pow(*iter_x++, y));
-*/
+
         virtual bool supports_array_view() const
         {
             return STIR_VERSION >= 060200;
@@ -1479,15 +1408,6 @@ binary_op_templ(const DataContainer& a_x, const DataContainer& a_y, Operation f)
 		{
 			binary_op_templ(x, y, sirf_pow<float>());
 		}
-		//STIR_IMG_BINARY_OP(multiply, *iter = (*iter_x) * (*iter_y));
-		//STIR_IMG_BINARY_OP(divide, *iter = (*iter_x) / (*iter_y));
-		//STIR_IMG_BINARY_OP(maximum, *iter = std::max(*iter_x,*iter_y));
-		//STIR_IMG_BINARY_OP(minimum, *iter = std::min(*iter_x,*iter_y));
-		//STIR_IMG_BINARY_OP(power, *iter = std::pow(*iter_x,*iter_y));
-		//STIR_IMG_SEMIBINARY_OP(add, *iter = (*iter_x) + y);
-		//STIR_IMG_SEMIBINARY_OP(maximum, *iter = std::max(*iter_x, y));
-		//STIR_IMG_SEMIBINARY_OP(minimum, *iter = std::min(*iter_x, y));
-		//STIR_IMG_SEMIBINARY_OP(power, *iter = std::pow(*iter_x, y));
 
 		Image3DF& data()
 		{
