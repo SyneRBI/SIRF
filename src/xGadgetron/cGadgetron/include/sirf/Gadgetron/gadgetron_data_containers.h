@@ -282,26 +282,6 @@ namespace sirf {
         SetType idx_set_;
     };
 
-#define ISMRMRD_ACQ_BINARY_OP(NAME, OP)\
-    static void NAME(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y) {\
-        const complex_float_t* px;\
-        complex_float_t* py;\
-        for (px = acq_x.data_begin(), py = acq_y.data_begin();\
-            px != acq_x.data_end() && py != acq_y.data_end(); px++, py++) {\
-            *py = OP;\
-        }\
-    }
-
-#define ISMRMRD_ACQ_SEMIBINARY_OP(NAME, OP)\
-    static void NAME(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y) {\
-        const complex_float_t* px;\
-        complex_float_t* py;\
-        for (px = acq_x.data_begin(), py = acq_y.data_begin();\
-            px != acq_x.data_end() && py != acq_y.data_end(); px++, py++) {\
-            *py = OP;\
-        }\
-    }
-
 	/*!
 	\ingroup MR
 	\brief Abstract MR acquisition data container class.
@@ -1107,53 +1087,6 @@ namespace sirf {
 
 	*/
 
-#define ISMRMRD_IMG_BINARY_OP(OP)\
-virtual void OP(const DataContainer& a_x, const DataContainer& a_y) {\
-    SIRF_DYNAMIC_CAST(const ISMRMRDImageData, x, a_x);\
-    SIRF_DYNAMIC_CAST(const ISMRMRDImageData, y, a_y);\
-    unsigned int nx = x.number();\
-    unsigned int ny = y.number();\
-    if (nx != ny)\
-        THROW("ImageData sizes mismatch in OP");\
-    unsigned int n = number();\
-    if (n > 0) {\
-        if (n != nx)\
-            THROW("ImageData sizes mismatch in OP");\
-        for (unsigned int i = 0; i < nx && i < ny; i++)\
-            image_wrap(i).OP(x.image_wrap(i), y.image_wrap(i));\
-    }\
-    else {\
-        for (unsigned int i = 0; i < nx && i < ny; i++) {\
-            ImageWrap w(x.image_wrap(i));\
-            w.OP(x.image_wrap(i), y.image_wrap(i));\
-            append(w);\
-        }\
-    }\
-    this->set_meta_data(x.get_meta_data());\
-}
-
-#define ISMRMRD_IMG_SEMIBINARY_OP(OP)\
-virtual void OP(const DataContainer& a_x, const void* ptr_y) {\
-    SIRF_DYNAMIC_CAST(const ISMRMRDImageData, x, a_x);\
-    complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);\
-    unsigned int nx = x.number();\
-    unsigned int n = number();\
-    if (n > 0) {\
-        if (n != nx)\
-            THROW("ImageData sizes mismatch in OP(const DataContainer& a_x, const void* ptr_y)");\
-        for (unsigned int i = 0; i < nx; i++)\
-            image_wrap(i).OP(x.image_wrap(i), y);\
-    }\
-    else {\
-        for (unsigned int i = 0; i < nx; i++) {\
-            ImageWrap w(x.image_wrap(i));\
-            w.OP(x.image_wrap(i), y);\
-            append(w);\
-        }\
-    }\
-    this->set_meta_data(x.get_meta_data());\
-}
-
 	class ISMRMRDImageData : public ImageData {
 	public:
 		//ISMRMRDImageData(ISMRMRDImageData& id, const char* attr, 
@@ -1298,15 +1231,46 @@ virtual void OP(const DataContainer& a_x, const void* ptr_y) {\
 			xapyb_(a_x, a, a_y, b);
 		}
 
-		ISMRMRD_IMG_BINARY_OP(multiply);
-		ISMRMRD_IMG_BINARY_OP(divide);
-		ISMRMRD_IMG_BINARY_OP(maximum);
-		ISMRMRD_IMG_BINARY_OP(minimum);
-		ISMRMRD_IMG_BINARY_OP(power);
-		ISMRMRD_IMG_SEMIBINARY_OP(add);
-		ISMRMRD_IMG_SEMIBINARY_OP(maximum);
-		ISMRMRD_IMG_SEMIBINARY_OP(minimum);
-		ISMRMRD_IMG_SEMIBINARY_OP(power);
+		virtual void multiply(const DataContainer& a_x, const DataContainer& a_y)
+		{
+			binary_op_templ(a_x, a_y, std::multiplies<complex_float_t>());
+		}
+		virtual void divide(const DataContainer& a_x, const DataContainer& a_y)
+		{
+			binary_op_templ(a_x, a_y, std::divides<complex_float_t>());
+		}
+		virtual void maximum(const DataContainer& a_x, const DataContainer& a_y)
+		{
+			binary_op_templ(a_x, a_y, sirf_maxreal<complex_float_t>());
+		}
+		virtual void minimum(const DataContainer& a_x, const DataContainer& a_y)
+		{
+			binary_op_templ(a_x, a_y, sirf_minreal<complex_float_t>());
+		}
+		virtual void power(const DataContainer& a_x, const DataContainer& a_y)
+		{
+			binary_op_templ(a_x, a_y, sirf_pow<complex_float_t>());
+		}
+		virtual void add(const DataContainer& a_x, const void* ptr_y)
+		{
+			complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
+			semibinary_op_templ(a_x, y, std::plus<complex_float_t>());
+		}
+		virtual void maximum(const DataContainer& a_x, const void* ptr_y)
+		{
+			complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
+			semibinary_op_templ(a_x, y, sirf_maxreal<complex_float_t>());
+		}
+		virtual void minimum(const DataContainer& a_x, const void* ptr_y)
+		{
+			complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
+			semibinary_op_templ(a_x, y, sirf_minreal<complex_float_t>());
+		}
+		virtual void power(const DataContainer& a_x, const void* ptr_y)
+		{
+			complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
+			semibinary_op_templ(a_x, y, sirf_pow<complex_float_t>());
+		}
 
 		virtual void exp(const DataContainer& x);
 		virtual void log(const DataContainer& x);
@@ -1443,9 +1407,84 @@ virtual void OP(const DataContainer& a_x, const void* ptr_y) {\
 			this->set_meta_data(x.get_meta_data());
 		}
 
+		template<class Operation>
+		void
+		binary_op_templ(const DataContainer& a_x, const DataContainer& a_y, Operation f)
+		{
+			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, x, a_x);
+			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, y, a_y);
+			unsigned int nx = x.number();
+			unsigned int ny = y.number();
+			if (nx != ny)
+				THROW("ImageData sizes mismatch in binary_op_templ");
+			unsigned int n = number();
+			if (n > 0) {
+				if (n != nx)
+					THROW("ImageData sizes mismatch in binary_op_templ");
+				for (unsigned int i = 0; i < nx && i < ny; i++)
+					image_wrap(i).binary_op_templ(x.image_wrap(i), y.image_wrap(i), f);
+			}
+			else {
+				for (unsigned int i = 0; i < nx && i < ny; i++) {
+					ImageWrap w(x.image_wrap(i));
+					w.binary_op_templ(x.image_wrap(i), y.image_wrap(i), f);
+					append(w);
+				}
+			}
+			this->set_meta_data(x.get_meta_data());
+		}
+
+		template<class Operation>
+		void
+		semibinary_op_templ(const DataContainer& a_x, complex_float_t y, Operation f)
+		{
+			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, x, a_x);
+			unsigned int nx = x.number();
+			unsigned int n = number();
+			if (n > 0) {
+				if (n != nx)
+					THROW("ImageData sizes mismatch in semibinary_op_templ");
+					for (unsigned int i = 0; i < nx; i++)
+						image_wrap(i).semibinary_op_templ(x.image_wrap(i), y, f);
+			}
+			else {
+				for (unsigned int i = 0; i < nx; i++) {
+					ImageWrap w(x.image_wrap(i));
+					w.semibinary_op_templ(x.image_wrap(i), y, f);
+					append(w);
+				}
+			}
+			this->set_meta_data(x.get_meta_data());
+		}
+
+		template<class Operation>
+		void
+		unary_op_templ(const DataContainer& a_x, Operation f)
+		{
+			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, x, a_x);
+			unsigned int nx = x.number();
+			unsigned int n = number();
+			if (n > 0) {
+				if (n != nx)
+					THROW("ImageData sizes mismatch in unary_op_templ");
+				for (unsigned int i = 0; i < nx; i++)
+					image_wrap(i).unary_op_templ(x.image_wrap(i), f);
+			}
+			else {
+				for (unsigned int i = 0; i < nx; i++) {
+					ImageWrap w(x.image_wrap(i));
+					w.unary_op_templ(x.image_wrap(i), f);
+					append(w);
+				}
+			}
+			this->set_meta_data(x.get_meta_data());
+		}
+
 	};
 
 	typedef ISMRMRDImageData GadgetronImageData;
+
+
 
 	/*!
 	\ingroup MR

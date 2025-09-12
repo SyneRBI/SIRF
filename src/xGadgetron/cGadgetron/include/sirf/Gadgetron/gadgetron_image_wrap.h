@@ -39,6 +39,7 @@ limitations under the License.
 #include "sirf/common/ANumRef.h"
 #include "sirf/common/iequals.h"
 #include "sirf/Gadgetron/cgadgetron_shared_ptr.h"
+#include "sirf/Gadgetron/gadgetron_data_containers.h"
 #include "sirf/Gadgetron/xgadgetron_utilities.h"
 
 #define IMAGE_PROCESSING_SWITCH(Type, Operation, Arguments, ...)\
@@ -139,6 +140,20 @@ typedef ISMRMRD::Image<complex_double_t> CDImage;
 #endif
 
 namespace sirf {
+
+	template< class T >
+	struct sirf_mr_maxreal {
+		T operator()(const T& x, const T& y) const {
+			return std::real(x) > std::real(y) ? x : y;
+		}
+	};
+
+	template< class T >
+	struct sirf_mr_minreal {
+		T operator()(const T& x, const T& y) const {
+			return std::real(x) < std::real(y) ? x : y;
+		}
+	};
 
 	/**
 	\brief Wrapper for ISMRMRD::Image.
@@ -565,39 +580,67 @@ namespace sirf {
 		}
 		void multiply(const ImageWrap& x, const ImageWrap& y)
 		{
-			IMAGE_PROCESSING_SWITCH(type_, Multiply, x.ptr_image(), y.ptr_image());
+			IMAGE_PROCESSING_SWITCH(type_, binary_op_templ_, x.ptr_image(), y.ptr_image(),
+				std::multiplies<complex_float_t>());
 		}
 		void divide(const ImageWrap& x, const ImageWrap& y)
 		{
-			IMAGE_PROCESSING_SWITCH(type_, Divide, x.ptr_image(), y.ptr_image());
+			IMAGE_PROCESSING_SWITCH(type_, binary_op_templ_, x.ptr_image(), y.ptr_image(),
+				std::divides<complex_float_t>());
 		}
 		void maximum(const ImageWrap& x, const ImageWrap& y)
 		{
-			IMAGE_PROCESSING_SWITCH(type_, Maximum, x.ptr_image(), y.ptr_image());
+			IMAGE_PROCESSING_SWITCH(type_, binary_op_templ_, x.ptr_image(), y.ptr_image(),
+				sirf_mr_maxreal<complex_float_t>());
 		}
 		void minimum(const ImageWrap& x, const ImageWrap& y)
 		{
-			IMAGE_PROCESSING_SWITCH(type_, Minimum, x.ptr_image(), y.ptr_image());
+			IMAGE_PROCESSING_SWITCH(type_, binary_op_templ_, x.ptr_image(), y.ptr_image(),
+				sirf_mr_minreal<complex_float_t>());
 		}
 		void power(const ImageWrap& x, const ImageWrap& y)
 		{
-			IMAGE_PROCESSING_SWITCH(type_, Power, x.ptr_image(), y.ptr_image());
+			IMAGE_PROCESSING_SWITCH(type_, binary_op_templ_, x.ptr_image(), y.ptr_image(),
+				sirf_pow<complex_float_t>());
 		}
 		void add(const ImageWrap& x, complex_float_t y)
 		{
-			IMAGE_PROCESSING_SWITCH(type_, Add, x.ptr_image(), y);
+			IMAGE_PROCESSING_SWITCH(type_, semibinary_op_templ_, x.ptr_image(), y,
+				std::plus<complex_float_t>());
 		}
 		void maximum(const ImageWrap& x, complex_float_t y)
 		{
-			IMAGE_PROCESSING_SWITCH(type_, Maximum, x.ptr_image(), y);
+			IMAGE_PROCESSING_SWITCH(type_, semibinary_op_templ_, x.ptr_image(), y,
+				sirf_mr_maxreal<complex_float_t>());
 		}
 		void minimum(const ImageWrap& x, complex_float_t y)
 		{
-			IMAGE_PROCESSING_SWITCH(type_, Minimum, x.ptr_image(), y);
+			IMAGE_PROCESSING_SWITCH(type_, semibinary_op_templ_, x.ptr_image(), y,
+				sirf_mr_minreal<complex_float_t>());
 		}
 		void power(const ImageWrap& x, complex_float_t y)
 		{
-			IMAGE_PROCESSING_SWITCH(type_, Power, x.ptr_image(), y);
+			IMAGE_PROCESSING_SWITCH(type_, semibinary_op_templ_, x.ptr_image(), y,
+				sirf_pow<complex_float_t>());
+		}
+
+		template<class Operation>
+		void
+		binary_op_templ(const ImageWrap& x, const ImageWrap& y, Operation f)
+		{
+			IMAGE_PROCESSING_SWITCH(type_, binary_op_templ_, x.ptr_image(), y.ptr_image(), f);
+		}
+		template<class Operation>
+		void
+		semibinary_op_templ(const ImageWrap& x, complex_float_t y, Operation f)
+		{
+			IMAGE_PROCESSING_SWITCH(type_, semibinary_op_templ_, x.ptr_image(), y, f);
+		}
+		template<class Operation>
+		void
+		unary_op_templ(const ImageWrap& x, Operation f)
+		{
+			IMAGE_PROCESSING_SWITCH(type_, unary_op_, x.ptr_image(), f);
 		}
 
 		void binary_op(const ImageWrap& x, const ImageWrap& y, complex_float_t(*f)(complex_float_t, complex_float_t))
@@ -945,15 +988,63 @@ namespace sirf {
 			}
 		}
 
-		BINARY_OP(Multiply, complex_float_t u = x * y)
-		BINARY_OP(Divide, complex_float_t u = x / y)
-		BINARY_OP(Maximum, complex_float_t u = DataContainer::maxreal<complex_float_t>(x, y))
-		BINARY_OP(Minimum, complex_float_t u = DataContainer::minreal<complex_float_t>(x, y))
-		BINARY_OP(Power, complex_float_t u = DataContainer::power(x, y))
-		SEMIBINARY_OP(Add, complex_float_t u = x + y)
-		SEMIBINARY_OP(Maximum, complex_float_t u = DataContainer::maxreal<complex_float_t>(x, y))
-		SEMIBINARY_OP(Minimum, complex_float_t u = DataContainer::minreal<complex_float_t>(x, y))
-		SEMIBINARY_OP(Power, complex_float_t u = DataContainer::power(x, y))
+		template<typename T, class Operation>
+		void
+		binary_op_templ_(const ISMRMRD::Image<T>* ptr_x, const void* vptr_y, Operation f)
+		{
+			ISMRMRD::Image<T>* ptr = (ISMRMRD::Image<T>*)ptr_;
+			ISMRMRD::Image<T>* ptr_y = (ISMRMRD::Image<T>*)vptr_y;
+			size_t nx = ptr_x->getNumberOfDataElements();
+			size_t ny = ptr_y->getNumberOfDataElements();
+			size_t n = ptr->getNumberOfDataElements();
+			if (!(n == nx && n == ny))
+				THROW("sizes mismatch in ImageWrap binary_op_templ_");
+			const T* i = ptr_x->getDataPtr();
+			const T* j = ptr_y->getDataPtr();
+			T* k = ptr->getDataPtr();
+			size_t ii = 0;
+			for (; ii < n; i++, j++, k++, ii++) {
+				complex_float_t u = (complex_float_t)*i;
+				complex_float_t v = (complex_float_t)*j;
+				xGadgetronUtilities::convert_complex(f(u, v), *k);
+			}
+		}
+
+		template<typename T, class Operation>
+		void
+		semibinary_op_templ_(const ISMRMRD::Image<T>* ptr_x, complex_float_t y, Operation f)
+		{
+			ISMRMRD::Image<T>* ptr = (ISMRMRD::Image<T>*)ptr_;
+			size_t nx = ptr_x->getNumberOfDataElements();
+			size_t n = ptr->getNumberOfDataElements();
+			if (n != nx)
+				THROW("sizes mismatch in ImageWrap semibinary_op_templ_");
+			const T* i = ptr_x->getDataPtr();
+			T* k = ptr->getDataPtr();
+			size_t ii = 0;
+			for (; ii < n; i++, k++, ii++) {
+				complex_float_t x = (complex_float_t)*i;
+				xGadgetronUtilities::convert_complex(f(x, y), *k);
+			}
+		}
+
+		template<typename T, class Operation>
+		void
+		unary_op_templ_(const ISMRMRD::Image<T>* ptr_x, Operation f)
+		{
+			ISMRMRD::Image<T>* ptr = (ISMRMRD::Image<T>*)ptr_;
+			size_t nx = ptr_x->getNumberOfDataElements();
+			size_t n = ptr->getNumberOfDataElements();
+			if (n != nx)
+				THROW("sizes mismatch in ImageWrap unary_op_templ_");
+			const T* i = ptr_x->getDataPtr();
+			T* k = ptr->getDataPtr();
+			size_t ii = 0;
+			for (; ii < n; i++, k++, ii++) {
+				complex_float_t x = (complex_float_t)*i;
+				xGadgetronUtilities::convert_complex(f(x), *k);
+			}
+		}
 
 		template<typename T>
 		void binary_op_(const ISMRMRD::Image<T>* ptr_x, const void* vptr_y,
