@@ -24,6 +24,7 @@ limitations under the License.
 \brief NiftyReg's f3d class for non-rigid registrations.
 
 \author Richard Brown
+\author Alexander C. Whitehead
 \author SyneRBI
 */
 
@@ -33,6 +34,7 @@ limitations under the License.
 #include "sirf/Reg/NiftiImageData3D.h"
 #include "sirf/Reg/NiftiImageData3DDisplacement.h"
 #include <_reg_f3d_sym.h>
+#include <_reg_f3d2.h>
 
 using namespace sirf;
 
@@ -50,10 +52,21 @@ void NiftyF3dSym<dataType>::process()
     NiftiImageData3D<dataType> flo = *this->_floating_images_nifti.at(0);
 
     // Create the registration object
-    if (_use_symmetric)
-        _registration_sptr = std::make_shared<reg_f3d_sym<dataType> >(_reference_time_point, _floating_time_point);
+    if(_use_velocity)
+    {
+        _registration_sptr = std::make_shared<reg_f3d2<dataType>>(_reference_time_point, _floating_time_point);
+    }
     else
-        _registration_sptr = std::make_shared<reg_f3d<dataType> >(_reference_time_point, _floating_time_point);
+    {
+        if(_use_symmetric)
+        {
+            _registration_sptr = std::make_shared<reg_f3d_sym<dataType>>(_reference_time_point, _floating_time_point);
+        }
+        else
+        {
+            _registration_sptr = std::make_shared<reg_f3d<dataType>>(_reference_time_point, _floating_time_point);
+        }
+    }
 
     // Set reference and floating images
     _registration_sptr->SetReferenceImage(ref.get_raw_nifti_sptr().get());
@@ -62,10 +75,23 @@ void NiftyF3dSym<dataType>::process()
     // By default, use a padding value of 0
     _registration_sptr->SetWarpedPaddingValue(0.f);
 
+    nifti_image* init_cpp = NULL;
+    
     // If there is an initial transformation matrix, set it
-    if (_initial_transformation_sptr) {
-        mat44 init_tm = _initial_transformation_sptr->get_as_mat44();
-        _registration_sptr->SetAffineTransformation(&init_tm);
+    if (_initial_cpp_sptr)
+    {
+        std::cout << "\n\nSetting initial cpp...\n\n";
+        
+        init_cpp = new nifti_image(*_initial_cpp_sptr->get_raw_nifti_sptr());
+        _registration_sptr->SetControlPointGridImage(init_cpp);
+    }
+    else
+    {
+        // If there is an initial transformation matrix, set it
+        if (_initial_transformation_sptr) {
+            mat44 init_tm = _initial_transformation_sptr->get_as_mat44();
+            _registration_sptr->SetAffineTransformation(&init_tm);
+        }
     }
 
     // Set masks (if present). Again, need to copy to get rid of const
@@ -109,10 +135,14 @@ void NiftyF3dSym<dataType>::process()
         this->_warped_images_nifti.at(0)->get_raw_nifti_sptr()->pixdim[4] = this->_warped_images_nifti.at(0)->get_raw_nifti_sptr()->dt = 0.F;
 
     // Get the CPP images
-    nifti_image * cpp_fwd_ptr = _registration_sptr->GetControlPointPositionImage();
+    nifti_image* cpp_fwd_ptr = _registration_sptr->GetControlPointPositionImage();
     NiftiImageData3DTensor<dataType> cpp_forward(*cpp_fwd_ptr);
     nifti_image_free(cpp_fwd_ptr);
-
+    
+    // Store CPP
+    std::shared_ptr<NiftiImageData3DTensor<dataType> > cpp_fwd_sptr = std::make_shared<NiftiImageData3DTensor<dataType> >(cpp_forward);
+    this->_cpp_fwd_images.at(0) = cpp_fwd_sptr;
+    
     // Get deformation fields from cpp
     std::shared_ptr<NiftiImageData3DDeformation<dataType> > def_fwd_sptr = std::make_shared<NiftiImageData3DDeformation<dataType> >();
     def_fwd_sptr->create_from_cpp(cpp_forward, ref);
@@ -128,6 +158,12 @@ void NiftyF3dSym<dataType>::process()
         this->_warped_images.at(0) = this->_warped_images_nifti.at(0);
 
     std::cout << "\n\nRegistration finished!\n\n";
+    
+    if(init_cpp != NULL)
+    {
+        delete init_cpp;
+        init_cpp = NULL;
+    }
 }
 
 template<class dataType>
@@ -201,6 +237,8 @@ void NiftyF3dSym<dataType>::check_parameters() const
         throw std::runtime_error("Reference time point has not been set."); }
 }
 
+// currently UseNMISetReferenceBinNumber and UseNMISetFloatingBinNumber set their respective number of bins for the first time point only
+
 template<class dataType>
 void NiftyF3dSym<dataType>::parse_parameter_file()
 {
@@ -228,6 +266,8 @@ void NiftyF3dSym<dataType>::parse_parameter_file()
     parser.add_key("SetSSDWeight",&reg_f3d<dataType>::SetSSDWeight);
     parser.add_key("SetLNCCWeight",&reg_f3d<dataType>::SetLNCCWeight);
     parser.add_key("SetNMIWeight",&reg_f3d<dataType>::SetNMIWeight);
+    parser.add_key("UseNMISetReferenceBinNumber",&reg_f3d<dataType>::UseNMISetReferenceBinNumber);
+    parser.add_key("UseNMISetFloatingBinNumber",&reg_f3d<dataType>::UseNMISetFloatingBinNumber);
     parser.add_key("SetKLDWeight",&reg_f3d<dataType>::SetKLDWeight);
     parser.add_key("SetFloatingThresholdUp",&reg_f3d<dataType>::SetFloatingThresholdUp);
     parser.add_key("SetFloatingThresholdLow",&reg_f3d<dataType>::SetFloatingThresholdLow);
@@ -237,6 +277,12 @@ void NiftyF3dSym<dataType>::parse_parameter_file()
 
     parser.parse();
 }
+
+// currently SetSSDWeight SetLNCCWeight and SetKLDWeight set their respective bool for the first time point only
+// currently UseNMISetReferenceBinNumber and UseNMISetFloatingBinNumber set their respective number of bins for the first time point only
+// currently SetSSDWeight does not normalise
+// currently SetLNCCWeight uses a sd of 1.0
+
 template<class dataType>
 void NiftyF3dSym<dataType>::set_parameters()
 {
@@ -260,10 +306,15 @@ void NiftyF3dSym<dataType>::set_parameters()
         else if (strcmp(par.c_str(),"SetLevelToPerform")== 0) _registration_sptr->SetLevelToPerform(unsigned(stoi(arg1)));
         else if (strcmp(par.c_str(),"SetMaximalIterationNumber")== 0) _registration_sptr->SetMaximalIterationNumber(unsigned(stoi(arg1)));
         else if (strcmp(par.c_str(),"SetPerturbationNumber")== 0) _registration_sptr->SetPerturbationNumber(unsigned(stoi(arg1)));
-        else if (strcmp(par.c_str(),"SetSSDWeight")== 0) _registration_sptr->SetSSDWeight(stoi(arg1), stoi(arg2));
-        else if (strcmp(par.c_str(),"SetLNCCWeight")== 0) _registration_sptr->SetLNCCWeight(stoi(arg1), stod(arg2));
-        else if (strcmp(par.c_str(),"SetNMIWeight")== 0) _registration_sptr->SetNMIWeight(stoi(arg1), stod(arg2));
-        else if (strcmp(par.c_str(),"SetKLDWeight")== 0) _registration_sptr->SetKLDWeight(stoi(arg1), unsigned(stoi(arg2)));
+        else if (strcmp(par.c_str(),"SetSSDWeight")== 0) _registration_sptr->UseSSD(stoi(arg1), stoi(arg2));
+        else if (strcmp(par.c_str(),"SetLNCCWeight")== 0) _registration_sptr->UseLNCC(stoi(arg1), stod(arg2));
+        else if (strcmp(par.c_str(),"SetKLDWeight")== 0) _registration_sptr->UseKLDivergence(stoi(arg1));
+        // else if (strcmp(par.c_str(),"SetSSDWeight")== 0){ _registration_sptr->SetSSDWeight(stoi(arg1), stoi(arg2)); _registration_sptr->UseSSD(0, 0); }
+        // else if (strcmp(par.c_str(),"SetLNCCWeight")== 0){ _registration_sptr->SetLNCCWeight(stoi(arg1), stod(arg2)); _registration_sptr->UseLNCC(0, 1.0); }
+        // else if (strcmp(par.c_str(),"SetNMIWeight")== 0){ _registration_sptr->SetNMIWeight(stoi(arg1), stod(arg2)); }
+        else if (strcmp(par.c_str(),"UseNMISetReferenceBinNumber")== 0) _registration_sptr->UseNMISetReferenceBinNumber(0, stod(arg1));
+        else if (strcmp(par.c_str(),"UseNMISetFloatingBinNumber")== 0) _registration_sptr->UseNMISetFloatingBinNumber(0, stod(arg1));
+        // else if (strcmp(par.c_str(),"SetKLDWeight")== 0){ _registration_sptr->SetKLDWeight(stoi(arg1), unsigned(stoi(arg2))); _registration_sptr->UseKLDivergence(0); }
         else if (strcmp(par.c_str(),"SetFloatingThresholdUp")== 0) _registration_sptr->SetFloatingThresholdUp(unsigned(stoi(arg1)), dataType(stod(arg2)));
         else if (strcmp(par.c_str(),"SetFloatingThresholdLow")== 0) _registration_sptr->SetFloatingThresholdLow(unsigned(stoi(arg1)), dataType(stod(arg2)));
         else if (strcmp(par.c_str(),"SetReferenceThresholdUp")== 0) _registration_sptr->SetReferenceThresholdUp(unsigned(stoi(arg1)), dataType(stod(arg2)));
