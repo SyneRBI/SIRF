@@ -34,11 +34,9 @@ limitations under the License.
 
 #include <stdlib.h>
 
-#include <algorithm>
 #include <chrono>
 #include <exception>
 #include <fstream>
-#include <functional>
 #include <iterator>
 #include "sirf/STIR/stir_types.h"
 #include "sirf/iUtilities/LocalisedException.h"
