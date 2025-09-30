@@ -470,7 +470,6 @@ MRAcquisitionData::sqrt
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
     MRAcquisitionData::unary_op_templ(acq_x, acq_y, sirf_sqrt<complex_float_t>());
-//    MRAcquisitionData::unary_op(acq_x, acq_y, DataContainer::sqrt);
 }
 
 void
@@ -478,7 +477,6 @@ MRAcquisitionData::sign
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
     MRAcquisitionData::unary_op_templ(acq_x, acq_y, sirf_sign<complex_float_t>());
-//    MRAcquisitionData::unary_op(acq_x, acq_y, DataContainer::sign);
 }
 
 void
@@ -486,7 +484,6 @@ MRAcquisitionData::abs
 (const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
 {
     MRAcquisitionData::unary_op_templ(acq_x, acq_y, sirf_abs<complex_float_t>());
-//    MRAcquisitionData::unary_op(acq_x, acq_y, DataContainer::abs);
 }
 
 complex_float_t
@@ -820,131 +817,6 @@ MRAcquisitionData::xapyb(
         ix++;
         iy++;
         ib++;
-        k++;
-    }
-    this->set_sorted(true);
-    this->organise_kspace();
-}
-
-void
-MRAcquisitionData::binary_op(
-    const DataContainer& a_x, const DataContainer& a_y,
-    void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&))
-{
-	SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-	SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
-	if (!x.sorted() || !y.sorted())
-		THROW("binary algebraic operations cannot be applied to unsorted data");
-
-	int nx = x.number();
-	int ny = y.number();
-	ISMRMRD::Acquisition ax;
-	ISMRMRD::Acquisition ay;
-	ISMRMRD::Acquisition acq;
-	bool isempty = (number() < 1);
-    for (int ix = 0, iy = 0, k = 0; ix < nx && iy < ny;) {
-		if (!x.get_acquisition(ix, ax)) {
-//			std::cout << ix << " ignored (ax)\n";
-			ix++;
-			continue;
-		}
-		if (!y.get_acquisition(iy, ay)) {
-//			std::cout << iy << " ignored (ay)\n";
-			iy++;
-			continue;
-		}
-		if (!isempty) {
-			if (!get_acquisition(k, acq)) {
-//				std::cout << k << " ignored (acq)\n";
-				k++;
-				continue;
-			}
-		}
-        f(ax, ay);
-		if (isempty)
-			append_acquisition(ay);
-		else
-			set_acquisition(k, ay);
-		ix++;
-		iy++;
-		k++;
-	}
-	this->set_sorted(true);
-	this->organise_kspace();
-}
-
-void
-MRAcquisitionData::semibinary_op(const DataContainer& a_x, complex_float_t y,
-    void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&, complex_float_t y))
-{
-    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-    if (!x.sorted())
-        THROW("binary algebraic operations cannot be applied to unsorted data");
-
-    int nx = x.number();
-    ISMRMRD::Acquisition ax;
-    ISMRMRD::Acquisition ay;
-    ISMRMRD::Acquisition acq;
-    bool isempty = (number() < 1);
-    for (int ix = 0, k = 0; ix < nx;) {
-        if (!x.get_acquisition(ix, ax)) {
-//            std::cout << ix << " ignored (ax)\n";
-            ix++;
-            continue;
-        }
-        if (!isempty) {
-            if (!get_acquisition(k, acq)) {
-//                std::cout << k << " ignored (acq)\n";
-                k++;
-                continue;
-            }
-        }
-        x.get_acquisition(ix, ay);
-        f(ax, ay, y);
-        if (isempty)
-            append_acquisition(ay);
-        else
-            set_acquisition(k, ay);
-        ix++;
-        k++;
-    }
-    this->set_sorted(true);
-    this->organise_kspace();
-}
-
-void
-MRAcquisitionData::unary_op(const DataContainer& a_x,
-    void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&))
-{
-    SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
-    if (!x.sorted())
-        THROW("binary algebraic operations cannot be applied to unsorted data");
-
-    int nx = x.number();
-    ISMRMRD::Acquisition ax;
-    ISMRMRD::Acquisition ay;
-    ISMRMRD::Acquisition acq;
-    bool isempty = (number() < 1);
-    for (int ix = 0, k = 0; ix < nx;) {
-        if (!x.get_acquisition(ix, ax)) {
-//            std::cout << ix << " ignored (ax)\n";
-            ix++;
-            continue;
-        }
-        if (!isempty) {
-            if (!get_acquisition(k, acq)) {
-//                std::cout << k << " ignored (acq)\n";
-                k++;
-                continue;
-            }
-        }
-        x.get_acquisition(ix, ay);
-        f(ax, ay);
-        if (isempty)
-            append_acquisition(ay);
-        else
-            set_acquisition(k, ay);
-        ix++;
         k++;
     }
     this->set_sorted(true);

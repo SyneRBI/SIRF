@@ -333,15 +333,6 @@ namespace sirf {
 		    }
 		}
 
-		static void binary_op
-		(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y,
-			complex_float_t (*f)(complex_float_t, complex_float_t));
-		static void semibinary_op
-		(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y,
-			complex_float_t(*f)(complex_float_t, complex_float_t));
-		static void unary_op
-		(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y,
-			complex_float_t(*f)(complex_float_t));
 		// y := a x + b y
 		static void axpby
 			(complex_float_t a, const ISMRMRD::Acquisition& acq_x,
@@ -366,25 +357,19 @@ namespace sirf {
 		static complex_float_t min(const ISMRMRD::Acquisition& acq_x);
 		// elementwise multiplication
 		// y := x .* y
-		//ISMRMRD_ACQ_BINARY_OP(multiply, (*px) * (*py))
 		static void multiply(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
 		// multiply by scalar
 		// y := x * y
-		//ISMRMRD_ACQ_SEMIBINARY_OP(multiply, (*px) * y)
 		static void multiply(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y);
 		// add scalar
 		// y := x + y
-		//ISMRMRD_ACQ_SEMIBINARY_OP(add, (*px) + y)
 		static void add(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y);
 		// elementwise division
 		// y := x ./ y
-		//ISMRMRD_ACQ_BINARY_OP(divide, (*px) / (*py))
 		static void divide(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
 		// elementwise maximum
 		// y := std::real(x) > std::real(y) ? x : y
-		//ISMRMRD_ACQ_BINARY_OP(maximum, DataContainer::maxreal<complex_float_t>(*px, *py))
 		static void maximum(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
-		//ISMRMRD_ACQ_SEMIBINARY_OP(maximum, DataContainer::maxreal<complex_float_t>(*px, y))
 		static void maximum(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y);
 		// elementwise minimum
 		// y := std::real(x) < std::real(y) ? x : y
@@ -878,14 +863,6 @@ namespace sirf {
 		virtual float norm() const;
 
 		virtual void write(const std::string &filename) const;
-
-		// regular methods
-		void binary_op(const DataContainer& a_x, const DataContainer& a_y,
-			void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&));
-		void semibinary_op(const DataContainer& a_x, complex_float_t y,
-			void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&, complex_float_t));
-		void unary_op(const DataContainer& a_x,
-			void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&));
 
 		AcquisitionsInfo acquisitions_info() const { return acqs_info_; }
 		void set_acquisitions_info(std::string info) { acqs_info_ = info; }

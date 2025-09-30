@@ -532,10 +532,6 @@ namespace sirf {
 				(sptr_s, span, max_ring_diff, num_views, num_tang_pos, false));
 		}
 
-		//void unary_op(const DataContainer& a_x, float(*f)(float));
-		//void semibinary_op(const DataContainer& a_x, float y, float(*f)(float, float));
-		//void binary_op(const DataContainer& a_x, const DataContainer& a_y, float(*f)(float, float));
-
 #ifdef STIR_TOF
 #define TOF_LOOP  for (int k=data()->get_min_tof_pos_num(); k<=data()->get_max_tof_pos_num(); ++k)
 #define TOF_ARG , k
@@ -1590,10 +1586,6 @@ namespace sirf {
 
 		/// Populate the geometrical info metadata (from the image's own metadata)
 		virtual void set_up_geom_info();
-
-		void unary_op(const DataContainer& a_x, float(*f)(float));
-		//void semibinary_op(const DataContainer& a_x, float y, float(*f)(float, float));
-		//void binary_op(const DataContainer& a_x, const DataContainer& a_y, float(*f)(float, float));
 
 		size_t address() const {
 		    return reinterpret_cast<size_t>(_data->get_const_full_data_ptr());
