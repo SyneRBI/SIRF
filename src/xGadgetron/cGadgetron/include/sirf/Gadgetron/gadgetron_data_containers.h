@@ -1271,20 +1271,26 @@ namespace sirf {
 			complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
 			semibinary_op_templ(a_x, y, sirf_pow<complex_float_t>());
 		}
-
-		virtual void exp(const DataContainer& x);
-		virtual void log(const DataContainer& x);
-		virtual void sqrt(const DataContainer& x);
-		virtual void sign(const DataContainer& x);
-		virtual void abs(const DataContainer& x);
-
-		void binary_op(
-			const DataContainer& a_x, const DataContainer& a_y,
-			complex_float_t(*f)(complex_float_t, complex_float_t));
-		void semibinary_op(
-			const DataContainer& a_x, complex_float_t y,
-			complex_float_t(*f)(complex_float_t, complex_float_t));
-		void unary_op(const DataContainer& a_x, complex_float_t(*f)(complex_float_t));
+		virtual void exp(const DataContainer& x)
+		{
+			unary_op_templ(x, sirf_exp<complex_float_t>());
+		}
+		virtual void log(const DataContainer& x)
+		{
+			unary_op_templ(x, sirf_log<complex_float_t>());
+		}
+		virtual void sqrt(const DataContainer& x)
+		{
+			unary_op_templ(x, sirf_sqrt<complex_float_t>());
+		}
+		virtual void sign(const DataContainer& x)
+		{
+			unary_op_templ(x, sirf_sign<complex_float_t>());
+		}
+		virtual void abs(const DataContainer& x)
+		{
+			unary_op_templ(x, sirf_abs<complex_float_t>());
+		}
 
 		void fill(float s);
 		void scale(float s);
