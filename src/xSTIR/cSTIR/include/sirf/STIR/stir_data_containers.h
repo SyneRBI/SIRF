@@ -343,25 +343,25 @@ namespace sirf {
 		virtual void xapyb(
 			const DataContainer& a_x, const void* ptr_a,
 			const DataContainer& a_y, const DataContainer& a_b);
-		virtual void abs(const DataContainer& x)
-		{
-			unary_op(x, std::abs);
-		}
 		virtual void exp(const DataContainer& x)
 		{
-			unary_op(x, std::exp);
+			unary_op_templ(x, sirf_exp<float>());
 		}
 		virtual void log(const DataContainer& x)
 		{
-			unary_op(x, std::log);
+			unary_op_templ(x, sirf_log<float>());
 		}
 		virtual void sqrt(const DataContainer& x)
 		{
-			unary_op(x, std::sqrt);
+			unary_op_templ(x, sirf_sqrt<float>());
 		}
 		virtual void sign(const DataContainer& x)
 		{
-			unary_op(x, DataContainer::sign);
+			unary_op_templ(x, sirf_sign<float>());
+		}
+		virtual void abs(const DataContainer& x)
+		{
+			unary_op_templ(x, sirf_abs<float>());
 		}
 		virtual void multiply(const DataContainer& x, const void* ptr_y)
 		{
@@ -534,7 +534,7 @@ namespace sirf {
 				(sptr_s, span, max_ring_diff, num_views, num_tang_pos, false));
 		}
 
-		void unary_op(const DataContainer& a_x, float(*f)(float));
+		//void unary_op(const DataContainer& a_x, float(*f)(float));
 		//void semibinary_op(const DataContainer& a_x, float y, float(*f)(float, float));
 		//void binary_op(const DataContainer& a_x, const DataContainer& a_y, float(*f)(float, float));
 
@@ -548,97 +548,137 @@ namespace sirf {
 
 #define SIRF_DYNAMIC_CAST(T, X, Y) T& X = dynamic_cast<T&>(Y)
 
-template<class Operation>
-void
-semibinary_op_templ(const DataContainer& a_x, float y, Operation f)
-{
-	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, x, a_x);
-	auto *pd_ptr   = dynamic_cast<stir::ProjDataInMemory*>(data().get());
-	auto *pd_x_ptr = dynamic_cast<const stir::ProjDataInMemory*>(x.data().get());
-	if (!is_null_ptr(pd_ptr) && !is_null_ptr(pd_x_ptr)) {
-		//std::cout << "using simple loop...\n";
-		auto iter = pd_ptr->begin();
-		auto iter_x = pd_x_ptr->begin();
-		while (iter != pd_ptr->end())
-			*iter++ = f(*iter_x++, y);
-		return;
-	}
-	int n = get_max_segment_num();
-	int nx = x.get_max_segment_num();
-        TOF_LOOP
-	for (int s = 0; s <= n && s <= nx; ++s) {
-		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s TOF_ARG);
-		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s TOF_ARG);
-		SegmentBySinogram<float>::full_iterator seg_iter;
-		SegmentBySinogram<float>::full_iterator sx_iter;
-		for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
-			seg_iter != seg.end_all() && sx_iter != sx.end_all(); /*empty*/)
-			*seg_iter++ = f(*sx_iter++, y);
-		set_segment(seg);
-		if (s > 0) {
-			SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(-s TOF_ARG);
-			SegmentBySinogram<float> sx = x.get_segment_by_sinogram(-s TOF_ARG);
+		template<class Operation>
+		void
+		unary_op_templ(const DataContainer& a_x, Operation f)
+		{
+			SIRF_DYNAMIC_CAST(const STIRAcquisitionData, x, a_x);
+			auto *pd_ptr   = dynamic_cast<stir::ProjDataInMemory*>(data().get());
+			auto *pd_x_ptr = dynamic_cast<const stir::ProjDataInMemory*>(x.data().get());
+			if (!is_null_ptr(pd_ptr) && !is_null_ptr(pd_x_ptr)) {
+				//std::cout << "using simple loop...\n";
+				auto iter = pd_ptr->begin();
+				auto iter_x = pd_x_ptr->begin();
+				while (iter != pd_ptr->end())
+					*iter++ = f(*iter_x++);
+				return;
+			}
+			int n = get_max_segment_num();
+			int nx = x.get_max_segment_num();
+		        TOF_LOOP
+			for (int s = 0; s <= n && s <= nx; ++s) {
+				SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s TOF_ARG);
+				SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s TOF_ARG);
+				SegmentBySinogram<float>::full_iterator seg_iter;
+				SegmentBySinogram<float>::full_iterator sx_iter;
+				for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
+					seg_iter != seg.end_all() && sx_iter != sx.end_all(); /*empty*/)
+					*seg_iter++ = f(*sx_iter++);
+				set_segment(seg);
+				if (s > 0) {
+					SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(-s TOF_ARG);
+					SegmentBySinogram<float> sx = x.get_segment_by_sinogram(-s TOF_ARG);
+					SegmentBySinogram<float>::full_iterator seg_iter;
+					SegmentBySinogram<float>::full_iterator sx_iter;
+					for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
+						seg_iter != seg.end_all() && sx_iter != sx.end_all(); /*empty*/)
+						*seg_iter++ = f(*sx_iter++);
+					set_segment(seg);
+				}
+			}
+		}
+
+		template<class Operation>
+		void
+		semibinary_op_templ(const DataContainer& a_x, float y, Operation f)
+		{
+			SIRF_DYNAMIC_CAST(const STIRAcquisitionData, x, a_x);
+			auto *pd_ptr   = dynamic_cast<stir::ProjDataInMemory*>(data().get());
+			auto *pd_x_ptr = dynamic_cast<const stir::ProjDataInMemory*>(x.data().get());
+			if (!is_null_ptr(pd_ptr) && !is_null_ptr(pd_x_ptr)) {
+				//std::cout << "using simple loop...\n";
+				auto iter = pd_ptr->begin();
+				auto iter_x = pd_x_ptr->begin();
+				while (iter != pd_ptr->end())
+					*iter++ = f(*iter_x++, y);
+				return;
+			}
+			int n = get_max_segment_num();
+			int nx = x.get_max_segment_num();
+		        TOF_LOOP
+			for (int s = 0; s <= n && s <= nx; ++s) {
+				SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s TOF_ARG);
+				SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s TOF_ARG);
+				SegmentBySinogram<float>::full_iterator seg_iter;
+				SegmentBySinogram<float>::full_iterator sx_iter;
+				for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
+					seg_iter != seg.end_all() && sx_iter != sx.end_all(); /*empty*/)
+					*seg_iter++ = f(*sx_iter++, y);
+				set_segment(seg);
+				if (s > 0) {
+					SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(-s TOF_ARG);
+					SegmentBySinogram<float> sx = x.get_segment_by_sinogram(-s TOF_ARG);
+					SegmentBySinogram<float>::full_iterator seg_iter;
+					SegmentBySinogram<float>::full_iterator sx_iter;
+					for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
+						seg_iter != seg.end_all() && sx_iter != sx.end_all(); /*empty*/)
+						*seg_iter++ = f(*sx_iter++, y);
+					set_segment(seg);
+				}
+			}
+		}
+
+		template<class Operation>
+		void
+		binary_op_templ(const DataContainer& a_x, const DataContainer& a_y, Operation f)
+		{
+			SIRF_DYNAMIC_CAST(const STIRAcquisitionData, x, a_x);
+			SIRF_DYNAMIC_CAST(const STIRAcquisitionData, y, a_y);
+			auto *pd_ptr   = dynamic_cast<stir::ProjDataInMemory*>(data().get());
+			auto *pd_x_ptr = dynamic_cast<const stir::ProjDataInMemory*>(x.data().get());
+			auto *pd_y_ptr = dynamic_cast<const stir::ProjDataInMemory*>(y.data().get());
+			if (!is_null_ptr(pd_ptr) && !is_null_ptr(pd_x_ptr) && !is_null_ptr(pd_y_ptr)) {
+				//std::cout << "using simple loop...\n";
+				auto iter = pd_ptr->begin();
+				auto iter_x = pd_x_ptr->begin();
+				auto iter_y = pd_y_ptr->begin();
+				while (iter != pd_ptr->end())
+					*iter++ = f(*iter_x++, *iter_y++);
+				return;
+			}
+			int n = get_max_segment_num();
+			int nx = x.get_max_segment_num();
+			int ny = y.get_max_segment_num();
+			if (n != nx || n != ny)
+				throw std::runtime_error("binary_op error: operands sizes differ");
 			SegmentBySinogram<float>::full_iterator seg_iter;
 			SegmentBySinogram<float>::full_iterator sx_iter;
-			for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
-				seg_iter != seg.end_all() && sx_iter != sx.end_all(); /*empty*/)
-				*seg_iter++ = f(*sx_iter++, y);
-			set_segment(seg);
+			SegmentBySinogram<float>::full_iterator sy_iter;
+		        TOF_LOOP
+			for (int s = 0; s <= n; ++s)
+			{
+				SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s TOF_ARG);
+				SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s TOF_ARG);
+				SegmentBySinogram<float> sy = y.get_segment_by_sinogram(s TOF_ARG);
+				if (seg.size_all() != sx.size_all() || seg.size_all() != sy.size_all())
+					throw std::runtime_error("binary_op error: operands sizes differ");
+				for (seg_iter = seg.begin_all(),
+					sx_iter = sx.begin_all(), sy_iter = sy.begin_all();
+					seg_iter != seg.end_all(); /*empty*/)
+					*seg_iter++ = f(*sx_iter++, *sy_iter++);
+				set_segment(seg);
+				if (s != 0) {
+					seg = get_empty_segment_by_sinogram(-s TOF_ARG);
+					sx = x.get_segment_by_sinogram(-s TOF_ARG);
+					sy = y.get_segment_by_sinogram(-s TOF_ARG);
+					for (seg_iter = seg.begin_all(),
+						sx_iter = sx.begin_all(), sy_iter = sy.begin_all();
+						seg_iter != seg.end_all();	/*empty*/)
+						*seg_iter++ = f(*sx_iter++, *sy_iter++);
+					set_segment(seg);
+				}
+			}
 		}
-	}
-}
-
-template<class Operation>
-void
-binary_op_templ(const DataContainer& a_x, const DataContainer& a_y, Operation f)
-{
-	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, x, a_x);
-	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, y, a_y);
-	auto *pd_ptr   = dynamic_cast<stir::ProjDataInMemory*>(data().get());
-	auto *pd_x_ptr = dynamic_cast<const stir::ProjDataInMemory*>(x.data().get());
-	auto *pd_y_ptr = dynamic_cast<const stir::ProjDataInMemory*>(y.data().get());
-	if (!is_null_ptr(pd_ptr) && !is_null_ptr(pd_x_ptr) && !is_null_ptr(pd_y_ptr)) {
-		//std::cout << "using simple loop...\n";
-		auto iter = pd_ptr->begin();
-		auto iter_x = pd_x_ptr->begin();
-		auto iter_y = pd_y_ptr->begin();
-		while (iter != pd_ptr->end())
-			*iter++ = f(*iter_x++, *iter_y++);
-		return;
-	}
-	int n = get_max_segment_num();
-	int nx = x.get_max_segment_num();
-	int ny = y.get_max_segment_num();
-	if (n != nx || n != ny)
-		throw std::runtime_error("binary_op error: operands sizes differ");
-	SegmentBySinogram<float>::full_iterator seg_iter;
-	SegmentBySinogram<float>::full_iterator sx_iter;
-	SegmentBySinogram<float>::full_iterator sy_iter;
-        TOF_LOOP
-	for (int s = 0; s <= n; ++s)
-	{
-		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s TOF_ARG);
-		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s TOF_ARG);
-		SegmentBySinogram<float> sy = y.get_segment_by_sinogram(s TOF_ARG);
-		if (seg.size_all() != sx.size_all() || seg.size_all() != sy.size_all())
-			throw std::runtime_error("binary_op error: operands sizes differ");
-		for (seg_iter = seg.begin_all(),
-			sx_iter = sx.begin_all(), sy_iter = sy.begin_all();
-			seg_iter != seg.end_all(); /*empty*/)
-			*seg_iter++ = f(*sx_iter++, *sy_iter++);
-		set_segment(seg);
-		if (s != 0) {
-			seg = get_empty_segment_by_sinogram(-s TOF_ARG);
-			sx = x.get_segment_by_sinogram(-s TOF_ARG);
-			sy = y.get_segment_by_sinogram(-s TOF_ARG);
-			for (seg_iter = seg.begin_all(),
-				sx_iter = sx.begin_all(), sy_iter = sy.begin_all();
-				seg_iter != seg.end_all();	/*empty*/)
-				*seg_iter++ = f(*sx_iter++, *sy_iter++);
-			set_segment(seg);
-		}
-	}
-}
 
 		virtual size_t address() const {
 			THROW("data address defined only for data in memory");
@@ -1279,6 +1319,24 @@ binary_op_templ(const DataContainer& a_x, const DataContainer& a_y, Operation f)
 
 		template<class Operation>
 		void
+		unary_op_templ(const DataContainer& a_x, Operation f)
+		{
+			SIRF_DYNAMIC_CAST(const STIRImageData, x, a_x);
+#if defined(_MSC_VER) && _MSC_VER < 1900
+			Image3DF::full_iterator iter;
+			Image3DF::const_full_iterator iter_x;
+#else
+			typename Array<3, float>::full_iterator iter;
+			typename Array<3, float>::const_full_iterator iter_x;
+#endif
+			for (iter = data().begin_all(), iter_x = x.data().begin_all();
+				iter != data().end_all() && iter_x != x.data().end_all();
+				iter++, iter_x++)
+				*iter = f(*iter_x);
+		}
+
+		template<class Operation>
+		void
 		semibinary_op_templ(const DataContainer& a_x, float y, Operation f)
 		{
 			SIRF_DYNAMIC_CAST(const STIRImageData, x, a_x);
@@ -1336,25 +1394,26 @@ binary_op_templ(const DataContainer& a_x, const DataContainer& a_y, Operation f)
 		virtual void xapyb(
 			const DataContainer& a_x, const void* ptr_a,
 			const DataContainer& a_y, const DataContainer& a_b);
-		virtual void abs(const DataContainer& x)
-		{
-			unary_op(x, std::abs);
-		}
+
 		virtual void exp(const DataContainer& x)
 		{
-			unary_op(x, std::exp);
+			unary_op_templ(x, sirf_exp<float>());
 		}
 		virtual void log(const DataContainer& x)
 		{
-			unary_op(x, std::log);
+			unary_op_templ(x, sirf_log<float>());
 		}
 		virtual void sqrt(const DataContainer& x)
 		{
-			unary_op(x, std::sqrt);
+			unary_op_templ(x, sirf_sqrt<float>());
 		}
 		virtual void sign(const DataContainer& x)
 		{
-			unary_op(x, DataContainer::sign);
+			unary_op_templ(x, sirf_sign<float>());
+		}
+		virtual void abs(const DataContainer& x)
+		{
+			unary_op_templ(x, sirf_abs<float>());
 		}
 		virtual void multiply(const DataContainer& x, const void* ptr_y)
 		{

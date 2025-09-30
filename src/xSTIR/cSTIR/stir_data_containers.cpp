@@ -262,39 +262,6 @@ STIRAcquisitionData::inv(float amin, const DataContainer& a_x)
 }
 
 void
-STIRAcquisitionData::unary_op(
-	const DataContainer& a_x,
-	float(*f)(float)
-)
-{
-	SIRF_DYNAMIC_CAST(const STIRAcquisitionData, x, a_x);
-	int n = get_max_segment_num();
-	int nx = x.get_max_segment_num();
-        TOF_LOOP
-	for (int s = 0; s <= n && s <= nx; ++s) {
-		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s TOF_ARG);
-		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s TOF_ARG);
-		SegmentBySinogram<float>::full_iterator seg_iter;
-		SegmentBySinogram<float>::full_iterator sx_iter;
-		for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
-			seg_iter != seg.end_all() && sx_iter != sx.end_all(); /*empty*/)
-			*seg_iter++ = f(*sx_iter++);
-		set_segment(seg);
-		if (s > 0) {
-			SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(-s TOF_ARG);
-			SegmentBySinogram<float> sx = x.get_segment_by_sinogram(-s TOF_ARG);
-			SegmentBySinogram<float>::full_iterator seg_iter;
-			SegmentBySinogram<float>::full_iterator sx_iter;
-			for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
-				seg_iter != seg.end_all() && sx_iter != sx.end_all(); /*empty*/)
-				*seg_iter++ = f(*sx_iter++);
-			set_segment(seg);
-		}
-	}
-
-}
-
-void
 STIRAcquisitionData::xapyb(
 	const DataContainer& a_x, const void* ptr_a,
 	const DataContainer& a_y, const DataContainer& a_b)
@@ -556,28 +523,6 @@ void
 STIRImageData::scale(float s)
 {
   data() /= s;
-}
-
-void
-STIRImageData::unary_op(
-	const DataContainer& a_x,
-	float (*f)(float)
-) {
-	SIRF_DYNAMIC_CAST(const STIRImageData, x, a_x);
-#if defined(_MSC_VER) && _MSC_VER < 1900
-	Image3DF::full_iterator iter;
-	Image3DF::const_full_iterator iter_x;
-#else
-	typename Array<3, float>::full_iterator iter;
-	typename Array<3, float>::const_full_iterator iter_x;
-#endif
-
-	for (iter = data().begin_all(),
-		iter_x = x.data().begin_all();
-		iter != data().end_all() &&
-		iter_x != x.data().end_all();
-		iter++, iter_x++)
-		*iter = f(*iter_x);
 }
 
 int
