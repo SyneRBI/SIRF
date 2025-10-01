@@ -34,6 +34,7 @@ limitations under the License.
 
 #include <stdlib.h>
 
+#include <algorithm>
 #include <chrono>
 #include <exception>
 #include <fstream>
@@ -613,12 +614,14 @@ namespace sirf {
 			auto *pd_y_ptr = dynamic_cast<const stir::ProjDataInMemory*>(y.data().get());
 			if (!is_null_ptr(pd_ptr) && !is_null_ptr(pd_x_ptr) && !is_null_ptr(pd_y_ptr)) {
 				//std::cout << "using simple loop...\n";
+				std::transform(pd_x_ptr->begin(), pd_x_ptr->end(), pd_y_ptr->begin(), pd_ptr->begin(), f);
+/*
 				auto iter = pd_ptr->begin();
 				auto iter_x = pd_x_ptr->begin();
 				auto iter_y = pd_y_ptr->begin();
 				while (iter != pd_ptr->end())
 					*iter++ = f(*iter_x++, *iter_y++);
-				return;
+*/				return;
 			}
 			int n = get_max_segment_num();
 			int nx = x.get_max_segment_num();
@@ -1342,13 +1345,14 @@ namespace sirf {
 			typename Array<3, float>::const_full_iterator iter_x;
 			typename Array<3, float>::const_full_iterator iter_y;
 #endif
-			for (iter = data().begin_all(),
+			std::transform(x.data().begin_all(), x.data().end_all(), y.data().begin_all(), data().begin_all(), f);
+/*			for (iter = data().begin_all(),
 				iter_x = x.data().begin_all(), iter_y = y.data().begin_all();
 				iter != data().end_all() &&
 				iter_x != x.data().end_all() && iter_y != y.data().end_all();
 				iter++, iter_x++, iter_y++)
 				*iter = f(*iter_x, *iter_y);
-		}
+*/		}
 
 		virtual float norm() const;
 		/// below all void* are actually float*
