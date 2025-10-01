@@ -82,6 +82,20 @@ use it directly therefore.
 		}
 	};
 
+	template< class T >
+	struct sirf_max {
+		T operator()(const T& a, const T& b) const {
+			return std::max(a, b);
+		}
+	};
+
+	template< class T >
+	struct sirf_min {
+		T operator()(const T& a, const T& b) const {
+			return std::min(a, b);
+		}
+	};
+
 /*!
 \ingroup Common
 \brief Abstract data container with numerical operations.

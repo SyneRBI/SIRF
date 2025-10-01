@@ -148,27 +148,7 @@ namespace sirf {
 		//virtual void set_data_sptr(stir::shared_ptr<stir::ExamData> data) = 0;
 	};
 
-	template< class T >
-	struct sirf_pow {
-		T operator()(const T& a, const T&b) const {
-			return std::pow(a, b);
-		}
-	};
 #endif
-
-	template< class T >
-	struct sirf_max {
-		T operator()(const T& a, const T& b) const {
-			return std::max(a, b);
-		}
-	};
-
-	template< class T >
-	struct sirf_min {
-		T operator()(const T& a, const T& b) const {
-			return std::min(a, b);
-		}
-	};
 
 	/*!
 	\ingroup PET
