@@ -1101,6 +1101,26 @@ AcquisitionsVector::conjugate_impl()
 }
 
 void
+AcquisitionsVector::fill(complex_float_t z, int all)
+{
+	int na = number();
+	for (int a = 0, i = 0; a < na; a++) {
+		int ia = index(a);
+		ISMRMRD::Acquisition& acq = *acqs_[ia];
+		IgnoreMask ignore_mask = this->ignore_mask();
+		if (!all && ignore_mask.ignored(acq.flags())) {
+			//std::cout << "ignoring acquisition " << ia << '\n';
+			continue;
+		}
+		unsigned int nc = acq.active_channels();
+		unsigned int ns = acq.number_of_samples();
+		for (int c = 0; c < nc; c++)
+			for (int s = 0; s < ns; s++, i++)
+				acq.data(s, c) = z;
+	}
+}
+
+void
 AcquisitionsVector::set_data(const complex_float_t* z, int all)
 {
 	int na = number();

@@ -625,8 +625,11 @@ protected:
     }
     virtual ObjectHandle<DataContainer>* new_data_container_handle(const bool initialise_with_0 = false) const
     {
+        auto new_nid = new NiftiImageData(*this);
+        if (initialise_with_0)
+            new_nid->fill(0.0);
         return new ObjectHandle<DataContainer>
-            (std::shared_ptr<DataContainer>(new NiftiImageData));
+            (std::shared_ptr<DataContainer>(new_nid));
     }
 
 public:

@@ -1044,7 +1044,9 @@ namespace sirf {
 		}
 		virtual ObjectHandle<DataContainer>* new_data_container_handle(const bool initialise_with_0) const
 		{
-			DataContainer* ptr = new AcquisitionsVector(acqs_info_, ignore_mask_);
+			auto ptr = new AcquisitionsVector(acqs_info_, ignore_mask_);
+			if (initialise_with_0)
+				ptr->fill(0.0);
 			return new ObjectHandle<DataContainer>
 				(gadgetron::shared_ptr<DataContainer>(ptr));
 		}
@@ -1054,6 +1056,8 @@ namespace sirf {
 			return gadgetron::unique_ptr<MRAcquisitionData>
 				(new AcquisitionsVector(acqs_info_, ignore_mask_));
 		}
+
+		virtual void fill(const complex_float_t z, int all = 1);
 
 	private:
 		std::vector<gadgetron::shared_ptr<ISMRMRD::Acquisition> > acqs_;
@@ -1719,8 +1723,10 @@ namespace sirf {
 */
 		virtual ObjectHandle<DataContainer>* new_data_container_handle(const bool initialise_with_0) const
 		{
-			return new ObjectHandle<DataContainer>
-				(gadgetron::shared_ptr<DataContainer>(new_images_container()));
+			gadgetron::shared_ptr<GadgetronImageData> sptr_img = new_images_container();
+			if (initialise_with_0)
+				sptr_img->fill(0.0);
+			return new ObjectHandle<DataContainer>(sptr_img);
 		}
 		virtual gadgetron::shared_ptr<GadgetronImageData> new_images_container() const
 		{
