@@ -326,14 +326,7 @@ namespace sirf {
 		binary_op_templ
 		(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, Operation f)
 		{
-		    const complex_float_t* px;
-		    complex_float_t* py;
 		    std::transform(acq_x.data_begin(), acq_x.data_end(), acq_y.data_begin(), acq_y.data_begin(), f);
-		    /*
-		    for (px = acq_x.data_begin(), py = acq_y.data_begin();
-		        px != acq_x.data_end() && py != acq_y.data_end(); px++, py++) {
-		        *py = f(*px, *py);
-		    }*/
 		}
 
 		// y := a x + b y

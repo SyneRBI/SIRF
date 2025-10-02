@@ -1336,23 +1336,8 @@ namespace sirf {
 		{
 			SIRF_DYNAMIC_CAST(const STIRImageData, x, a_x);
 			SIRF_DYNAMIC_CAST(const STIRImageData, y, a_y);
-#if defined(_MSC_VER) && _MSC_VER < 1900
-			Image3DF::full_iterator iter;
-			Image3DF::const_full_iterator iter_x;
-			Image3DF::const_full_iterator iter_y;
-#else
-			typename Array<3, float>::full_iterator iter;
-			typename Array<3, float>::const_full_iterator iter_x;
-			typename Array<3, float>::const_full_iterator iter_y;
-#endif
 			std::transform(x.data().begin_all(), x.data().end_all(), y.data().begin_all(), data().begin_all(), f);
-/*			for (iter = data().begin_all(),
-				iter_x = x.data().begin_all(), iter_y = y.data().begin_all();
-				iter != data().end_all() &&
-				iter_x != x.data().end_all() && iter_y != y.data().end_all();
-				iter++, iter_x++, iter_y++)
-				*iter = f(*iter_x, *iter_y);
-*/		}
+		}
 
 		virtual float norm() const;
 		/// below all void* are actually float*
