@@ -22,7 +22,7 @@ __version__ = "0.2.3"
 __author__ = "Evgueni Ovtchinnikov"
 
 
-def test_main(rec=False, verb=True, throw=True, no_ret_val=True):
+def test_main(rec=False, verb=False, throw=True, no_ret_val=True):
 
     datafile = RE_PYEXT.sub(".txt", __file__)
     test = pTest(datafile, rec, throw=throw)

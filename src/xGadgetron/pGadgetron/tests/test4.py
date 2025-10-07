@@ -157,7 +157,6 @@ def test_main(rec=False, verb=False, throw=True, no_ret_val=True):
     test.check_if_equal(1, d < 1e-6)
     # test on fill with scalar
     types = (2,2.0,numpy.int32(2),numpy.int64(2),complex(2))
-#    types = (2,2.0,numpy.int32(2),numpy.int64(2),numpy.complex(2))
     try:
         twos = types + (numpy.float128(2),)
     except AttributeError:

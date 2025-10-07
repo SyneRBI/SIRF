@@ -968,7 +968,7 @@ void* cSTIR_acquisitionDataFromScannerInfo
 		std::shared_ptr<STIRAcquisitionData> sptr_t =
 			STIRAcquisitionData::storage_template();
 		std::shared_ptr<STIRAcquisitionData> sptr(sptr_t->same_acquisition_data
-			(sptr_ei, sptr_pdi));
+			(sptr_ei, sptr_pdi, false));
 		sptr->fill(0.0f);
 		return newObjectHandle(sptr);
 	}

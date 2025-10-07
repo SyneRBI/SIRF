@@ -96,7 +96,7 @@ def test_main(rec=False, verb=False, throw=True, no_ret_val=True):
             if isinstance(prior, sirf.STIR.RelativeDifferencePrior):
                 prior.set_epsilon(im.max()*.01)
             Hessian_test(test, prior, im, 0.03)
-            
+
     numpy.testing.assert_equal(test.failed, 0)
     if no_ret_val:
         return
