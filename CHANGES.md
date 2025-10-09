@@ -11,7 +11,18 @@
   - Performance of acquisitions and images data algebra improved, acquisitions algebra running up to 3 times faster and images algebra up to 15 times faster.
   - `DataContainer.supports_array_view` to test for zero-copy compatibility.
   - SIRF interfaces (C++ and Python) for STIR Poisson noise generation utilities provided.
-  - `ImageData` and `AcquisitionData` have `.asarray(copy=None)` (NumPy-like behaviour: default zero-copy if contiguous, fallback to deepcopy otherwise) via `__array_interface__`.
+  - `ImageData` and `AcquisitionData` have `.asarray(copy=None)` (NumPy-like behaviour: default zero-copy if contiguous, fallback to deepcopy otherwise) via `__array_interface__`. 
+  - Error raised if `AcquisitionModel.adjoint` ran when the model is not linear.
+  - `cmake/sirf.__init__.py.in` import sirf.SIRF content into the `sirf` namespace for convenience
+  - `common/SIRF.py` adding adjoint operator
+* SIRF-torch
+  - `torch/torch.py` has wrappers for pytorch objective functions, objective function gradient and operators
+  - `torch/tests/gradchecks.py` has gradchecks for the wrappers 2d/3d PET and 2d MRI.
+  - `torch/tests/use_cases.py` has use cases for 2d PET using all the wrappers.
+  - `torch/README.md` includes user directions for the wrappers.
+  - `torch/CMakeList.txt` installation of sirf.torch
+  - `src/CMakeList.txt` installation of sirf.torch
+
 
 ## v3.8.1
 
