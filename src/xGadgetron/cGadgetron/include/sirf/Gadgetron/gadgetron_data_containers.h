@@ -33,6 +33,7 @@ limitations under the License.
 #ifndef GADGETRON_DATA_CONTAINERS
 #define GADGETRON_DATA_CONTAINERS
 
+#include <algorithm>
 #include <string>
 #include <vector>
 #include <tuple>
@@ -66,6 +67,20 @@ namespace sirf {
 #if GADGETRON_TOOLBOXES_AVAILABLE
     class RPEFourierEncoding;
 #endif
+
+	template< class T >
+	struct sirf_maxreal {
+		T operator()(const T& x, const T& y) const {
+			return std::real(x) > std::real(y) ? x : y;
+		}
+	};
+
+	template< class T >
+	struct sirf_minreal {
+		T operator()(const T& x, const T& y) const {
+			return std::real(x) < std::real(y) ? x : y;
+		}
+	};
 
 	class AcquisitionsInfo {
 	public:
@@ -279,15 +294,41 @@ namespace sirf {
 
 		// ISMRMRD acquisitions algebra: acquisitions viewed as vectors of 
 		// acquisition data
-		static void binary_op
-		(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y,
-			complex_float_t (*f)(complex_float_t, complex_float_t));
-		static void semibinary_op
-		(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y,
-			complex_float_t(*f)(complex_float_t, complex_float_t));
-		static void unary_op
-		(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y,
-			complex_float_t(*f)(complex_float_t));
+
+		template<class Operation>
+		static void
+		unary_op_templ
+		(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, Operation f)
+		{
+		    const complex_float_t* px;
+		    complex_float_t* py;
+		    for (px = acq_x.data_begin(), py = acq_y.data_begin();
+		        px != acq_x.data_end() && py != acq_y.data_end(); px++, py++) {
+		        *py = f(*px);
+		    }
+		}
+
+		template<class Operation>
+		static void
+		semibinary_op_templ
+		(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y, Operation f)
+		{
+		    const complex_float_t* px;
+		    complex_float_t* py;
+		    for (px = acq_x.data_begin(), py = acq_y.data_begin();
+		        px != acq_x.data_end() && py != acq_y.data_end(); px++, py++) {
+		        *py = f(*px, y);
+		    }
+		}
+
+		template<class Operation>
+		static void
+		binary_op_templ
+		(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, Operation f)
+		{
+		    std::transform(acq_x.data_begin(), acq_x.data_end(), acq_y.data_begin(), acq_y.data_begin(), f);
+		}
+
 		// y := a x + b y
 		static void axpby
 			(complex_float_t a, const ISMRMRD::Acquisition& acq_x,
@@ -312,26 +353,20 @@ namespace sirf {
 		static complex_float_t min(const ISMRMRD::Acquisition& acq_x);
 		// elementwise multiplication
 		// y := x .* y
-		static void multiply
-			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
+		static void multiply(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
 		// multiply by scalar
 		// y := x * y
-		static void multiply
-			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y);
+		static void multiply(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y);
 		// add scalar
 		// y := x + y
-		static void add
-			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y);
+		static void add(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y);
 		// elementwise division
 		// y := x ./ y
-		static void divide
-			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
+		static void divide(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
 		// elementwise maximum
 		// y := std::real(x) > std::real(y) ? x : y
-		static void maximum
-			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
-		static void maximum
-			(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y);
+		static void maximum(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
+		static void maximum(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y, complex_float_t y);
 		// elementwise minimum
 		// y := std::real(x) < std::real(y) ? x : y
 		static void minimum
@@ -625,32 +660,205 @@ namespace sirf {
 		virtual void xapyb(
 			const DataContainer& a_x, const void* ptr_a,
 			const DataContainer& a_y, const DataContainer& a_b);
-		virtual void multiply(const DataContainer& x, const DataContainer& y);
-		virtual void divide(const DataContainer& x,	const DataContainer& y);
-		virtual void maximum(const DataContainer& x, const DataContainer& y);
-		virtual void minimum(const DataContainer& x, const DataContainer& y);
-		virtual void power(const DataContainer& x, const DataContainer& y);
-		virtual void multiply(const DataContainer& x, const void* y);
-		virtual void add(const DataContainer& x, const void* ptr_y);
-		virtual void maximum(const DataContainer& x, const void* y);
-		virtual void minimum(const DataContainer& x, const void* y);
-		virtual void power(const DataContainer& x, const void* y);
-		virtual void exp(const DataContainer& x);
-		virtual void log(const DataContainer& x);
-		virtual void sqrt(const DataContainer& x);
-		virtual void sign(const DataContainer& x);
-		virtual void abs(const DataContainer& x);
+
+		template<class Operation>
+		void
+		binary_op_templ(const DataContainer& a_x, const DataContainer& a_y, Operation f)
+		{
+			SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+			SIRF_DYNAMIC_CAST(const MRAcquisitionData, y, a_y);
+			if (!x.sorted() || !y.sorted())
+			THROW("binary algebraic operations cannot be applied to unsorted data");
+			int nx = x.number();
+			int ny = y.number();
+			ISMRMRD::Acquisition ax;
+			ISMRMRD::Acquisition ay;
+			ISMRMRD::Acquisition acq;
+			const complex_float_t* px;
+			complex_float_t* py;
+			bool isempty = (number() < 1);
+			for (int ix = 0, iy = 0, k = 0; ix < nx && iy < ny;) {
+				if (!x.get_acquisition(ix, ax)) {
+					ix++;
+					continue;
+				}
+				if (!y.get_acquisition(iy, ay)) {
+					iy++;
+					continue;
+				}
+				if (!isempty) {
+					if (!get_acquisition(k, acq)) {
+						k++;
+						continue;
+					}
+				}
+				for (px = ax.data_begin(), py = ay.data_begin();
+					px != ax.data_end() && py != ay.data_end(); px++, py++)
+					*py = f(*px, *py);
+				//f(ax, ay);
+				if (isempty)
+					append_acquisition(ay);
+				else
+					set_acquisition(k, ay);
+				ix++;
+				iy++;
+				k++;
+			}
+			this->set_sorted(true);
+			this->organise_kspace();
+		}
+
+		template<class Operation>
+		void
+		semibinary_op_templ(const DataContainer& a_x, complex_float_t y, Operation f)
+		{
+			SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+			if (!x.sorted())
+				THROW("binary algebraic operations cannot be applied to unsorted data");
+			int nx = x.number();
+			ISMRMRD::Acquisition ax;
+			ISMRMRD::Acquisition ay;
+			ISMRMRD::Acquisition acq;
+			const complex_float_t* px;
+			complex_float_t* py;
+			bool isempty = (number() < 1);
+			for (int ix = 0, k = 0; ix < nx;) {
+				if (!x.get_acquisition(ix, ax)) {
+					ix++;
+					continue;
+				}
+				if (!isempty) {
+					if (!get_acquisition(k, acq)) {
+						k++;
+						continue;
+					}
+				}
+				x.get_acquisition(ix, ay);
+				for (px = ax.data_begin(), py = ay.data_begin();
+					px != ax.data_end() && py != ay.data_end(); px++, py++)
+					*py = f(*px, y);
+				//f(ax, ay, y);
+				if (isempty)
+					append_acquisition(ay);
+				else
+					set_acquisition(k, ay);
+				ix++;
+				k++;
+			}
+			this->set_sorted(true);
+			this->organise_kspace();
+		}
+
+		template<class Operation>
+		void
+		unary_op_templ(const DataContainer& a_x, Operation f)
+		{
+			SIRF_DYNAMIC_CAST(const MRAcquisitionData, x, a_x);
+			if (!x.sorted())
+				THROW("binary algebraic operations cannot be applied to unsorted data");
+			int nx = x.number();
+			ISMRMRD::Acquisition ax;
+			ISMRMRD::Acquisition ay;
+			ISMRMRD::Acquisition acq;
+			const complex_float_t* px;
+			complex_float_t* py;
+			bool isempty = (number() < 1);
+			for (int ix = 0, k = 0; ix < nx;) {
+				if (!x.get_acquisition(ix, ax)) {
+					ix++;
+					continue;
+				}
+				if (!isempty) {
+					if (!get_acquisition(k, acq)) {
+						k++;
+						continue;
+					}
+				}
+				x.get_acquisition(ix, ay);
+				//f(ax, ay);
+				for (px = ax.data_begin(), py = ay.data_begin();
+					px != ax.data_end() && py != ay.data_end(); px++, py++)
+					*py = f(*px);
+				if (isempty)
+					append_acquisition(ay);
+				else
+					set_acquisition(k, ay);
+				ix++;
+				k++;
+			}
+			this->set_sorted(true);
+			this->organise_kspace();
+		}
+
+		virtual void multiply(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op_templ(x, y, std::multiplies<complex_float_t>());
+		}
+		virtual void divide(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op_templ(x, y, std::divides<complex_float_t>());
+		}
+		virtual void maximum(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op_templ(x, y, sirf_maxreal<complex_float_t>());
+		}
+		virtual void minimum(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op_templ(x, y, sirf_minreal<complex_float_t>());
+		}
+		virtual void power(const DataContainer& x, const DataContainer& y)
+		{
+			binary_op_templ(x, y, sirf_pow<complex_float_t>());
+		}
+		virtual void multiply(const DataContainer& x, const void* ptr_y)
+		{
+			complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
+			semibinary_op_templ(x, y, std::multiplies<complex_float_t>());
+		}
+		virtual void add(const DataContainer& x, const void* ptr_y)
+		{
+			complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
+			semibinary_op_templ(x, y, std::plus<complex_float_t>());
+		}
+		virtual void maximum(const DataContainer& x, const void* ptr_y)
+		{
+			complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
+			semibinary_op_templ(x, y, sirf_maxreal<complex_float_t>());
+		}
+		virtual void minimum(const DataContainer& x, const void* ptr_y)
+		{
+			complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
+			semibinary_op_templ(x, y, sirf_minreal<complex_float_t>());
+		}
+		virtual void power(const DataContainer& x, const void* ptr_y)
+		{
+			complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
+			semibinary_op_templ(x, y, sirf_pow<complex_float_t>());
+		}
+		virtual void exp(const DataContainer& x)
+		{
+			unary_op_templ(x, sirf_exp<complex_float_t>());
+		}
+		virtual void log(const DataContainer& x)
+		{
+			unary_op_templ(x, sirf_log<complex_float_t>());
+		}
+		virtual void sqrt(const DataContainer& x)
+		{
+			unary_op_templ(x, sirf_sqrt<complex_float_t>());
+		}
+		virtual void sign(const DataContainer& x)
+		{
+			unary_op_templ(x, sirf_sign<complex_float_t>());
+		}
+		virtual void abs(const DataContainer& x)
+		{
+			unary_op_templ(x, sirf_abs<complex_float_t>());
+		}
+
 		virtual float norm() const;
 
 		virtual void write(const std::string &filename) const;
-
-		// regular methods
-		void binary_op(const DataContainer& a_x, const DataContainer& a_y,
-			void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&));
-		void semibinary_op(const DataContainer& a_x, complex_float_t y,
-			void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&, complex_float_t));
-		void unary_op(const DataContainer& a_x,
-			void(*f)(const ISMRMRD::Acquisition&, ISMRMRD::Acquisition&));
 
 		AcquisitionsInfo acquisitions_info() const { return acqs_info_; }
 		void set_acquisitions_info(std::string info) { acqs_info_ = info; }
@@ -827,9 +1035,11 @@ namespace sirf {
 		{
 			return new AcquisitionsVector(info, ignore_mask_);
 		}
-		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
+		virtual ObjectHandle<DataContainer>* new_data_container_handle(const bool initialise_with_0) const
 		{
-			DataContainer* ptr = new AcquisitionsVector(acqs_info_, ignore_mask_);
+			auto ptr = new AcquisitionsVector(acqs_info_, ignore_mask_);
+			if (initialise_with_0)
+				ptr->fill(0.0);
 			return new ObjectHandle<DataContainer>
 				(gadgetron::shared_ptr<DataContainer>(ptr));
 		}
@@ -839,6 +1049,8 @@ namespace sirf {
 			return gadgetron::unique_ptr<MRAcquisitionData>
 				(new AcquisitionsVector(acqs_info_, ignore_mask_));
 		}
+
+		virtual void fill(const complex_float_t z, int all = 1);
 
 	private:
 		std::vector<gadgetron::shared_ptr<ISMRMRD::Acquisition> > acqs_;
@@ -995,29 +1207,67 @@ namespace sirf {
 			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, b, a_b);
 			xapyb_(a_x, a, a_y, b);
 		}
-		virtual void multiply(const DataContainer& x, const DataContainer& y);
-		virtual void divide(const DataContainer& x, const DataContainer& y);
-		virtual void maximum(const DataContainer& x, const DataContainer& y);
-		virtual void minimum(const DataContainer& x, const DataContainer& y);
-		virtual void power(const DataContainer& x, const DataContainer& y);
-		virtual void multiply(const DataContainer& x, const void* ptr_y);
-		virtual void add(const DataContainer& x, const void* ptr_y);
-		virtual void maximum(const DataContainer& x, const void* ptr_y);
-		virtual void minimum(const DataContainer& x, const void* ptr_y);
-		virtual void power(const DataContainer& x, const void* ptr_y);
-		virtual void exp(const DataContainer& x);
-		virtual void log(const DataContainer& x);
-		virtual void sqrt(const DataContainer& x);
-		virtual void sign(const DataContainer& x);
-		virtual void abs(const DataContainer& x);
 
-		void binary_op(
-			const DataContainer& a_x, const DataContainer& a_y,
-			complex_float_t(*f)(complex_float_t, complex_float_t));
-		void semibinary_op(
-			const DataContainer& a_x, complex_float_t y,
-			complex_float_t(*f)(complex_float_t, complex_float_t));
-		void unary_op(const DataContainer& a_x, complex_float_t(*f)(complex_float_t));
+		virtual void multiply(const DataContainer& a_x, const DataContainer& a_y)
+		{
+			binary_op_templ(a_x, a_y, std::multiplies<complex_float_t>());
+		}
+		virtual void divide(const DataContainer& a_x, const DataContainer& a_y)
+		{
+			binary_op_templ(a_x, a_y, std::divides<complex_float_t>());
+		}
+		virtual void maximum(const DataContainer& a_x, const DataContainer& a_y)
+		{
+			binary_op_templ(a_x, a_y, sirf_maxreal<complex_float_t>());
+		}
+		virtual void minimum(const DataContainer& a_x, const DataContainer& a_y)
+		{
+			binary_op_templ(a_x, a_y, sirf_minreal<complex_float_t>());
+		}
+		virtual void power(const DataContainer& a_x, const DataContainer& a_y)
+		{
+			binary_op_templ(a_x, a_y, sirf_pow<complex_float_t>());
+		}
+		virtual void add(const DataContainer& a_x, const void* ptr_y)
+		{
+			complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
+			semibinary_op_templ(a_x, y, std::plus<complex_float_t>());
+		}
+		virtual void maximum(const DataContainer& a_x, const void* ptr_y)
+		{
+			complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
+			semibinary_op_templ(a_x, y, sirf_maxreal<complex_float_t>());
+		}
+		virtual void minimum(const DataContainer& a_x, const void* ptr_y)
+		{
+			complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
+			semibinary_op_templ(a_x, y, sirf_minreal<complex_float_t>());
+		}
+		virtual void power(const DataContainer& a_x, const void* ptr_y)
+		{
+			complex_float_t y = *static_cast<const complex_float_t*>(ptr_y);
+			semibinary_op_templ(a_x, y, sirf_pow<complex_float_t>());
+		}
+		virtual void exp(const DataContainer& x)
+		{
+			unary_op_templ(x, sirf_exp<complex_float_t>());
+		}
+		virtual void log(const DataContainer& x)
+		{
+			unary_op_templ(x, sirf_log<complex_float_t>());
+		}
+		virtual void sqrt(const DataContainer& x)
+		{
+			unary_op_templ(x, sirf_sqrt<complex_float_t>());
+		}
+		virtual void sign(const DataContainer& x)
+		{
+			unary_op_templ(x, sirf_sign<complex_float_t>());
+		}
+		virtual void abs(const DataContainer& x)
+		{
+			unary_op_templ(x, sirf_abs<complex_float_t>());
+		}
 
 		void fill(float s);
 		void scale(float s);
@@ -1140,9 +1390,84 @@ namespace sirf {
 			this->set_meta_data(x.get_meta_data());
 		}
 
+		template<class Operation>
+		void
+		binary_op_templ(const DataContainer& a_x, const DataContainer& a_y, Operation f)
+		{
+			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, x, a_x);
+			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, y, a_y);
+			unsigned int nx = x.number();
+			unsigned int ny = y.number();
+			if (nx != ny)
+				THROW("ImageData sizes mismatch in binary_op_templ");
+			unsigned int n = number();
+			if (n > 0) {
+				if (n != nx)
+					THROW("ImageData sizes mismatch in binary_op_templ");
+				for (unsigned int i = 0; i < nx && i < ny; i++)
+					image_wrap(i).binary_op_templ(x.image_wrap(i), y.image_wrap(i), f);
+			}
+			else {
+				for (unsigned int i = 0; i < nx && i < ny; i++) {
+					ImageWrap w(x.image_wrap(i));
+					w.binary_op_templ(x.image_wrap(i), y.image_wrap(i), f);
+					append(w);
+				}
+			}
+			this->set_meta_data(x.get_meta_data());
+		}
+
+		template<class Operation>
+		void
+		semibinary_op_templ(const DataContainer& a_x, complex_float_t y, Operation f)
+		{
+			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, x, a_x);
+			unsigned int nx = x.number();
+			unsigned int n = number();
+			if (n > 0) {
+				if (n != nx)
+					THROW("ImageData sizes mismatch in semibinary_op_templ");
+					for (unsigned int i = 0; i < nx; i++)
+						image_wrap(i).semibinary_op_templ(x.image_wrap(i), y, f);
+			}
+			else {
+				for (unsigned int i = 0; i < nx; i++) {
+					ImageWrap w(x.image_wrap(i));
+					w.semibinary_op_templ(x.image_wrap(i), y, f);
+					append(w);
+				}
+			}
+			this->set_meta_data(x.get_meta_data());
+		}
+
+		template<class Operation>
+		void
+		unary_op_templ(const DataContainer& a_x, Operation f)
+		{
+			SIRF_DYNAMIC_CAST(const ISMRMRDImageData, x, a_x);
+			unsigned int nx = x.number();
+			unsigned int n = number();
+			if (n > 0) {
+				if (n != nx)
+					THROW("ImageData sizes mismatch in unary_op_templ");
+				for (unsigned int i = 0; i < nx; i++)
+					image_wrap(i).unary_op_templ(x.image_wrap(i), f);
+			}
+			else {
+				for (unsigned int i = 0; i < nx; i++) {
+					ImageWrap w(x.image_wrap(i));
+					w.unary_op_templ(x.image_wrap(i), f);
+					append(w);
+				}
+			}
+			this->set_meta_data(x.get_meta_data());
+		}
+
 	};
 
 	typedef ISMRMRDImageData GadgetronImageData;
+
+
 
 	/*!
 	\ingroup MR
@@ -1389,10 +1714,12 @@ namespace sirf {
 			return *sptr_iw;
 		}
 */
-		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
+		virtual ObjectHandle<DataContainer>* new_data_container_handle(const bool initialise_with_0) const
 		{
-			return new ObjectHandle<DataContainer>
-				(gadgetron::shared_ptr<DataContainer>(new_images_container()));
+			gadgetron::shared_ptr<GadgetronImageData> sptr_img = new_images_container();
+			if (initialise_with_0)
+				sptr_img->fill(0.0);
+			return new ObjectHandle<DataContainer>(sptr_img);
 		}
 		virtual gadgetron::shared_ptr<GadgetronImageData> new_images_container() const
 		{
