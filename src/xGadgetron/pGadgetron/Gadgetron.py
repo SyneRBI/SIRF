@@ -42,7 +42,7 @@ from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
      pTest, RE_PYEXT
 import sirf
 from sirf import SIRF
-from sirf.SIRF import DataContainer, ContiguousError
+from sirf.SIRF import DataContainer, ContiguousError, ArrayContainer
 import sirf.pyiutilities as pyiutil
 import sirf.pygadgetron as pygadgetron
 import sirf.pysirf as pysirf
@@ -668,7 +668,7 @@ class ImageDataView(GadgetronDataView):
         self.handle = None
         self.img_data = img_data
         ni = img_data.shape[0]
-        self.views = [img_data.image(i).asarray() for i in range(ni)]
+        self.views = [img_data.image(i).asarray(copy=False) for i in range(ni)]
 
     def __del__(self):
         if self.handle is not None:
@@ -819,7 +819,8 @@ class CoilSensitivityData(ImageData):
 
 DataContainer.register(CoilSensitivityData)
 
-class Acquisition(object):
+#class Acquisition(object):
+class Acquisition(ArrayContainer):
     ''' Provides access to ISMRMRD::Acquisition parameters (cf. ismrmrd.h).
     '''
     def __init__(self, file = None):
@@ -983,7 +984,7 @@ class Acquisition(object):
         """As per https://numpy.org/doc/stable/reference/arrays.interface.html"""
         return {'shape': self.shape, 'typestr': '<c8', 'version': 3,
                 'data': (parms.size_t_par(self.handle, 'Acquisition', 'address'), False)}
-
+    '''
     def asarray(self, xp=numpy, copy=None, **kwargs):
         """Returns view (or fallback copy) of self"""
         try:
@@ -992,6 +993,9 @@ class Acquisition(object):
             if copy or copy is None:
                 return xp.asarray(self.as_array(), **kwargs)
             raise
+    '''
+
+ArrayContainer.register(Acquisition)
 
 
 class AcquisitionData(DataContainer):
@@ -1362,7 +1366,7 @@ class AcquisitionDataView(GadgetronDataView):
             flags = acq.flags()
             if flags & ignore_mask:
                 continue
-            self.views += [acq.asarray()]
+            self.views += [acq.asarray(copy=False)]
 
     def __del__(self):
         if self.handle is not None:

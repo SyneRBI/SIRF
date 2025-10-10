@@ -31,10 +31,14 @@ def main():
     y = x + 0
     z = x + 0
 
+    '''
     acq = y.acquisition(0)
     print(type(acq))
     print(acq.number_of_samples())
+    #print(acq.__array_interface__)
+    print(hasattr(acq, '__array_interface__'))
     acq_view = acq.asarray(copy=False)
+    '''
 
     x_view = AcquisitionDataView(x)
     y_view = AcquisitionDataView(y)
@@ -45,22 +49,22 @@ def main():
     copyto(y_view, x_view)
     y_view *= 2
     norm_y_view = norm(y_view)
-#    test.check_if_equal_within_tolerance(norm_y, norm_y_view, rel_tol=1e-5)
+    print(norm_y, norm_y_view)
     z = x + y
     norm_z = z.norm()
     copyto(z_view, x_view)
     z_view += y_view
     norm_z_view = norm(z_view)
-#    test.check_if_equal_within_tolerance(norm_z, norm_z_view, rel_tol=1e-5)
+    print(norm_z, norm_z_view)
     s = norm(x)
     t = norm(x_view)
-#    test.check_if_equal_within_tolerance(s, t, rel_tol=1e-5)
+    print(s, t)
     s = x.sum()
     t = x_view.sum()
-#    test.check_if_equal_within_tolerance(s, t, rel_tol=1e-5)
+    print(s, t)
     s = x.dot(y)
     t = dot(x_view, y_view)
-#    test.check_if_equal_within_tolerance(s, t, rel_tol=1e-5)
+    print(s, t)
 
     recon = FullySampledReconstructor()
     recon.set_input(processed_data)
@@ -80,27 +84,22 @@ def main():
     copyto(y_view, x_view)
     y_view *= 2
     norm_y_view = norm(y_view)
-#    test.check_if_equal_within_tolerance(norm_y, norm_y_view, rel_tol=1e-5)
+    print(norm_y, norm_y_view)
     z = x + y
     norm_z = z.norm()
     copyto(z_view, x_view)
     z_view += y_view
     norm_z_view = norm(z_view)
-#    test.check_if_equal_within_tolerance(norm_z, norm_z_view, rel_tol=1e-5)
+    print(norm_z, norm_z_view)
     s = norm(x)
     t = norm(x_view)
-#    test.check_if_equal_within_tolerance(s, t, rel_tol=1e-5)
+    print(s, t)
     s = x.sum()
     t = x_view.sum()
-#    test.check_if_equal_within_tolerance(s, t, rel_tol=1e-5)
+    print(s, t)
     s = x.dot(y)
     t = dot(x_view, y_view)
-#    test.check_if_equal_within_tolerance(s, t, rel_tol=1e-5)
-
-#    numpy.testing.assert_equal(test.failed, 0)
-#    if no_ret_val:
-#        return
-#    return test.failed, test.ntest
+    print(s, t)
 
 try:
     main()
@@ -111,5 +110,3 @@ except error as err:
     print('??? %s' % err.value)
     exit(1)
 
-#if __name__ == "__main__":
-#    runner(test_main, __doc__, __version__, __author__, no_ret_val=False)

@@ -82,8 +82,25 @@ class ContiguousError(ValueError):
     https://data-apis.org/array-api/latest/API_specification/generated/array_api.asarray.html
     """
 
+class ArrayContainer(ABC):
+    """
+    Abstract base class for an array container with contiguous data
+    accessible via the address of the first data item.
+    """
+    def asarray(self, xp=numpy, copy=None, **kwargs):
+        """Returns view (or fallback copy) of self"""
+        try:
+            if not hasattr(self, '__array_interface__'):
+                raise ContiguousError("please make an array-copy instead with `copy=True` or `None`")
+            return xp.asarray(self, copy=copy, **kwargs)
+        except ContiguousError:
+            if copy or copy is None:
+                return xp.asarray(self.as_array(), **kwargs)
+            raise
 
-class DataContainer(ABC):
+
+#class DataContainer(ABC):
+class DataContainer(ArrayContainer):
     '''
     Abstract base class for an abstract data container.
     '''
@@ -266,6 +283,7 @@ class DataContainer(ABC):
         pyiutil.deleteDataHandle(handle)
         return i != 0
 
+    '''
     def asarray(self, xp=numpy, copy=None, **kwargs):
         """Returns view (or fallback copy) of self"""
         try:
@@ -276,6 +294,7 @@ class DataContainer(ABC):
             if copy or copy is None:
                 return xp.asarray(self.as_array(), **kwargs)
             raise
+    '''
 
     def conjugate(self, out=None):
         ''' Computes complex conjugate of self.
@@ -663,6 +682,8 @@ class DataContainer(ABC):
         else:
             dt = 'float%s' % bits
         return numpy.dtype(dt)
+
+ArrayContainer.register(DataContainer)
 
 
 class ImageData(DataContainer):
