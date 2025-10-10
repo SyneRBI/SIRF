@@ -834,6 +834,8 @@ MRAcquisitionData::norm() const
 			continue;
 		}
 		float s = MRAcquisitionData::norm(a);
+		//if (i == 0)
+			//std::cout << s << '\n';
 		r += s*s;
 	}
 	return std::sqrt(r);
@@ -1312,6 +1314,7 @@ GadgetronImageData::norm() const
 	for (unsigned int i = 0; i < number(); i++) {
 		const ImageWrap& u = image_wrap(i);
 		float s = u.norm();
+		//std::cout << s << '\n';
 		r += s*s;
 	}
 	r = std::sqrt(r);
@@ -2042,7 +2045,7 @@ GadgetronImagesVector::set_up_geom_info()
 
         // Calculate the spacing!
         ISMRMRD::ImageHeader &ih2 = image_wrap(1).head();
-
+/*
         const float tolerance_mm = 0.01f;
         if( std::abs(spacing[2] - get_slice_spacing(ih1, ih2)) > tolerance_mm )
         {
@@ -2050,6 +2053,7 @@ GadgetronImagesVector::set_up_geom_info()
                         "Warning, you set up geometry for slices whose width is not their distance."
                         "This setup does probably not account for overlaps or gaps between slices.\n";
         }
+*/
         // just making sure they are the same, as opposed to "up to tolerance"
         spacing[2] = get_slice_spacing(ih1, ih2);
 
