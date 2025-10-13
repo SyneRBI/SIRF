@@ -14,7 +14,7 @@ Usage:
 from sirf.SIRF import norm, dot, copyto
 from sirf.Gadgetron import AcquisitionData, \
     AcquisitionDataView, ImageDataView, FullySampledReconstructor
-from sirf.Utilities import runner, RE_PYEXT, examples_data_path, error
+from sirf.Utilities import examples_data_path, error
 __version__ = "3.1.0"
 __author__ = "Evgueni Ovtchinnikov, Casper da Costa-Luis"
 
