@@ -984,16 +984,6 @@ class Acquisition(ArrayContainer):
         """As per https://numpy.org/doc/stable/reference/arrays.interface.html"""
         return {'shape': self.shape, 'typestr': '<c8', 'version': 3,
                 'data': (parms.size_t_par(self.handle, 'Acquisition', 'address'), False)}
-    '''
-    def asarray(self, xp=numpy, copy=None, **kwargs):
-        """Returns view (or fallback copy) of self"""
-        try:
-            return xp.asarray(self, copy=copy, **kwargs)
-        except ContiguousError:
-            if copy or copy is None:
-                return xp.asarray(self.as_array(), **kwargs)
-            raise
-    '''
 
 ArrayContainer.register(Acquisition)
 

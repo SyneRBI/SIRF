@@ -283,19 +283,6 @@ class DataContainer(ArrayContainer):
         pyiutil.deleteDataHandle(handle)
         return i != 0
 
-    '''
-    def asarray(self, xp=numpy, copy=None, **kwargs):
-        """Returns view (or fallback copy) of self"""
-        try:
-            if not hasattr(self, '__array_interface__'):
-                raise ContiguousError("please make an array-copy instead with `copy=True` or `None`")
-            return xp.asarray(self, copy=copy, **kwargs)
-        except ContiguousError:
-            if copy or copy is None:
-                return xp.asarray(self.as_array(), **kwargs)
-            raise
-    '''
-
     def conjugate(self, out=None):
         ''' Computes complex conjugate of self.
 

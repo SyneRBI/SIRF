@@ -14,8 +14,7 @@ Usage:
 from sirf.SIRF import norm, dot, copyto
 from sirf.Gadgetron import AcquisitionData, \
     AcquisitionDataView, ImageDataView, FullySampledReconstructor
-from sirf.Utilities import pTest, runner, RE_PYEXT, examples_data_path, error
-import numpy
+from sirf.Utilities import runner, RE_PYEXT, examples_data_path, error
 __version__ = "3.1.0"
 __author__ = "Evgueni Ovtchinnikov, Casper da Costa-Luis"
 
@@ -30,15 +29,6 @@ def main():
     x = processed_data
     y = x + 0
     z = x + 0
-
-    '''
-    acq = y.acquisition(0)
-    print(type(acq))
-    print(acq.number_of_samples())
-    #print(acq.__array_interface__)
-    print(hasattr(acq, '__array_interface__'))
-    acq_view = acq.asarray(copy=False)
-    '''
 
     x_view = AcquisitionDataView(x)
     y_view = AcquisitionDataView(y)
