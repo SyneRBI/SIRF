@@ -22,8 +22,8 @@ import numpy
 import timeit
 import importlib
 
-from sirf.SIRF import norm, dot, copyto
-from sirf.Utilities import error, examples_data_path, existing_filepath
+from sirf.SIRF import dot, copyto
+from sirf.Utilities import examples_data_path, existing_filepath
 
 __version__ = "0.1.0"
 from docopt import docopt
