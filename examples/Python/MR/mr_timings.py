@@ -2,6 +2,9 @@
 
 """
 sirf.Gadgetron Views Test.
+Compares the performance of two approaches that avoid copying data between C++ and Python:
+- C++ algebra that is optimised by using templated loops
+- Python algebra that directly accesses C++ data via NumPy Array API views
 
 Usage:
   mr_timings [--help | options]
@@ -12,6 +15,7 @@ Options:
   -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
                               subfolder of SIRF root folder
   -t <tsts>, --tests=<tsts>    number of tests [default: 1]
+  --non-interactive           do not show plots
 """
 
 import numpy
@@ -236,3 +240,4 @@ print(f'x + y   {temp_t[2]:.2e}    {view_t[2]:.2e}')
 print(f'x * y   {temp_t[3]:.2e}    {view_t[3]:.2e}')
 print(f'x / y   {temp_t[4]:.2e}    {view_t[4]:.2e}')
 
+print('\n=== done with %s' % __file__)
