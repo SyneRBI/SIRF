@@ -22,7 +22,7 @@ import numpy
 import timeit
 import importlib
 
-from sirf.SIRF import dot, copyto
+from sirf.SIRF import copyto
 from sirf.Utilities import examples_data_path, existing_filepath
 
 __version__ = "0.1.0"
@@ -80,7 +80,8 @@ for test in range(ntests):
     temp_t[0] += elapsed
     norm_y = ay.norm()
     start = timeit.default_timer()
-    vy.copy(vx)
+    #vy.copy(vx)
+    copyto(vy, vx)
     vy *= 2
     elapsed = timeit.default_timer() - start
     view_t[0] += elapsed
@@ -93,7 +94,8 @@ for test in range(ntests):
     temp_t[1] += elapsed
     norm_y = ay.norm()
     start = timeit.default_timer()
-    vy.copy(vx)
+    #vy.copy(vx)
+    copyto(vy, vx)
     vy += 2
     elapsed = timeit.default_timer() - start
     view_t[1] += elapsed
@@ -106,7 +108,8 @@ for test in range(ntests):
     temp_t[2] += elapsed
     norm_z = az.norm()
     start = timeit.default_timer()
-    vz.copy(vx)
+    #vz.copy(vx)
+    copyto(vz, vx)
     vz += vy
     elapsed = timeit.default_timer() - start
     view_t[2] += elapsed
@@ -119,7 +122,8 @@ for test in range(ntests):
     temp_t[3] += elapsed
     norm_z = az.norm()
     start = timeit.default_timer()
-    vz.copy(vx)
+    #vz.copy(vx)
+    copyto(vz, vx)
     vz *= vy
     elapsed = timeit.default_timer() - start
     view_t[3] += elapsed
@@ -133,7 +137,8 @@ for test in range(ntests):
     temp_t[4] += elapsed
     norm_z = az.norm()
     start = timeit.default_timer()
-    vz.copy(vx)
+    #vz.copy(vx)
+    copyto(vz, vx)
     vz /= vy
     elapsed = timeit.default_timer() - start
     view_t[4] += elapsed
@@ -170,7 +175,8 @@ for test in range(ntests):
     temp_t[0] += elapsed
     norm_y = iy.norm()
     start = timeit.default_timer()
-    vy.copy(vx)
+    #vy.copy(vx)
+    copyto(vy, vx)
     vy *= 2
     elapsed = timeit.default_timer() - start
     view_t[0] += elapsed
@@ -183,7 +189,8 @@ for test in range(ntests):
     temp_t[1] += elapsed
     norm_y = iy.norm()
     start = timeit.default_timer()
-    vy.copy(vx)
+    #vy.copy(vx)
+    copyto(vy, vx)
     vy += 2
     elapsed = timeit.default_timer() - start
     view_t[1] += elapsed
@@ -196,7 +203,8 @@ for test in range(ntests):
     temp_t[2] += elapsed
     norm_z = iz.norm()
     start = timeit.default_timer()
-    vz.copy(vx)
+    #vz.copy(vx)
+    copyto(vz, vx)
     vz += vy
     elapsed = timeit.default_timer() - start
     view_t[2] += elapsed
@@ -209,7 +217,8 @@ for test in range(ntests):
     temp_t[3] += elapsed
     norm_z = iz.norm()
     start = timeit.default_timer()
-    vz.copy(vx)
+    #vz.copy(vx)
+    copyto(vz, vx)
     vz *= vy
     elapsed = timeit.default_timer() - start
     view_t[3] += elapsed
@@ -223,7 +232,8 @@ for test in range(ntests):
     temp_t[4] += elapsed
     norm_z = iz.norm()
     start = timeit.default_timer()
-    vz.copy(vx)
+    #vz.copy(vx)
+    copyto(vz, vx)
     vz /= vy
     elapsed = timeit.default_timer() - start
     view_t[4] += elapsed
