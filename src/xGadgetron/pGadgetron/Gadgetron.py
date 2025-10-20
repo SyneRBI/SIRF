@@ -42,7 +42,7 @@ from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
      pTest, RE_PYEXT
 import sirf
 from sirf import SIRF
-from sirf.SIRF import DataContainer, ContiguousError, ArrayContainer
+from sirf.SIRF import DataContainer, ArrayContainer
 import sirf.pyiutilities as pyiutil
 import sirf.pygadgetron as pygadgetron
 import sirf.pysirf as pysirf
@@ -304,16 +304,6 @@ class Image(ArrayContainer):
         return {'shape': self.shape, 'typestr': typestr[dt - 1], 'version': 3,
                 'data': (parms.size_t_par(self.handle, 'Image', 'address'), False)}
 
-    '''
-    def asarray(self, xp=numpy, copy=None, **kwargs):
-        """Returns view (or fallback copy) of self"""
-        try:
-            return xp.asarray(self, copy=copy, **kwargs)
-        except ContiguousError:
-            if copy or copy is None:
-                return xp.asarray(self.as_array(), **kwargs)
-            raise
-    '''
 
 #class ImageData(DataContainer):
 class ImageData(SIRF.ImageData):
