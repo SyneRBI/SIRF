@@ -196,7 +196,7 @@ def mr_data_path():
 ##        check_status(handle)
 ##        pyiutil.deleteDataHandle(handle)
 
-class Image(object):
+class Image(ArrayContainer):
     '''
     Provides access to ISMRMRD::Image parameters (cf. ismrmrd.h).
     '''
