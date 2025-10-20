@@ -89,19 +89,13 @@ class ArrayContainer(ABC):
     """
     def asarray(self, xp=numpy, copy=None, **kwargs):
         """Returns view (or fallback copy) of self"""
-        old_numpy = int(numpy.__version__[0]) < 2
-        if copy is None:
-            copy = True
-        if not copy and old_numpy:
-            print('data container views not availavle with NumPy version ' + numpy.__version__)
-            exit()
         try:
             if not hasattr(self, '__array_interface__'):
                 raise ContiguousError("please make an array-copy instead with `copy=True` or `None`")
-            if old_numpy:
+            if xp is numpy and int(xp.__version__.split(".", 1)[0]) < 2:
+                warnings.warn("ignoring `copy` argument: upgrade to numpy>=2 for (zero)copy support", DeprecationWarning)
                 return xp.asarray(self, **kwargs)
-            else:
-                return xp.asarray(self, copy=copy, **kwargs)
+            return xp.asarray(self, copy=copy, **kwargs)
         except ContiguousError:
             if copy or copy is None:
                 return xp.asarray(self.as_array(), **kwargs)
