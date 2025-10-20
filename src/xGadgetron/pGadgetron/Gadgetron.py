@@ -304,6 +304,7 @@ class Image(object):
         return {'shape': self.shape, 'typestr': typestr[dt - 1], 'version': 3,
                 'data': (parms.size_t_par(self.handle, 'Image', 'address'), False)}
 
+    '''
     def asarray(self, xp=numpy, copy=None, **kwargs):
         """Returns view (or fallback copy) of self"""
         try:
@@ -312,7 +313,7 @@ class Image(object):
             if copy or copy is None:
                 return xp.asarray(self.as_array(), **kwargs)
             raise
-
+    '''
 
 #class ImageData(DataContainer):
 class ImageData(SIRF.ImageData):
@@ -666,6 +667,9 @@ class ImageDataView(GadgetronDataView):
     '''
     def __init__(self, img_data):
         self.handle = None
+        if int(numpy.__version__[0]) < 2:
+            print('data container views not available with NumPy version ' + numpy.__version__)
+            exit()
         self.img_data = img_data
         ni = img_data.shape[0]
         self.views = [img_data.image(i).asarray(copy=False) for i in range(ni)]
@@ -1348,6 +1352,9 @@ class AcquisitionDataView(GadgetronDataView):
     '''
     def __init__(self, acq_data, ignore_mask=1<<18):
         self.handle = None
+        if int(numpy.__version__[0]) < 2:
+            print('data container views not available with NumPy version ' + numpy.__version__)
+            exit()
         self.acq_data = acq_data
         nacq = acq_data.number_of_acquisitions('all')
         self.views = []
