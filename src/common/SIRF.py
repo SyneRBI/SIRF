@@ -29,6 +29,7 @@ except:
     HAVE_PYLAB = False
 import sys
 import warnings
+import logging
 
 from sirf.Utilities import assert_validity, assert_validities, \
      cpp_int_dtype, check_status, try_calling, error
@@ -82,11 +83,14 @@ class ContiguousError(ValueError):
     https://data-apis.org/array-api/latest/API_specification/generated/array_api.asarray.html
     """
 
+
 class ArrayContainer(ABC):
     """
     Abstract base class for an array container with contiguous data
     accessible via the address of the first data item.
     """
+    warnings.simplefilter('once', DeprecationWarning)
+
     def asarray(self, xp=numpy, copy=None, **kwargs):
         """Returns view (or fallback copy) of self"""
         try:
@@ -672,8 +676,6 @@ class DataContainer(ArrayContainer):
         else:
             dt = 'float%s' % bits
         return numpy.dtype(dt)
-
-ArrayContainer.register(DataContainer)
 
 
 class ImageData(DataContainer):

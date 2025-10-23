@@ -657,9 +657,8 @@ class ImageDataView(GadgetronDataView):
     '''
     def __init__(self, img_data):
         self.handle = None
-        if int(numpy.__version__[0]) < 2:
-            print('data container views not available with NumPy version ' + numpy.__version__)
-            exit()
+        if int(numpy.__version__.split(".", 1)[0]) < 2:
+            raise NotImplementedError('data container views not available with NumPy version ' + numpy.__version__ + ', use 2.0.0 or later')
         self.img_data = img_data
         ni = img_data.shape[0]
         self.views = [img_data.image(i).asarray(copy=False) for i in range(ni)]
@@ -978,8 +977,6 @@ class Acquisition(ArrayContainer):
         """As per https://numpy.org/doc/stable/reference/arrays.interface.html"""
         return {'shape': self.shape, 'typestr': '<c8', 'version': 3,
                 'data': (parms.size_t_par(self.handle, 'Acquisition', 'address'), False)}
-
-ArrayContainer.register(Acquisition)
 
 
 class AcquisitionData(DataContainer):
@@ -1342,9 +1339,8 @@ class AcquisitionDataView(GadgetronDataView):
     '''
     def __init__(self, acq_data, ignore_mask=1<<18):
         self.handle = None
-        if int(numpy.__version__[0]) < 2:
-            print('data container views not available with NumPy version ' + numpy.__version__)
-            exit()
+        if int(numpy.__version__.split(".", 1)[0]) < 2:
+            raise NotImplementedError('data container views not available with NumPy version ' + numpy.__version__ + ', use 2.0.0 or later')
         self.acq_data = acq_data
         nacq = acq_data.number_of_acquisitions('all')
         self.views = []
