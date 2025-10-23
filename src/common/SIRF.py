@@ -29,7 +29,6 @@ except:
     HAVE_PYLAB = False
 import sys
 import warnings
-import logging
 
 from sirf.Utilities import assert_validity, assert_validities, \
      cpp_int_dtype, check_status, try_calling, error
