@@ -3,6 +3,7 @@
 
 * CI
   - made tests return value handling compatible with a future version of pytest.
+  - added algebraic tests for STIR AcquisitionData subsets.
 
 * SIRF/STIR
   - `ScatterEstimation` has extra methods that allow setting masks for the tail-fitting.

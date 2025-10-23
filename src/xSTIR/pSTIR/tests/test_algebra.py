@@ -47,7 +47,6 @@ class TestSTIRAcquisitionDataAlgebraFile(unittest.TestCase, DataContainerAlgebra
             template = pet.AcquisitionData(path)
             self.image1 = template.get_uniform_copy(0)
             self.image2 = template.get_uniform_copy(0)
-            # assert False
             self.set_storage_scheme()
         
         
@@ -71,8 +70,28 @@ class TestSTIRAcquisitionDataAlgebraMemory(unittest.TestCase, DataContainerAlgeb
             template = pet.AcquisitionData(path)
             self.image1 = template.get_uniform_copy(0)
             self.image2 = template.get_uniform_copy(0)
-            # assert False
             pet.AcquisitionData.set_storage_scheme('memory')
+    def test_division_by_datacontainer_zero(self):
+        # skip this test as currently cSIRF doesn't throw
+        pass
+
+class TestSTIRAcquisitionDataSubsetAlgebraMemory(unittest.TestCase, DataContainerAlgebraTests):
+    def setUp(self):
+        pet.AcquisitionData.set_storage_scheme('memory')
+        path = os.path.join(
+            examples_data_path('PET'), 'thorax_single_slice', 'template_sinogram.hs')
+        if os.path.exists(path):
+            template = pet.AcquisitionData(path)
+            prompts = template.get_uniform_copy(0)
+            # create a staggered list of views for 2 subsets
+            views = prompts.dimensions()[2]
+            indices = list(range(views))
+            num_batches = 2
+            batches = [indices[i::num_batches] for i in range(num_batches)]
+            
+            self.image1 = prompts.get_subset(batches[0])
+            self.image2 = prompts.get_subset(batches[0])
+            
     def test_division_by_datacontainer_zero(self):
         # skip this test as currently cSIRF doesn't throw
         pass
