@@ -2448,7 +2448,7 @@ class Prior(object):
         if out is None or out.handle is None:
             out = input_.get_uniform_copy(0.0)
         try_calling(pystir.cSTIR_priorAccumulateHessianTimesInput
-            (self.handle, out.handle, current_estimate.handle, input_.handle))
+            (self.handle, current_estimate.handle, input_.handle, out.handle))
         return out
 
     def multiply_with_Hessian(self, current_estimate, input_, out=None):

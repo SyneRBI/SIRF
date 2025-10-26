@@ -50,6 +50,8 @@ def Hessian_test(test, prior, x, eps=1e-3):
     #print('norm of grad(x + dx) - grad(x): %f' % dg.norm())
     #print('norm of H(x)*dx: %f' % Hdx.norm())
     #print('relative difference: %g' % q)
+    if dg.norm() == 0:
+        q = 0
     test.check_if_less(q, .01*eps)
 
 
