@@ -58,10 +58,6 @@ class TestSTIRAcquisitionDataAlgebraFile(unittest.TestCase, DataContainerAlgebra
     def set_storage_scheme(self):
         pet.AcquisitionData.set_storage_scheme('file')
     
-    def test_division_by_datacontainer_zero(self):
-        # skip this test as currently cSIRF doesn't throw
-        pass
-
 
 class TestSTIRAcquisitionDataAlgebraMemory(unittest.TestCase, DataContainerAlgebraTests):
     def setUp(self):
@@ -73,9 +69,6 @@ class TestSTIRAcquisitionDataAlgebraMemory(unittest.TestCase, DataContainerAlgeb
             self.image1 = template.get_uniform_copy(0)
             self.image2 = template.get_uniform_copy(0)
             pet.AcquisitionData.set_storage_scheme('memory')
-    def test_division_by_datacontainer_zero(self):
-        # skip this test as currently cSIRF doesn't throw
-        pass
 
 class TestSTIRAcquisitionDataSubsetAlgebra():
     def setUp(self):
@@ -93,10 +86,7 @@ class TestSTIRAcquisitionDataSubsetAlgebra():
             self.image1 = prompts.get_subset(batches[0])
             self.image2 = prompts.get_subset(batches[0])
             
-    def test_division_by_datacontainer_zero(self):
-        # skip this test as currently cSIRF doesn't throw
-        pass
-
+            
 class TestSTIRAcquisitionDataSubsetAlgebraMemory(TestSTIRAcquisitionDataSubsetAlgebra, unittest.TestCase, DataContainerAlgebraTests):
     def setUp(self):
         pet.AcquisitionData.set_storage_scheme('memory')
@@ -118,8 +108,13 @@ class TestSTIRAcquisitionDataSubsetAlgebraFile(TestSTIRAcquisitionDataSubsetAlge
                 func(self)
             except Exception as e:
                 print (f"Caught exception in {func.__name__}: {e}")
-
+                return
+            raise AssertionError(f"Expected exception in {func.__name__} but none was raised.")
+        
         for m in a:
-            self.__setattr__(m[0], functools.partial(wrapper, self, m[1]))
+            # test_division_by_datacontainer_zero and test_division_by_scalar_zero
+            # do not raise exception, they just assert True. Skip them.
+            if m[0] not in ["test_division_by_datacontainer_zero", "test_division_by_scalar_zero"]:
+                self.__setattr__(m[0], functools.partial(wrapper, self, m[1]))
 
         self.__setattr__('setUp', functools.partial(wrapper, self, self.setUp))
