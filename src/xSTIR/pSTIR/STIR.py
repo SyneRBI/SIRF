@@ -2851,12 +2851,20 @@ class ObjectiveFunction(object):
         assert_validity(image, ImageData)
         if out is None:
             out = ImageData()
+        inline = False
+        if out.handle == image.handle:
+            out = ImageData()
+            inline = True
+
         if out.handle is None:
             out.handle = pystir.cSTIR_objectiveFunctionGradient(self.handle, image.handle, subset)
         else:
             assert_validities(image, out)
             pystir.cSTIR_computeObjectiveFunctionGradient(self.handle, image.handle, subset, out.handle)
         check_status(out.handle)
+        if inline:
+            image.fill(out)
+            return image
         return out
 
     def get_gradient(self, image, out=None):

@@ -13,6 +13,7 @@
   - `DataContainer.supports_array_view` to test for zero-copy compatibility.
   - SIRF interfaces (C++ and Python) for STIR Poisson noise generation utilities provided.
   - `ImageData` and `AcquisitionData` have `.asarray(copy=None)` (NumPy-like behaviour: default zero-copy if contiguous, fallback to deepcopy otherwise) via `__array_interface__`.
+  - pSTIR: allow in-place call of `ObjectiveFunction` `gradient`. Added unit test for new functionality in `gradient` and for the `out` parameter. 
 
 ## v3.8.1
 
