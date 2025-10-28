@@ -474,7 +474,7 @@ class ImageData(SIRF.ImageData):
     def __array_interface__(self):
         """As per https://numpy.org/doc/stable/reference/arrays.interface.html"""
         if not self.supports_array_view:
-            raise ContiguousError("please make an array-copy first with `asarray(copy=True)` or `as_array()`")
+            raise ContiguousError("views not supported, please consider using `asarray()` or `as_array()`")
         return {'shape': self.shape, 'typestr': '<f4', 'version': 3,
                 'data': (parms.size_t_par(self.handle, 'ImageData', 'address'), False)}
 
@@ -1337,7 +1337,7 @@ class AcquisitionData(ScanData):
     def __array_interface__(self):
         """As per https://numpy.org/doc/stable/reference/arrays.interface.html"""
         if not self.supports_array_view:
-            raise ContiguousError("please make an array-copy first with `asarray(copy=True)` or `as_array()`")
+            raise ContiguousError("views not supported, please consider using `asarray()` or `as_array()`")
         return {'shape': self.shape, 'typestr': '<f4', 'version': 3,
                 'data': (parms.size_t_par(self.handle, 'AcquisitionData', 'address'), False)}
 
@@ -2261,6 +2261,7 @@ class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
         optionally setting the ray tracing matrix to be used for projecting;
         matrix: a RayTracingMatrix object to represent G in (F).
         """
+        self.handle = None
         if matrix is None:
             matrix = RayTracingMatrix()
         assert_validity(matrix, RayTracingMatrix)

@@ -1,5 +1,6 @@
 # ChangeLog
-## vx.x.x
+
+## v3.9.0
 
 * CI
   - made tests return value handling compatible with a future version of pytest.
@@ -13,7 +14,11 @@
   - `DataContainer.supports_array_view` to test for zero-copy compatibility.
   - SIRF interfaces (C++ and Python) for STIR Poisson noise generation utilities provided.
   - `ImageData` and `AcquisitionData` have `.asarray(copy=None)` (NumPy-like behaviour: default zero-copy if contiguous, fallback to deepcopy otherwise) via `__array_interface__`.
+  - PET/Registration `ImageData` and PET `AcquisitionData` have `.asarray(copy=False)` (NumPy-like behaviour: default zero-copy if contiguous, fallback to deepcopy otherwise) via `__array_interface__`.
   - pSTIR: allow in-place call of `ObjectiveFunction` `gradient`. Added unit test for new functionality in `gradient` and for the `out` parameter. 
+
+* SIRF/Gadgetron
+  - `ImageDataView` and `AcquisitionDataView` classes implemented that encapsulate arrays of NumPy views of `ISMRMRD_ImageData` and `ISMRMRD_AcquisitionData` objects respectively, significantly accelerating the algebraic operations (up to a factor of about 10 for images).
 
 ## v3.8.1
 
