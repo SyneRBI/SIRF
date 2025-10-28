@@ -61,7 +61,7 @@ endif()
 
 ####### Set Version number etc
 set(VERSION_MAJOR   3 )
-set(VERSION_MINOR   8 )
+set(VERSION_MINOR   9 )
 set(VERSION_PATCH   0 )
 mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 
