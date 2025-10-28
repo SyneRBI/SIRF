@@ -2851,7 +2851,7 @@ class ObjectiveFunction(object):
 
         image: ImageData object
         subset: Python integer scalar, optional, default -1
-                If subset is -1 it returs the full gradient, otherwise the
+                If subset is -1 it returns the full gradient, otherwise the
                 gradient component corresponding to the specified subset.
         out: ImageData object, optional, default None
                 the destination for the gradient; if None a new ImageData object
