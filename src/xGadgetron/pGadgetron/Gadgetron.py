@@ -42,7 +42,7 @@ from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
      pTest, RE_PYEXT
 import sirf
 from sirf import SIRF
-from sirf.SIRF import DataContainer
+from sirf.SIRF import DataContainer, ArrayContainer
 import sirf.pyiutilities as pyiutil
 import sirf.pygadgetron as pygadgetron
 import sirf.pysirf as pysirf
@@ -196,7 +196,7 @@ def mr_data_path():
 ##        check_status(handle)
 ##        pyiutil.deleteDataHandle(handle)
 
-class Image(object):
+class Image(ArrayContainer):
     '''
     Provides access to ISMRMRD::Image parameters (cf. ismrmrd.h).
     '''
@@ -291,6 +291,19 @@ class Image(object):
                (self.handle, 'image', 'patient_table_position', 3)
     def info(self, method):
         return eval('self.' + method + '()')
+
+    @property
+    def shape(self):
+        return self.matrix_size()
+
+    @property
+    def __array_interface__(self):
+        """As per https://numpy.org/doc/stable/reference/arrays.interface.html"""
+        dt = self.data_type()
+        typestr = ['<i2', '<i2', '<i4', '<i4', '<f4', '<f8', '<c8', '<c16']
+        return {'shape': self.shape, 'typestr': typestr[dt - 1], 'version': 3,
+                'data': (parms.size_t_par(self.handle, 'Image', 'address'), False)}
+
 
 #class ImageData(DataContainer):
 class ImageData(SIRF.ImageData):
@@ -579,6 +592,82 @@ class ImageData(SIRF.ImageData):
 SIRF.ImageData.register(ImageData)
 
 
+class GadgetronDataView:
+    '''Class for gadgetron data container view.
+
+    '''
+    def __iadd__(self, other):
+        if type(other) is type(self):
+            for this, that in zip(self.views, other.views):
+                this += that
+        else:
+            for v in self.views:
+                v += other
+        return self
+
+    def __isub__(self, other):
+        if type(other) is type(self):
+            for this, that in zip(self.views, other.views):
+                this -= that
+        else:
+            for v in self.views:
+                v -= other
+        return self
+
+    def __imul__(self, other):
+        if type(other) is type(self):
+            for this, that in zip(self.views, other.views):
+                this *= that
+        else:
+            for v in self.views:
+                v *= other
+        return self
+
+    def __itruediv__(self, other):
+        if type(other) is type(self):
+            for this, that in zip(self.views, other.views):
+                this /= that
+        else:
+            for v in self.views:
+                v /= other
+        return self
+
+    def copy(self, other):
+        nv = len(self.views)
+        if type(other) is type(self):
+            for i in range(nv):
+                numpy.copyto(self.views[i], other.views[i])
+        else:
+            for i in range(nv):
+                self.views[i] = other
+
+    def norm(self):
+        return numpy.linalg.norm([numpy.linalg.norm(v) for v in self.views])
+
+    def dot(self, other):
+        return sum(numpy.vdot(that, this) for this, that in zip(self.views, other.views))
+
+    def sum(self):
+        return sum(map(numpy.sum, self.views))
+
+
+class ImageDataView(GadgetronDataView):
+    '''Class for ImageData view.
+
+    '''
+    def __init__(self, img_data):
+        self.handle = None
+        if int(numpy.__version__.split(".", 1)[0]) < 2:
+            raise NotImplementedError('data container views not available with NumPy version ' + numpy.__version__ + ', use 2.0.0 or later')
+        self.img_data = img_data
+        ni = img_data.shape[0]
+        self.views = [img_data.image(i).asarray(copy=False) for i in range(ni)]
+
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+
 class CoilImagesData(ImageData):
     '''
     Class for a coil images (ci) container.
@@ -723,8 +812,8 @@ class CoilSensitivityData(ImageData):
 
 DataContainer.register(CoilSensitivityData)
 
-
-class Acquisition(object):
+#class Acquisition(object):
+class Acquisition(ArrayContainer):
     ''' Provides access to ISMRMRD::Acquisition parameters (cf. ismrmrd.h).
     '''
     def __init__(self, file = None):
@@ -878,6 +967,17 @@ class Acquisition(object):
             raise AssertionError(f"stampnum must be either 0, 1 or 2. You gave {stampnum}.")
         attribute = f"physiology_time_stamp{stampnum}"
         return parms.set_int_par(self.handle, 'acquisition', attribute, int(val))
+
+    @property
+    def shape(self):
+        return self.number_of_samples(), self.active_channels()
+
+    @property
+    def __array_interface__(self):
+        """As per https://numpy.org/doc/stable/reference/arrays.interface.html"""
+        return {'shape': self.shape, 'typestr': '<c8', 'version': 3,
+                'data': (parms.size_t_par(self.handle, 'Acquisition', 'address'), False)}
+
 
 class AcquisitionData(DataContainer):
     '''
@@ -1230,8 +1330,31 @@ class AcquisitionData(DataContainer):
     def shape(self):
         return self.dimensions()
 
-    
 DataContainer.register(AcquisitionData)
+
+
+class AcquisitionDataView(GadgetronDataView):
+    '''Class for AcquisitionData view.
+
+    '''
+    def __init__(self, acq_data, ignore_mask=1<<18):
+        self.handle = None
+        if int(numpy.__version__.split(".", 1)[0]) < 2:
+            raise NotImplementedError('data container views not available with NumPy version ' + numpy.__version__ + ', use 2.0.0 or later')
+        self.acq_data = acq_data
+        nacq = acq_data.number_of_acquisitions('all')
+        self.views = []
+        for i in range(nacq):
+            acq = acq_data.acquisition(i)
+            flags = acq.flags()
+            if flags & ignore_mask:
+                continue
+            self.views += [acq.asarray(copy=False)]
+
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
 
 class AcquisitionModel(object):
     '''
