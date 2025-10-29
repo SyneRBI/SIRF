@@ -6,10 +6,9 @@
   - Performance of acquisitions and images data algebra improved, acquisitions algebra running up to 3 times faster and images algebra up to 15 times faster.
   - `DataContainer.supports_array_view` to test for zero-copy compatibility.
   - `ImageData` and `AcquisitionData` have `.asarray(copy=None)` in Python via `__array_interface__`.
-     With `copy=False`, there is no copy of the data anymore if the underlying object supports it
-    (see `supports_array_view`), otherwise `asarray` falls back to a deepcopy (NumPy-like behaviour).
-     Note that in the former case, modifying the returned NumPy array will modify the original SIRF data as well.
      When using NumPy >= 2.0, a copy can be disabled or forced by setting the `copy` argument accordingly.
+     With `copy=False`, there is no copy of the data anymore if the underlying object supports array views (see `supports_array_view`) and exception is raised otherwise. For any other value of `copy`, `asarray` falls back to a deepcopy (NumPy-like behaviour).
+     Note that with `copy=False`, modifying the returned NumPy array will modify the original SIRF data as well.
      <br>
      `asarray(copy=True)` is equivalent to `as_array()`. The latter will be removed in a future version.
 
