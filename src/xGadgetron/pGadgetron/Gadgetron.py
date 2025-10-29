@@ -812,7 +812,6 @@ class CoilSensitivityData(ImageData):
 
 DataContainer.register(CoilSensitivityData)
 
-#class Acquisition(object):
 class Acquisition(ArrayContainer):
     ''' Provides access to ISMRMRD::Acquisition parameters (cf. ismrmrd.h).
     '''
@@ -925,8 +924,6 @@ class Acquisition(ArrayContainer):
                (self.handle, 'acquisition', 'patient_table_position', 3)
     def info(self, method):
         return eval('self.' + method + '()')
-
-
     def set_kspace_encode_step_1(self,val):
         assert self.handle is not None
         return parms.set_int_par(self.handle, 'acquisition', 'idx_kspace_encode_step_1', int(val))
@@ -954,7 +951,6 @@ class Acquisition(ArrayContainer):
     def set_segment(self,val):
         assert self.handle is not None
         return parms.set_int_par(self.handle, 'acquisition', 'idx_segment', int(val))
-
     def set_physiology_time_stamp(self,val,stampnum):
         '''
         Setter for acquisitions physiology time stamp.
@@ -1299,8 +1295,6 @@ class AcquisitionData(DataContainer):
                 return
             ns = 1
             slice = [slice]
-##            show_2D_array('slice %d' % slice, data[slice,:,:])
-##            return
         elif slice is None:
             ns = nz
             slice = range(nz)

@@ -13,12 +13,8 @@
   - Performance of acquisitions and images data algebra improved, acquisitions algebra running up to 3 times faster and images algebra up to 15 times faster.
   - `DataContainer.supports_array_view` to test for zero-copy compatibility.
   - SIRF interfaces (C++ and Python) for STIR Poisson noise generation utilities provided.
-  - `ImageData` and `AcquisitionData` have `.asarray(copy=None)` in Python via `__array_interface__`.
-     This has NumPy-like behaviour. With default argument, there is no copy of the data anymore if the
-     underlying object supports it (see `supports_array_view`), otherwise a `asarray` falls back to a deepcopy.
-     Note that in the former case, modifying the returned NumPy array will modify the original SIRF data as well.
-  - PET/Registration `ImageData` and PET `AcquisitionData` have `.asarray(copy=False)` (NumPy-like behaviour: default zero-copy if contiguous, fallback to deepcopy otherwise) via `__array_interface__`.
-  - allow in-place call of `ObjectiveFunction` `gradient` in Python. Added unit test for new functionality in `gradient` and for the `out` parameter. 
+  - PET/Registration `ImageData` and PET `AcquisitionData` have `.asarray(copy=None)` (NumPy-like behaviour: zero-copy if `copy==False`,
+    fallback to deepcopy otherwise) via `__array_interface__`.
 
 * SIRF/Gadgetron
   - `ImageDataView` and `AcquisitionDataView` classes implemented that encapsulate arrays of NumPy views of `ISMRMRD_ImageData` and `ISMRMRD_AcquisitionData` objects respectively, significantly accelerating the algebraic operations (up to a factor of about 10 for images).
