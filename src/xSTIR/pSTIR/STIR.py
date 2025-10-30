@@ -2846,18 +2846,36 @@ class ObjectiveFunction(object):
         specified subset (see set_num_subsets() method).
         If no subset is specified, returns the full gradient, i.e. the sum of
         the subset components.
+
+        Parameters:
+
         image: ImageData object
-        subset: Python integer scalar
+        subset: Python integer scalar, optional, default -1
+                If subset is -1 it returns the full gradient, otherwise the
+                gradient component corresponding to the specified subset.
+        out: ImageData object, optional, default None
+                the destination for the gradient; if None a new ImageData object
+                will be returned. If 'out' is the same as 'image', the result will 
+                be stored in a temporary object and then copied back to 'image', and
+                returned.
         """
         assert_validity(image, ImageData)
         if out is None:
             out = ImageData()
+        inline = False
+        if out.handle == image.handle:
+            out = ImageData()
+            inline = True
+
         if out.handle is None:
             out.handle = pystir.cSTIR_objectiveFunctionGradient(self.handle, image.handle, subset)
         else:
             assert_validities(image, out)
             pystir.cSTIR_computeObjectiveFunctionGradient(self.handle, image.handle, subset, out.handle)
         check_status(out.handle)
+        if inline:
+            image.fill(out)
+            return image
         return out
 
     def get_gradient(self, image, out=None):

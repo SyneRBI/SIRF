@@ -1188,11 +1188,8 @@ The actual algorithm is described in
 			output.fill(0.0);
 			if (subset >= 0)
 				accumulate_sub_Hessian_times_input(output, curr_image_est, input, subset);
-			else {
-				for (int s = 0; s < get_num_subsets(); s++) {
-					accumulate_sub_Hessian_times_input(output, curr_image_est, input, s);
-				}
-			}
+			else
+				accumulate_Hessian_times_input(output, curr_image_est, input);
 		}
 	};
 
