@@ -33,7 +33,7 @@ def Hessian_test(test, prior, x, eps=1e-3):
         """
     if x.norm() > 0:
         dx = x.clone()
-        dx *= eps/dx.norm()
+        dx *= eps
         dx += eps/2
     else:
         dx = x + eps
@@ -47,11 +47,17 @@ def Hessian_test(test, prior, x, eps=1e-3):
         q = (dg - Hdx).norm()/gynorm
     else:
         q = (dg - Hdx).norm()
-    #print('norm of grad(x + dx) - grad(x): %f' % dg.norm())
-    #print('norm of H(x)*dx: %f' % Hdx.norm())
-    #print('relative difference: %g' % q)
-    if dg.norm() == 0:
-        q = 0
+    # print('norm of x: %f, dx: %f' % (x.norm(), dx.norm()))
+    # print('norm of grad(x): %f, grad(x + dx): %f' % (gx.norm(), gy.norm()))
+    # print('norm of grad(x + dx) - grad(x): %f' % dg.norm())
+    # print('norm of H(x)*dx: %f' % Hdx.norm())
+    # print('relative difference: %g' % q)
+    if issubclass(type(prior), sirf.STIR.RelativeDifferencePrior):
+       if x.min() == x.max() and dx.min() == dx.max():
+          # skip test in this case, as grad(x+dx) = grad(x) = 0, but H dx is not (even analytically),
+          # although it is small.
+          # The difficult is knowing what the tolerance is for this test in that case
+          q = 0
     test.check_if_less(q, .01*eps)
 
 
@@ -67,6 +73,7 @@ def test_main(rec=False, verb=False, throw=True, no_ret_val=True):
     im_2 = im_0.get_uniform_copy(2)
 
     for im in [im_0, im_1, im_2]:
+      # print('-------------- new image (see test source) -----------------')
       for penalisation_factor in [0,1,4]:
         for kappa in [True, False]:
           priors = [sirf.STIR.QuadraticPrior(), sirf.STIR.LogcoshPrior(), sirf.STIR.RelativeDifferencePrior()]
@@ -97,6 +104,7 @@ def test_main(rec=False, verb=False, throw=True, no_ret_val=True):
 
             if isinstance(prior, sirf.STIR.RelativeDifferencePrior):
                 prior.set_epsilon(im.max()*.01)
+            # print(f"penalisation_factor {penalisation_factor}, kappa {kappa}, prior {type(prior).__name__}")
             Hessian_test(test, prior, im, 0.03)
 
     numpy.testing.assert_equal(test.failed, 0)
