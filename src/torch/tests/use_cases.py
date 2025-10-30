@@ -11,7 +11,7 @@ pet.set_verbosity(1)
 pet.AcquisitionData.set_storage_scheme("memory")
 
 # Redirect STIR messages to avoid cluttering the output (optional)
-msg = sirf.STIR.MessageRedirector(info=None, warn=None, errr=None)
+msg = pet.MessageRedirector(info=None, warn=None, errr=None)
 
 
 def get_pet_2d():
@@ -163,9 +163,9 @@ class PETVarNet(torch.nn.Module):
         Returns:
             torch.Tensor: Reconstructed image.
         """
-        for ConvBlock in enumerate(self.ConvBlocks):
+        for ConvBlock in self.ConvBlocks:
             # Each iteration: Convolutional block output + gradient descent step
-            x = self.relu(self.ConvBlock(x) + self.objfuncgrad(x))
+            x = self.relu(ConvBlock(x) + self.objfuncgrad(x))
         return x
 
 
@@ -224,7 +224,7 @@ class UseCases:
 
         # Set up forward and adjoint operators using SIRF's Operator class
         FwdOperator = Operator(self.acq_model, self.image.get_uniform_copy(1))
-        AdjOperator = Operator(sirf.SIRF.AdjointOperator(self.acq_model.get_linear_acquisition_model()), self.acq_data.get_uniform_copy(1))
+        AdjOperator = Operator(sirf.AdjointOperator(self.acq_model.get_linear_acquisition_model()), self.acq_data.get_uniform_copy(1))
 
         # Create the network and move it to the device
         net = PETLearnedPrimalDual(PrimalConvBlocks, DualConvBlocks, FwdOperator, AdjOperator)
