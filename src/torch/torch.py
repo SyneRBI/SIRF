@@ -3,8 +3,7 @@ try:
 except ModuleNotFoundError:
     raise ModuleNotFoundError('Failed to import torch. Please install PyTorch first.')
 
-import sirf
-
+import sirf.SIRF as sirf
 
 
 # This module provides a PyTorch interface for SIRF operators and objective functions.
