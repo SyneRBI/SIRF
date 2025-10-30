@@ -115,7 +115,7 @@ def test_adjoint_gradcheck(test_data):
     else:
         pytest.skip("Tests not set up for other modalities at this time.")
 
-    adj_acq_model = sirf.SIRF.AdjointOperator(acq_model)
+    adj_acq_model = sirf.AdjointOperator(acq_model)
     torch_adjoint = Operator(adj_acq_model, acq_data.clone())
     torch_acq_data = sirf_to_torch(acq_data, device=DEV, requires_grad=True).unsqueeze(0)
 
