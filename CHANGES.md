@@ -32,7 +32,6 @@
 * CI and testing
   - made tests return value handling compatible with a future version of pytest.
   - added algebraic tests for STIR AcquisitionData subsets.
->>>>>>> origin/master
 
 ## v3.8.1
 
