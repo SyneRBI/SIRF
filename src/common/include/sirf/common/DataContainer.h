@@ -46,6 +46,56 @@ use it directly therefore.
 		virtual ~ContainerBase() {}
 		//virtual ObjectHandle<DataContainer>* new_data_container_handle() const = 0;
         };
+
+	template< class T >
+	struct sirf_pow {
+		T operator()(const T& a, const T&b) const {
+			return std::pow(a, b);
+		}
+	};
+
+	template< class T >
+	struct sirf_exp {
+		T operator()(const T& a) const {
+			return std::exp(a);
+		}
+	};
+
+	template< class T >
+	struct sirf_log {
+		T operator()(const T& a) const {
+			return std::log(a);
+		}
+	};
+
+	template< class T >
+	struct sirf_sqrt {
+		T operator()(const T& a) const {
+			return std::sqrt(a);
+		}
+	};
+
+	template< class T >
+	struct sirf_abs {
+		T operator()(const T& a) const {
+			return std::abs(a);
+		}
+	};
+
+	template< class T >
+	struct sirf_max {
+		T operator()(const T& a, const T& b) const {
+			return std::max(a, b);
+		}
+	};
+
+	template< class T >
+	struct sirf_min {
+		T operator()(const T& a, const T& b) const {
+			return std::min(a, b);
+		}
+	};
+
 /*!
 \ingroup Common
 \brief Abstract data container with numerical operations.
@@ -59,7 +109,7 @@ which rely on the same features of the items.
 	public:
 		virtual ~DataContainer() {}
 		//virtual DataContainer* new_data_container() const = 0;
-		virtual ObjectHandle<DataContainer>* new_data_container_handle() const = 0;
+		virtual ObjectHandle<DataContainer>* new_data_container_handle(const bool initialise_with_0 = false) const = 0;
 		virtual unsigned int items() const = 0;
 		virtual bool is_complex() const = 0;
 		virtual bool supports_array_view() const
@@ -95,8 +145,8 @@ which rely on the same features of the items.
 		virtual void multiply
 			(const DataContainer& x, const DataContainer& y) = 0;
 		/// \c *this = the product \c x * y with scalar y
-		virtual void multiply
-			(const DataContainer& x, const void* ptr_y) = 0;
+		//virtual void multiply
+		//	(const DataContainer& x, const void* ptr_y) = 0;
 
 		/// \c *this = the sum \c x + y with scalar y
 		virtual void add
@@ -262,7 +312,17 @@ which rely on the same features of the items.
 		template<typename T>
 		static T sign(T x)
 		{
-			return (std::real(x) > 0) - (std::real(x) < 0);
+			float re = std::real(x);
+			float im = std::imag(x);
+			if (im == 0.0) {
+				if (re == 0.0)
+					return 0.0;
+				else
+					return re/fabs(re);
+			}
+			T abs_x(std::sqrt(re*re + im*im));
+			return x/abs_x;
+			//return (std::real(x) > 0) - (std::real(x) < 0);
 		}
 		template<typename T>
 		static T abs(T x)
@@ -277,6 +337,13 @@ which rely on the same features of the items.
 		{
 			if (is_complex())
 				THROW("complex data containes must override conjugate_impl()");
+		}
+	};
+
+	template< class T >
+	struct sirf_sign {
+		T operator()(const T& a) const {
+			return DataContainer::sign<T>(a);
 		}
 	};
 }

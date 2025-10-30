@@ -1032,7 +1032,7 @@ The actual algorithm is described in
               THROW("output not yet computed");
             std::shared_ptr<STIRAcquisitionData> sptr_acq_data
               (STIRAcquisitionData::storage_template()->same_acquisition_data(stir_proj_data_sptr->get_exam_info_sptr(),
-                                                                             stir_proj_data_sptr->get_proj_data_info_sptr()->create_shared_clone()));
+                                                                             stir_proj_data_sptr->get_proj_data_info_sptr()->create_shared_clone(), false));
             sptr_acq_data->data()->fill(*stir_proj_data_sptr);
             return sptr_acq_data;
           }
@@ -1188,11 +1188,8 @@ The actual algorithm is described in
 			output.fill(0.0);
 			if (subset >= 0)
 				accumulate_sub_Hessian_times_input(output, curr_image_est, input, subset);
-			else {
-				for (int s = 0; s < get_num_subsets(); s++) {
-					accumulate_sub_Hessian_times_input(output, curr_image_est, input, s);
-				}
-			}
+			else
+				accumulate_Hessian_times_input(output, curr_image_est, input);
 		}
 	};
 

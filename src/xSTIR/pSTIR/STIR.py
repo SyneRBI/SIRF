@@ -474,7 +474,7 @@ class ImageData(SIRF.ImageData):
     def __array_interface__(self):
         """As per https://numpy.org/doc/stable/reference/arrays.interface.html"""
         if not self.supports_array_view:
-            raise ContiguousError("please make an array-copy first with `asarray(copy=True)` or `as_array()`")
+            raise ContiguousError("views not supported, please consider using `asarray()` or `as_array()`")
         return {'shape': self.shape, 'typestr': '<f4', 'version': 3,
                 'data': (parms.size_t_par(self.handle, 'ImageData', 'address'), False)}
 
@@ -1337,7 +1337,7 @@ class AcquisitionData(ScanData):
     def __array_interface__(self):
         """As per https://numpy.org/doc/stable/reference/arrays.interface.html"""
         if not self.supports_array_view:
-            raise ContiguousError("please make an array-copy first with `asarray(copy=True)` or `as_array()`")
+            raise ContiguousError("views not supported, please consider using `asarray()` or `as_array()`")
         return {'shape': self.shape, 'typestr': '<f4', 'version': 3,
                 'data': (parms.size_t_par(self.handle, 'AcquisitionData', 'address'), False)}
 
@@ -2261,6 +2261,7 @@ class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
         optionally setting the ray tracing matrix to be used for projecting;
         matrix: a RayTracingMatrix object to represent G in (F).
         """
+        self.handle = None
         if matrix is None:
             matrix = RayTracingMatrix()
         assert_validity(matrix, RayTracingMatrix)
@@ -2448,7 +2449,7 @@ class Prior(object):
         if out is None or out.handle is None:
             out = input_.get_uniform_copy(0.0)
         try_calling(pystir.cSTIR_priorAccumulateHessianTimesInput
-            (self.handle, out.handle, current_estimate.handle, input_.handle))
+            (self.handle, current_estimate.handle, input_.handle, out.handle))
         return out
 
     def multiply_with_Hessian(self, current_estimate, input_, out=None):
@@ -2845,18 +2846,36 @@ class ObjectiveFunction(object):
         specified subset (see set_num_subsets() method).
         If no subset is specified, returns the full gradient, i.e. the sum of
         the subset components.
+
+        Parameters:
+
         image: ImageData object
-        subset: Python integer scalar
+        subset: Python integer scalar, optional, default -1
+                If subset is -1 it returns the full gradient, otherwise the
+                gradient component corresponding to the specified subset.
+        out: ImageData object, optional, default None
+                the destination for the gradient; if None a new ImageData object
+                will be returned. If 'out' is the same as 'image', the result will 
+                be stored in a temporary object and then copied back to 'image', and
+                returned.
         """
         assert_validity(image, ImageData)
         if out is None:
             out = ImageData()
+        inline = False
+        if out.handle == image.handle:
+            out = ImageData()
+            inline = True
+
         if out.handle is None:
             out.handle = pystir.cSTIR_objectiveFunctionGradient(self.handle, image.handle, subset)
         else:
             assert_validities(image, out)
             pystir.cSTIR_computeObjectiveFunctionGradient(self.handle, image.handle, subset, out.handle)
         check_status(out.handle)
+        if inline:
+            image.fill(out)
+            return image
         return out
 
     def get_gradient(self, image, out=None):
@@ -2880,7 +2899,7 @@ class ObjectiveFunction(object):
         """Computes the multiplication of the Hessian at current_estimate with a vector and adds it to output.
         """
         if out is None or out.handle is None:
-            out = input_.clone()
+            out = input_.get_uniform_copy(0.0)
         try_calling(pystir.cSTIR_objectiveFunctionAccumulateHessianTimesInput
             (self.handle, current_estimate.handle, input_.handle, subset, out.handle))
         return out
@@ -2889,7 +2908,7 @@ class ObjectiveFunction(object):
         """Computes the multiplication of the Hessian at current_estimate with a vector.
         """
         if out is None or out.handle is None:
-            out = input_.get_uniform_copy(0.0)
+            out = input_.get_uniform_copy(0.0) # actual value doesn't matter as STIR will overwrite it.
         try_calling(pystir.cSTIR_objectiveFunctionComputeHessianTimesInput
             (self.handle, current_estimate.handle, input_.handle, subset, out.handle))
         return out
@@ -3804,11 +3823,11 @@ def make_Poisson_loglikelihood(acq_data=None, likelihood_type=None,
                                acq_model=None):
     """Makes Poisson loglikelihood.
 
-    Selects the objective function based on the acquisition data and likelihood
-    model types.
+    Selects the objective function based on the acquisition data and
+    one of the following likelihood model types:
+    * LinearModelForMean
+    * LinearModelForMeanAndListModeDataWithProjMatrixByBin
     """
-    # only this objective function is implemented for now
-    #if likelihood_type == 'LinearModelForMean':
     if likelihood_type is None or likelihood_type=='LinearModelForMean':
         obj_fun = PoissonLogLikelihoodWithLinearModelForMeanAndProjData()
         if acq_data is not None:

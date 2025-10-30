@@ -968,7 +968,7 @@ void* cSTIR_acquisitionDataFromScannerInfo
 		std::shared_ptr<STIRAcquisitionData> sptr_t =
 			STIRAcquisitionData::storage_template();
 		std::shared_ptr<STIRAcquisitionData> sptr(sptr_t->same_acquisition_data
-			(sptr_ei, sptr_pdi));
+			(sptr_ei, sptr_pdi, false));
 		sptr->fill(0.0f);
 		return newObjectHandle(sptr);
 	}
@@ -1381,7 +1381,7 @@ cSTIR_priorGradient(void* ptr_p, void* ptr_i)
 
 extern "C"
 void*
-cSTIR_priorAccumulateHessianTimesInput(void* ptr_prior, void* ptr_out, void* ptr_cur, void* ptr_inp)
+cSTIR_priorAccumulateHessianTimesInput(void* ptr_prior, void* ptr_cur, void* ptr_inp, void* ptr_out)
 {
 	try {
 		auto& prior = objectFromHandle<stir::GeneralisedPrior <Image3DF> >(ptr_prior);
@@ -1399,7 +1399,7 @@ cSTIR_priorAccumulateHessianTimesInput(void* ptr_prior, void* ptr_out, void* ptr
 
 extern "C"
 void*
-cSTIR_priorComputeHessianTimesInput(void* ptr_prior, void* ptr_out, void* ptr_cur, void* ptr_inp)
+cSTIR_priorComputeHessianTimesInput(void* ptr_prior, void* ptr_cur, void* ptr_inp, void* ptr_out)
 {
 	try {
 		auto& prior = objectFromHandle<xSTIR_GeneralisedPrior3DF>(ptr_prior);

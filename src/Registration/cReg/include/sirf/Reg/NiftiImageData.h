@@ -207,6 +207,16 @@ public:
             this->_data[i] = dataType(data[i]);
     }
 
+    virtual bool supports_array_view() const
+    {
+        return true;
+    }
+
+    virtual size_t address() const
+    {
+        return reinterpret_cast<size_t>(_data);
+    }
+
     /// Create NiftiImageData from geometrical info
     static std::shared_ptr<nifti_image> create_from_geom_info(const VoxelisedGeometricalInfo3D &geom, const bool is_tensor=false, const NREG_TRANS_TYPE tensor_type=NREG_TRANS_TYPE::DEF_FIELD);
 
@@ -613,10 +623,13 @@ protected:
     {
 	return new NiftiImageData(*this);
     }
-    virtual ObjectHandle<DataContainer>* new_data_container_handle() const
+    virtual ObjectHandle<DataContainer>* new_data_container_handle(const bool initialise_with_0 = false) const
     {
+        auto new_nid = new NiftiImageData(*this);
+        if (initialise_with_0)
+            new_nid->fill(0.0);
         return new ObjectHandle<DataContainer>
-            (std::shared_ptr<DataContainer>(new NiftiImageData));
+            (std::shared_ptr<DataContainer>(new_nid));
     }
 
 public:
@@ -634,21 +647,116 @@ public:
         const DataContainer& a_y, const DataContainer& a_b);
     virtual float norm() const;
     virtual void scale(float s);
-    virtual void multiply (const DataContainer& a_x, const DataContainer& a_y);
-    virtual void divide   (const DataContainer& a_x, const DataContainer& a_y);
-    virtual void maximum(const DataContainer& x, const DataContainer& y);
-    virtual void minimum(const DataContainer& x, const DataContainer& y);
-    virtual void power(const DataContainer& x, const DataContainer& y);
-    virtual void multiply(const DataContainer& a_x, const void* a_y);
-    virtual void add(const DataContainer& a_x, const void* a_y);
-    virtual void maximum(const DataContainer& x, const void* a_y);
-    virtual void minimum(const DataContainer& x, const void* a_y);
-    virtual void power(const DataContainer& x, const void* a_y);
-    virtual void exp(const DataContainer& x);
-    virtual void log(const DataContainer& x);
-    virtual void sqrt(const DataContainer& x);
-    virtual void sign(const DataContainer& x);
-    virtual void abs(const DataContainer& x);
+
+    template<class Operation>
+    void
+    unary_op_templ(const DataContainer& a_x, Operation f)
+    {
+        const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
+
+        // If the result hasn't been initialised, make a clone of one of them
+        if (!this->is_initialised())
+            *this = *x.clone();
+
+        ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "operands size mismatch");
+
+        for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
+            _data[i] = f(x._data[i]);
+    }
+    template<class Operation>
+    void
+    semibinary_op_templ(const DataContainer& a_x, const void* ptr_y, Operation f)
+    {
+        const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
+        dataType y = *static_cast<const dataType*>(ptr_y);
+
+        // If the result hasn't been initialised, make a clone of one of them
+        if (!this->is_initialised())
+            *this = *x.clone();
+
+        ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "operands size mismatch");
+
+        for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
+            _data[i] = f(x._data[i], y);
+    }
+    template<class Operation>
+    void
+    binary_op_templ(const DataContainer& a_x, const DataContainer& a_y, Operation f)
+    {
+        const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
+        const NiftiImageData<dataType>& y = dynamic_cast<const NiftiImageData<dataType>&>(a_y);
+
+        // If the result hasn't been initialised, make a clone of one of them
+        if (!this->is_initialised())
+            *this = *x.clone();
+
+        ASSERT(_nifti_image->nvox == x._nifti_image->nvox, "operands size mismatch");
+        ASSERT(_nifti_image->nvox == y._nifti_image->nvox, "operands size mismatch");
+
+        for (unsigned i = 0; i < this->_nifti_image->nvox; ++i)
+            _data[i] = f(x._data[i], y._data[i]);
+    }
+
+    virtual void multiply (const DataContainer& x, const DataContainer& y)
+    {
+        binary_op_templ(x, y, std::multiplies<float>());
+    }
+    virtual void divide   (const DataContainer& x, const DataContainer& y)
+    {
+        binary_op_templ(x, y, std::divides<float>());
+    }
+    virtual void maximum(const DataContainer& x, const DataContainer& y)
+    {
+        binary_op_templ(x, y, sirf_max<float>());
+    }
+    virtual void minimum(const DataContainer& x, const DataContainer& y)
+    {
+        binary_op_templ(x, y, sirf_min<float>());
+    }
+    virtual void power(const DataContainer& x, const DataContainer& y)
+    {
+        binary_op_templ(x, y, sirf_pow<float>());
+    }
+    virtual void multiply(const DataContainer& x, const void* y)
+    {
+        semibinary_op_templ(x, y, std::multiplies<float>());
+    }
+    virtual void add(const DataContainer& x, const void* y)
+    {
+        semibinary_op_templ(x, y, std::plus<float>());
+    }
+    virtual void maximum(const DataContainer& x, const void* y)
+    {
+        semibinary_op_templ(x, y, sirf_max<float>());
+    }
+    virtual void minimum(const DataContainer& x, const void* y)
+    {
+        semibinary_op_templ(x, y, sirf_min<float>());
+    }
+    virtual void power(const DataContainer& x, const void* y)
+    {
+        semibinary_op_templ(x, y, sirf_pow<float>());
+    }
+    virtual void exp(const DataContainer& x)
+    {
+        unary_op_templ(x, sirf_exp<float>());
+    }
+    virtual void log(const DataContainer& x)
+    {
+        unary_op_templ(x, sirf_log<float>());
+    }
+    virtual void sqrt(const DataContainer& x)
+    {
+        unary_op_templ(x, sirf_sqrt<float>());
+    }
+    virtual void sign(const DataContainer& x)
+    {
+        unary_op_templ(x, sirf_sign<float>());
+    }
+    virtual void abs(const DataContainer& x)
+    {
+        unary_op_templ(x, sirf_abs<float>());
+    }
 
     virtual Dimensions dimensions() const
     {
@@ -663,11 +771,10 @@ public:
         dim["w"] = d[7];
         return dim;
     }
-    void unary_op(const DataContainer& a_x, dataType(*f)(dataType));
-    void semibinary_op(const DataContainer& a_x, const void* a_y, dataType(*f)(dataType, dataType));
-    void binary_op(const DataContainer& a_x, const DataContainer& a_y, dataType(*f)(dataType, dataType));
+
     /// Set up the geometrical info. Use qform preferentially over sform.
     virtual void set_up_geom_info();
+
 protected:
     mutable std::shared_ptr<Iterator> _begin;
     mutable std::shared_ptr<Iterator> _end;
