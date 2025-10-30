@@ -1,11 +1,11 @@
 import pytest
-import sirf
 import sirf.STIR as pet
 import sirf.Gadgetron as mr
 from sirf.Utilities import examples_data_path, existing_filepath
 import torch
 torch.use_deterministic_algorithms(True)
 from sirf.torch import Operator, ObjectiveFunction, ObjectiveFunctionGradient, sirf_to_torch
+import sirf.SIRF as sirf
 
 DEV = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
