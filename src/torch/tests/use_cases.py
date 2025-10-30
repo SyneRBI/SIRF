@@ -1,7 +1,7 @@
 from sirf.torch import Operator, ObjectiveFunction, ObjectiveFunctionGradient, sirf_to_torch
 import sirf.STIR as pet
-import sirf
 from sirf.Utilities import examples_data_path
+import sirf.SIRF as sirf
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
