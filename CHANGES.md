@@ -1,5 +1,10 @@
 # ChangeLog
 
+## v3.x.x
+    - `common/SIRF.py` adding adjoint operator
+    - addition of initial pytorch wrappers and examples, check `torch/README.md`
+
+
 ## v3.9.0
 
 * Python interface
@@ -11,8 +16,6 @@
      Note that with `copy=False`, modifying the returned NumPy array will modify the original SIRF data as well.
      <br>
      `asarray(copy=True)` is equivalent to `as_array()`. The latter will be removed in a future version.
-    - `common/SIRF.py` adding adjoint operator
-    - addition of initial pytorch wrappers and examples, check `torch/README.md`
 
 * SIRF/STIR
   - `ScatterEstimation` has extra methods that allow setting masks for the tail-fitting.
