@@ -7,15 +7,9 @@
 * Python interface
   - Restored functionality for algebraic operations mixing SIRF data containers and numpy arrays and corrected the description of the result type in User Guide.
   - Error raised if `AcquisitionModel.adjoint` ran when the model is not linear.
-* SIRF-torch
-  - `torch/torch.py` has wrappers for pytorch objective functions, objective function gradient and operators
-  - `torch/tests/gradchecks.py` has gradchecks for the wrappers 2d/3d PET and 2d MRI.
-  - `torch/tests/use_cases.py` has use cases for 2d PET using all the wrappers.
-  - `torch/README.md` includes user directions for the wrappers.
-  - `torch/CMakeList.txt` installation of sirf.torch
-  - `src/CMakeList.txt` installation of sirf.torch
 * SIRF
   - `common/SIRF.py` adding adjoint operator
+  - addition of initial pytorch wrappers and examples, check `torch/README.md`
 
 ## v3.9.0
 
