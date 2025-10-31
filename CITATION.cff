@@ -117,7 +117,7 @@ identifiers:
       "Motion estimation and correction for
       simultaneous PET/MR using SIRF and CIL". Philos
       Trans A (2021);379:20200208
-  - type: doi
+- type: doi
     value: 10.1088/1361-6560/adf609
     description: >-
       "Efficient motion-corrected image reconstruction
