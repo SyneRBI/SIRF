@@ -46,16 +46,16 @@ authors:
   - given-names: Matthew
     family-names: Strugari
     affiliation: Dalhousie University (Canada)
+  - orcid: 'https://orcid.org/0000-0002-1815-4716'
+    affiliation: University College London, National Physics Laboratory
+    family-names: Porter
+    given-names: Sam David
   - given-names: Ashley
     family-names: Gillman
     orcid: 'https://orcid.org/0000-0001-9130-1092'
     affiliation: >-
       Commonwealth Scientific and Industrial Research
       Organisation, and University of Queensland
-  - orcid: 'https://orcid.org/0000-0002-1815-4716'
-    affiliation: University College London, National Physics Laboratory
-    family-names: Porter
-    given-names: Sam David
   - given-names: Daniel
     family-names: Deidda
     affiliation: National Physical Laboratory (UK)
@@ -74,6 +74,9 @@ authors:
   - given-names: Evangelos
     family-names: Papoutsellis
     affiliation: UK Research & Innovation
+  - family-names: Jurjew
+    given-names:  Nicole
+    affiliation:  University College London
   - family-names: Fardell
     given-names: Gemma
     orcid: 'https://orcid.org/0000-0003-2388-5211'
@@ -113,8 +116,13 @@ identifiers:
     description: >-
       "Motion estimation and correction for
       simultaneous PET/MR using SIRF and CIL". Philos
-      Trans A Math Phys Eng Sci . 2021 Aug
-      23;379(2204):20200208.
+      Trans A (2021);379:20200208
+- type: doi
+    value: 10.1088/1361-6560/adf609
+    description: >-
+      "Efficient motion-corrected image reconstruction
+      for 3D cardiac MRI through stochastic optimisation".
+      Phys Med Biol (2025); 70 185012
   - type: doi
     value: 10.1109/NSSMIC.2017.8532815
     description: >-
