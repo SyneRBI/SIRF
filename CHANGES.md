@@ -1,5 +1,10 @@
 # ChangeLog
 
+## v3.x.x
+    - `common/SIRF.py` adding adjoint operator
+    - addition of initial pytorch wrappers and examples, check `torch/README.md`
+
+
 ## v3.9.0
 
 * Python interface
