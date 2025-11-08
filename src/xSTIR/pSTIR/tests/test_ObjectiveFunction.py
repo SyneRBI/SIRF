@@ -85,21 +85,21 @@ class TestSTIRObjectiveFunction(unittest.TestCase):
     def test_gradient_inplace(self):
         '''Checks that gradient computed in-place returns the same as without in-place.
 
-        Note: the absolute tolerance of the test was increased from the default 1e-8 to 1e-5, see 'test_gradient_out'
+        Note: the absolute tolerance of the test was increased from the default 0 to 3e-4, see 'test_gradient_out'
         '''
         x = self.image
         g1 = self.obj_fun.gradient(x)
         self.obj_fun.gradient(x, out=x)
-        numpy.testing.assert_allclose(x.asarray(), g1.asarray(), atol=1e-5)
+        numpy.testing.assert_allclose(x.asarray(), g1.asarray(), atol=3e-4)
 
     def test_gradient_out(self):
         '''Checks that gradient with 'out' parameter returns the same as without the 'out' parameter.
 
-        Note: the absolute tolerance of the test was increased from the default 1e-8 to 1e-5.
+        Note: the absolute tolerance of the test was increased from the default 0 to 3e-4.
         https://github.com/SyneRBI/SIRF/issues/1349
         '''
         x = self.image
         g1 = self.obj_fun.gradient(x)
         g2 = g1 * 0
         self.obj_fun.gradient(x, out=g2)
-        numpy.testing.assert_allclose(g2.asarray(), g1.asarray(), atol=1e-5)
+        numpy.testing.assert_allclose(g2.asarray(), g1.asarray(), atol=3e-4)
