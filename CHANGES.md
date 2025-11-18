@@ -21,7 +21,6 @@
   - `ScatterEstimation` has extra methods that allow setting masks for the tail-fitting.
   - `ImageData` has extra method to zoom image using information from a template image, `zoom_image_as_template`.
   - Error raised in `AcquisitionSensitivityModel.[un]normalise` methods applied to a read-only object.
-  - `DataContainer.supports_array_view` to test for zero-copy compatibility.
   - SIRF interfaces (C++ and Python) for STIR Poisson noise generation utilities provided.
   - Python:
     - allow in-place call of `ObjectiveFunction` `gradient` in Python. Added unit test for new functionality in `gradient` and for the `out` parameter.
@@ -36,7 +35,6 @@
 * CI and testing
   - made tests return value handling compatible with a future version of pytest.
   - added algebraic tests for STIR AcquisitionData subsets.
->>>>>>> origin/master
 
 ## v3.8.1
 

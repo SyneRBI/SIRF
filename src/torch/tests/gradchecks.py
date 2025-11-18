@@ -9,8 +9,6 @@ import sirf.SIRF as sirf
 
 DEV = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-DEV = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
 
 def get_data(modality, data_type):
     if modality == "PET":
