@@ -2105,8 +2105,13 @@ class AcquisitionModel(object):
            Added for CCPi CIL compatibility
            https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
         '''
-        return self.backward(ad, subset_num=self.subset_num,
-                             num_subsets=self.num_subsets, out=out)
+        if self.is_linear():
+            return self.backward(ad, subset_num=self.subset_num,
+                                 num_subsets=self.num_subsets, out=out)
+        else:
+            raise error('AcquisitionModel is not linear. You can get the '
+                        'linear part of the AcquisitionModel with '
+                        'get_linear_acquisition_model')
 
     def is_affine(self):
         """Returns True if the acquisition model is affine.

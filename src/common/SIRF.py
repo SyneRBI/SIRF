@@ -810,3 +810,20 @@ class GeometricalInfo(object):
         arr = numpy.ndarray((4,4), dtype = numpy.float32)
         try_calling (pysirf.cSIRF_GeomInfo_get_index_to_physical_point_matrix(self.handle, arr.ctypes.data))
         return arr
+
+class AdjointOperator(object):
+    """
+    Creates the adjoint operator of a linear operator `lin_op`.
+    """
+    def __init__(self, operator):
+        self.operator = operator
+
+    def forward(self, x):
+        """Calls the adjoint method of the original linear operator"""
+        # Note: calling `adjoint` will raise an error in SIRF if the operator is not linear.
+        return self.operator.adjoint(x)
+
+    def backward(self, x):
+        """Calls the `direct` method of the original linear operator"""
+        # Note: calling `direct` will raise an error in SIRF if the operator is not linear.
+        return self.operator.direct(x)
