@@ -1,4 +1,7 @@
-'''Object-Oriented wrap for the cSIRF-to-Python interface pysirf.py'''
+'''
+Object-Oriented wrap for the cSIRF-to-Python interface pysirf.py
+'''
+
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
 ## Copyright 2015 - 2020 University College London
@@ -41,7 +44,69 @@ else:
     ABC = abc.ABCMeta('ABC', (), {})
 
 
-class DataContainer(ABC):
+def norm(x):
+    '''Computes the norm of x for both types of x we are using
+       (numpy.ndarray or an object of a class that has method norm).
+    '''
+    if isinstance(x, numpy.ndarray):
+        return numpy.linalg.norm(x)
+    else:
+        return x.norm()
+
+
+def dot(x, y):
+    '''Computes the dot product of x and y of both types we are using
+       (both numpy.ndarray's or else objects of a class that has method dot
+       that acts as numpy.vdot).
+    '''
+    if isinstance(x, numpy.ndarray):
+        return numpy.vdot(x, y)
+    else:
+        return x.dot(y)
+
+
+def copyto(y, x):
+    '''Assigns the copy of x to y for both types we are using
+       (both numpy.ndarray's or else objects for which y.copy(x) that
+       acts as numpy.copy(y, x) is defined).
+    '''
+    if isinstance(x, numpy.ndarray):
+        return numpy.copyto(y, x)
+    else:
+        return y.copy(x)
+
+
+class ContiguousError(ValueError):
+    """
+    ValueError for discontiguous memory as per
+    https://data-apis.org/array-api/latest/API_specification/generated/array_api.asarray.html
+    """
+
+
+class ArrayContainer(ABC):
+    """
+    Abstract base class for an array container with contiguous data
+    accessible via the address of the first data item.
+    """
+    warnings.simplefilter('once', DeprecationWarning)
+
+    def asarray(self, xp=numpy, copy=None, **kwargs):
+        """Returns view (or fallback copy) of self"""
+        try:
+            if not hasattr(self, '__array_interface__'):
+                raise ContiguousError("please make an array-copy instead with `copy=True` or `None`")
+            if xp is numpy and int(xp.__version__.split(".", 1)[0]) < 2:
+                warnings.warn("ignoring `copy` argument: upgrade to numpy>=2 for (zero)copy support", DeprecationWarning)
+                return xp.asarray(self, **kwargs)
+            return xp.asarray(self, copy=copy, **kwargs)
+        except ContiguousError:
+            if copy or copy is None:
+                return xp.asarray(self.as_array(), **kwargs)
+            raise
+
+
+#class DataContainer(ABC):
+class DataContainer(ArrayContainer):
     '''
     Abstract base class for an abstract data container.
     '''
