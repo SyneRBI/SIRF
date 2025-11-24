@@ -12,6 +12,23 @@ Platform for Synergistic Reconstruction for Biomedical Imaging (formerly CCP PET
 Please start with our latest [User's Guide](doc/UserGuide.md).
 
 ## How to obtain SIRF
+
+We distribute binaries for SIRF via Docker and via Oracle Virtualbox; additionally GitHub Codespaces does not require any installation. 
+
+### SIRF with Docker
+We distribute [Docker images](https://github.com/SyneRBI/SIRF-SuperBuild/blob/master/docker/README.md
+) with SIRF and all dependencies packaged.
+
+### SIRF with Oracle VirtualBox
+Follow this [instructions](https://github.com/SyneRBI/SIRF-SuperBuild/blob/master/VirtualBox/INSTALL.md) to install SIRF within a VirtualBox VM.
+
+### Running on GitHub Codespaces
+
+You can run the SIRF directly in the cloud without any set-up with [GitHub Codespaces](https://github.com/SyneRBI/SIRF/wiki/How-to-obtain-SIRF#running-in-github-codespaces)
+
+### Further info
+
+
 There are multiple ways to obtain a binary version of SIRF, please check them out in our documentation page [how to obtain SIRF](https://github.com/SyneRBI/SIRF/wiki/How-to-obtain-SIRF)
 or [our Wiki page for installation instructions](https://github.com/SyneRBI/SIRF/wiki/Installation-instructions).
 
