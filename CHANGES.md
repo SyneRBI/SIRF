@@ -1,5 +1,10 @@
 # ChangeLog
 
+## v3.9.1
+
+* Python interface
+  - Restored functionality for algebraic operations mixing STIR.ImageData and numpy arrays.
+
 ## v3.9.0
 
 * Python interface
