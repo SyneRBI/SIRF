@@ -108,6 +108,10 @@ The mutators are also responsible for basic error checking.
 
 Some classes are _derived_ from other classes, which means that they have (_inherit_) all the methods of the classes they are derived from. If class B derives from class A, then A is called its _base_ class. <!-- we say that these _derived_ class methods are _inherited_ from the _base_ class.--> For example, class `AcquisitionModelUsingRayTracingMatrix` is derived from `AcquisitionModelUsingMatrix`, which in turn is derived from `AcquisitionModel`, and so it inherits all the methods of the latter two base classes.
 
+### SIRF data algebra <a name="SIRF_data_algebra"></a>
+
+SIRF Python interface supports algebraic operations (`+`, `-`, `*` and `/`): e.g. elements of the data array stored in the object `a*b` are the products of the respective elements in `a` and `b`. Either or both `a` and `b` can be SIRF data objects of the same kind (either both `ImageData` or both `AcquisitionData`) or `numpy` arrays or scalars. One should be aware though that if `a` is a SIRF object then, just as one would expect, the product `a*b` will be a SIRF object of the same kind, but if `a` is a `numpy` object (array or scalar) then Python will try to convert `b` to a `numpy` object before computing `a*b`, and only if this fails it will compute `b*a` instead. To avoid confusion, the users are advised to check the type of `a*b` or, better still, always place a SIRF object on the left side of the product.
+
 ### Error handling <a name="error_handling"></a>
 
 Error handling is via exceptions, i.e. functions do not return an error status, but throw an error if something did not work. The user can catch these exceptions if required as illustrated in the demos. 
