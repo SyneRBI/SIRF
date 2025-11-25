@@ -140,11 +140,6 @@ class DataContainer(ArrayContainer):
         other: DataContainer
         '''
         return self.subtract(other)
-        '''
-        if isinstance(other, (DataContainer, Number) ):
-            return self.subtract(other)
-        return NotImplemented
-        '''
 
     def __mul__(self, other):
         '''

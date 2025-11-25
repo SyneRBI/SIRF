@@ -32,7 +32,7 @@ import pyreg
 
 import sirf.Reg_params as parms
 import numpy
-from numbers import Integral, Number
+from numbers import Number
 from sirf.config import SIRF_HAS_SPM
 
 if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
