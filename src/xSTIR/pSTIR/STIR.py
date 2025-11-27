@@ -625,56 +625,6 @@ class ImageData(SIRF.ImageData):
         try_calling(pystir.cSTIR_getImageData(self.handle, array.ctypes.data))
         return array
 
-    def dot(self, other):
-        '''
-        Returns the dot product of the container data with another container
-        data or numpy array viewed as vectors.
-        other: ImageData or numpy array.
-        '''
-        if not (issubclass(type(other), type(self))):
-            other = self.clone().fill(other)
-        return super(ImageData, self).dot(other)
-
-    def add(self, other, out=None):
-        '''
-        Addition for image data containers.
-
-        If other is an ImageData or numpy array, returns the sum of data
-        stored in self and other viewed as vectors.
-        If other is a scalar, returns the same with the second vector filled
-        with the value of other.
-        other: ImageData or numpy array or scalar.
-        out:   ImageData to store the result to.
-        '''
-        if not (issubclass(type(other), type(self)) or isinstance(other, (Number, numpy.number))):
-            other = self.clone().fill(other)
-        return super(ImageData, self).add(other, out)
-
-    def subtract(self, other, out=None):
-        '''
-        Subtraction for data containers.
-
-        If other is a DataContainer or numpy array, returns the difference of data
-        stored in self and other viewed as vectors.
-        If other is a scalar, returns the same with the second vector filled
-        with the value of other.
-        other: ImageData or numpy array or scalar.
-        out:   ImageData to store the result to.
-        '''
-        if not (issubclass(type(other), type(self)) or isinstance(other, (Number, numpy.number))):
-            other = self.clone().fill(other)
-        return super(ImageData, self).subtract(other, out)
-
-    def binary(self, other, f, out=None):
-        '''Applies function f(x,y) element-wise to self and other.
-
-        other: ImageData or numpy array or Number
-        f: the name of the function to apply, Python str.
-        '''
-        if not (issubclass(type(other), type(self)) or isinstance(other, (Number, numpy.number))):
-            other = self.clone().fill(other)
-        return super(ImageData, self).binary(other, f, out)
-
     def write_par(self, filename, par):
         """Writes with parameter file."""
         try_calling(pystir.cSTIR_writeImage_par(self.handle, filename, par))
@@ -1465,57 +1415,6 @@ class AcquisitionData(ScanData):
         ad.fill(value)
         ad.src = 'copy'
         return ad
-
-    def dot(self, other):
-        '''
-        Returns the dot product of the container data with another container
-        data or numpy array viewed as vectors.
-        other: AcquisitionData or numpy array.
-        out:   AcquisitionData to store the result to.
-        '''
-        if not (issubclass(type(other), type(self))):
-            other = self.clone().fill(other)
-        return super(AcquisitionData, self).dot(other)
-
-    def add(self, other, out=None):
-        '''
-        Addition for acquisition data containers.
-
-        If other is a DataContainer or numpy array, returns the sum of data
-        stored in self and other viewed as vectors.
-        If other is a scalar, returns the same with the second vector filled
-        with the value of other.
-        other: AcquisitionData or numpy array or scalar.
-        out:   AcquisitionData to store the result to.
-        '''
-        if not (issubclass(type(other), type(self)) or isinstance(other, (Number, numpy.number))):
-            other = self.clone().fill(other)
-        return super(AcquisitionData, self).add(other, out)
-
-    def subtract(self, other, out=None):
-        '''
-        Subtraction for data containers.
-
-        If other is a DataContainer or numpy array, returns the difference of data
-        stored in self and other viewed as vectors.
-        If other is a scalar, returns the same with the second vector filled
-        with the value of other.
-        other: AcquisitionData or numpy array or scalar.
-        out:   AcquisitionData to store the result to.
-        '''
-        if not (issubclass(type(other), type(self)) or isinstance(other, (Number, numpy.number))):
-            other = self.clone().fill(other)
-        return super(AcquisitionData, self).subtract(other, out)
-
-    def binary(self, other, f, out=None):
-        '''Applies function f(x,y) element-wise to self and other.
-
-        other: AcquisitionData or numpy array or Number
-        f: the name of the function to apply, Python str.
-        '''
-        if not (issubclass(type(other), type(self)) or isinstance(other, (Number, numpy.number))):
-            other = self.clone().fill(other)
-        return super(AcquisitionData, self).binary(other, f, out)
 
     def rebin(self, num_segments_to_combine,
               num_views_to_combine=1, num_tang_poss_to_trim=0,

@@ -437,56 +437,6 @@ class ImageData(SIRF.ImageData):
     def get_info(self, par):
         return self.get_ISMRMRD_info(par)
 
-    def dot(self, other):
-        '''
-        Returns the dot product of the container data with another container
-        data or numpy array viewed as vectors.
-        other: ImageData or numpy array or scalar
-        '''
-        if not (issubclass(type(other), type(self))):
-            other = self.clone().fill(other)
-        return super(ImageData, self).dot(other)
-
-    def add(self, other, out=None):
-        '''
-        Addition for image data containers.
-
-        If other is an ImageData or numpy array, returns the sum of data
-        stored in self and other viewed as vectors.
-        If other is a scalar, returns the same with the second vector filled
-        with the value of other.
-        other: ImageData or numpy array or scalar.
-        out:   ImageData to store the result to.
-        '''
-        if not (issubclass(type(other), type(self)) or isinstance(other, (Number, numpy.number))):
-            other = self.clone().fill(other)
-        return super(ImageData, self).add(other, out)
-
-    def subtract(self, other, out=None):
-        '''
-        Subtraction for data containers.
-
-        If other is an ImageData or numpy array, returns the difference of data
-        stored in self and other viewed as vectors.
-        If other is a scalar, returns the same with the second vector filled
-        with the value of other.
-        other: ImageData or numpy array or scalar.
-        out:   ImageData to store the result to.
-        '''
-        if not (issubclass(type(other), type(self)) or isinstance(other, (Number, numpy.number))):
-            other = self.clone().fill(other)
-        return super(ImageData, self).subtract(other, out)
-
-    def binary(self, other, f, out=None):
-        '''Applies function f(x,y) element-wise to self and other.
-
-        other: ImageData or numpy array or Number
-        f: the name of the function to apply, Python str.
-        '''
-        if not (issubclass(type(other), type(self)) or isinstance(other, (Number, numpy.number))):
-            other = self.clone().fill(other)
-        return super(ImageData, self).binary(other, f, out)
-
     def fill(self, data):
         '''
         Fills self's image data with specified values.
@@ -1264,56 +1214,6 @@ class AcquisitionData(DataContainer):
     @deprecated(details="Please use the get_ISMRMRD_info method instead")
     def get_info(self, par, which='all'):
         return self.get_ISMRMRD_info(par, which)
-
-    def dot(self, other):
-        '''
-        Returns the dot product of the container data with another container
-        data or numpy array viewed as vectors.
-        other: AcquisitionData or numpy array or scalar.
-        '''
-        if not (issubclass(type(other), type(self))):
-            other = self.clone().fill(other)
-        return super(AcquisitionData, self).dot(other)
-
-    def add(self, other, out=None):
-        '''
-        Addition for acquisition data containers.
-
-        If other is an AcquisitionData or numpy array, returns the sum of data
-        stored in self and other viewed as vectors.
-        If other is a scalar, returns the same with the second vector filled
-        with the value of other.
-        other: AcquisitionData or numpy array or scalar.
-        out:   AcquisitionData to store the result to.
-        '''
-        if not (issubclass(type(other), type(self)) or isinstance(other, (Number, numpy.number))):
-            other = self.clone().fill(other)
-        return super(AcquisitionData, self).add(other, out)
-
-    def subtract(self, other, out=None):
-        '''
-        Subtraction for data containers.
-
-        If other is a DataContainer or numpy array, returns the difference of data
-        stored in self and other viewed as vectors.
-        If other is a scalar, returns the same with the second vector filled
-        with the value of other.
-        other: AcquisitionData or numpy array or scalar.
-        out:   AcquisitionData to store the result to.
-        '''
-        if not (issubclass(type(other), type(self)) or isinstance(other, (Number, numpy.number))):
-            other = self.clone().fill(other)
-        return super(AcquisitionData, self).subtract(other, out)
-
-    def binary(self, other, f, out=None):
-        '''Applies function f(x,y) element-wise to self and other.
-
-        other: AcquisitionData or numpy array or Number
-        f: the name of the function to apply, Python str.
-        '''
-        if not (issubclass(type(other), type(self)) or isinstance(other, (Number, numpy.number))):
-            other = self.clone().fill(other)
-        return super(AcquisitionData, self).binary(other, f, out)
 
     def fill(self, data, select='image'):
         '''

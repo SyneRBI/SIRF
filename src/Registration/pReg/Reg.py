@@ -275,7 +275,7 @@ class NiftiImageData(SIRF.ImageData):
             self_copy = self.clone()
             self_copy.fill(other)
             other = self_copy
-        return super(NiftiImageData, self).dot(other)
+        return super().dot(other)
 
     def add(self, other, out=None):
         '''
@@ -292,7 +292,7 @@ class NiftiImageData(SIRF.ImageData):
             self_copy = self.clone()
             self_copy.fill(other)
             other = self_copy
-        return super(NiftiImageData, self).add(other, out)
+        return super().add(other, out)
 
     def subtract(self, other, out=None):
         '''
@@ -309,7 +309,7 @@ class NiftiImageData(SIRF.ImageData):
             self_copy = self.clone()
             self_copy.fill(other)
             other = self_copy
-        return super(NiftiImageData, self).subtract(other, out)
+        return super().subtract(other, out)
 
     def binary(self, other, f, out=None):
         '''Applies function f(x,y) element-wise to self and other.
@@ -321,7 +321,7 @@ class NiftiImageData(SIRF.ImageData):
             self_copy = self.clone()
             self_copy.fill(other)
             other = self_copy
-        return super(NiftiImageData, self).binary(other, f, out)
+        return super().binary(other, f, out)
 
     def fill(self, val):
         """Fill image with single value or numpy array."""
