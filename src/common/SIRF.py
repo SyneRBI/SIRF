@@ -139,7 +139,9 @@ class DataContainer(ArrayContainer):
         data viewed as vectors.
         other: DataContainer
         '''
-        return self.subtract(other)
+        if isinstance(other, (DataContainer, Number) ):
+            return self.subtract(other)
+        return NotImplemented
 
     def __mul__(self, other):
         '''
@@ -329,8 +331,6 @@ class DataContainer(ArrayContainer):
         data viewed as vectors.
         other: DataContainer
         '''
-        if not (issubclass(type(other), type(self))):
-            other = self.clone().fill(other)
         assert_validities(self, other)
         # Check if input are the same size
         if self.size != other.size:
@@ -383,8 +383,6 @@ class DataContainer(ArrayContainer):
         other: DataContainer or scalar.
         out:   DataContainer to store the result to.
         '''
-        if not (issubclass(type(other), type(self)) or isinstance(other, (Number, numpy.number))):
-            other = self.clone().fill(other)
         if out is None:
             z = self.same_object()
         else:
@@ -418,14 +416,10 @@ class DataContainer(ArrayContainer):
         other: DataContainer or scalar.
         other: DataContainer
         '''
-        if not (issubclass(type(other), type(self)) or isinstance(other, (Number, numpy.number))):
-            other = self.clone().fill(other)
         if not isinstance (other, (DataContainer, Number)):
             return NotImplemented
         if isinstance(other, Number):
             return self.add(-other, out=out)
-        if not (issubclass(type(other), type(self)) or isinstance(other, (Number, numpy.number))):
-            other = self.clone().fill(other)
         assert_validities(self, other)
         pl_one = numpy.asarray([1.0, 0.0], dtype = numpy.float32)
         mn_one = numpy.asarray([-1.0, 0.0], dtype = numpy.float32)
@@ -631,8 +625,6 @@ class DataContainer(ArrayContainer):
                 try_calling(pysirf.cSIRF_compute_semibinary(self.handle, y.ctypes.data, \
                                                         f, out.handle))
         else:
-            if not (issubclass(type(other), type(self)) or isinstance(other, (Number, numpy.number))):
-                other = self.clone().fill(other)
             assert_validities(self, other)
             if out.handle is None:
                 out.handle = pysirf.cSIRF_binary(self.handle, other.handle, f)

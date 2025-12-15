@@ -742,11 +742,6 @@ def data_container_algebra_tests(test, x, eps=1e-4):
     # needs increased tolerance for large data size
     test.check_if_equal_within_tolerance(t, s, 0, eps * 10);
 
-    s = x.dot(ay)
-    t = numpy.vdot(ay, ax)
-    # needs increased tolerance for large data size
-    test.check_if_equal_within_tolerance(t, s, 0, eps * 10);
-
     x2 = x.multiply(2)
     ax2 = x2.as_array()
     s = numpy.linalg.norm(ax2 - 2*ax)
@@ -784,28 +779,10 @@ def data_container_algebra_tests(test, x, eps=1e-4):
     t = numpy.linalg.norm(az)
     test.check_if_zero_within_tolerance(s, eps * t)
 
-    z = x*ay
-    az = z.as_array()
-    s = numpy.linalg.norm(az - ax * ay)
-    t = numpy.linalg.norm(az)
-    test.check_if_zero_within_tolerance(s, eps * t)
-
     y = x + 1
     ay = y.as_array()
     s = numpy.linalg.norm(ay - (ax + 1))
     t = numpy.linalg.norm(ay)
-    test.check_if_zero_within_tolerance(s, eps * t)
-
-    y = x + ax
-    ay = y.as_array()
-    s = numpy.linalg.norm(ay - (ax + ax))
-    t = numpy.linalg.norm(ay)
-    test.check_if_zero_within_tolerance(s, eps * t)
-
-    t = numpy.linalg.norm(ay)
-    y = x - ax
-    ay = y.as_array()
-    s = numpy.linalg.norm(ay)
     test.check_if_zero_within_tolerance(s, eps * t)
 
     y *= 0
@@ -816,12 +793,6 @@ def data_container_algebra_tests(test, x, eps=1e-4):
     test.check_if_zero_within_tolerance(s, eps * t)
 
     z = x/y
-    az = z.as_array()
-    s = numpy.linalg.norm(az - ax/ay)
-    t = numpy.linalg.norm(az)
-    test.check_if_zero_within_tolerance(s, eps * t)
-
-    z = x/ay
     az = z.as_array()
     s = numpy.linalg.norm(az - ax/ay)
     t = numpy.linalg.norm(az)
