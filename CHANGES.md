@@ -5,6 +5,9 @@
 * Python interface
   - Restored functionality for algebraic operations mixing STIR.ImageData and numpy arrays.
 
+* SIRF/STIR
+  - The implementation of the creation of sir.STIR.ImageData from sirf.STIR.AcquisitionData has been revised to ensure compatibility of ImageData dimensions and voxel sizes with AcquisitionData.
+
 ## v3.9.0
 
 * Python interface
