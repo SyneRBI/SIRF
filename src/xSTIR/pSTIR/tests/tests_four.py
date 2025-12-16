@@ -49,7 +49,7 @@ def test_main(rec=False, verb=False, throw=True, no_ret_val=True):
         if verb:
             print('Checking images algebra:')
         image_data = acq_data.create_uniform_image(10.0, xy=101)
-        nz, ny, nx = image_data.shape
+        _, ny, nx = image_data.shape
         test.check_if_equal(nx, 101)
         test.check_if_equal(ny, 101)
         diff = image_data.clone() - image_data
