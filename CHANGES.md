@@ -22,7 +22,7 @@
     - `ImageData` and `AcquisitionDataInMemory` have `supports_array_view==True`
 
 * SIRF/Gadgetron
-  - `ImageDataView` and `AcquisitionDataView` classes implemented that encapsulate arrays of NumPy views of `ISMRMRD_ImageData` and `ISMRMRD_AcquisitionData` objects respectively, significantly accelerating the algebraic operations (up to a factor of about 10 for images).
+  - `ImageDataView` and `AcquisitionDataView` classes implemented that encapsulate arrays of NumPy views of `ISMRMRD_ImageData` and `ISMRMRD_AcquisitionData` objects respectively, significantly accelerating the algebraic operations (up to a factor of about 10 for images). As these classes require numpy version major being not less than 2, tests that use them are skipped if this requirement is not met.
 
 * SIRF/Registration
   - Nifty images have `supports_array_view==True`
