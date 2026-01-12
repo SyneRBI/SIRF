@@ -42,6 +42,9 @@ class TestSTIRObjectiveFunction(unittest.TestCase):
         am.set_up(templ,image)
         obj_fun = pet.make_Poisson_loglikelihood(acquired_data)
         obj_fun.set_acquisition_model(am)
+        prior = pet.QuadraticPrior()
+        prior.set_penalisation_factor(20)
+        obj_fun.set_prior(prior)
         obj_fun.set_up(image)
 
         self.obj_fun = obj_fun
@@ -62,7 +65,7 @@ class TestSTIRObjectiveFunction(unittest.TestCase):
         """
         x = self.image
         dx = x.clone()
-        dx *= eps/dx.norm()
+        dx *= eps
         dx += eps/2
         y = x + dx
         gx = self.obj_fun.gradient(x, subset)
@@ -70,8 +73,33 @@ class TestSTIRObjectiveFunction(unittest.TestCase):
         dg = gy - gx
         Hdx = self.obj_fun.multiply_with_Hessian(x, dx, subset)
         q = (dg - Hdx).norm()/dg.norm()
+        print('norm of (x): %f' % x.norm())
+        print('norm of (x + dx): %f' % y.norm())
+        print('norm of grad(x): %f' % gx.norm())
+        print('norm of grad(x + dx): %f' % gy.norm())
         print('norm of grad(x + dx) - grad(x): %f' % dg.norm())
         print('norm of H(x)*dx: %f' % Hdx.norm())
         print('relative difference: %f' % q)
         assert q <= .002
 
+    def test_gradient_inplace(self):
+        '''Checks that gradient computed in-place returns the same as without in-place.
+
+        Note: the absolute tolerance of the test was increased from the default 0 to 3e-4, see 'test_gradient_out'
+        '''
+        x = self.image
+        g1 = self.obj_fun.gradient(x)
+        self.obj_fun.gradient(x, out=x)
+        numpy.testing.assert_allclose(x.asarray(), g1.asarray(), atol=3e-4)
+
+    def test_gradient_out(self):
+        '''Checks that gradient with 'out' parameter returns the same as without the 'out' parameter.
+
+        Note: the absolute tolerance of the test was increased from the default 0 to 3e-4.
+        https://github.com/SyneRBI/SIRF/issues/1349
+        '''
+        x = self.image
+        g1 = self.obj_fun.gradient(x)
+        g2 = g1 * 0
+        self.obj_fun.gradient(x, out=g2)
+        numpy.testing.assert_allclose(g2.asarray(), g1.asarray(), atol=3e-4)

@@ -2,20 +2,35 @@
 
 ## v3.9.0
 
-* CI
-  - made tests return value handling compatible with a future version of pytest.
+* Python interface
+  - Performance of acquisitions and images data algebra improved, acquisitions algebra running up to 3 times faster and images algebra up to 15 times faster.
+  - `DataContainer.supports_array_view` to test for zero-copy compatibility.
+  - `ImageData` and `AcquisitionData` have `.asarray()` in Python via `__array_interface__`, following
+     the same conventions as [NumPy 2.x](https://numpy.org/doc/stable/reference/generated/numpy.asarray.html).
+     By default,  `asarray()`  provides a "view" if possible (see `supports_array_view`) and falls back to a deep copy otherwise. Copy can be disabled or forced by setting the `copy` argument accordingly. (For NumPy 1.x, the `copy` argument is not supported and the behaviour is the same as the default in NumPy 2.x).<br>
+     Note that with `copy=False`, modifying the returned NumPy array will modify the original SIRF data as well.
+     <br>
+     `asarray(copy=True)` is equivalent to `as_array()`. The latter will be removed in a future version.
 
 * SIRF/STIR
   - `ScatterEstimation` has extra methods that allow setting masks for the tail-fitting.
   - `ImageData` has extra method to zoom image using information from a template image, `zoom_image_as_template`.
   - Error raised in `AcquisitionSensitivityModel.[un]normalise` methods applied to a read-only object.
-  - Performance of acquisitions and images data algebra improved, acquisitions algebra running up to 3 times faster and images algebra up to 15 times faster.
-  - `DataContainer.supports_array_view` to test for zero-copy compatibility.
   - SIRF interfaces (C++ and Python) for STIR Poisson noise generation utilities provided.
-  - PET/Registration `ImageData` and PET `AcquisitionData` have `.asarray(copy=False)` (NumPy-like behaviour: default zero-copy if contiguous, fallback to deepcopy otherwise) via `__array_interface__`.
+  - Python:
+    - allow in-place call of `ObjectiveFunction` `gradient` in Python. Added unit test for new functionality in `gradient` and for the `out` parameter.
+    - `ImageData` and `AcquisitionDataInMemory` have `supports_array_view==True`
 
 * SIRF/Gadgetron
   - `ImageDataView` and `AcquisitionDataView` classes implemented that encapsulate arrays of NumPy views of `ISMRMRD_ImageData` and `ISMRMRD_AcquisitionData` objects respectively, significantly accelerating the algebraic operations (up to a factor of about 10 for images).
+
+* SIRF/Registration
+  - Nifty images have `supports_array_view==True`
+  - PET/Registration `ImageData` and PET `AcquisitionData` have `.asarray(copy=False)` (NumPy-like behaviour: default zero-copy if contiguous, fallback to deepcopy otherwise) via `__array_interface__`.
+
+* CI and testing
+  - made tests return value handling compatible with a future version of pytest.
+  - added algebraic tests for STIR AcquisitionData subsets.
 
 ## v3.8.1
 
