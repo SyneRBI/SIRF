@@ -9,11 +9,11 @@
 This software is the main output of [SyneRBI](https://www.ccpsynerbi.ac.uk), the Collaborative Computational 
 Platform for Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR).
 
-Please start with our latest [User's Guide](doc/UserGuide.md).
-
 ## How to obtain SIRF
-There are multiple ways to obtain a binary version of SIRF, please check them out in our documentation page [how to obtain SIRF](https://github.com/SyneRBI/SIRF/wiki/How-to-obtain-SIRF)
-or [our Wiki page for installation instructions](https://github.com/SyneRBI/SIRF/wiki/Installation-instructions).
+There are multiple ways to obtain a binary version of SIRF, please check them out in our wiki page [how to obtain SIRF](https://github.com/SyneRBI/SIRF/wiki/How-to-obtain-SIRF).
+
+## Documentation
+See our wiki page with [documentation links](https://github.com/SyneRBI/SIRF/wiki/Software-Documentation). Note that some of those links will bring you back to the [doc folder](doc) in this repository.
 
 ## Where is everything installed?
 

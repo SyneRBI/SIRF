@@ -19,6 +19,11 @@ Options:
 """
 
 import numpy
+numpy_major = int(numpy.__version__[0])
+if numpy_major < 2:
+    print('Using data views requires numpy version major not less than 2, exiting.')
+    exit()
+
 import timeit
 import importlib
 

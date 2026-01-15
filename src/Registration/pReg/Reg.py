@@ -32,6 +32,7 @@ import pyreg
 
 import sirf.Reg_params as parms
 import numpy
+from numbers import Number
 from sirf.config import SIRF_HAS_SPM
 
 if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
@@ -263,6 +264,64 @@ class NiftiImageData(SIRF.ImageData):
         try_calling(pyreg.cReg_NiftiImageData_get_voxel_sizes(
             self.handle, out.ctypes.data))
         return out
+
+    def dot(self, other):
+        '''
+        Returns the dot product of the container data with another container
+        data or numpy array viewed as vectors.
+        other: NiftiImageData or numpy array.
+        '''
+        if not (issubclass(type(other), type(self))):
+            self_copy = self.clone()
+            self_copy.fill(other)
+            other = self_copy
+        return super().dot(other)
+
+    def add(self, other, out=None):
+        '''
+        Addition for NiftiImageData containers.
+
+        If other is a NiftiData or numpy array, returns the sum of data
+        stored in self and other viewed as vectors.
+        If other is a scalar, returns the same with the second vector filled
+        with the value of other.
+        other: NiftiImageData or numpy array or scalar.
+        out:   NiftiImageData to store the result to.
+        '''
+        if not (issubclass(type(other), type(self)) or isinstance(other, (Number, numpy.number))):
+            self_copy = self.clone()
+            self_copy.fill(other)
+            other = self_copy
+        return super().add(other, out)
+
+    def subtract(self, other, out=None):
+        '''
+        Subtraction for NiftiImageData containers.
+
+        If other is a NiftiData or numpy array, returns the sum of data
+        stored in self and other viewed as vectors.
+        If other is a scalar, returns the same with the second vector filled
+        with the value of other.
+        other: NiftiImageData or numpy array or scalar.
+        out:   NiftiImageData to store the result to.
+        '''
+        if not (issubclass(type(other), type(self)) or isinstance(other, (Number, numpy.number))):
+            self_copy = self.clone()
+            self_copy.fill(other)
+            other = self_copy
+        return super().subtract(other, out)
+
+    def binary(self, other, f, out=None):
+        '''Applies function f(x,y) element-wise to self and other.
+
+        other: NiftiImageData or numpy array or Number
+        f: the name of the function to apply, Python str.
+        '''
+        if not (issubclass(type(other), type(self)) or isinstance(other, (Number, numpy.number))):
+            self_copy = self.clone()
+            self_copy.fill(other)
+            other = self_copy
+        return super().binary(other, f, out)
 
     def fill(self, val):
         """Fill image with single value or numpy array."""
