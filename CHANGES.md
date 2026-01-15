@@ -3,7 +3,7 @@
 ## v3.9.1
 
 * Python interface
-  - Restored functionality for algebraic operations mixing STIR.ImageData and numpy arrays.
+  - Restored functionality for algebraic operations mixing STIR.ImageData and numpy arrays. (Note that sirf objects need to be on the "left" of the operation.)
 
 ## v3.9.0
 
