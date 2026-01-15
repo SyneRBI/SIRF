@@ -3,7 +3,7 @@
 ## v3.9.1
 
 * SIRF/STIR
-  - The implementation of the creation of sir.STIR.ImageData from sirf.STIR.AcquisitionData has been revised to ensure compatibility of ImageData dimensions and voxel sizes with AcquisitionData.
+  - The implementation of the creation of `sirf.STIR.ImageData` from `sirf.STIR.AcquisitionData` has been revised to ensure compatibility of `ImageData` dimensions and voxel sizes with `AcquisitionData`.
 
 ## v3.9.0
 
