@@ -100,7 +100,7 @@ and to copy the data into a Python/Matlab array one uses method `as_array()`:
 
     image_data_array = image.as_array(); 
 
-Parameters of objects are modified/accessed via set/get methods (mutators and accessors). For example, the value of an objective function handled by object named `obj_fun` on an image data object image is computed by its method  `get_value()` as  
+Parameters of objects are modified/accessed via set/get methods (mutators and accessors). For example, the value of an objective function handled by object named `obj_fun` on an image data object image is computed by its method  `get_value()` as 
 
     obj_fun_value = obj_fun.get_value(image); 
 
