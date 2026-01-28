@@ -1148,6 +1148,12 @@ The actual algorithm is described in
 		void only2D(int only) {
 			only_2D = only != 0;
 		}
+		void compute_Hessian_Diagonal(STIRImageData& diag, const STIRImageData& init) const
+		{
+			Image3DF& d = diag.data();
+			const Image3DF& i = init.data();
+			compute_Hessian_diagonal(d, i);
+		}
 	};
 
 	class xSTIR_PLSPrior3DF : public stir::PLSPrior < float > {
