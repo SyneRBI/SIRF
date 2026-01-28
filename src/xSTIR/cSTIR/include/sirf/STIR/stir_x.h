@@ -39,6 +39,8 @@ limitations under the License.
 #include "sirf/common/iequals.h"
 #include "sirf/common/JacobiCG.h"
 #include "sirf/STIR/stir_data_containers.h"
+
+#include "stir/recon_buildblock/GibbsRelativeDifferencePenalty.h"
 #include "stir/recon_buildblock/PoissonLogLikelihoodWithLinearModelForMeanAndProjData.h"
 #include "stir/recon_buildblock/PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin.h"
 #include "stir/GeneralisedPoissonNoiseGenerator.h"
@@ -1143,17 +1145,28 @@ The actual algorithm is described in
 		}
 	};
 
-	class xSTIR_RelativeDifferencePrior3DF : public stir::RelativeDifferencePrior < float > {
+	class xSTIR_RelativeDifferencePrior3DF : public stir::RelativeDifferencePrior<float> {
 	public:
+		xSTIR_RelativeDifferencePrior3DF(){
+			stir::GibbsRelativeDifferencePenalty<float>* ptr = new stir::GibbsRelativeDifferencePenalty<float>;
+			stir::RelativeDifferencePrior<float>* prior_ptr = (stir::RelativeDifferencePrior<float>*) ptr;
+			prior_sptr_ = std::shared_ptr<stir::RelativeDifferencePrior<float> >(prior_ptr);
+//			prior_sptr_ = std::shared_ptr<stir::RelativeDifferencePrior<float> >(new stir::GibbsRelativeDifferencePenalty<float>); // does not build
+		}
+
 		void only2D(int only) {
 			only_2D = only != 0;
 		}
+
 		void compute_Hessian_Diagonal(STIRImageData& diag, const STIRImageData& init) const
 		{
 			Image3DF& d = diag.data();
 			const Image3DF& i = init.data();
 			compute_Hessian_diagonal(d, i);
 		}
+
+	protected:
+		std::shared_ptr<RelativeDifferencePrior<float> > prior_sptr_;
 	};
 
 	class xSTIR_PLSPrior3DF : public stir::PLSPrior < float > {
