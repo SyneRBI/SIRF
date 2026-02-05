@@ -1418,6 +1418,22 @@ cSTIR_priorComputeHessianTimesInput(void* ptr_prior, void* ptr_cur, void* ptr_in
 
 extern "C"
 void*
+cSTIR_priorComputeHessianDiagonal(void* ptr_prior, void* ptr_img, void* ptr_diag)
+{
+	try {
+		auto& prior = objectFromHandle<xSTIR_GeneralisedPrior3DF>(ptr_prior);
+		auto& img = objectFromHandle<STIRImageData>(ptr_img);
+		auto& out = objectFromHandle<STIRImageData>(ptr_diag);
+		auto& image = img.data();
+		auto& diag  = out.data();
+		prior.compute_Hessian_diagonal(diag, image);
+		return (void*) new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cSTIR_computePriorGradient(void* ptr_p, void* ptr_i, void* ptr_g)
 {
 	try {
