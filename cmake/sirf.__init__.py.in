@@ -1,3 +1,6 @@
+from pkgutil import extend_path
+__path__ = extend_path(__path__, __name__)  # allow namespace packages such as sirf.contrib
+
 __version_major__ = '@VERSION_MAJOR@'
 __version_minor__ = '@VERSION_MINOR@'
 __version_patch__ = '@VERSION_PATCH@'
