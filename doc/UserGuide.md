@@ -110,7 +110,7 @@ Some classes are _derived_ from other classes, which means that they have (_inhe
 
 ### SIRF data algebra <a name="SIRF_data_algebra"></a>
 
-SIRF Python interface supports algebraic operations (`+`, `-`, `*` and `/`): e.g. elements of the data array stored in the object `a*b` are the products of the respective elements in `a` and `b`. Either or both `a` and `b` can be SIRF data objects of the same kind (either both `ImageData` or both `AcquisitionData`) or `numpy` arrays or scalars. One should be aware though that if `a` is a SIRF object then, just as one would expect, the product `a*b` will be a SIRF object of the same kind, but if `a` is a `numpy` object (array or scalar) then Python will try to convert `b` to a `numpy` object before computing `a*b`, and only if this fails it will compute `b*a` instead. To avoid confusion, the users are advised to check the type of `a*b` or, better still, always place a SIRF object on the left side of the product.
+SIRF Python interface supports algebraic operations (`+`, `-`, `*` and `/`): e.g. elements of the data array stored in the object `a*b` are the products of the respective elements in `a` and `b`. Either or both `a` and `b` can be SIRF data objects or `numpy` arrays or scalars. If both are SIRF data objects, they must be of the same type (e.g. either both `ImageData` or both `AcquisitionData`), and the result will be a SIRF data object of the same type, the same kind of result being produced if one is a SIRF data object and the other is either `numpy` array or scalar. If none is a SIRF data object, then the type of result will be determined by Python.
 
 ### Error handling <a name="error_handling"></a>
 
