@@ -803,6 +803,7 @@ def data_container_algebra_tests(test, x, eps=1e-4):
     test.check_if_zero_within_tolerance(s, eps * t)
 
     y = 1 + x
+    test.check_if_equal(type(y), type(x))
     ay = y.as_array()
     s = numpy.linalg.norm(ay - (ax + 1))
     t = numpy.linalg.norm(ay)
@@ -815,6 +816,7 @@ def data_container_algebra_tests(test, x, eps=1e-4):
     test.check_if_zero_within_tolerance(s, eps * t)
 
     y = ax + x
+    test.check_if_equal(type(y), type(x))
     ay = y.as_array()
     s = numpy.linalg.norm(ay - (ax + ax))
     t = numpy.linalg.norm(ay)
@@ -827,6 +829,7 @@ def data_container_algebra_tests(test, x, eps=1e-4):
     test.check_if_zero_within_tolerance(s, eps * t)
 
     y = ax - x
+    test.check_if_equal(type(y), type(x))
     ay = y.as_array()
     s = numpy.linalg.norm(ay)
     test.check_if_zero_within_tolerance(s, eps * t)
@@ -851,6 +854,7 @@ def data_container_algebra_tests(test, x, eps=1e-4):
     test.check_if_zero_within_tolerance(s, eps * t)
 
     z = ay/x
+    test.check_if_equal(type(z), type(x))
     az = z.as_array()
     s = numpy.linalg.norm(az - ay/ax)
     t = numpy.linalg.norm(az)
@@ -863,6 +867,7 @@ def data_container_algebra_tests(test, x, eps=1e-4):
     test.check_if_zero_within_tolerance(s, eps * t)
 
     z = 2/x
+    test.check_if_equal(type(z), type(x))
     az = z.as_array()
     s = numpy.linalg.norm(az - 2/ax)
     t = numpy.linalg.norm(az)
