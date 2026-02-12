@@ -1146,7 +1146,6 @@ The actual algorithm is described in
 	};
 
 	class xSTIR_RelativeDifferencePrior3DF : public stir::GibbsRelativeDifferencePenalty<float> {
-	//class xSTIR_RelativeDifferencePrior3DF : public stir::RelativeDifferencePrior<float> {
 	public:
 		void only2D(int only) {
 			only_2D = only != 0;

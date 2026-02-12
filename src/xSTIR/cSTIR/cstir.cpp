@@ -184,7 +184,6 @@ void* cSTIR_newObject(const char* name)
 			return NEW_OBJECT_HANDLE(LogPrior3DF);
 		if (sirf::iequals(name, "RelativeDifferencePrior"))
 			return NEW_OBJECT_HANDLE(xSTIR_RelativeDifferencePrior3DF);
-			//return NEW_OBJECT_HANDLE(RDPrior3DF);
 #ifdef STIR_WITH_CUDA
 		if (sirf::iequals(name, "CudaRelativeDifferencePrior"))
 			return NEW_OBJECT_HANDLE(CudaRDPrior3DF);
