@@ -567,7 +567,14 @@ class NiftiImageData(SIRF.ImageData):
         """As per https://numpy.org/doc/stable/reference/arrays.interface.html"""
         if not self.supports_array_view:
             raise ContiguousError("please make an array-copy first with `asarray(copy=True)` or `as_array()`")
-        return {'shape': self.shape, 'typestr': '<f4', 'version': 3,
+        shape = self.shape
+        dims = len(shape)
+        strides = ()
+        stride = 4
+        for i in range(dims):
+            strides += (stride,)
+            stride *= shape[i]
+        return {'shape': self.shape, 'typestr': '<f4', 'strides': strides, 'version': 3,
                 'data': (parms.size_t_par(self.handle, 'NiftiImageData', 'address'), False)}
 
 
