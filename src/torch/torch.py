@@ -43,11 +43,11 @@ def sirf_to_torch(
         return torch.tensor(sirf_src, requires_grad=requires_grad, \
             device=device
             )
+    elif hasattr(sirf_src, 'asarray'):
+        return torch.as_tensor(sirf_src.asarray(), device=device)
     elif hasattr(sirf_src, 'as_array'):
         # Check for as_array method (ImageData, AcquisitionData, etc.)
-        return torch.tensor(sirf_src.as_array(), requires_grad=requires_grad,
-            device=device
-            )
+        return torch.tensor(sirf_src.as_array(), requires_grad=requires_grad, device=device)
     else:
         raise TypeError(f"Unsupported SIRF object type: {type(sirf_src)}")
 
