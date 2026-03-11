@@ -59,7 +59,7 @@ def get_data(modality, data_type):
 
 @pytest.fixture(params=[
     ("MR", "2d"), ("PET", "2d"), ("PET", "3d"),
-])
+], ids="-".join)
 def test_data(request):
     modality, data_type = request.param
     acq_data, image_data, acq_model = get_data(modality, data_type)
@@ -68,14 +68,6 @@ def test_data(request):
     acq_data = acq_model.forward(image_data)
     return acq_data, image_data, acq_model, modality, data_type
 
-
-test_flags = {
-    "forward": True,
-    "adjoint": True,
-    "objective_wrapped": True,
-    "objective": True,
-    "objective_gradient": True,
-}
 
 def run_gradcheck(func, input_data, data_info, test_name, **kwargs):
     """Helper function to run gradcheck and handle exceptions."""
@@ -88,14 +80,10 @@ def run_gradcheck(func, input_data, data_info, test_name, **kwargs):
         print(e)
 
 
-@pytest.mark.skipif(not test_flags["forward"], reason="Forward test disabled")
+@pytest.mark.forward
 def test_forward_gradcheck(test_data):
     _, image_data, acq_model, modality, data_type = test_data
-    if modality == "PET":
-        pass
-    elif modality == "MR":
-        pass
-    else:
+    if modality not in ("PET", "MR"):
         pytest.skip("Tests not set up for other modalities at this time.")
 
     torch_forward = Operator(acq_model, image_data.clone())
@@ -105,14 +93,10 @@ def test_forward_gradcheck(test_data):
                   nondet_tol=1e-6, fast_mode=True, eps=1e-2, atol=1e-4, rtol=1e-4)
 
 
-@pytest.mark.skipif(not test_flags["adjoint"], reason="Adjoint test disabled")
+@pytest.mark.adjoint
 def test_adjoint_gradcheck(test_data):
     acq_data, _, acq_model, modality, data_type = test_data
-    if modality == "PET":
-        pass
-    elif modality == "MR":
-        pass
-    else:
+    if modality not in ("PET", "MR"):
         pytest.skip("Tests not set up for other modalities at this time.")
 
     adj_acq_model = sirf.AdjointOperator(acq_model)
@@ -124,7 +108,7 @@ def test_adjoint_gradcheck(test_data):
 
 
 
-@pytest.mark.skipif(not test_flags["objective_wrapped"], reason="Wrapped objective test disabled")
+@pytest.mark.objective_wrapped
 def test_objective_function_with_wrapped_acquisition_model_gradcheck(test_data):
     acq_data, image_data, acq_model, modality, data_type = test_data
     if modality == "PET":
@@ -152,7 +136,7 @@ def test_objective_function_with_wrapped_acquisition_model_gradcheck(test_data):
                   nondet_tol=1e-4, fast_mode=True, eps=1e-3, atol=1e-2, rtol=1e-2)
 
 
-@pytest.mark.skipif(not test_flags["objective"], reason="Objective test disabled")
+@pytest.mark.objective
 def test_objective_function_gradcheck(test_data):
     acq_data, image_data, acq_model, modality, data_type = test_data
     if modality == "PET":
@@ -174,7 +158,7 @@ def test_objective_function_gradcheck(test_data):
                   nondet_tol=1e-4, fast_mode=True, eps=1e-3, atol=1e-2, rtol=1e-2)
 
 
-@pytest.mark.skipif(not test_flags["objective_gradient"], reason="Objective Gradient test disabled")
+@pytest.mark.objective_gradient
 def test_objective_function_gradient_gradcheck(test_data):
     acq_data, image_data, acq_model, modality, data_type = test_data
     if modality == "PET":
