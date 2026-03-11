@@ -2,7 +2,7 @@ name: Build-test CI
 
 on:
   push:
-    branches: [ master, Issue_1357 ]
+    branches: [ master ]
     paths-ignore:
     - '**.md'
     - LICENSE.txt
@@ -17,7 +17,6 @@ on:
     - NOTICE.txt
     - .mailmap
     - CITATION.cff
-  workflow_dispatch:
 
 jobs:
   build:
