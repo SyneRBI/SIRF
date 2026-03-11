@@ -89,6 +89,7 @@ class ArrayContainer(ABC):
     accessible via the address of the first data item.
     """
     warnings.simplefilter('once', DeprecationWarning)
+    __array_priority__ = 10
 
     def asarray(self, xp=numpy, copy=None, **kwargs):
         """Returns view (or fallback copy) of self"""
@@ -131,6 +132,9 @@ class DataContainer(ArrayContainer):
         '''
         return self.add(other)
 
+    def __radd__(self, other):
+        return self + other
+
     def __sub__(self, other):
         '''
         Overloads - for data containers.
@@ -140,6 +144,9 @@ class DataContainer(ArrayContainer):
         other: DataContainer
         '''
         return self.subtract(other)
+
+    def __rsub__(self, other):
+        return -other + self
 
     def __mul__(self, other):
         '''
@@ -170,6 +177,9 @@ class DataContainer(ArrayContainer):
         other: DataContainer or a (real or complex) scalar
         '''
         return self.divide(other)
+
+    def __rtruediv__(self, other):
+        return other * self.power(-1)
 
     def __iadd__(self, other):
         self.add(other, out=self)
