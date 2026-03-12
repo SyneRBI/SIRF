@@ -5,7 +5,7 @@
 * SIRF/STIR
   - The implementation of the creation of `sirf.STIR.ImageData` from `sirf.STIR.AcquisitionData` has been revised to ensure compatibility of `ImageData` dimensions and voxel sizes with `AcquisitionData`.
 * Python interface
-  - Restored functionality for algebraic operations mixing `STIR.ImageData` and numpy arrays. (Note that sirf objects need to be on the "left" of the operation.)
+  - Restored functionality for algebraic operations mixing SIRF data containers and numpy arrays and corrected the description of the result type in User Guide.
 
 ## v3.9.0
 
