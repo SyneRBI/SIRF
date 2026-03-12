@@ -130,6 +130,10 @@ sirf::cSTIR_ImageDataParameter(void* hp, const char* name)
 		return charDataHandleFromCharData(id.modality().c_str());
 	else if (sirf::iequals(name, "address"))
 		return dataHandle<size_t>(id.address());
+	else if (sirf::iequals(name, "is_cuda_managed"))
+		return dataHandle<int>(id.is_cuda_managed() ? 1 : 0);
+	else if (sirf::iequals(name, "cuda_address"))
+		return dataHandle<size_t>(id.cuda_address());
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 }

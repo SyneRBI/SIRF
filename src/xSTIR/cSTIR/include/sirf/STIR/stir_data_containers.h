@@ -1566,6 +1566,8 @@ namespace sirf {
 		size_t address() const {
 		    return reinterpret_cast<size_t>(_data->get_const_full_data_ptr());
 		}
+		bool is_cuda_managed() const;
+		size_t cuda_address() const;
 
 	private:
 		/// Clone helper function. Don't use.
