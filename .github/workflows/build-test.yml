@@ -2,7 +2,7 @@ name: Build-test CI
 
 on:
   push:
-    branches: [ master, Hackathon_Project8 ]
+    branches: [ master, Hackathon_Project8 ] 
     paths-ignore:
     - '**.md'
     - LICENSE.txt
