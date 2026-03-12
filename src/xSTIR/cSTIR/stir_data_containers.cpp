@@ -26,7 +26,15 @@ limitations under the License.
 #include "stir/CartesianCoordinate3D.h"
 #include "stir/numerics/norm.h"
 #ifdef STIR_WITH_CUDA
+#if defined(__has_include)
+#if __has_include(<cuda_runtime_api.h>)
 #include <cuda_runtime_api.h>
+#define SIRF_HAS_CUDA_RUNTIME_API 1
+#endif
+#else
+#include <cuda_runtime_api.h>
+#define SIRF_HAS_CUDA_RUNTIME_API 1
+#endif
 #endif
 
 using namespace stir;
@@ -39,7 +47,7 @@ namespace {
 bool
 pointer_is_cuda_managed(const void* ptr)
 {
-#ifdef STIR_WITH_CUDA
+#if defined(STIR_WITH_CUDA) && defined(SIRF_HAS_CUDA_RUNTIME_API)
 	if (ptr == nullptr)
 		return false;
 	cudaPointerAttributes attrs;
