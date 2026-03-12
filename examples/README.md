@@ -2,7 +2,7 @@ This directory contains examples and demos on how to use SIRF.
 
 Please also our Jupyter notebooks in the [SIRF Exercises](https://github.com/SyneRBI/SIRF-Exercises/#readme)
 which are more extensive and allow you to learn step-by-step.
-
+ 
 
 Most of the demos use simplistic data for illustration. The images might therefore be
 not very interesting either. The idea here is to illustrate what you can do with SIRF,
