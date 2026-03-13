@@ -42,6 +42,11 @@ target_include_directories(cstir PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>")
 target_include_directories(cstir PUBLIC "${STIR_INCLUDE_DIRS}")
 
+if (STIR_WITH_CUDA)
+  target_compile_definitions(cstir PUBLIC STIR_WITH_CUDA)
+  target_link_libraries(cstir CUDA::cudart)
+endif()
+
 target_link_libraries(cstir csirf iutilities)
 target_link_libraries(cstir "${STIR_LIBRARIES}")
 # Add boost library dependencies

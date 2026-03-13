@@ -478,6 +478,28 @@ class ImageData(SIRF.ImageData):
         return {'shape': self.shape, 'typestr': '<f4', 'version': 3,
                 'data': (parms.size_t_par(self.handle, 'ImageData', 'address'), False)}
 
+    @property
+    def is_cuda_managed(self):
+        """True if the backing image storage is CUDA managed memory."""
+        return bool(parms.int_par(self.handle, 'ImageData', 'is_cuda_managed'))
+
+    @property
+    def cuda_address(self):
+        """Returns the CUDA-visible image pointer for managed-memory-backed images."""
+        if not self.is_cuda_managed:
+            raise error('image data is not backed by CUDA managed memory')
+        return parms.size_t_par(self.handle, 'ImageData', 'cuda_address')
+
+    @property
+    def __cuda_array_interface__(self):
+        """As per https://numba.readthedocs.io/en/stable/cuda/cuda_array_interface.html"""
+        if not self.supports_array_view:
+            raise ContiguousError("views not supported, please consider using `asarray()` or `as_array()`")
+        if not self.is_cuda_managed:
+            raise error('image data is not backed by CUDA managed memory')
+        return {'shape': self.shape, 'typestr': '<f4', 'version': 3,
+                'data': (self.cuda_address, False)}
+
     def initialise(self, dim, vsize=(1., 1., 1.), origin=(0., 0., 0.)):
         """
         Sets image size and geometric information.
@@ -1340,6 +1362,27 @@ class AcquisitionData(ScanData):
             raise ContiguousError("views not supported, please consider using `asarray()` or `as_array()`")
         return {'shape': self.shape, 'typestr': '<f4', 'version': 3,
                 'data': (parms.size_t_par(self.handle, 'AcquisitionData', 'address'), False)}
+
+    @property
+    def is_cuda_managed(self):
+        """Returns whether the acquisition data is backed by CUDA managed memory."""
+        return bool(parms.int_par(self.handle, 'AcquisitionData', 'is_cuda_managed'))
+
+    @property
+    def cuda_address(self):
+        """Returns the underlying CUDA-visible address for managed acquisition data."""
+        if not self.is_cuda_managed:
+            raise error('AcquisitionData is not backed by CUDA managed memory')
+        return parms.size_t_par(self.handle, 'AcquisitionData', 'cuda_address')
+
+    @property
+    def __cuda_array_interface__(self):
+        if not self.supports_array_view:
+            raise ContiguousError("views not supported, please consider using `asarray()` or `as_array()`")
+        if not self.is_cuda_managed:
+            raise error('AcquisitionData is not backed by CUDA managed memory')
+        return {'shape': self.shape, 'typestr': '<f4', 'version': 3,
+                'data': (self.cuda_address, False)}
 
     def as_array(self):
         """

@@ -2,7 +2,7 @@ name: Build-test CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, Hackathon_project8_II ] 
     paths-ignore:
     - '**.md'
     - LICENSE.txt
@@ -17,6 +17,7 @@ on:
     - NOTICE.txt
     - .mailmap
     - CITATION.cff
+  workflow_dispatch:
 
 jobs:
   build:
@@ -102,7 +103,7 @@ jobs:
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
           cmake --version
           #echo "cmake flags ${{ matrix.CMAKE_BUILD_TYPE }} ${{ matrix.EXTRA_BUILD_FLAGS }}"
-          BUILD_FLAGS="-DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }} -DUSE_SYSTEM_ACE=ON -DUSE_SYSTEM_Armadillo=ON -DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON -DBUILD_siemens_to_ismrmrd=ON -DUSE_SYSTEM_SWIG=ON -DCMAKE_INSTALL_PREFIX=~/install -DPYVER=3";
+          BUILD_FLAGS="-DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }} -DUSE_SYSTEM_ACE=ON -DUSE_SYSTEM_Armadillo=ON -DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON -DBUILD_siemens_to_ismrmrd=ON -DUSE_SYSTEM_SWIG=ON -DCMAKE_INSTALL_PREFIX=~/install -DPYVER=3 -DDISABLE_Gadgetron=ON -DDISABLE_Registration=ON -DDISABLE_Synergistic=ON";
           BUILD_FLAGS="$BUILD_FLAGS -DSIRF_SOURCE_DIR:PATH=${GITHUB_WORKSPACE} -DDISABLE_GIT_CHECKOUT_SIRF=ON"
           # only test SIRF (others are tested in the SIRF-SuperBuild action)
           BUILD_FLAGS="$BUILD_FLAGS -DBUILD_TESTING_GADGETRON=OFF -DBUILD_TESTING_ISMRMRD=OFF"

@@ -25,11 +25,49 @@ limitations under the License.
 #include "stir/zoom.h"
 #include "stir/CartesianCoordinate3D.h"
 #include "stir/numerics/norm.h"
+#ifdef STIR_WITH_CUDA
+#if defined(__has_include)
+#if __has_include(<cuda_runtime_api.h>)
+#include <cuda_runtime_api.h>
+#define SIRF_HAS_CUDA_RUNTIME_API 1
+#endif
+#else
+#include <cuda_runtime_api.h>
+#define SIRF_HAS_CUDA_RUNTIME_API 1
+#endif
+#endif
 
 using namespace stir;
 using namespace sirf;
 
 #define SIRF_DYNAMIC_CAST(T, X, Y) T& X = dynamic_cast<T&>(Y)
+
+namespace {
+
+bool
+pointer_is_cuda_managed(const void* ptr)
+{
+#if defined(STIR_WITH_CUDA) && defined(SIRF_HAS_CUDA_RUNTIME_API)
+	if (ptr == nullptr)
+		return false;
+	cudaPointerAttributes attrs;
+	const cudaError_t err = cudaPointerGetAttributes(&attrs, ptr);
+	if (err != cudaSuccess) {
+		cudaGetLastError();
+		return false;
+	}
+#if CUDART_VERSION >= 10000
+	return attrs.type == cudaMemoryTypeManaged;
+#else
+	return attrs.memoryType == cudaMemoryTypeManaged && attrs.isManaged;
+#endif
+#else
+	(void)ptr;
+	return false;
+#endif
+}
+
+} // namespace
 
 std::string STIRAcquisitionData::_storage_scheme;
 std::shared_ptr<STIRAcquisitionData> STIRAcquisitionData::_template;
@@ -585,6 +623,46 @@ STIRImageData::set_data(const float* data)
 		*iter = data[i];
 	//std::copy(data, data + n, begin());
 	//std::copy(data, data + n, image.begin_all());
+}
+
+bool
+STIRImageData::is_cuda_managed() const
+{
+	return pointer_is_cuda_managed(_data->get_const_full_data_ptr());
+}
+
+size_t
+STIRImageData::cuda_address() const
+{
+	if (!this->is_cuda_managed())
+		throw LocalisedException("STIR image is not backed by CUDA managed memory", __FILE__, __LINE__);
+	return this->address();
+}
+
+bool
+STIRAcquisitionData::is_cuda_managed() const
+{
+	return false;
+}
+
+size_t
+STIRAcquisitionData::cuda_address() const
+{
+	throw LocalisedException("STIR acquisition data is not backed by CUDA managed memory", __FILE__, __LINE__);
+}
+
+bool
+STIRAcquisitionDataInMemory::is_cuda_managed() const
+{
+	return pointer_is_cuda_managed(reinterpret_cast<const void*>(this->address()));
+}
+
+size_t
+STIRAcquisitionDataInMemory::cuda_address() const
+{
+	if (!this->is_cuda_managed())
+		throw LocalisedException("STIR acquisition data is not backed by CUDA managed memory", __FILE__, __LINE__);
+	return this->address();
 }
 
 void
