@@ -1,7 +1,8 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
-Copyright 2018 - 2020 University College London.
+Copyright 2018 - 2020, 2026 University College London.
+Copyright 2026 Biomedical Research Foundation, Academy of Athens.
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -42,6 +43,9 @@ void* cSIRF_examples_data_path(const char* data_type);
 void* cSIRF_dataItems(const void* ptr_x);
 void* cSIRF_isComplex(const void* ptr_x);
 void* cSIRF_supportsArrayView(const void* ptr_x);
+void* cSIRF_supportsCudaArrayView(const void* ptr_x);
+void* cSIRF_dataAddress(const void* ptr_x);
+void* cSIRF_cudaDataAddress(const void* ptr_x);
 void* cSIRF_bits(const void* ptr_x);
 void* cSIRF_conjugate(void* ptr);
 void* cSIRF_conjugated(void* ptr);

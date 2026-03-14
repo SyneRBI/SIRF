@@ -1,7 +1,8 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
-Copyright 2018 - 2020, 2024 UCL
+Copyright 2018 - 2020, 2024, 2026 UCL
+Copyright 2026 Biomedical Research Foundation, Academy of Athens
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -107,8 +108,8 @@ sirf::cSTIR_AcquisitionDataParameter(void* hp, const char* name)
 		return charDataHandleFromCharData(ad.modality().c_str());
 	else if (sirf::iequals(name, "address"))
 		return dataHandle<size_t>(ad.address());
-	else if (sirf::iequals(name, "is_cuda_managed"))
-		return dataHandle<int>(ad.is_cuda_managed() ? 1 : 0);
+	else if (sirf::iequals(name, "supports_cuda_array_view"))
+		return dataHandle<int>(ad.supports_cuda_array_view() ? 1 : 0);
 	else if (sirf::iequals(name, "cuda_address"))
 		return dataHandle<size_t>(ad.cuda_address());
 	else
@@ -134,8 +135,8 @@ sirf::cSTIR_ImageDataParameter(void* hp, const char* name)
 		return charDataHandleFromCharData(id.modality().c_str());
 	else if (sirf::iequals(name, "address"))
 		return dataHandle<size_t>(id.address());
-	else if (sirf::iequals(name, "is_cuda_managed"))
-		return dataHandle<int>(id.is_cuda_managed() ? 1 : 0);
+	else if (sirf::iequals(name, "supports_cuda_array_view"))
+		return dataHandle<int>(id.supports_cuda_array_view() ? 1 : 0);
 	else if (sirf::iequals(name, "cuda_address"))
 		return dataHandle<size_t>(id.cuda_address());
 	else

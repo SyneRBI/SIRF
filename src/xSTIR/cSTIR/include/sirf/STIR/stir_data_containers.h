@@ -1,7 +1,8 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2023 Rutherford Appleton Laboratory STFC
-Copyright 2018 - 2024 University College London
+Copyright 2018 - 2024, 2026 University College London
+Copyright 2026 Biomedical Research Foundation, Academy of Athens
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -27,6 +28,8 @@ limitations under the License.
 \author Evgueni Ovtchinnikov
 \author Richard Brown
 \author SyneRBI
+\author Dimitra Kyriakopoulou
+\author Kris Thielemans
 */
 
 #ifndef STIR_DATA_CONTAINER_TYPES
@@ -660,8 +663,6 @@ namespace sirf {
 		virtual size_t address() const {
 			THROW("data address defined only for data in memory");
 		}
-		virtual bool is_cuda_managed() const;
-		virtual size_t cuda_address() const;
 
 	protected:
 		static std::string _storage_scheme;
@@ -1008,13 +1009,9 @@ namespace sirf {
             auto *pd_ptr = dynamic_cast<const stir::ProjDataInMemory*>(data().get());
             if (is_null_ptr(pd_ptr))
                 THROW("address() defined only for data in memory");
-            const auto iter = pd_ptr->begin_all();
-            if (iter == pd_ptr->end_all())
-                return 0;
-            return reinterpret_cast<size_t>(&*iter);
+            return reinterpret_cast<size_t>(pd_ptr->get_const_data_ptr());
         }
-		virtual bool is_cuda_managed() const override;
-		virtual size_t cuda_address() const override;
+		virtual bool supports_cuda_array_view() const override;
 
 	private:
 		virtual STIRAcquisitionDataInMemory* clone_impl() const
@@ -1573,8 +1570,7 @@ namespace sirf {
 		size_t address() const {
 		    return reinterpret_cast<size_t>(_data->get_const_full_data_ptr());
 		}
-		bool is_cuda_managed() const;
-		size_t cuda_address() const;
+		bool supports_cuda_array_view() const override;
 
 	private:
 		/// Clone helper function. Don't use.

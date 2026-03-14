@@ -1,7 +1,8 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2019, 2021, 2023 Rutherford Appleton Laboratory STFC
-Copyright 2024 University College London
+Copyright 2024, 2026 University College London
+Copyright 2026 Biomedical Research Foundation, Academy of Athens
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -115,6 +116,20 @@ which rely on the same features of the items.
 		virtual bool supports_array_view() const
 		{
 			return false;
+		}
+		virtual bool supports_cuda_array_view() const
+		{
+			return false;
+		}
+		virtual size_t address() const
+		{
+			THROW("data address defined only for contiguous data in memory");
+		}
+		size_t cuda_address() const
+		{
+			if (!this->supports_cuda_array_view())
+				THROW("data is not backed by CUDA-managed memory");
+			return this->address();
 		}
 		/// returns the size of data elements
 		virtual int bits() const

@@ -1,7 +1,8 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
-Copyright 2020 University College London.
+Copyright 2020, 2026 University College London.
+Copyright 2026 Biomedical Research Foundation, Academy of Athens.
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -101,6 +102,42 @@ cSIRF_supportsArrayView(const void* ptr_x)
 		CAST_PTR(DataHandle, h_x, ptr_x);
 		auto const& x =	objectFromHandle<DataContainer>(h_x);
 		return dataHandle<int>(x.supports_array_view());
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSIRF_supportsCudaArrayView(const void* ptr_x)
+{
+	try {
+		CAST_PTR(DataHandle, h_x, ptr_x);
+		auto const& x = objectFromHandle<DataContainer>(h_x);
+		return dataHandle<int>(x.supports_cuda_array_view());
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSIRF_dataAddress(const void* ptr_x)
+{
+	try {
+		CAST_PTR(DataHandle, h_x, ptr_x);
+		auto const& x = objectFromHandle<DataContainer>(h_x);
+		return dataHandle<size_t>(x.address());
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSIRF_cudaDataAddress(const void* ptr_x)
+{
+	try {
+		CAST_PTR(DataHandle, h_x, ptr_x);
+		auto const& x = objectFromHandle<DataContainer>(h_x);
+		return dataHandle<size_t>(x.cuda_address());
 	}
 	CATCH;
 }
