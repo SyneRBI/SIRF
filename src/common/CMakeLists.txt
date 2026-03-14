@@ -1,10 +1,6 @@
 #========================================================================
 # Author: Evgueni Ovtchinnikov
-# Author: Dimitra Kyriakopoulou
-# Author: Kris Thielemans
 # Copyright 2020 University College London
-# Copyright 2026 University College London
-# Copyright 2026 Biomedical Research Foundation, Academy of Athens
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -24,7 +20,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
 set(cSIRF_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-add_library(csirf csirf.cpp ImageData.cpp GeometricalInfo.cpp iequals.cpp utilities.cpp)
+add_library(csirf csirf.cpp DataContainer.cpp ImageData.cpp GeometricalInfo.cpp iequals.cpp utilities.cpp)
 target_include_directories(csirf PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>"
   )

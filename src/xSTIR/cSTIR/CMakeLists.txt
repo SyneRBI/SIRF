@@ -1,10 +1,6 @@
 #========================================================================
-# Author: Kris Thielemans
-# Author: Richard Brown
-# Author: Dimitra Kyriakopoulou
+# Author: Kris Thielemans, Richard Brown
 # Copyright 2016 - 2020 University College London
-# Copyright 2026 University College London
-# Copyright 2026 Biomedical Research Foundation, Academy of Athens
 # Copyright 2017, 2018 Science Technology Facilities Council
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");

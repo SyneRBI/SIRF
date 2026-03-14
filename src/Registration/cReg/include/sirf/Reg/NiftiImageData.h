@@ -1,7 +1,6 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2017 - 2020, 2026 University College London
-Copyright 2026 Biomedical Research Foundation, Academy of Athens
+Copyright 2017 - 2020 University College London
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -26,8 +25,6 @@ limitations under the License.
 
 \author Richard Brown
 \author SyneRBI
-\author Dimitra Kyriakopoulou
-\author Kris Thielemans
 */
 
 #pragma once

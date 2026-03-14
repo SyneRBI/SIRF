@@ -1,8 +1,7 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2023 Rutherford Appleton Laboratory STFC
-Copyright 2018 - 2024, 2026 University College London
-Copyright 2026 Biomedical Research Foundation, Academy of Athens
+Copyright 2018 - 2024 University College London
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -28,8 +27,6 @@ limitations under the License.
 \author Evgueni Ovtchinnikov
 \author Richard Brown
 \author SyneRBI
-\author Dimitra Kyriakopoulou
-\author Kris Thielemans
 */
 
 #ifndef STIR_DATA_CONTAINER_TYPES
