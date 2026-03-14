@@ -31,6 +31,7 @@ limitations under the License.
 #define SIRF_COMMON_H
 
 #ifdef HAS_CUDA_RUNTIME_API
+// cppcheck-suppress missingIncludeSystem
 #include <cuda_runtime_api.h>
 #endif
 
