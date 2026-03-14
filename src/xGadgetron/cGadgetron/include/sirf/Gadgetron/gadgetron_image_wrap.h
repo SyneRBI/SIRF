@@ -349,7 +349,7 @@ namespace sirf {
 			IMAGE_PROCESSING_SWITCH_CONST(type_, get_size_, ptr_, s);
 			return s;
 		}
-		size_t address() const override
+		size_t address() const
 		{
 			size_t address;
 			IMAGE_PROCESSING_SWITCH_CONST(type_, get_data_ptr_, ptr_, address);
