@@ -1,6 +1,10 @@
 #========================================================================
 # Author: Evgueni Ovtchinnikov
+# Author: Dimitra Kyriakopoulou
+# Author: Kris Thielemans
 # Copyright 2020 University College London
+# Copyright 2026 University College London
+# Copyright 2026 Biomedical Research Foundation, Academy of Athens
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -30,6 +34,11 @@ target_include_directories(csirf PUBLIC
 target_include_directories(csirf PUBLIC
   "$<BUILD_INTERFACE:${BUILD_INCLUDE_DIRECTORY}>$<INSTALL_INTERFACE:include>"
   )
+
+if (TARGET CUDA::cudart)
+  target_compile_definitions(csirf PRIVATE HAS_CUDA_RUNTIME_API)
+  target_link_libraries(csirf PRIVATE CUDA::cudart)
+endif()
 
 if ((NOT DISABLE_STIR) AND (NOT DISABLE_Gadgetron) AND (NOT DISABLE_Registration) AND "${STIR_BUILT_WITH_ITK}")
   MESSAGE(STATUS "Registration, ISMRMRD and STIR (with ITK) have been built.")

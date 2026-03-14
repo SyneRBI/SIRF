@@ -21,7 +21,6 @@ limitations under the License.
 */
 
 #include "sirf/STIR/stir_data_containers.h"
-#include "sirf/common/Common.h"
 #include "stir/KeyParser.h"
 #include "stir/is_null_ptr.h"
 #include "stir/zoom.h"
@@ -587,18 +586,6 @@ STIRImageData::set_data(const float* data)
 		*iter = data[i];
 	//std::copy(data, data + n, begin());
 	//std::copy(data, data + n, image.begin_all());
-}
-
-bool
-STIRImageData::supports_cuda_array_view() const
-{
-	return this->supports_array_view() && pointer_supports_cuda_array_view(_data->get_const_full_data_ptr());
-}
-
-bool
-STIRAcquisitionDataInMemory::supports_cuda_array_view() const
-{
-	return this->supports_array_view() && pointer_supports_cuda_array_view(reinterpret_cast<const void*>(this->address()));
 }
 
 void

@@ -23,8 +23,6 @@
 
 set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
-include(CheckIncludeFileCXX)
-
 # Check for existence of HKEM code
 # TODO: replace if (EXISTS) with if (STIR version >= 3.2)
 if(EXISTS "${STIR_INCLUDE_DIRS}/stir/KOSMAPOSL/KOSMAPOSLReconstruction.h")
@@ -47,20 +45,6 @@ target_include_directories(cstir PUBLIC
 target_include_directories(cstir PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>")
 target_include_directories(cstir PUBLIC "${STIR_INCLUDE_DIRS}")
-
-if (TARGET CUDA::cudart)
-  get_target_property(_cudart_include_dirs CUDA::cudart INTERFACE_INCLUDE_DIRECTORIES)
-  set(_saved_required_includes "${CMAKE_REQUIRED_INCLUDES}")
-  if (_cudart_include_dirs)
-    set(CMAKE_REQUIRED_INCLUDES ${_cudart_include_dirs})
-  endif()
-  check_include_file_cxx(cuda_runtime_api.h HAS_CUDA_RUNTIME_API)
-  set(CMAKE_REQUIRED_INCLUDES "${_saved_required_includes}")
-  if (HAS_CUDA_RUNTIME_API)
-    target_compile_definitions(cstir PUBLIC HAS_CUDA_RUNTIME_API)
-    target_link_libraries(cstir CUDA::cudart)
-  endif()
-endif()
 
 target_link_libraries(cstir csirf iutilities)
 target_link_libraries(cstir "${STIR_LIBRARIES}")

@@ -26,6 +26,7 @@ limitations under the License.
 #include<complex>
 #include <map>
 #include "sirf/iUtilities/DataHandle.h"
+#include "sirf/common/utilities.h"
 
 namespace sirf {
 
@@ -117,10 +118,7 @@ which rely on the same features of the items.
 		{
 			return false;
 		}
-		virtual bool supports_cuda_array_view() const
-		{
-			return false;
-		}
+		virtual bool supports_cuda_array_view() const;
 		virtual size_t address() const
 		{
 			THROW("data address defined only for contiguous data in memory");

@@ -1,7 +1,8 @@
 /*
 SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
-Copyright 2020, 2021 University College London
+Copyright 2020, 2021, 2026 University College London
+Copyright 2026 Biomedical Research Foundation, Academy of Athens
 
 This is software developed for the Collaborative Computational
 Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -26,6 +27,8 @@ limitations under the License.
 
 \author Evgueni Ovtchinnikov
 \author SyneRBI
+\author Dimitra Kyriakopoulou
+\author Kris Thielemans
 */
 
 #ifndef GADGETRON_IMAGE_WRAP_TYPE
@@ -346,7 +349,7 @@ namespace sirf {
 			IMAGE_PROCESSING_SWITCH_CONST(type_, get_size_, ptr_, s);
 			return s;
 		}
-		size_t address() const
+		size_t address() const override
 		{
 			size_t address;
 			IMAGE_PROCESSING_SWITCH_CONST(type_, get_data_ptr_, ptr_, address);

@@ -51,6 +51,13 @@ unknownObject(const char* obj, const char* name, const char* file, int line)
 	return handle;
 }
 
+bool
+DataContainer::supports_cuda_array_view() const
+{
+	return this->supports_array_view() &&
+		pointer_supports_cuda_array_view(reinterpret_cast<const void*>(this->address()));
+}
+
 //default constructors
 extern "C"
 void* cSIRF_newObject(const char* name)
