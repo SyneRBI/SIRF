@@ -4,7 +4,8 @@ Object-Oriented wrap for the cSIRF-to-Python interface pysirf.py
 
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
-## Copyright 2015 - 2020 University College London
+## Copyright 2015 - 2020, 2026 University College London
+## Copyright 2026 Biomedical Research Foundation, Academy of Athens
 ##
 ## This is software developed for the Collaborative Computational
 ## Project in Synergistic Reconstruction for Biomedical Imaging (formerly CCP PETMR)
@@ -19,7 +20,7 @@ Object-Oriented wrap for the cSIRF-to-Python interface pysirf.py
 ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
-
+##
 import abc
 import numpy
 try:
@@ -297,6 +298,36 @@ class DataContainer(ArrayContainer):
         i = pyiutil.intDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return i != 0
+
+    @property
+    def supports_cuda_array_view(self):
+        """Returns True iff the container storage supports CUDA array views."""
+        assert self.handle is not None
+        handle = pysirf.cSIRF_supportsCudaArrayView(self.handle)
+        check_status(handle)
+        i = pyiutil.intDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return i != 0
+
+    @property
+    def address(self):
+        """Returns the address of the first item in a contiguous in-memory container."""
+        assert self.handle is not None
+        handle = pysirf.cSIRF_dataAddress(self.handle)
+        check_status(handle)
+        value = pyiutil.size_tDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return value
+
+    @property
+    def cuda_address(self):
+        """Returns the CUDA-visible address for a CUDA-array-view-compatible container."""
+        assert self.handle is not None
+        handle = pysirf.cSIRF_cudaDataAddress(self.handle)
+        check_status(handle)
+        value = pyiutil.size_tDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return value
 
     def conjugate(self, out=None):
         ''' Computes complex conjugate of self.

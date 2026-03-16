@@ -17,7 +17,6 @@ on:
     - NOTICE.txt
     - .mailmap
     - CITATION.cff
-
 jobs:
   build:
 

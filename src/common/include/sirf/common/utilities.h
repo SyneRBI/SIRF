@@ -31,6 +31,11 @@ limitations under the License.
 
 #include <string>
 
+#ifdef HAS_CUDA_RUNTIME_API
+// cppcheck-suppress missingIncludeSystem
+#include <cuda_runtime_api.h>
+#endif
+
 namespace sirf {
     //! return the path-separator used by the OS
     /*!
@@ -71,6 +76,27 @@ namespace sirf {
       \endcode
     */
     std::string examples_data_path(const char* data_type);
+
+    inline bool
+    pointer_supports_cuda_array_view(const void* ptr)
+    {
+#ifdef HAS_CUDA_RUNTIME_API
+        if (ptr == nullptr)
+            return false;
+
+        cudaPointerAttributes attrs{};
+        const cudaError_t err = cudaPointerGetAttributes(&attrs, ptr);
+        if (err != cudaSuccess)
+            return false;
+#if CUDART_VERSION >= 10000
+        return attrs.type == cudaMemoryTypeManaged;
+#else
+        return attrs.memoryType == cudaMemoryTypeManaged && attrs.isManaged;
+#endif
+#else
+        return false;
+#endif
+    }
 }
 
 #endif

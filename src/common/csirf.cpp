@@ -50,6 +50,13 @@ unknownObject(const char* obj, const char* name, const char* file, int line)
 	return handle;
 }
 
+bool
+DataContainer::supports_cuda_array_view() const
+{
+	return this->supports_array_view() &&
+		pointer_supports_cuda_array_view(reinterpret_cast<const void*>(this->address()));
+}
+
 //default constructors
 extern "C"
 void* cSIRF_newObject(const char* name)
@@ -101,6 +108,42 @@ cSIRF_supportsArrayView(const void* ptr_x)
 		CAST_PTR(DataHandle, h_x, ptr_x);
 		auto const& x =	objectFromHandle<DataContainer>(h_x);
 		return dataHandle<int>(x.supports_array_view());
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSIRF_supportsCudaArrayView(const void* ptr_x)
+{
+	try {
+		CAST_PTR(DataHandle, h_x, ptr_x);
+		auto const& x = objectFromHandle<DataContainer>(h_x);
+		return dataHandle<int>(x.supports_cuda_array_view());
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSIRF_dataAddress(const void* ptr_x)
+{
+	try {
+		CAST_PTR(DataHandle, h_x, ptr_x);
+		auto const& x = objectFromHandle<DataContainer>(h_x);
+		return dataHandle<size_t>(x.address());
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSIRF_cudaDataAddress(const void* ptr_x)
+{
+	try {
+		CAST_PTR(DataHandle, h_x, ptr_x);
+		auto const& x = objectFromHandle<DataContainer>(h_x);
+		return dataHandle<size_t>(x.cuda_address());
 	}
 	CATCH;
 }

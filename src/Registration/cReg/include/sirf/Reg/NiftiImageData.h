@@ -212,7 +212,7 @@ public:
         return true;
     }
 
-    virtual size_t address() const
+    virtual size_t address() const override
     {
         return reinterpret_cast<size_t>(_data);
     }

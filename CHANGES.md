@@ -4,6 +4,7 @@
 
 * SIRF/STIR
   - The implementation of the creation of `sirf.STIR.ImageData` from `sirf.STIR.AcquisitionData` has been revised to ensure compatibility of `ImageData` dimensions and voxel sizes with `AcquisitionData`.
+  - Added `supports_cuda_array_view()` and related `DataContainer`/Python support, including `__cuda_array_interface__`, to expose CUDA-backed arrays directly for supported containers.
 * Python interface
   - Restored functionality for algebraic operations mixing SIRF data containers and numpy arrays and corrected the description of the result type in User Guide.
   - Error raised if `AcquisitionModel.adjoint` ran when the model is not linear.

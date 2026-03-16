@@ -20,7 +20,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
 set(cSIRF_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-add_library(csirf csirf.cpp ImageData.cpp GeometricalInfo.cpp iequals.cpp utilities.cpp)
+add_library(csirf csirf.cpp DataContainer.cpp ImageData.cpp GeometricalInfo.cpp iequals.cpp utilities.cpp)
 target_include_directories(csirf PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>"
   )
@@ -30,6 +30,11 @@ target_include_directories(csirf PUBLIC
 target_include_directories(csirf PUBLIC
   "$<BUILD_INTERFACE:${BUILD_INCLUDE_DIRECTORY}>$<INSTALL_INTERFACE:include>"
   )
+
+if (TARGET CUDA::cudart)
+  target_compile_definitions(csirf PRIVATE HAS_CUDA_RUNTIME_API)
+  target_link_libraries(csirf PRIVATE CUDA::cudart)
+endif()
 
 if ((NOT DISABLE_STIR) AND (NOT DISABLE_Gadgetron) AND (NOT DISABLE_Registration) AND "${STIR_BUILT_WITH_ITK}")
   MESSAGE(STATUS "Registration, ISMRMRD and STIR (with ITK) have been built.")
