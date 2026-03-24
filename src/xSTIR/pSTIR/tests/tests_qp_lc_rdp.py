@@ -14,7 +14,6 @@ Options:
 
 {licence}
 """
-import subprocess
 import numpy
 import sirf.STIR
 import sirf.config
