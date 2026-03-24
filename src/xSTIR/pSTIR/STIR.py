@@ -2620,9 +2620,10 @@ class RelativeDifferencePrior(Prior):
         return image
 
     def compute_Hessian_diagonal(self, image):
-        """Computes the diagonal of Hessian"""
+        """Returns the diagonal of Hessian"""
         diag = image.clone()
         try_calling(pystir.cSTIR_priorComputeHessianDiagonal(self.handle, image.handle, diag.handle))
+        return diag
 
 if STIR_WITH_CUDA:
     class CudaRelativeDifferencePrior(RelativeDifferencePrior):

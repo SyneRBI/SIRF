@@ -14,6 +14,7 @@ Options:
 
 {licence}
 """
+import subprocess
 import numpy
 import sirf.STIR
 import sirf.config
@@ -24,7 +25,7 @@ __author__ = "Imraj Singh, Evgueni Ovtchinnikov, Kris Thielemans, Edoardo Pasca"
 try:
     subprocess.check_output('nvidia-smi')
     has_nvidia = True
-except:
+except Exception:
     has_nvidia = False
 
 
@@ -59,6 +60,41 @@ def Hessian_test(test, prior, x, eps=1e-3):
           # The difficult is knowing what the tolerance is for this test in that case
           q = 0
     test.check_if_less(q, .01*eps)
+
+
+def Hessian_diagonal_test(test, prior, x, eps=1e-4):
+    """Checks compute_Hessian_diagonal against numerical finite differences.
+
+    For a subset of interior voxels i, checks:
+        H_diag[i] ≈ (grad_i(x + eps*e_i) - grad_i(x)) / eps
+    """
+    H_diag = prior.compute_Hessian_diagonal(x)
+    gx = prior.gradient(x)
+
+    x_arr = x.as_array()
+    gx_arr = gx.as_array()
+    H_diag_arr = H_diag.as_array()
+
+    # Test a subset of interior voxels (avoid boundary where fewer neighbours)
+    shape = x_arr.shape
+    z_mid, y_mid, x_mid = shape[0] // 2, shape[1] // 2, shape[2] // 2
+    test_coords = [(z_mid + dz, y_mid + dy, x_mid + dx)
+                   for dz in [-1, 0, 1] for dy in [-1, 0, 1] for dx in [0]]
+
+    for (iz, iy, ix) in test_coords:
+        x_pert = x.clone()
+        x_pert_arr = x_pert.as_array()
+        x_pert_arr[iz, iy, ix] += eps
+        x_pert.fill(x_pert_arr)
+
+        g_pert = prior.gradient(x_pert)
+        g_pert_arr = g_pert.as_array()
+
+        numerical = (g_pert_arr[iz, iy, ix] - gx_arr[iz, iy, ix]) / eps
+        analytical = H_diag_arr[iz, iy, ix]
+
+        max_H = max(abs(analytical), abs(numerical), 1e-10)
+        test.check_if_less(abs(numerical - analytical) / max_H, 0.01)
 
 
 def test_main(rec=False, verb=False, throw=True, no_ret_val=True):
@@ -106,6 +142,9 @@ def test_main(rec=False, verb=False, throw=True, no_ret_val=True):
                 prior.set_epsilon(im.max()*.01)
             # print(f"penalisation_factor {penalisation_factor}, kappa {kappa}, prior {type(prior).__name__}")
             Hessian_test(test, prior, im, 0.03)
+
+            if isinstance(prior, sirf.STIR.RelativeDifferencePrior) and penalisation_factor > 0:
+                Hessian_diagonal_test(test, prior, im)
 
     numpy.testing.assert_equal(test.failed, 0)
     if no_ret_val:
