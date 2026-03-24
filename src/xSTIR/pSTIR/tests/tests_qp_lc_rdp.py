@@ -14,6 +14,7 @@ Options:
 
 {licence}
 """
+import subprocess
 import numpy
 import sirf.STIR
 import sirf.config
@@ -24,7 +25,7 @@ __author__ = "Imraj Singh, Evgueni Ovtchinnikov, Kris Thielemans, Edoardo Pasca"
 try:
     subprocess.check_output('nvidia-smi')
     has_nvidia = True
-except:
+except Exception:
     has_nvidia = False
 
 
