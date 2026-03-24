@@ -69,7 +69,7 @@ def Hessian_diagonal_test(test, prior, x, eps=1e-4):
         H_diag[i] ≈ (grad_i(x + eps*e_i) - grad_i(x)) / eps
     """
     H_diag = prior.compute_Hessian_diagonal(x)
-    gx = prior.gradient(x.clone())
+    gx = prior.gradient(x)
 
     x_arr = x.as_array()
     gx_arr = gx.as_array()
