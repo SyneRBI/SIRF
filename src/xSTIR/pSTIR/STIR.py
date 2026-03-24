@@ -2623,6 +2623,7 @@ class RelativeDifferencePrior(Prior):
         """Computes the diagonal of Hessian"""
         diag = image.clone()
         try_calling(pystir.cSTIR_priorComputeHessianDiagonal(self.handle, image.handle, diag.handle))
+        return diag
 
 if STIR_WITH_CUDA:
     class CudaRelativeDifferencePrior(RelativeDifferencePrior):
