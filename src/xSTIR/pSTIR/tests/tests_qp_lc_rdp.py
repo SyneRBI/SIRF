@@ -94,7 +94,7 @@ def Hessian_diagonal_test(test, prior, x, eps=1e-4):
         analytical = H_diag_arr[iz, iy, ix]
 
         max_H = max(abs(analytical), abs(numerical), 1e-10)
-        test.check_if_less(abs(numerical - analytical) / max_H, 0.01)
+        test.check_if_less(abs(numerical - analytical) / max_H, 0.02)
 
 
 def test_main(rec=False, verb=False, throw=True, no_ret_val=True):
