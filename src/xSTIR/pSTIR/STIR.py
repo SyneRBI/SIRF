@@ -1885,6 +1885,11 @@ class AcquisitionModel(object):
         # constness flag for const reference
         self.const = False
 
+    def __del__(self):
+        """del."""
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
     def set_up(self, acq_templ, img_templ):
         """Sets up.
 
