@@ -1,13 +1,15 @@
 '''Utilities used by all engines
 '''
 import inspect
-import numpy
 import os
+import re
+
+import numpy
+from deprecation import deprecated
+
 import sirf
 import sirf.pyiutilities as pyiutil
 import sirf.pysirf as pysirf
-import re
-from deprecation import deprecated
 
 __licence__ = """SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2022 Rutherford Appleton Laboratory STFC
@@ -30,6 +32,86 @@ Licensed under the Apache License, Version 2.0 (the "License");
 """
 __license__ = __licence__
 RE_PYEXT = re.compile(r"\.(py[co]?)$")
+
+
+class Handle:
+    def __init__(self, handle, check_stack: int | None = None):
+        if pyiutil.executionStatus(handle) != 0:
+            check_stack = inspect.stack()[1 if check_stack is None else check_stack]
+            #print('\nFile: %s' % check_stack[1])
+            #print('Line: %d' % check_stack[2])
+            #print('check_status found the following message sent from the engine:')
+            msg = pyiutil.executionError(handle)
+            file = pyiutil.executionErrorFile(handle)
+            line = pyiutil.executionErrorLine(handle)
+            raise error(f'{msg!r} exception caught at line {line!r} of {file};'
+                        ' the reconstruction engine output may provide more information')
+        self._handle = handle
+
+    def __int__(self):
+        return pyiutil.intDataFromHandle(self._handle)
+
+    def __bool__(self):
+        return pyiutil.boolDataFromHandle(self._handle)
+
+    def __float__(self, double=False):
+        return (pyiutil.doubleDataFromHandle if double else pyiutil.floatDataFromHandle)(self._handle)
+
+    def __str__(self):
+        return pyiutil.charDataFromHandle(self._handle)
+
+    def __abs__(self):
+        return pyiutil.size_tDataFromHandle(self._handle)
+
+    def __complex__(self, double=False):
+        if double:
+            return pyiutil.doubleReDataFromHandle(self._handle) + 1.j * pyiutil.doubleImDataFromHandle(self._handle)
+        return pyiutil.floatReDataFromHandle(self._handle) + 1.j * pyiutil.floatImDataFromHandle(self._handle)
+
+    def __del__(self):
+        if self._handle is not None:
+            pyiutil.deleteDataHandle(self._handle)
+        self._handle = None  # TODO: is this required?
+
+    @property
+    def valid(self):
+        return self._handle is not None
+
+    def __getattr__(self, name):
+        assert self.valid
+        match name.split('_', 1)[0]:
+            case 'cSIRF':
+                func = getattr(pysirf, name)
+            case 'cReg':
+                import sirf.pyreg as pyreg
+                func = getattr(pyreg, name)
+            case 'cGT':
+                import sirf.pygadgetron as pygadgetron
+                func = getattr(pygadgetron, name)
+            case 'cSTIR':
+                import sirf.pystir as pystir
+                func = getattr(pystir, name)
+            case _:
+                raise AttributeError("namespace of %s" % name)
+        match name:
+            case 'cSIRF_axpby' | 'cSIRF_axpbyAlt' | 'cReg_AffineTransformation_construct_from_trans_and_quaternion': # 2nd arg=self
+                def wrapped(one, *args):
+                    return Handle(func(self._toarg(one), self._handle, *map(self._toarg, args)))
+            case _: # 1st arg=self
+                def wrapped(*args):
+                    return Handle(func(self._handle, *map(self._toarg, args)))
+        return wrapped
+
+    @classmethod
+    def _toarg(cls, obj):
+        """unwrap `obj.{{handle.,}_handle,ctypes.data}` if possible"""
+        if hasattr(obj, 'handle') and isinstance(obj.handle, cls):
+            return obj.handle._handle
+        if isinstance(obj, cls):
+            return obj._handle
+        if hasattr(obj, 'ctypes') and hasattr(obj.ctypes, 'data'):
+            return obj.ctypes.data
+        return obj
 
 
 def cpp_int_bits():
@@ -71,11 +153,8 @@ def examples_data_path(data_type):
     Returns the path to PET/MR/Registration data used by SIRF/examples demos.
     data_type: either 'PET' or 'MR' or 'Registration'
     '''
-    h = pysirf.cSIRF_examples_data_path(data_type)
-    check_status(h)
-    path = pyiutil.charDataFromHandle(h)
-    pyiutil.deleteDataHandle(h)
-    return path
+    h = Handle(pysirf.cSIRF_examples_data_path(data_type))
+    return str(h)
 
 
 def existing_filepath(data_path, file_name):
@@ -285,7 +364,7 @@ def check_tolerance(expected, actual, abstol=0, reltol=2e-3):
                % (expected, actual, tol)
 
 
-class pTest(object):
+class pTest:
     def __init__(self, filename, record, throw=False):
         self.record = record
         self.data = []
@@ -398,7 +477,7 @@ class pTest(object):
 class CheckRaise(pTest):
     def __init__(self, *a, **k):
         k["throw"] = True
-        super(CheckRaise, self).__init__(*a, **k)
+        super().__init__(*a, **k)
 
 
 def runner(main_test, doc, version, author="", licence=None, no_ret_val=True):
@@ -437,118 +516,74 @@ class Param:
         self.parameter = getter
 
     def set(self, hs, group, par, hv, stack=None):
-        if stack is None:
-            stack = inspect.stack()[1]
-        h = self.setParameter(hs, group, par, hv)
-        check_status(h, stack)
-        pyiutil.deleteDataHandle(h)
+        Handle(self.setParameter(hs._handle, group, par, hv._handle), stack)
 
     def set_bool(self, handle, group, par, value):
-        h = pyiutil.boolDataHandle(bool(value))
-        self.set(handle, group, par, h, inspect.stack()[1])
-        pyiutil.deleteDataHandle(h)
+        h = Handle(pyiutil.boolDataHandle(bool(value)))
+        self.set(handle, group, par, h)
 
     def set_char(self, handle, group, par, value):
-        h = pyiutil.charDataHandle(value)
-        self.set(handle, group, par, h, inspect.stack()[1])
-        pyiutil.deleteDataHandle(h)
+        h = Handle(pyiutil.charDataHandle(value))
+        self.set(handle, group, par, h)
 
     def set_int(self, handle, group, par, value):
-        h = pyiutil.intDataHandle(int(value))
-        self.set(handle, group, par, h, inspect.stack()[1])
-        pyiutil.deleteDataHandle(h)
+        h = Handle(pyiutil.intDataHandle(int(value)))
+        self.set(handle, group, par, h)
 
     def set_float(self, handle, group, par, value):
-        h = pyiutil.floatDataHandle(float(value))
-        self.set(handle, group, par, h, inspect.stack()[1])
-        pyiutil.deleteDataHandle(h)
+        h = Handle(pyiutil.floatDataHandle(float(value)))
+        self.set(handle, group, par, h)
 
     def set_double(self, handle, group, par, value):
-        h = pyiutil.doubleDataHandle(float(value))
-        self.set(handle, group, par, h, inspect.stack()[1])
-        pyiutil.deleteDataHandle(h)
+        h = Handle(pyiutil.doubleDataHandle(float(value)))
+        self.set(handle, group, par, h)
 
     def get_bool(self, handle, group, par):
-        h = self.parameter(handle, group, par)
-        check_status(h, inspect.stack()[1])
-        value = pyiutil.boolDataFromHandle(h)
-        pyiutil.deleteDataHandle(h)
-        return value
+        h = Handle(self.parameter(handle._handle, group, par))
+        return bool(h)
 
     def get_char(self, handle, group, par):
-        h = self.parameter(handle, group, par)
-        check_status(h)
-        value = pyiutil.charDataFromHandle(h)
-        pyiutil.deleteDataHandle(h)
-        return value
+        h = Handle(self.parameter(handle._handle, group, par))
+        return str(h)
 
     def get_int(self, handle, group, par):
-        h = self.parameter(handle, group, par)
-        check_status(h, inspect.stack()[1])
-        value = pyiutil.intDataFromHandle(h)
-        pyiutil.deleteDataHandle(h)
-        return value
+        h = Handle(self.parameter(handle._handle, group, par))
+        return int(h)
 
     def get_size_t(self, handle, group, par):
-        h = self.parameter(handle, group, par)
-        check_status(h, inspect.stack()[1])
-        value = pyiutil.size_tDataFromHandle(h)
-        pyiutil.deleteDataHandle(h)
-        return value
+        h = Handle(self.parameter(handle._handle, group, par))
+        return abs(h)
 
     def get_ints(self, handle, group, par, n):
-        h = self.parameter(handle, group, par)
-        check_status(h)
-        value = tuple(pyiutil.intDataItemFromHandle(h, i) for i in range(n))
-        pyiutil.deleteDataHandle(h)
-        return value
+        h = Handle(self.parameter(handle._handle, group, par))
+        return tuple(pyiutil.intDataItemFromHandle(h._handle, i) for i in range(n))
 
     def get_uint16s(self, handle, group, par, n):
-        h = self.parameter(handle, group, par)
-        check_status(h)
-        value = tuple(pyiutil.uint16DataItemFromHandle(h, i) for i in range(n))
-        pyiutil.deleteDataHandle(h)
-        return value
+        h = Handle(self.parameter(handle._handle, group, par))
+        return tuple(pyiutil.uint16DataItemFromHandle(h._handle, i) for i in range(n))
 
     def get_uint32s(self, handle, group, par, n):
-        h = self.parameter(handle, group, par)
-        check_status(h)
-        value = tuple(pyiutil.uint32DataItemFromHandle(h, i) for i in range(n))
-        pyiutil.deleteDataHandle(h)
-        return value
+        h = Handle(self.parameter(handle._handle, group, par))
+        return tuple(pyiutil.uint32DataItemFromHandle(h._handle, i) for i in range(n))
 
     def get_uint64s(self, handle, group, par, n):
-        h = self.parameter(handle, group, par)
-        check_status(h)
-        value = tuple(pyiutil.uint64DataItemFromHandle(h, i) for i in range(n))
-        pyiutil.deleteDataHandle(h)
-        return value
+        h = Handle(self.parameter(handle._handle, group, par))
+        return tuple(pyiutil.uint64DataItemFromHandle(h._handle, i) for i in range(n))
 
     def get_float(self, handle, group, par):
-        h = self.parameter(handle, group, par)
-        check_status(h)
-        v = pyiutil.floatDataFromHandle(h)
-        pyiutil.deleteDataHandle(h)
-        return v
+        h = Handle(self.parameter(handle._handle, group, par))
+        return float(h)
 
     def get_floats(self, handle, group, par, n):
-        h = self.parameter(handle, group, par)
-        check_status(h)
-        value = tuple(pyiutil.floatDataItemFromHandle(h, i) for i in range(n))
-        pyiutil.deleteDataHandle(h)
-        return value
+        h = Handle(self.parameter(handle._handle, group, par))
+        return tuple(pyiutil.floatDataItemFromHandle(h._handle, i) for i in range(n))
 
     def get_double(self, handle, group, par):
-        h = self.parameter(handle, group, par)
-        check_status(h)
-        v = pyiutil.doubleDataFromHandle(h)
-        pyiutil.deleteDataHandle(h)
-        return v
+        h = Handle(self.parameter(handle._handle, group, par))
+        return h.__float__(True)
 
     def get_handle(self, hs, group, par):
-        handle = self.parameter(hs, group, par)
-        check_status(handle, inspect.stack()[1])
-        return handle
+        return Handle(self.parameter(hs._handle, group, par))
 
 
 class error(Exception):
@@ -558,32 +593,14 @@ class error(Exception):
         return '??? ' + repr(self.value)
 
 
-def check_status(handle, stack=None):
-    if pyiutil.executionStatus(handle) != 0:
-        if stack is None:
-            stack = inspect.stack()[1]
-#        print('\nFile: %s' % stack[1])
-#        print('Line: %d' % stack[2])
-#        print('check_status found the following message sent from the engine:')
-        msg = pyiutil.executionError(handle)
-        file = pyiutil.executionErrorFile(handle)
-        line = pyiutil.executionErrorLine(handle)
-        errorMsg = \
-            repr(msg) + ' exception caught at line ' + \
-            repr(line) + ' of ' + file + '; ' + \
-            'the reconstruction engine output may provide more information'
-        raise error(errorMsg)
+check_status = try_calling = Handle # deprecated alias
 
-
-def try_calling(returned_handle):
-    check_status(returned_handle, inspect.stack()[1])
-    pyiutil.deleteDataHandle(returned_handle)
 
 def assert_validity(obj, dtype):
     if not isinstance(obj, dtype):
         msg = 'Expecting object of type {}, got {}'
         raise AssertionError(msg.format(dtype, type(obj)))
-    if obj.handle is None:
+    if not obj.handle.valid:
         raise AssertionError('object handle is None.')
 
 
@@ -591,9 +608,9 @@ def assert_validities(x, y):
     if not (issubclass(type(x),type(y)) or issubclass(type(y),type(x))):
         msg = 'Expecting same type input, got {} and {}'
         raise AssertionError(msg.format(type(x), type(y)))
-    if x.handle is None:
+    if not x.handle.valid:
         raise AssertionError('handle for first parameter is None')
-    if y.handle is None:
+    if not y.handle.valid:
         raise AssertionError('handle for second parameter is None')
     if callable(getattr(x, 'dimensions', None)):
         xdim = x.dimensions()
@@ -1098,7 +1115,7 @@ def data_container_algebra_tests(test, x, eps=1e-4):
     test.check_if_zero_within_tolerance(s, eps * t)
 
 
-class DataContainerAlgebraTests(object):
+class DataContainerAlgebraTests:
 
     '''A base class for unit test of DataContainer algebra.'''
     def test_divide_scalar(self):
