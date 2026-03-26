@@ -9,7 +9,6 @@ from deprecation import deprecated
 
 import sirf
 import sirf.pyiutilities as pyiutil
-import sirf.pysirf as pysirf
 
 __licence__ = """SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2022 Rutherford Appleton Laboratory STFC
@@ -36,7 +35,7 @@ RE_PYEXT = re.compile(r"\.(py[co]?)$")
 
 class Handle:
     def __init__(self, handle, check_stack: int | None = None):
-        if pyiutil.executionStatus(handle) != 0:
+        if (check_stack is None or check_stack >= 0) and pyiutil.executionStatus(handle) != 0:
             check_stack = inspect.stack()[1 if check_stack is None else check_stack]
             #print('\nFile: %s' % check_stack[1])
             #print('Line: %d' % check_stack[2])
@@ -78,28 +77,28 @@ class Handle:
         return self._handle is not None
 
     def __getattr__(self, name):
-        assert self.valid
         match name.split('_', 1)[0]:
             case 'cSIRF':
-                func = getattr(pysirf, name)
+                import sirf.pysirf as backend
             case 'cReg':
-                import sirf.pyreg as pyreg
-                func = getattr(pyreg, name)
+                import sirf.pyreg as backend
             case 'cGT':
-                import sirf.pygadgetron as pygadgetron
-                func = getattr(pygadgetron, name)
+                import sirf.pygadgetron as backend
             case 'cSTIR':
-                import sirf.pystir as pystir
-                func = getattr(pystir, name)
+                import sirf.pystir as backend
             case _:
-                raise AttributeError("namespace of %s" % name)
+                raise AttributeError("no backend matching PREFIX_ of function name %s" % name)
+        func = getattr(backend, name)
         match name:
             case 'cSIRF_axpby' | 'cSIRF_axpbyAlt' | 'cReg_AffineTransformation_construct_from_trans_and_quaternion': # 2nd arg=self
                 def wrapped(one, *args):
                     return Handle(func(self._toarg(one), self._handle, *map(self._toarg, args)))
-            case _: # 1st arg=self
+            case _:
                 def wrapped(*args):
-                    return Handle(func(self._handle, *map(self._toarg, args)))
+                    if self.valid: # 1st arg=self
+                        return Handle(func(self._handle, *map(self._toarg, args)))
+                    else: # no self
+                        return Handle(func(*map(self._toarg, args)))
         return wrapped
 
     @classmethod
@@ -153,8 +152,8 @@ def examples_data_path(data_type):
     Returns the path to PET/MR/Registration data used by SIRF/examples demos.
     data_type: either 'PET' or 'MR' or 'Registration'
     '''
-    h = Handle(pysirf.cSIRF_examples_data_path(data_type))
-    return str(h)
+    path = Handle(None, -1).cSIRF_examples_data_path(data_type)
+    return str(path)
 
 
 def existing_filepath(data_path, file_name):

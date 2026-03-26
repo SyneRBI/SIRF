@@ -70,19 +70,19 @@ MAX_IMG_DIMS = 10
 
 def get_STIR_version_string():
     """Returns STIR engine version as Python str."""
-    version = Handle(pystir.cSTIR_STIR_version_string())
+    version = Handle(None, -1).cSTIR_STIR_version_string()
     return str(version)
 
 
 def get_STIR_doc_dir():
     """Returns STIR engine documentation folder name as Python str."""
-    path = Handle(pystir.cSTIR_get_STIR_doc_dir())
+    path = Handle(None, -1).cSTIR_get_STIR_doc_dir()
     return str(path)
 
 
 def get_STIR_examples_dir():
     """Returns STIR engine examples folder name as Python str."""
-    path = Handle(pystir.cSTIR_get_STIR_examples_dir())
+    path = Handle(None, -1).cSTIR_get_STIR_examples_dir()
     return str(path)
 
 
@@ -93,39 +93,39 @@ get_engine_examples_dir = get_STIR_examples_dir
 
 def set_verbosity(verbosity):
     """Set the verbosity of all STIR output."""
-    Handle(pystir.cSTIR_setVerbosity(verbosity))
+    Handle(None, -1).cSTIR_setVerbosity(verbosity)
 
 
 def get_verbosity():
     """Get the verbosity of all STIR output."""
-    h = Handle(pystir.cSTIR_getVerbosity())
+    h = Handle(None, -1).cSTIR_getVerbosity()
     return int(h)
 
 
 def scanner_names():
-    h = Handle(pystir.cSTIR_scannerNames())
+    h = Handle(None, -1).cSTIR_scannerNames()
     return str(h)
 
 
 def set_max_omp_threads(threads):
     """Set the maximum number of OpenMP threads."""
-    Handle(pystir.cSTIR_setOMPThreads(int(threads)))
+    Handle(None, -1).cSTIR_setOMPThreads(int(threads))
 
 
 def get_max_omp_threads():
     """Get the maximum number of OpenMP threads."""
-    h = Handle(pystir.cSTIR_getOMPThreads())
+    h = Handle(None, -1).cSTIR_getOMPThreads()
     return int(h)
 
 
 def set_default_num_omp_threads():
     """Use the default number of OpenMP threads."""
-    Handle(pystir.cSTIR_useDefaultOMPThreads())
+    Handle(None, -1).cSTIR_useDefaultOMPThreads()
 
 
 def get_default_num_omp_threads():
     """Get default num of OpenMP threads."""
-    h = Handle(pystir.cSTIR_getDefaultOMPThreads())
+    h = Handle(None, -1).cSTIR_getDefaultOMPThreads()
     return int(h)
 
 
@@ -227,7 +227,7 @@ class Box3D(Shape):
     def __init__(self):
         """init."""
         self.name = 'Box3D'
-        self.handle = Handle(pystir.cSTIR_newObject(self.name))
+        self.handle = Handle(None, -1).cSTIR_newObject(self.name)
 
     def set_length_x(self, value):
         """Sets dimension x length in mm."""
@@ -272,7 +272,7 @@ class Ellipsoid(Shape):
     def __init__(self):
         """init."""
         self.name = 'Ellipsoid'
-        self.handle = Handle(pystir.cSTIR_newObject(self.name))
+        self.handle = Handle(None, -1).cSTIR_newObject(self.name)
 
     def set_radius_x(self, value):
         """Sets x radius in mm."""
@@ -304,7 +304,7 @@ class EllipticCylinder(Shape):
     def __init__(self):
         """init."""
         self.name = 'EllipsoidalCylinder'
-        self.handle = Handle(pystir.cSTIR_newObject(self.name))
+        self.handle = Handle(None, -1).cSTIR_newObject(self.name)
 
     def set_length(self, value):
         """Sets length in mm."""
@@ -366,7 +366,7 @@ class ImageData(SIRF.ImageData):
         """
         self.handle = None
         if isinstance(arg, str):
-            self.handle = Handle(pystir.cSTIR_objectFromFile('Image', arg))
+            self.handle = Handle(None, -1).cSTIR_objectFromFile('Image', arg)
         elif isinstance(arg, AcquisitionData):
             self.handle = arg.handle.cSTIR_imageFromAcquisitionData()
         elif isinstance(arg, SIRF.ImageData):
@@ -423,9 +423,9 @@ class ImageData(SIRF.ImageData):
         if not isinstance(origin, tuple):
             raise error("sirf.STIR.Imagedata.initialise: origin should be a tuple")
         self.handle = None
-        voxels = Handle(
-            pystir.cSTIR_voxels3DF(int(dim[2]), int(dim[1]), int(dim[0]), float(vsize[2]), float(vsize[1]),
-                                   float(vsize[0]), float(origin[2]), float(origin[1]), float(origin[0])))
+        voxels = Handle(None, -1).cSTIR_voxels3DF(int(dim[2]), int(dim[1]), int(dim[0]), float(vsize[2]),
+                                                  float(vsize[1]), float(vsize[0]), float(origin[2]), float(origin[1]),
+                                                  float(origin[0]))
         self.handle = voxels.cSTIR_imageFromVoxels()
 
     def fill(self, value):
@@ -485,7 +485,7 @@ class ImageData(SIRF.ImageData):
 
         Replaces the current content of the object.
         """
-        self.handle = Handle(pystir.cSTIR_objectFromFile('Image', filename))
+        self.handle = Handle(None, -1).cSTIR_objectFromFile('Image', filename)
 
     def dimensions(self):
         """Returns image dimensions as a tuple (nz, ny, nx)."""
@@ -675,7 +675,7 @@ class SeparableGaussianImageFilter(ImageDataProcessor):
         self.input = None
         self.output = None
         self.name = 'SeparableGaussianImageFilter'
-        self.handle = Handle(pystir.cSTIR_newObject(self.name))
+        self.handle = Handle(None, -1).cSTIR_newObject(self.name)
 
     def set_up(self, image):
         """Sets up."""
@@ -707,7 +707,7 @@ class TruncateToCylinderProcessor(ImageDataProcessor):
     def __init__(self):
         """init."""
         self.name = 'TruncateToCylindricalFOVImageProcessor'
-        self.handle = Handle(pystir.cSTIR_newObject(self.name))
+        self.handle = Handle(None, -1).cSTIR_newObject(self.name)
 
     def set_strictly_less_than_radius(self, flag):
         """Specifies the behaviour on the boundary.
@@ -738,7 +738,7 @@ class RayTracingMatrix:
 
     def __init__(self):
         """init."""
-        self.handle = Handle(pystir.cSTIR_newObject(self.name))
+        self.handle = Handle(None, -1).cSTIR_newObject(self.name)
         parms.set_int_par(self.handle, self.name, 'num_tangential_LORs', 2)
 
     def get_info(self):
@@ -807,7 +807,7 @@ class SPECTUBMatrix:
         '''
         Create a new matrix. Default settings use neither attenuation nor resolution modelling.
         '''
-        self.handle = Handle(pystir.cSTIR_newObject(self.name))
+        self.handle = Handle(None, -1).cSTIR_newObject(self.name)
 
     def set_keep_all_views_in_cache(self, value):
         '''
@@ -870,7 +870,7 @@ class PinholeSPECTUBMatrix:
 
     def __init__(self):
         """Create a new matrix. Default settings use neither attenuation, PSF, or DOI modelling."""
-        self.handle = Handle(pystir.cSTIR_newObject(self.name))
+        self.handle = Handle(None, -1).cSTIR_newObject(self.name)
 
     def get_maximum_number_of_sigmas(self):
         """Returns the number of sigmas to consider when correcting for intrinsic PSF."""
@@ -994,7 +994,7 @@ class ListmodeData(ScanData):
         self.read_only = False
         if filename is None:
             return
-        self.handle = Handle(pystir.cSTIR_objectFromFile('ListmodeData', filename))
+        self.handle = Handle(None, -1).cSTIR_objectFromFile('ListmodeData', filename)
         self.read_only = True
 
     def read_from_file(self, filename):
@@ -1003,7 +1003,7 @@ class ListmodeData(ScanData):
 
         Replaces the current content of the object.
         """
-        self.handle = Handle(pystir.cSTIR_objectFromFile('ListmodeData', filename))
+        self.handle = Handle(None, -1).cSTIR_objectFromFile('ListmodeData', filename)
         self.read_only = True
 
     def acquisition_data_template(self):
@@ -1037,15 +1037,14 @@ class AcquisitionData(ScanData):
             i = src.find('.')
             if i > -1:
                 # src is a file name
-                self.handle = Handle(pystir.cSTIR_objectFromFile('AcquisitionData', src))
+                self.handle = Handle(None, -1).cSTIR_objectFromFile('AcquisitionData', src)
                 self.read_only = self.get_storage_scheme() == 'file'
                 self.src = 'file'
             else:
                 # src is a scanner name.
                 # might raise an error if Unknown scanner or missing raw data file extension
-                self.handle = Handle(
-                    pystir.cSTIR_acquisitionDataFromScannerInfo(src, span, max_ring_diff, view_mash_factor,
-                                                                tof_mash_factor))
+                self.handle = Handle(None, -1).cSTIR_acquisitionDataFromScannerInfo(src, span, max_ring_diff,
+                                                                                    view_mash_factor, tof_mash_factor)
                 self.src = 'scanner'
         elif isinstance(src, AcquisitionData):
             # src is AcquisitionData
@@ -1065,12 +1064,12 @@ class AcquisitionData(ScanData):
             all acquisition data generated from now on will be kept in RAM
             (avoid if data is very large)
         """
-        Handle(pystir.cSTIR_setAcquisitionDataStorageScheme(scheme))
+        Handle(None, -1).cSTIR_setAcquisitionDataStorageScheme(scheme)
 
     @staticmethod
     def get_storage_scheme():
         """Returns acquisition data storage scheme."""
-        scheme = Handle(pystir.cSTIR_getAcquisitionDataStorageScheme())
+        scheme = Handle(None, -1).cSTIR_getAcquisitionDataStorageScheme()
         return str(scheme)
 
     def same_object(self):
@@ -1083,7 +1082,7 @@ class AcquisitionData(ScanData):
 
         Replaces the current content of the object.
         """
-        self.handle = Handle(pystir.cSTIR_objectFromFile('AcquisitionData', filename))
+        self.handle = Handle(None, -1).cSTIR_objectFromFile('AcquisitionData', filename)
         self.read_only = True
 
     def create_uniform_image(self, value=0, xy=None):
@@ -1327,9 +1326,9 @@ class ListmodeToSinograms:
         """init."""
         self.name = 'ListmodeToSinograms'
         if file is None:
-            self.handle = Handle(pystir.cSTIR_newObject(self.name))
+            self.handle = Handle(None, -1).cSTIR_newObject(self.name)
         else:
-            self.handle = Handle(pystir.cSTIR_objectFromFile(self.name, file))
+            self.handle = Handle(None, -1).cSTIR_objectFromFile(self.name, file)
         self.output = None
 
     def set_input(self, lm_data):
@@ -1422,7 +1421,7 @@ class PoissonNoiseGenerator:
     """
     def __init__(self, scaling_factor=1.0, preserve_mean=False):
         self.name = "PoissonNoiseGenerator"
-        self.handle = Handle(pystir.cSTIR_createPoissonNoiseGenerator(scaling_factor, preserve_mean))
+        self.handle = Handle(None, -1).cSTIR_createPoissonNoiseGenerator(scaling_factor, preserve_mean)
         self.output_handle = None
 
     def set_seed(self, s):
@@ -1921,7 +1920,7 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
         """
         super().__init__()
         self.name = 'AcqModUsingMatrix'
-        self.handle = Handle(pystir.cSTIR_newObject(self.name))
+        self.handle = Handle(None, -1).cSTIR_newObject(self.name)
         if matrix is None:
             matrix = RayTracingMatrix()
         self.set_matrix(matrix)
@@ -1994,7 +1993,7 @@ if SIRF_HAS_NiftyPET:
             """Create an AcquisitionModelUsingNiftyPET object."""
             super().__init__()
             self.name = 'AcqModUsingNiftyPET'
-            self.handle = Handle(pystir.cSTIR_newObject(self.name))
+            self.handle = Handle(None, -1).cSTIR_newObject(self.name)
 
         def set_cuda_verbosity(self, verbosity):
             """Set the verbosity of the CUDA code."""
@@ -2030,7 +2029,7 @@ if SIRF_HAS_Parallelproj:
             """Create an AcquisitionModelUsingNiftyPET object."""
             super().__init__()
             self.name = 'AcqModUsingParallelproj'
-            self.handle = Handle(pystir.cSTIR_newObject(self.name))
+            self.handle = Handle(None, -1).cSTIR_newObject(self.name)
 
 
 class Prior:
@@ -2140,7 +2139,7 @@ class QuadraticPrior(Prior):
     def __init__(self):
         """init."""
         self.name = 'QuadraticPrior'
-        self.handle = Handle(pystir.cSTIR_newObject(self.name))
+        self.handle = Handle(None, -1).cSTIR_newObject(self.name)
 
     def set_kappa(self, image):
         """Sets kappa."""
@@ -2174,7 +2173,7 @@ class LogcoshPrior(Prior):
     def __init__(self):
         """init."""
         self.name = 'LogcoshPrior'
-        self.handle = Handle(pystir.cSTIR_newObject(self.name))
+        self.handle = Handle(None, -1).cSTIR_newObject(self.name)
 
     def set_scalar(self, v):
         """Sets scalar."""
@@ -2220,7 +2219,7 @@ class RelativeDifferencePrior(Prior):
     def __init__(self):
         """init."""
         self.name = 'RelativeDifferencePrior'
-        self.handle = Handle(pystir.cSTIR_newObject(self.name))
+        self.handle = Handle(None, -1).cSTIR_newObject(self.name)
 
     def set_gamma(self, v):
         """Sets gamma."""
@@ -2265,7 +2264,7 @@ if STIR_WITH_CUDA:
         def __init__(self):
             """init."""
             self.name = 'CudaRelativeDifferencePrior'
-            self.handle = Handle(pystir.cSTIR_newObject(self.name))
+            self.handle = Handle(None, -1).cSTIR_newObject(self.name)
 
 
 class PLSPrior(Prior):
@@ -2296,7 +2295,7 @@ class PLSPrior(Prior):
     def __init__(self):
         """init."""
         self.name = 'PLSPrior'
-        self.handle = Handle(pystir.cSTIR_newObject(self.name))
+        self.handle = Handle(None, -1).cSTIR_newObject(self.name)
 
     def set_only_2D(self, tf):
         """Sets only_2D parameter."""
@@ -2574,7 +2573,7 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData(PoissonLogLikelihood
     def __init__(self):
         """init."""
         self.name = 'PoissonLogLikelihoodWithLinearModelForMeanAndProjData'
-        self.handle = Handle(pystir.cSTIR_newObject(self.name))
+        self.handle = Handle(None, -1).cSTIR_newObject(self.name)
 
     def set_input_filename(self, name):
         """Sets the name of the file containing acquisition data."""
@@ -2616,7 +2615,7 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByB
     def __init__(self):
         """init."""
         self.name = 'PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin'
-        self.handle = Handle(pystir.cSTIR_newObject(self.name))
+        self.handle = Handle(None, -1).cSTIR_newObject(self.name)
 
     def set_cache_path(self, path):
         parms.set_char_par(self.handle, self.name, 'cache_path', path)
@@ -2728,7 +2727,7 @@ class FBP2DReconstructor:
     """
     def __init__(self):
         """init."""
-        self.handle = Handle(pystir.cSTIR_newObject('FBP2D'))
+        self.handle = Handle(None, -1).cSTIR_newObject('FBP2D')
 
     def set_input(self, input_data):
         """Sets the acquisition data to use for reconstruction."""
@@ -2932,7 +2931,7 @@ class OSMAPOSLReconstructor(IterativeReconstructor):
         """init."""
         self.image = None
         self.name = 'OSMAPOSL'
-        self.handle = Handle(pystir.cSTIR_objectFromFile('OSMAPOSLReconstruction', filename))
+        self.handle = Handle(None, -1).cSTIR_objectFromFile('OSMAPOSLReconstruction', filename)
         self.disable_output()
 
     def set_maximum_relative_change(self, value):
@@ -3001,7 +3000,7 @@ class KOSMAPOSLReconstructor(IterativeReconstructor):
         IterativeReconstructor.__init__(self)
         self.image = None
         self.name = 'KOSMAPOSL'
-        self.handle = Handle(pystir.cSTIR_objectFromFile('KOSMAPOSLReconstruction', filename))
+        self.handle = Handle(None, -1).cSTIR_objectFromFile('KOSMAPOSLReconstruction', filename)
         self.disable_output()
 
     def set_anatomical_prior(self, ap):
@@ -3073,9 +3072,9 @@ class SingleScatterSimulator:
         self.filename = filename
 
         if not self.filename:
-            self.handle = Handle(pystir.cSTIR_newObject(self.name))
+            self.handle = Handle(None, -1).cSTIR_newObject(self.name)
         else:
-            self.handle = Handle(pystir.cSTIR_objectFromFile(self.name, self.filename))
+            self.handle = Handle(None, -1).cSTIR_objectFromFile(self.name, self.filename)
 
     def set_up(self, acq_templ, img_templ):
         """Set up.
@@ -3135,9 +3134,9 @@ class ScatterEstimator:
         self.filename = filename
 
         if not self.filename:
-            self.handle = Handle(pystir.cSTIR_newObject(self.name))
+            self.handle = Handle(None, -1).cSTIR_newObject(self.name)
         else:
-            self.handle = Handle(pystir.cSTIR_objectFromFile(self.name, self.filename))
+            self.handle = Handle(None, -1).cSTIR_objectFromFile(self.name, self.filename)
 
     def set_up(self):
         """
@@ -3251,7 +3250,7 @@ class OSSPSReconstructor(IterativeReconstructor):
         """init."""
         self.image = None
         self.name = 'OSSPS'
-        self.handle = Handle(pystir.cSTIR_objectFromFile('OSSPSReconstruction', filename))
+        self.handle = Handle(None, -1).cSTIR_objectFromFile('OSSPSReconstruction', filename)
         self.disable_output()
 
     def set_relaxation_parameter(self, value):

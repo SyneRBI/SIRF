@@ -37,7 +37,6 @@ from deprecation import deprecated
 
 import sirf
 import sirf.Gadgetron_params as parms
-import sirf.pygadgetron as pygadgetron
 from sirf import SIRF
 from sirf.SIRF import ArrayContainer, DataContainer
 from sirf.Utilities import (
@@ -163,7 +162,7 @@ def mr_data_path():
 ### likely to be obsolete - not used for a long time
 ##class ClientConnector:
 ##    def __init__(self):
-##        self.handle = Handle(pygadgetron.cGT_newObject('GTConnector'))
+##        self.handle = Handle(None, -1).cGT_newObject('GTConnector')
 ##    def set_timeout(self, timeout):
 ##        handle = self.handle.cGT_setConnectionTimeout(timeout)
 ##    def connect(self, host, port):
@@ -297,7 +296,7 @@ class ImageData(SIRF.ImageData):
         self.handle = None
         if file is None:
             return
-        self.handle = Handle(pygadgetron.cGT_readImages(file))
+        self.handle = Handle(None, -1).cGT_readImages(file)
 
     def same_object(self):
         return ImageData()
@@ -323,7 +322,7 @@ class ImageData(SIRF.ImageData):
         return images
 
     def read_from_file(self, file):
-        self.handle = Handle(pygadgetron.cGT_readImages(file))
+        self.handle = Handle(None, -1).cGT_readImages(file)
 
     def from_acquisition_data(self, ad):
         assert isinstance(ad, AcquisitionData), "Please pass a AcquisitionData object"
@@ -626,7 +625,7 @@ class CoilImagesData(ImageData):
     on an xyz-slice.
     '''
     def __init__(self):
-        self.handle = Handle(pygadgetron.cGT_newObject('CoilImages'))
+        self.handle = Handle(None, -1).cGT_newObject('CoilImages')
 
     def same_object(self):
         return CoilImagesData()
@@ -655,7 +654,7 @@ class CoilSensitivityData(ImageData):
         return CoilSensitivityData()
 
     def read(self, file):
-        self.handle = Handle(pygadgetron.cGT_CoilSensitivities(file))
+        self.handle = Handle(None, -1).cGT_CoilSensitivities(file)
 
     def calculate(self, data, method=None):
         '''
@@ -668,7 +667,7 @@ class CoilSensitivityData(ImageData):
         if isinstance(data, AcquisitionData):
             if data.is_sorted() is False:
                 print('WARNING: acquisitions may be in a wrong order')
-        self.handle = Handle(pygadgetron.cGT_CoilSensitivities(''))
+        self.handle = Handle(None, -1).cGT_CoilSensitivities('')
         nit = self.smoothing_iterations
         w = self.conv_kernel_halfsize # convolution kernel size is (2w+1)-by-(2w+1) pixels
 
@@ -918,7 +917,7 @@ class AcquisitionData(DataContainer):
         if file is not None:
             mask = numpy.ndarray((1,), dtype=numpy.int64)
             mask[0] = ignored.mask
-            self.handle = Handle(pygadgetron.cGT_ISMRMRDAcquisitionsFromFile(file, 1 * all_, mask.ctypes.data))
+            self.handle = Handle(None, -1).cGT_ISMRMRDAcquisitionsFromFile(file, 1 * all_, mask)
 
     @staticmethod
     def set_storage_scheme(scheme):
@@ -1272,7 +1271,7 @@ class AcquisitionModel:
     def __init__(self, acqs=None, imgs=None):
         self.handle = None
         if acqs == None:
-            self.handle = Handle(pygadgetron.cGT_newObject('AcquisitionModel'))
+            self.handle = Handle(None, -1).cGT_newObject('AcquisitionModel')
         else:
             assert_validity(acqs, AcquisitionData)
             assert_validity(imgs, ImageData)
@@ -1401,7 +1400,7 @@ class Gadget:
         '''
         self.handle = None
         name, prop = name_and_parameters(name)
-        self.handle = Handle(pygadgetron.cGT_newObject(name))
+        self.handle = Handle(None, -1).cGT_newObject(name)
         if prop is not None:
             self.set_properties(prop)
 
@@ -1434,7 +1433,7 @@ class GadgetChain:
     Class for Gadgetron chains.
     '''
     def __init__(self):
-        self.handle = Handle(pygadgetron.cGT_newObject('GadgetChain'))
+        self.handle = Handle(None, -1).cGT_newObject('GadgetChain')
 
 
 ##    def add_reader(self, id, reader):
@@ -1510,7 +1509,7 @@ class Reconstructor(GadgetChain):
     ImageData on output.
     '''
     def __init__(self, list=None):
-        self.handle = Handle(pygadgetron.cGT_newObject('ImagesReconstructor'))
+        self.handle = Handle(None, -1).cGT_newObject('ImagesReconstructor')
         self.input_data = None
         self.dcm_prefix = ""
         if list is None:
@@ -1580,7 +1579,7 @@ class ImageDataProcessor(GadgetChain):
                 '[label:]gadget_name[(property1=value1[,...])]'
               (square brackets embrace optional items, ... stands for etc.)
         '''
-        self.handle = Handle(pygadgetron.cGT_newObject('ImagesProcessor'))
+        self.handle = Handle(None, -1).cGT_newObject('ImagesProcessor')
         # TODO: handle input and output in cSTIR
         self.input_data = None
         self.output_data = None
@@ -1636,7 +1635,7 @@ class AcquisitionDataProcessor(GadgetChain):
                 '[label:]gadget_name[(property1=value1[,...])]'
               (square brackets embrace optional items, ... stands for etc.)
         '''
-        self.handle = Handle(pygadgetron.cGT_newObject('AcquisitionsProcessor'))
+        self.handle = Handle(None, -1).cGT_newObject('AcquisitionsProcessor')
         self.input_data = None
         self.output_data = None
         if list is None:
@@ -1679,7 +1678,7 @@ class FullySampledReconstructor(Reconstructor):
     Class for a reconstructor from fully sampled Cartesian raw data.
     '''
     def __init__(self):
-        self.handle = Handle(pygadgetron.cGT_newObject('SimpleReconstructionprocessor'))
+        self.handle = Handle(None, -1).cGT_newObject('SimpleReconstructionprocessor')
         self.input_data = None
         self.dcm_prefix = ""
 
@@ -1689,7 +1688,7 @@ class CartesianGRAPPAReconstructor(Reconstructor):
     Class for a reconstructor from undersampled Cartesian raw data.
     '''
     def __init__(self):
-        self.handle = Handle(pygadgetron.cGT_newObject('SimpleGRAPPAReconstructionprocessor'))
+        self.handle = Handle(None, -1).cGT_newObject('SimpleGRAPPAReconstructionprocessor')
         self.input_data = None
         self.dcm_prefix = ""
 
