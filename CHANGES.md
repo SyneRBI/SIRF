@@ -11,6 +11,9 @@
   - Restored functionality for algebraic operations mixing SIRF data containers and numpy arrays and corrected the description of the result type in User Guide.
   - Adjoint operator added in `common/SIRF.py`.
   - Error raised if `AcquisitionModel.adjoint` ran when the model is not linear.
+* SIRF
+  - `common/SIRF.py` adding adjoint operator
+  - addition of initial pytorch wrappers and examples, check `torch/README.md`
 
 ## v3.9.0
 
