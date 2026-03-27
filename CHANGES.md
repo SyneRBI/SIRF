@@ -5,8 +5,11 @@
 * SIRF/STIR
   - The implementation of the creation of `sirf.STIR.ImageData` from `sirf.STIR.AcquisitionData` has been revised to ensure compatibility of `ImageData` dimensions and voxel sizes with `AcquisitionData`.
   - Missing `__del__` added to sirf.STIR.AcquisitionModel.
+* SIRF/Registration
+  - sirf.Reg.ImageData stores voxels values in a 3D Fortran-style array, hence strides had to be set in `ImageData.__array_interface__` accordingly (other SIRF ImageData objects use default C-style).
 * Python interface
   - Restored functionality for algebraic operations mixing SIRF data containers and numpy arrays and corrected the description of the result type in User Guide.
+  - Adjoint operator added in `common/SIRF.py`.
   - Error raised if `AcquisitionModel.adjoint` ran when the model is not linear.
 * SIRF
   - `common/SIRF.py` adding adjoint operator
