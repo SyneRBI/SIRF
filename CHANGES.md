@@ -14,6 +14,7 @@
 * SIRF
   - `common/SIRF.py` adding adjoint operator
   - addition of initial pytorch wrappers and examples, check `torch/README.md`
+  - `common/Utilities.py` simplified `Handle` for SWIG backend calls
 
 ## v3.9.0
 
