@@ -567,8 +567,8 @@ class NiftiImageData(SIRF.ImageData):
         """As per https://numpy.org/doc/stable/reference/arrays.interface.html"""
         if not self.supports_array_view:
             raise ContiguousError("please make an array-copy first with `asarray(copy=True)` or `as_array()`")
-        """NiftiImageData stores voxels values in a 3D Fortran-style array,
-        hence strides need to be arranged accordingly (default is C-style)."""
+        # NiftiImageData stores voxels values in a 3D Fortran-style array,
+        # hence strides need to be arranged accordingly (default is C-style).
         shape = self.shape
         dims = len(shape)
         strides = ()

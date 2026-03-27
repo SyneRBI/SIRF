@@ -1885,6 +1885,11 @@ class AcquisitionModel(object):
         # constness flag for const reference
         self.const = False
 
+    def __del__(self):
+        """del."""
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
     def set_up(self, acq_templ, img_templ):
         """Sets up.
 
@@ -2105,8 +2110,13 @@ class AcquisitionModel(object):
            Added for CCPi CIL compatibility
            https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
         '''
-        return self.backward(ad, subset_num=self.subset_num,
-                             num_subsets=self.num_subsets, out=out)
+        if self.is_linear():
+            return self.backward(ad, subset_num=self.subset_num,
+                                 num_subsets=self.num_subsets, out=out)
+        else:
+            raise error('AcquisitionModel is not linear. You can get the '
+                        'linear part of the AcquisitionModel with '
+                        'get_linear_acquisition_model')
 
     def is_affine(self):
         """Returns True if the acquisition model is affine.
@@ -2618,6 +2628,12 @@ class RelativeDifferencePrior(Prior):
         image.handle = pystir.cSTIR_parameter(self.handle, 'RelativeDifferencePrior', 'kappa')
         check_status(image.handle)
         return image
+
+    def compute_Hessian_diagonal(self, image):
+        """Returns the diagonal of Hessian"""
+        diag = image.clone()
+        try_calling(pystir.cSTIR_priorComputeHessianDiagonal(self.handle, image.handle, diag.handle))
+        return diag
 
 if STIR_WITH_CUDA:
     class CudaRelativeDifferencePrior(RelativeDifferencePrior):
