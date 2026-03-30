@@ -39,6 +39,8 @@ limitations under the License.
 #include "sirf/common/iequals.h"
 #include "sirf/common/JacobiCG.h"
 #include "sirf/STIR/stir_data_containers.h"
+
+#include "stir/recon_buildblock/GibbsRelativeDifferencePenalty.h"
 #include "stir/recon_buildblock/PoissonLogLikelihoodWithLinearModelForMeanAndProjData.h"
 #include "stir/recon_buildblock/PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin.h"
 #include "stir/GeneralisedPoissonNoiseGenerator.h"
@@ -1143,7 +1145,7 @@ The actual algorithm is described in
 		}
 	};
 
-	class xSTIR_RelativeDifferencePrior3DF : public stir::RelativeDifferencePrior < float > {
+	class xSTIR_RelativeDifferencePrior3DF : public stir::GibbsRelativeDifferencePenalty<float> {
 	public:
 		void only2D(int only) {
 			only_2D = only != 0;

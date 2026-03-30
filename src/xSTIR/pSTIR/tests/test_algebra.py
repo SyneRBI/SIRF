@@ -70,7 +70,7 @@ class TestSTIRAcquisitionDataAlgebraMemory(unittest.TestCase, DataContainerAlgeb
             self.image2 = template.get_uniform_copy(0)
             pet.AcquisitionData.set_storage_scheme('memory')
 
-class TestSTIRAcquisitionDataSubsetAlgebra():
+class TestSTIRAcquisitionDataSubsetAlgebra:
     def setUp(self):
         path = os.path.join(
             examples_data_path('PET'), 'thorax_single_slice', 'template_sinogram.hs')

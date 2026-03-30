@@ -707,10 +707,9 @@ void*
 sirf::cSTIR_setRelativeDifferencePriorParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
-        auto& prior = objectFromHandle<stir::RelativeDifferencePrior<float>>(hp);
+	auto& prior = objectFromHandle<xSTIR_RelativeDifferencePrior3DF>(hp);
 	if (sirf::iequals(name, "only_2D")) {
-		auto& xrdp = objectFromHandle<xSTIR_RelativeDifferencePrior3DF>(hp);
-		xrdp.only2D(dataFromHandle<int>((void*)hv));
+		prior.only2D(dataFromHandle<int>((void*)hv));
         }
 	else if (sirf::iequals(name, "kappa")) {
 		auto& id = objectFromHandle<STIRImageData>(hv);
@@ -729,7 +728,7 @@ void*
 sirf::cSTIR_RelativeDifferencePriorParameter
 (DataHandle* hp, const char* name)
 {
-	auto& prior = objectFromHandle<stir::RelativeDifferencePrior<float>>(hp);
+	auto& prior = objectFromHandle<xSTIR_RelativeDifferencePrior3DF>(hp);
 	if (sirf::iequals(name, "kappa")) {
 		auto sptr_im = std::make_shared<STIRImageData>(*prior.get_kappa_sptr());
 		return newObjectHandle(sptr_im);

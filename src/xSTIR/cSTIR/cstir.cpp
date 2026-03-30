@@ -183,7 +183,7 @@ void* cSTIR_newObject(const char* name)
 		if (sirf::iequals(name, "LogcoshPrior"))
 			return NEW_OBJECT_HANDLE(LogPrior3DF);
 		if (sirf::iequals(name, "RelativeDifferencePrior"))
-			return NEW_OBJECT_HANDLE(RDPrior3DF);
+			return NEW_OBJECT_HANDLE(xSTIR_RelativeDifferencePrior3DF);
 #ifdef STIR_WITH_CUDA
 		if (sirf::iequals(name, "CudaRelativeDifferencePrior"))
 			return NEW_OBJECT_HANDLE(CudaRDPrior3DF);
@@ -1410,6 +1410,22 @@ cSTIR_priorComputeHessianTimesInput(void* ptr_prior, void* ptr_cur, void* ptr_in
 		auto& current = cur.data();
 		auto& input   = inp.data();
 		prior.multiply_with_Hessian(output, current, input);
+		return (void*) new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSTIR_priorComputeHessianDiagonal(void* ptr_prior, void* ptr_img, void* ptr_diag)
+{
+	try {
+		auto& prior = objectFromHandle<xSTIR_GeneralisedPrior3DF>(ptr_prior);
+		auto& img = objectFromHandle<STIRImageData>(ptr_img);
+		auto& out = objectFromHandle<STIRImageData>(ptr_diag);
+		auto& image = img.data();
+		auto& diag  = out.data();
+		prior.compute_Hessian_diagonal(diag, image);
 		return (void*) new DataHandle;
 	}
 	CATCH;
