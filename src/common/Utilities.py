@@ -1,5 +1,6 @@
 '''Utilities used by all engines
 '''
+import functools
 import inspect
 import os
 import re
@@ -91,9 +92,11 @@ class Handle:
         func = getattr(backend, name)
         match name:
             case 'cSIRF_axpby' | 'cSIRF_axpbyAlt' | 'cReg_AffineTransformation_construct_from_trans_and_quaternion': # 2nd arg=self
+                @functools.wraps(func)
                 def wrapped(one, *args):
                     return Handle(func(self._toarg(one), self._handle, *map(self._toarg, args)))
             case _:
+                @functools.wraps(func)
                 def wrapped(*args):
                     if self.valid: # 1st arg=self
                         return Handle(func(self._handle, *map(self._toarg, args)))
