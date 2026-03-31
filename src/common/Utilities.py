@@ -37,7 +37,7 @@ RE_PYEXT = re.compile(r"\.(py[co]?)$")
 class Handle:
     def __init__(self, handle, check_stack: int | None = None):
         if (check_stack is None or check_stack >= 0) and pyiutil.executionStatus(handle) != 0:
-            check_stack = inspect.stack()[1 if check_stack is None else check_stack]
+            check_stack = inspect.stack()[1 if check_stack is None else check_stack] # TODO: delete or print this?
             #print('\nFile: %s' % check_stack[1])
             #print('Line: %d' % check_stack[2])
             #print('check_status found the following message sent from the engine:')
