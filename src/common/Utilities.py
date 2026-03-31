@@ -113,6 +113,9 @@ class Handle:
         return obj
 
 
+HANDLE = Handle(None, -1) # for calling backend functions which do not require a handle argument
+
+
 def cpp_int_bits():
     """Returns the number of bits in a C++ integer."""
     return pyiutil.intBits()
@@ -152,7 +155,7 @@ def examples_data_path(data_type):
     Returns the path to PET/MR/Registration data used by SIRF/examples demos.
     data_type: either 'PET' or 'MR' or 'Registration'
     '''
-    path = Handle(None, -1).cSIRF_examples_data_path(data_type)
+    path = HANDLE.cSIRF_examples_data_path(data_type)
     return str(path)
 
 
