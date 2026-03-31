@@ -35,13 +35,19 @@ RE_PYEXT = re.compile(r"\.(py[co]?)$")
 
 
 class Handle:
+    """
+    Convenience class for:
+    - calling SWIG backend functions
+      + routing to correct backend based on function name prefix
+      + auto-unwrapping function arguments from:
+        * numpy data arrays (via `.ctypes.data`)
+        * handle pointers (via `._handle`)
+    - casting return types
+    - pointer destrunction on deletion
+    """
     def __init__(self, handle, check_stack: int | None = None):
         self._handle = handle
         if (check_stack is None or check_stack >= 0) and pyiutil.executionStatus(handle) != 0:
-            check_stack = inspect.stack()[1 if check_stack is None else check_stack]
-            #print('\nFile: %s' % check_stack[1])
-            #print('Line: %d' % check_stack[2])
-            #print('check_status found the following message sent from the engine:')
             msg = pyiutil.executionError(handle)
             file = pyiutil.executionErrorFile(handle)
             line = pyiutil.executionErrorLine(handle)
