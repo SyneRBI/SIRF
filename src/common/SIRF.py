@@ -35,7 +35,7 @@ from numbers import Number
 
 import deprecation
 
-from sirf.Utilities import Handle, assert_validities, assert_validity, cpp_int_dtype
+from sirf.Utilities import HANDLE, assert_validities, assert_validity, cpp_int_dtype
 
 if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
     ABC = abc.ABC
@@ -679,7 +679,7 @@ class ImageData(DataContainer):
         return not (self == other)
 
     def read(self, file, engine, verb):
-        self.handle = Handle(None, -1).cSIRF_readImageData(file, engine, verb)
+        self.handle = HANDLE.cSIRF_readImageData(file, engine, verb)
 
     def fill(self, image):
         self.handle.cSIRF_fillImageFromImage(image)
@@ -713,7 +713,7 @@ class DataHandleVector:
     """
     def __init__(self):
         self.name = 'DataHandleVector'
-        self.handle = Handle(None, -1).cSIRF_newObject(self.name)
+        self.handle = HANDLE.cSIRF_newObject(self.name)
 
     def push_back(self, handle):
         """Push back new data handle."""

@@ -30,7 +30,7 @@ import sirf.Reg_params as parms
 from sirf import SIRF
 from sirf.config import SIRF_HAS_SPM
 from sirf.SIRF import ContiguousError
-from sirf.Utilities import Handle, cpp_int_dtype, error, format_numpy_array_for_setter
+from sirf.Utilities import HANDLE, Handle, cpp_int_dtype, error, format_numpy_array_for_setter
 
 if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
     ABC = abc.ABC
@@ -145,9 +145,9 @@ class NiftiImageData(SIRF.ImageData):
         self.handle = None
         self.name = 'NiftiImageData'
         if src is None:
-            self.handle = Handle(None, -1).cReg_newObject(self.name)
+            self.handle = HANDLE.cReg_newObject(self.name)
         elif isinstance(src, str):
-            self.handle = Handle(None, -1).cReg_objectFromFile(self.name, src)
+            self.handle = HANDLE.cReg_objectFromFile(self.name, src)
         elif isinstance(src, SIRF.ImageData):
             # src is ImageData
             dim = src.dimensions()
@@ -497,8 +497,9 @@ class NiftiImageData(SIRF.ImageData):
         for i in range(dims):
             strides += (stride,)
             stride *= shape[i]
-        return {'shape': self.shape, 'typestr': '<f4', 'strides': strides, 'version': 3,
-                'data': (parms.size_t_par(self.handle, 'NiftiImageData', 'address'), False)}
+        return {
+            'shape': self.shape, 'typestr': '<f4', 'strides': strides, 'version': 3,
+            'data': (parms.size_t_par(self.handle, 'NiftiImageData', 'address'), False)}
 
 
 class NiftiImageData3D(NiftiImageData):
@@ -508,9 +509,9 @@ class NiftiImageData3D(NiftiImageData):
         self.handle = None
         self.name = 'NiftiImageData3D'
         if src is None:
-            self.handle = Handle(None, -1).cReg_newObject(self.name)
+            self.handle = HANDLE.cReg_newObject(self.name)
         elif isinstance(src, str):
-            self.handle = Handle(None, -1).cReg_objectFromFile(self.name, src)
+            self.handle = HANDLE.cReg_objectFromFile(self.name, src)
         elif isinstance(src, SIRF.ImageData):
             # src is ImageData
             self.handle = src.handle.cReg_NiftiImageData_from_SIRFImageData(1)
@@ -529,12 +530,11 @@ class NiftiImageData3DTensor(NiftiImageData):
         self.handle = None
         self.name = 'NiftiImageData3DTensor'
         if src1 is None:
-            self.handle = Handle(None, -1).cReg_newObject(self.name)
+            self.handle = HANDLE.cReg_newObject(self.name)
         elif isinstance(src1, str):
-            self.handle = Handle(None, -1).cReg_objectFromFile(self.name, src1)
+            self.handle = HANDLE.cReg_objectFromFile(self.name, src1)
         elif all(isinstance(i, NiftiImageData3D) for i in (src1, src2, src3)):
-            self.handle = Handle(None, -1).cReg_NiftiImageData3DTensor_construct_from_3_components(
-                self.name, src1, src2, src3)
+            self.handle = HANDLE.cReg_NiftiImageData3DTensor_construct_from_3_components(self.name, src1, src2, src3)
         else:
             raise error('Wrong source in NiftiImageData3DTensor constructor')
 
@@ -574,12 +574,11 @@ class NiftiImageData3DDisplacement(NiftiImageData3DTensor, _Transformation):
         self.handle = None
         self.name = 'NiftiImageData3DDisplacement'
         if src1 is None:
-            self.handle = Handle(None, -1).cReg_newObject(self.name)
+            self.handle = HANDLE.cReg_newObject(self.name)
         elif isinstance(src1, str):
-            self.handle = Handle(None, -1).cReg_objectFromFile(self.name, src1)
+            self.handle = HANDLE.cReg_objectFromFile(self.name, src1)
         elif all(isinstance(i, NiftiImageData3D) for i in (src1, src2, src3)):
-            self.handle = Handle(None, -1).cReg_NiftiImageData3DTensor_construct_from_3_components(
-                self.name, src1, src2, src3)
+            self.handle = HANDLE.cReg_NiftiImageData3DTensor_construct_from_3_components(self.name, src1, src2, src3)
         elif isinstance(src1, NiftiImageData3DDeformation):
             self.handle = src1.handle.cReg_NiftiImageData3DDisplacement_create_from_def()
         else:
@@ -600,12 +599,11 @@ class NiftiImageData3DDeformation(NiftiImageData3DTensor, _Transformation):
         self.handle = None
         self.name = 'NiftiImageData3DDeformation'
         if src1 is None:
-            self.handle = Handle(None, -1).cReg_newObject(self.name)
+            self.handle = HANDLE.cReg_newObject(self.name)
         elif isinstance(src1, str):
-            self.handle = Handle(None, -1).cReg_objectFromFile(self.name, src1)
+            self.handle = HANDLE.cReg_objectFromFile(self.name, src1)
         elif all(isinstance(i, NiftiImageData3D) for i in (src1, src2, src3)):
-            self.handle = Handle(None, -1).cReg_NiftiImageData3DTensor_construct_from_3_components(
-                self.name, src1, src2, src3)
+            self.handle = HANDLE.cReg_NiftiImageData3DTensor_construct_from_3_components(self.name, src1, src2, src3)
         elif isinstance(src1, NiftiImageData3DDisplacement):
             self.handle = src1.handle.cReg_NiftiImageData3DDeformation_create_from_disp()
         else:
@@ -790,7 +788,7 @@ class NiftyAladinSym(_NiftyRegistration):
         """init."""
         super().__init__()
         self.name = 'NiftyAladinSym'
-        self.handle = Handle(None, -1).cReg_newObject(self.name)
+        self.handle = HANDLE.cReg_newObject(self.name)
 
     def get_transformation_matrix_forward(self):
         """Get forward transformation matrix."""
@@ -809,7 +807,7 @@ class NiftyAladinSym(_NiftyRegistration):
         """Print all wrapped methods."""
         print("""In C++, this class is templated. \"dataType\"
               corresponds to \"float\" for Matlab and python.""")
-        Handle(None, -1).cReg_NiftyRegistration_print_all_wrapped_methods('NiftyAladinSym')
+        HANDLE.cReg_NiftyRegistration_print_all_wrapped_methods('NiftyAladinSym')
 
 
 class NiftyF3dSym(_NiftyRegistration):
@@ -818,7 +816,7 @@ class NiftyF3dSym(_NiftyRegistration):
         """init."""
         super().__init__()
         self.name = 'NiftyF3dSym'
-        self.handle = Handle(None, -1).cReg_newObject(self.name)
+        self.handle = HANDLE.cReg_newObject(self.name)
 
     def set_floating_time_point(self, floating_time_point):
         """Set floating time point."""
@@ -839,7 +837,7 @@ class NiftyF3dSym(_NiftyRegistration):
         """Print all wrapped methods."""
         print("""In C++, this class is templated. \"dataType\"
               corresponds to \"float\" for Matlab and python.""")
-        Handle(None, -1).cReg_NiftyRegistration_print_all_wrapped_methods('NiftyF3dSym')
+        HANDLE.cReg_NiftyRegistration_print_all_wrapped_methods('NiftyF3dSym')
 
 
 if SIRF_HAS_SPM:
@@ -850,7 +848,7 @@ if SIRF_HAS_SPM:
             """init."""
             super().__init__()
             self.name = 'SPMRegistration'
-            self.handle = Handle(None, -1).cReg_newObject(self.name)
+            self.handle = HANDLE.cReg_newObject(self.name)
 
         def get_transformation_matrix_forward(self, idx=0):
             """Get forward transformation matrix."""
@@ -890,7 +888,7 @@ class NiftyResampler:
     def __init__(self):
         """init."""
         self.name = 'NiftyResampler'
-        self.handle = Handle(None, -1).cReg_newObject(self.name)
+        self.handle = HANDLE.cReg_newObject(self.name)
         self.reference_image = None
         self.floating_image = None
 
@@ -1071,7 +1069,7 @@ class ImageWeightedMean:
     def __init__(self):
         """init."""
         self.name = 'ImageWeightedMean'
-        self.handle = Handle(None, -1).cReg_newObject(self.name)
+        self.handle = HANDLE.cReg_newObject(self.name)
 
     def add_image(self, image, weight):
         """Add an image and its corresponding weight.
@@ -1104,9 +1102,9 @@ class AffineTransformation(_Transformation):
         self.handle = None
         self.name = 'AffineTransformation'
         if src1 is None:
-            self.handle = Handle(None, -1).cReg_newObject(self.name)
+            self.handle = HANDLE.cReg_newObject(self.name)
         elif isinstance(src1, str):
-            self.handle = Handle(None, -1).cReg_objectFromFile(self.name, src1)
+            self.handle = HANDLE.cReg_objectFromFile(self.name, src1)
         elif isinstance(src1, numpy.ndarray) and src2 is None:
             src1 = format_numpy_array_for_setter(src1)
             if src1.shape != (4, 4):
@@ -1116,7 +1114,7 @@ class AffineTransformation(_Transformation):
             for i in range(4):
                 for j in range(4):
                     trans[i, j] = src1[j, i]
-                self.handle = Handle(None, -1).cReg_AffineTransformation_construct_from_TM(trans)
+                self.handle = HANDLE.cReg_AffineTransformation_construct_from_TM(trans)
         elif isinstance(src1, numpy.ndarray) and src2 is not None and \
                 isinstance(src2, Quaternion):
             src1 = format_numpy_array_for_setter(src1)
@@ -1124,7 +1122,7 @@ class AffineTransformation(_Transformation):
         elif isinstance(src1, numpy.ndarray) and isinstance(src2, numpy.ndarray):
             src1 = format_numpy_array_for_setter(src1)
             src2 = format_numpy_array_for_setter(src2)
-            self.handle = Handle(None, -1).cReg_AffineTransformation_construct_from_trans_and_euler(src1, src2)
+            self.handle = HANDLE.cReg_AffineTransformation_construct_from_trans_and_euler(src1, src2)
         else:
             raise error("""AffineTransformation accepts no args, filename,
                         4x4 array or translation with quaternion.""")
@@ -1191,7 +1189,7 @@ class AffineTransformation(_Transformation):
     def get_identity():
         """Get identity matrix."""
         mat = AffineTransformation()
-        mat.handle = Handle(None, -1).cReg_AffineTransformation_get_identity()
+        mat.handle = HANDLE.cReg_AffineTransformation_get_identity()
         return mat
 
     @staticmethod
@@ -1221,7 +1219,7 @@ class Quaternion:
                                      array is wrong size.""")
             if src.dtype is not numpy.float32:
                 src = src.astype(numpy.float32)
-            self.handle = Handle(None, -1).cReg_Quaternion_construct_from_array(src)
+            self.handle = HANDLE.cReg_Quaternion_construct_from_array(src)
         elif isinstance(src, AffineTransformation):
             self.handle = src.handle.cReg_Quaternion_construct_from_AffineTransformation()
         else:
