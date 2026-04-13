@@ -491,14 +491,14 @@ class NiftiImageData(SIRF.ImageData):
         # NiftiImageData stores voxels values in a 3D Fortran-style array,
         # hence strides need to be arranged accordingly (default is C-style).
         shape = self.shape
-        dims = len(shape)
         strides = ()
         stride = 4
-        for i in range(dims):
+        for d in shape:
             strides += (stride,)
-            stride *= shape[i]
-        return {'shape': self.shape, 'typestr': '<f4', 'strides': strides, 'version': 3,
-                'data': (parms.size_t_par(self.handle, 'NiftiImageData', 'address'), False)}
+            stride *= d
+        return {
+            'shape': shape, 'typestr': '<f4', 'strides': strides, 'version': 3,
+            'data': (parms.size_t_par(self.handle, 'NiftiImageData', 'address'), False)}
 
 
 class NiftiImageData3D(NiftiImageData):
