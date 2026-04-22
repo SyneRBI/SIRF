@@ -12,6 +12,7 @@
   - Error raised if `AcquisitionModel.adjoint` ran when the model is not linear.
 * SIRF
   - Adjoint operator added in `common/SIRF.py`.
+  - Added initial pytorch wrappers and examples, check `torch/README.md`.
   - Simplified `sirf.Utilities.Handle` for SWIG backend calls.
 
 ## v3.9.0

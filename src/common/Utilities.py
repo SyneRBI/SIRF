@@ -35,6 +35,7 @@ RE_PYEXT = re.compile(r"\.(py[co]?)$")
 
 class Handle:
     def __init__(self, handle, check_stack: int | None = None):
+        self._handle = handle
         if (check_stack is None or check_stack >= 0) and pyiutil.executionStatus(handle) != 0:
             check_stack = inspect.stack()[1 if check_stack is None else check_stack]
             #print('\nFile: %s' % check_stack[1])
@@ -45,7 +46,6 @@ class Handle:
             line = pyiutil.executionErrorLine(handle)
             raise error(f'{msg!r} exception caught at line {line!r} of {file};'
                         ' the reconstruction engine output may provide more information')
-        self._handle = handle
 
     def __int__(self):
         return pyiutil.intDataFromHandle(self._handle)
@@ -729,9 +729,7 @@ def is_operator_adjoint(operator, num_tests=5, max_err=10e-5, verbose=True):
 
 
 def data_container_algebra_tests(test, x, eps=1e-4):
-
     ax = x.as_array()
-
     ay = numpy.ones_like(ax)
     y = x.clone()
     y.fill(ay)
