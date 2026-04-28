@@ -1,5 +1,6 @@
 '''Utilities used by all engines
 '''
+import functools
 import inspect
 import os
 import re
@@ -34,13 +35,19 @@ RE_PYEXT = re.compile(r"\.(py[co]?)$")
 
 
 class Handle:
+    """
+    Convenience class for:
+    - calling SWIG backend functions
+      + routing to correct backend based on function name prefix
+      + auto-unwrapping function arguments from:
+        * numpy data arrays (via `.ctypes.data`)
+        * handle pointers (via `._handle`)
+    - casting return types
+    - pointer destrunction on deletion
+    """
     def __init__(self, handle, check_stack: int | None = None):
         self._handle = handle
         if (check_stack is None or check_stack >= 0) and pyiutil.executionStatus(handle) != 0:
-            check_stack = inspect.stack()[1 if check_stack is None else check_stack]
-            #print('\nFile: %s' % check_stack[1])
-            #print('Line: %d' % check_stack[2])
-            #print('check_status found the following message sent from the engine:')
             msg = pyiutil.executionError(handle)
             file = pyiutil.executionErrorFile(handle)
             line = pyiutil.executionErrorLine(handle)
@@ -91,9 +98,11 @@ class Handle:
         func = getattr(backend, name)
         match name:
             case 'cSIRF_axpby' | 'cSIRF_axpbyAlt' | 'cReg_AffineTransformation_construct_from_trans_and_quaternion': # 2nd arg=self
+                @functools.wraps(func)
                 def wrapped(one, *args):
                     return Handle(func(self._toarg(one), self._handle, *map(self._toarg, args)))
             case _:
+                @functools.wraps(func)
                 def wrapped(*args):
                     if self.valid: # 1st arg=self
                         return Handle(func(self._handle, *map(self._toarg, args)))
@@ -111,6 +120,9 @@ class Handle:
         if hasattr(obj, 'ctypes') and hasattr(obj.ctypes, 'data'):
             return obj.ctypes.data
         return obj
+
+
+HANDLE = Handle(None, -1) # for calling backend functions which do not require a handle argument
 
 
 def cpp_int_bits():
@@ -152,7 +164,7 @@ def examples_data_path(data_type):
     Returns the path to PET/MR/Registration data used by SIRF/examples demos.
     data_type: either 'PET' or 'MR' or 'Registration'
     '''
-    path = Handle(None, -1).cSIRF_examples_data_path(data_type)
+    path = HANDLE.cSIRF_examples_data_path(data_type)
     return str(path)
 
 
