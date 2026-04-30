@@ -13,7 +13,7 @@
 * SIRF
   - Adjoint operator added in `common/SIRF.py`.
   - Added initial pytorch wrappers and examples, check `torch/README.md`.
-  - Simplified `common/Utilities.Handle` for SWIG backend calls.
+  - Simplified `sirf.Utilities.Handle` for SWIG backend calls.
 
 ## v3.9.0
 
