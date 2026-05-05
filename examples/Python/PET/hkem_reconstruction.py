@@ -39,7 +39,6 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
-from cgitb import small
 from matplotlib.pyplot import title
 import numpy as np
 
