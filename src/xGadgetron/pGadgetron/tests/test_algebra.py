@@ -21,7 +21,7 @@ import os
 import unittest
 import sirf.Gadgetron as mr
 from sirf.Utilities import  examples_data_path, DataContainerAlgebraTests
-from sirf.STIR import ContiguousError
+from sirf.SIRF import ContiguousError
 
 
 class TestGadgetronAcquisitionDataAlgebra(unittest.TestCase, DataContainerAlgebraTests):
