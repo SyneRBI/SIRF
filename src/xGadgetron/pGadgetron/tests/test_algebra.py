@@ -67,8 +67,8 @@ class TestGadgetronImageDataAlgebra(unittest.TestCase, DataContainerAlgebraTests
 
     def test_asarray_no_copy_throws_ContiguousError(self):
         with self.assertRaises(ContiguousError):
-            a = self.image1.asarray(copy=False)
+            self.image1.asarray(copy=False)
         
     def test_asarray_copy_runs(self):
-        a = self.image1.asarray()
+        self.image1.asarray()
         
