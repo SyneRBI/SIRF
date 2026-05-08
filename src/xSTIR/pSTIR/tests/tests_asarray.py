@@ -15,7 +15,6 @@ Options:
 import numpy
 
 from sirf.STIR import pTest
-from sirf.SIRF import ContiguousError
 from sirf.Utilities import runner, RE_PYEXT, examples_data_path, existing_filepath
 
 __version__ = '0.1.0'
