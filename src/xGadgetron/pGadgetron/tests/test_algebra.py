@@ -21,7 +21,7 @@ import os
 import unittest
 import sirf.Gadgetron as mr
 from sirf.Utilities import  examples_data_path, DataContainerAlgebraTests
-
+from sirf.SIRF import ContiguousError
 
 
 class TestGadgetronAcquisitionDataAlgebra(unittest.TestCase, DataContainerAlgebraTests):
@@ -65,3 +65,10 @@ class TestGadgetronImageDataAlgebra(unittest.TestCase, DataContainerAlgebraTests
         #shutil.rmtree(self.cwd)
         pass
 
+    def test_asarray_no_copy_throws_ContiguousError(self):
+        with self.assertRaises(ContiguousError):
+            self.image1.asarray(copy=False)
+        
+    def test_asarray_copy_runs(self):
+        self.image1.asarray()
+        
