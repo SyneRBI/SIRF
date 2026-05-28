@@ -47,9 +47,13 @@ def norm(x):
     '''Computes the norm of x for both types of x we are using
        (numpy.ndarray or an object of a class that has method norm).
     '''
-    if isinstance(x, numpy.ndarray):
-        return numpy.linalg.norm(x)
-    else:
+    try:
+        import array_api_compat as aac
+        xp = aac.array_namespace()
+        import xp.linalg
+        return xp.linalg.matrix_norm(x)
+    except:
+        print('=== array_api_compat not deined, try method norm of x')
         return x.norm()
 
 
@@ -58,9 +62,13 @@ def dot(x, y):
        (both numpy.ndarray's or else objects of a class that has method dot
        that acts as numpy.vdot).
     '''
-    if isinstance(x, numpy.ndarray):
-        return numpy.vdot(x, y)
-    else:
+    try:
+        import array_api_compat as aac
+        xp = aac.array_namespace()
+        import xp.linalg
+        return xp.linalg.vecdot(x, y)
+    except:
+        print('=== array_api_compat not deined, try method dot of x')
         return x.dot(y)
 
 
@@ -69,9 +77,13 @@ def copyto(y, x):
        (both numpy.ndarray's or else objects for which y.copy(x) that
        acts as numpy.copy(y, x) is defined).
     '''
-    if isinstance(x, numpy.ndarray):
-        return numpy.copyto(y, x)
-    else:
+    try:
+        import array_api_compat as aac
+        xp = aac.array_namespace()
+        import xp.linalg
+        return xp.linalg.copyto(y, x)
+    except:
+        print('=== array_api_compat not deined, try method copy of y')
         return y.copy(x)
 
 
