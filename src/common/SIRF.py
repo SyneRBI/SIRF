@@ -37,6 +37,8 @@ import deprecation
 
 from sirf.Utilities import HANDLE, assert_validities, assert_validity, cpp_int_dtype
 
+import array_api_compat as aac
+
 if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
     ABC = abc.ABC
 else:
@@ -48,7 +50,6 @@ def norm(x):
        (numpy.ndarray or an object of a class that has method norm).
     '''
     try:
-        import array_api_compat as aac
         xp = aac.array_namespace(x)
         return xp.linalg.vector_norm(x)
     except:
@@ -62,7 +63,6 @@ def dot(x, y):
        that acts as numpy.vdot).
     '''
     try:
-        import array_api_compat as aac
         xp = aac.array_namespace(x)
         return xp.vdot(x, y)
     except:
@@ -76,7 +76,6 @@ def copyto(y, x):
        acts as numpy.copy(y, x) is defined).
     '''
     try:
-        import array_api_compat as aac
         xp = aac.array_namespace(x)
         return xp.copyto(y, x)
     except:
