@@ -49,11 +49,10 @@ def norm(x):
     '''
     try:
         import array_api_compat as aac
-        xp = aac.array_namespace()
-        import xp.linalg
-        return xp.linalg.matrix_norm(x)
+        xp = aac.array_namespace(x)
+        return xp.linalg.vector_norm(x)
     except:
-        print('=== array_api_compat not deined, try method norm of x')
+        # array_api_compat not defined for this x, using x.norm() instead
         return x.norm()
 
 
@@ -64,11 +63,10 @@ def dot(x, y):
     '''
     try:
         import array_api_compat as aac
-        xp = aac.array_namespace()
-        import xp.linalg
-        return xp.linalg.vecdot(x, y)
+        xp = aac.array_namespace(x)
+        return xp.vdot(x, y)
     except:
-        print('=== array_api_compat not deined, try method dot of x')
+        # array_api_compat not defined for these x and/or y, using x.dot(y) instead
         return x.dot(y)
 
 
@@ -79,11 +77,10 @@ def copyto(y, x):
     '''
     try:
         import array_api_compat as aac
-        xp = aac.array_namespace()
-        import xp.linalg
-        return xp.linalg.copyto(y, x)
+        xp = aac.array_namespace(x)
+        return xp.copyto(y, x)
     except:
-        print('=== array_api_compat not deined, try method copy of y')
+        # array_api_compat not defined for these x and/or y, using y.copy(x) instead
         return y.copy(x)
 
 
