@@ -1,4 +1,6 @@
-'''sirf.Gadgetron.ImageData.asarray tests.
+"""
+sirf.Gadgetron.ImageData.asarray tests.
+
 v{version}
 
 Usage:
@@ -11,11 +13,11 @@ Options:
 {author}
 
 {licence}
-'''
+"""
 import numpy
 
 from sirf.SIRF import ContiguousError
-from sirf.Utilities import runner, RE_PYEXT, examples_data_path, existing_filepath, pTest
+from sirf.Utilities import runner, RE_PYEXT, examples_data_path, pTest
 
 __version__ = '0.1.0'
 __author__ = "Evgueni Ovtchinnikov"
