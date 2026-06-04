@@ -1,5 +1,4 @@
-"""
-sirf.Gadgetron.ImageData.asarray tests.
+"""sirf.Gadgetron.ImageData.asarray tests.
 
 v{version}
 
