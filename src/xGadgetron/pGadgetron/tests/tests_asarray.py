@@ -54,7 +54,8 @@ def test_main(rec=False, verb=False, throw=True, no_ret_val=True, \
 
     try:
         test.ntest += 1
-        img_data.asarray()
+        diff = img_data.asarray() - img_data.as_array()
+        test.failed = numpy.linalg.norm(diff) > 0
     except Exception as e:
         test.failed = True
         print(e)
