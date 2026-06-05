@@ -37,6 +37,8 @@ import deprecation
 
 from sirf.Utilities import HANDLE, assert_validities, assert_validity, cpp_int_dtype
 
+import array_api_compat as aac
+
 if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
     ABC = abc.ABC
 else:
@@ -47,9 +49,11 @@ def norm(x):
     '''Computes the norm of x for both types of x we are using
        (numpy.ndarray or an object of a class that has method norm).
     '''
-    if isinstance(x, numpy.ndarray):
-        return numpy.linalg.norm(x)
-    else:
+    try:
+        xp = aac.array_namespace(x)
+        return xp.linalg.vector_norm(x)
+    except:
+        # array_api_compat not defined for this x, using x.norm() instead
         return x.norm()
 
 
@@ -58,9 +62,11 @@ def dot(x, y):
        (both numpy.ndarray's or else objects of a class that has method dot
        that acts as numpy.vdot).
     '''
-    if isinstance(x, numpy.ndarray):
-        return numpy.vdot(x, y)
-    else:
+    try:
+        xp = aac.array_namespace(x)
+        return xp.vdot(x, y)
+    except:
+        # array_api_compat not defined for these x and/or y, using x.dot(y) instead
         return x.dot(y)
 
 
@@ -69,9 +75,11 @@ def copyto(y, x):
        (both numpy.ndarray's or else objects for which y.copy(x) that
        acts as numpy.copy(y, x) is defined).
     '''
-    if isinstance(x, numpy.ndarray):
-        return numpy.copyto(y, x)
-    else:
+    try:
+        xp = aac.array_namespace(x)
+        return xp.copyto(y, x)
+    except:
+        # array_api_compat not defined for these x and/or y, using y.copy(x) instead
         return y.copy(x)
 
 
