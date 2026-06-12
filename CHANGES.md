@@ -5,8 +5,8 @@
 * Python interface
   - Array API used in implementation of `norm()`, `dot()` and `copyto()`.
   - Added tests for asarray method in `test_algebra.py`.
-* SIRF build
-  - `USE_SYSTEM_SWIG=OFF`
+* Continuous integration tests:
+  - `USE_SYSTEM_SWIG=OFF` to ensure SWIG 4.4
 
 ## v3.10.0
 
