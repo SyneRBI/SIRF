@@ -1,5 +1,13 @@
 # ChangeLog
 
+## v3.10.1
+
+* Python interface
+  - Array API used in implementation of `norm()`, `dot()` and `copyto()`.
+  - Added tests for asarray method in `test_algebra.py`.
+* SIRF build
+  - `USE_SYSTEM_SWIG=OFF`
+
 ## v3.10.0
 
 * SIRF/STIR
