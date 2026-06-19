@@ -23,21 +23,17 @@ VER=3.2.0-rc.1
   - [ ] `git tag -a v$VER -m "version $VER"`
   - [ ] `git push origin v$VER`
   - [ ] if final release only: create release on https://github.com/SyneRBI/SIRF/releases/new linked to the tag and copying all CHANGES.md since last release (as listed on https://github.com/SyneRBI/SIRF/releases)
-3. SuperBuild
+3. SIRF-Contribs
+  - [ ] `git tag -a v$VER -m "version $VER"`
+  - [ ] `git push origin v$VER`
+4. SuperBuild
+  - [ ] update `SIRF-Superbuild/version_config.cmake` with new `SIRF_TAG`, `SIRF_Contribs_TAG` (and `STIR_TAG` etc if necessary)
   - [ ] update `CHANGES.md`
   - [ ] update `NOTICE.txt`
   - [ ] update `CITATION.cff`
-  - [ ] update `SIRF-Superbuild/version_config.cmake` with new `SIRF_TAG` (and `STIR_TAG` etc if necessary)
-  - [ ] update version number in [VM_version.txt](https://github.com/SyneRBI/SyneRBI_VM/blob/master/VM_version.txt)
+  - [ ] update version number in [VM_version.txt](https://github.com/SyneRBI/SIRF-SuperBuild/edit/master/VirtualBox/VM_version.txt)
   - [ ] update `vb.name` in [vagrant/vagrantfile](https://github.com/SyneRBI/SyneRBI_VM/blob/master/vagrant/Vagrantfile)
   - [ ] `git push`
-  - [ ] check Travis
-  - [ ] `git tag -a v$VER -m "version $VER"`
-  - [ ] `git push origin v$VER`
-  - [ ] if final release only: create release on https://github.com/SyneRBI/SIRF-SuperBuild/releases/new linked to the tag and copying all CHANGES.md since last release (as listed on https://github.com/SyneRBI/SIRF-SuperBuild/releases)
-4. SIRF-Contribs
-  - [ ] `git tag -a v$VER -m "version $VER"`
-  - [ ] `git push origin v$VER`
 5. Virtual Machine
   - [ ] `vagrant up`
   - [ ] Virtualbox Guest Additions
@@ -51,14 +47,19 @@ VER=3.2.0-rc.1
 6. SIRF-Exercises (already checked in VM)
   - [ ] `git tag -a v$VER -m "version $VER"`
   - [ ] `git push origin v$VER`
-7. Website (if final release)
+7. SuperBuild tag
+  - [ ] `git push`
+  - [ ] `git tag -a v$VER -m "version $VER"`
+  - [ ] `git push origin v$VER`
+  - [ ] if final release only: create release on https://github.com/SyneRBI/SIRF-SuperBuild/releases/new linked to the tag and copying all CHANGES.md since last release (as listed on https://github.com/SyneRBI/SIRF-SuperBuild/releases)
+8. Website (if final release)
   - [ ] update Software page (version info, VM etc)
   - [ ] upload doxygen
   - [ ] update link for doxygen in [Wiki](https://github.com/SyneRBI/SIRF/wiki/Software-Documentation)
   - [ ] add news flash
-8. Announce
+9. Announce
   - [ ] Send email to SyneRBI-DEVEL@JISCMAIL.AC.UK; SyneRBI-USERS@JISCMAIL.AC.UK; add SyneRBI@JISCMAIL.AC.UK for final release
-9. Tag wiki
+10. Tag wiki
   - [ ] `git clone https://github.com/SyneRBI/SIRF.wiki.git; cd SIRF.wiki` (or pull)
   - [ ] `git tag -a v$VER -m "version $VER"`
   - [ ] `git push origin v$VER`
