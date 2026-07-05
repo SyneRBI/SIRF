@@ -481,7 +481,7 @@ class ImageData(SIRF.ImageData):
 
     @property
     def __cuda_array_interface__(self):
-        """As per https://numba.readthedocs.io/en/stable/cuda/cuda_array_interface.html"""
+        """As per https://nvidia.github.io/numba-cuda/user/cuda_array_interface.html"""
         if not self.supports_cuda_array_view:
             raise AttributeError('__cuda_array_interface__')
         return {'shape': self.shape, 'typestr': '<f4', 'version': 3,
