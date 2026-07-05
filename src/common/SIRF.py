@@ -291,32 +291,20 @@ class DataContainer(ArrayContainer):
     @property
     def supports_cuda_array_view(self):
         """Returns True iff the container storage supports CUDA array views."""
-        assert self.handle is not None
-        handle = pysirf.cSIRF_supportsCudaArrayView(self.handle)
-        check_status(handle)
-        i = pyiutil.intDataFromHandle(handle)
-        pyiutil.deleteDataHandle(handle)
-        return i != 0
+        i = self.handle.cSIRF_supportsCudaArrayView()
+        return int(i) != 0
 
     @property
     def address(self):
         """Returns the address of the first item in a contiguous in-memory container."""
-        assert self.handle is not None
-        handle = pysirf.cSIRF_dataAddress(self.handle)
-        check_status(handle)
-        value = pyiutil.size_tDataFromHandle(handle)
-        pyiutil.deleteDataHandle(handle)
-        return value
+        value = self.handle.cSIRF_dataAddress()
+        return abs(value)
 
     @property
     def cuda_address(self):
         """Returns the CUDA-visible address for a CUDA-array-view-compatible container."""
-        assert self.handle is not None
-        handle = pysirf.cSIRF_cudaDataAddress(self.handle)
-        check_status(handle)
-        value = pyiutil.size_tDataFromHandle(handle)
-        pyiutil.deleteDataHandle(handle)
-        return value
+        value = self.handle.cSIRF_cudaDataAddress()
+        return abs(value)
 
     def conjugate(self, out=None):
         ''' Computes complex conjugate of self.
