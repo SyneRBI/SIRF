@@ -176,8 +176,10 @@ extern "C" {
     (void* ptr_prior, void* ptr_curr, void* ptr_inp, void* ptr_out);
     void* cSTIR_priorComputeHessianTimesInput
         (void* ptr_prior, void* ptr_cur, void* ptr_inp, void* ptr_out);
-	void* cSTIR_computePriorGradient(void* ptr_p, void* ptr_i, void* ptr_g);
-	void* cSTIR_PLSPriorAnatomicalGradient(void* ptr_p, int dir);
+    void* cSTIR_computePriorGradient(void* ptr_p, void* ptr_i, void* ptr_g);
+    void* cSTIR_PLSPriorAnatomicalGradient(void* ptr_p, int dir);
+    void* cSTIR_priorComputeHessianDiagonal
+        (void* ptr_prior, void* ptr_img, void* ptr_diag);
 
 	// Image methods
 	void* cSTIR_getImageDimensions(const void* ptr, PTR_INT ptr_data);

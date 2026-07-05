@@ -112,7 +112,7 @@ extern "C" {
 		(void* ptr_imgs, const char* out_file, const char* out_group);
 	void* cGT_imageWrapFromContainer(void* ptr_imgs, unsigned int img_num);
 	void* cGT_imageDataType(const void* ptr_x, int im_num);
-	void cGT_getImageDim(void* ptr_img, PTR_INT ptr_dim);
+	void* cGT_getImageDim(void* ptr_img, PTR_INT ptr_dim);
 	void* cGT_imageType(const void* ptr_img);
 	void* cGT_setImageType(const void* ptr_img, int image_type);
 	void* cGT_getImageDataAsFloatArray(void* ptr_imgs, PTR_FLOAT ptr_data);

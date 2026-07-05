@@ -1,12 +1,30 @@
 # ChangeLog
+## vxx
+* Python interface
+  - Added `supports_cuda_array_view()` and related `DataContainer`/Python support, including `__cuda_array_interface__`, to expose CUDA-backed arrays directly for supported containers.
 
-## v3.9.1
+## v3.10.1
+
+* Python interface
+  - Array API used in implementation of `norm()`, `dot()` and `copyto()`.
+  - Added tests for asarray method in `test_algebra.py`.
+* Continuous integration tests:
+  - `USE_SYSTEM_SWIG=OFF` to ensure SWIG 4.4
+
+## v3.10.0
 
 * SIRF/STIR
   - The implementation of the creation of `sirf.STIR.ImageData` from `sirf.STIR.AcquisitionData` has been revised to ensure compatibility of `ImageData` dimensions and voxel sizes with `AcquisitionData`.
-  - Added `supports_cuda_array_view()` and related `DataContainer`/Python support, including `__cuda_array_interface__`, to expose CUDA-backed arrays directly for supported containers.
+  - Missing `__del__` added to sirf.STIR.AcquisitionModel.
+* SIRF/Registration
+  - sirf.Reg.ImageData stores voxels values in a 3D Fortran-style array, hence strides had to be set in `ImageData.__array_interface__` accordingly (other SIRF ImageData objects use default C-style).
 * Python interface
   - Restored functionality for algebraic operations mixing SIRF data containers and numpy arrays and corrected the description of the result type in User Guide.
+  - Error raised if `AcquisitionModel.adjoint` ran when the model is not linear.
+* SIRF
+  - Adjoint operator added in `common/SIRF.py`.
+  - Added initial pytorch wrappers and examples, check `torch/README.md`.
+  - Simplified `sirf.Utilities.Handle` for SWIG backend calls.
 
 ## v3.9.0
 

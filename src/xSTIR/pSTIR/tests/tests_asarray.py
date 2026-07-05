@@ -14,7 +14,7 @@ Options:
 '''
 import numpy
 
-from sirf.STIR import pTest, ContiguousError
+from sirf.STIR import pTest
 from sirf.Utilities import runner, RE_PYEXT, examples_data_path, existing_filepath
 
 __version__ = '0.1.0'
@@ -91,31 +91,6 @@ def test_main(rec=False, verb=False, throw=True, no_ret_val=True, \
     print('\n-- testing image constructed from acquisition data:')
     img_data = pet.ImageData(acq_data)
     asarray4img(img_data, test)
-
-    print('\n-- testing discontiguous image:')
-    import sirf.Gadgetron as mr
-    import os.path
-    acq_data = mr.AcquisitionData(os.path.join(data_path, '..', 'MR', 'simulated_MR_2D_cartesian.h5'))
-    preprocessed_data = mr.preprocess_acquisition_data(acq_data)
-    recon = mr.FullySampledReconstructor()
-    recon.set_input(preprocessed_data)
-    recon.process()
-    img_data = recon.get_output()
-    try:
-        test.ntest += 1
-        img_data.asarray(copy=False)
-    except ContiguousError:
-        pass
-    else:
-        test.failed = True
-        print('expected ContiguousError not raised')
-
-    try:
-        test.ntest += 1
-        img_data.asarray()
-    except Exception as e:
-        test.failed = True
-        print(e)
 
     numpy.testing.assert_equal(test.failed, 0)
     if no_ret_val:

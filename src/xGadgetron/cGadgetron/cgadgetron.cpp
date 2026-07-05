@@ -99,7 +99,7 @@ fileNotFound(const char* name, const char* file, int line)
 	return (void*)handle;
 }
 
-static bool 
+static bool
 file_exists(const std::string& filename)
 {
 	std::ifstream file;
@@ -174,7 +174,7 @@ void* cGT_newObject(const char* name)
 }
 
 extern "C"
-void* 
+void*
 cGT_parameter(void* ptr, const char* obj, const char* name)
 {
 	try {
@@ -263,7 +263,7 @@ cGT_setAcquisitionParameter(void* ptr, const char* param_name, const void* val)
 		acq.idx().segment = dataFromHandle<int>(val);
 	else if  (sirf::iequals(param_name, "sample_time_us"))
 		acq.sample_time_us() = dataFromHandle<float>(val);
-	
+
 	// else if  (sirf::iequals(param_name, "position"))
 	// 	acq.position() = dataFromHandle<float*>(val);
 	// else if  (sirf::iequals(param_name, "read_dir"))
@@ -392,7 +392,7 @@ cGT_AcquisitionModel(const void* ptr_acqs, const void* ptr_imgs)
 		shared_ptr<GadgetronImageData> sptr_imgs;
 		getObjectSptrFromHandle<MRAcquisitionData>(h_acqs, sptr_acqs);
 		getObjectSptrFromHandle<GadgetronImageData>(h_imgs, sptr_imgs);
-		shared_ptr<MRAcquisitionModel> 
+		shared_ptr<MRAcquisitionModel>
 			am(new MRAcquisitionModel(sptr_acqs, sptr_imgs));
 		return newObjectHandle<MRAcquisitionModel>(am);
 	}
@@ -593,7 +593,7 @@ void*
 cGT_ISMRMRDAcquisitionsFile(const char* file)
 {
 	try {
-		shared_ptr<MRAcquisitionData> 
+		shared_ptr<MRAcquisitionData>
 			acquisitions(new AcquisitionsVector);
 		acquisitions->read(file);
 		return newObjectHandle<MRAcquisitionData>(acquisitions);
@@ -645,7 +645,7 @@ cGT_getAcquisitionsSubset(void* ptr_acqs, size_t const ptr_idx, size_t const num
         std::vector<int> vec_idx(num_elem_subset);
         for(size_t i=0; i<num_elem_subset; ++i)
 	    vec_idx.at(i) = *(idx+i);
-			
+
         ad.get_subset(*sptr_subset.get(), vec_idx);
         sptr_subset->sort();
 
@@ -707,7 +707,7 @@ cGT_appendAcquisition(void* ptr_acqs, void* ptr_acq)
 		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
 		MRAcquisitionData& acqs =
 			objectFromHandle<MRAcquisitionData>(h_acqs);
-		ISMRMRD::Acquisition& acq = 
+		ISMRMRD::Acquisition& acq =
 			objectFromHandle<ISMRMRD::Acquisition>(ptr_acq);
 		acqs.append_acquisition(acq);
 		return new DataHandle;
@@ -1038,7 +1038,7 @@ cGT_getDataTrajectory(void* ptr_acqs, size_t ptr_traj)
             objectFromHandle<MRAcquisitionData>(h_acqs);
 
         float* fltptr_traj = (float*) ptr_traj;
-		
+
 		if(acqs.get_trajectory_type() == ISMRMRD::TrajectoryType::CARTESIAN)
 		{
 			auto traj = sirf::CartesianTrajectoryPrep::get_trajectory(acqs);
@@ -1062,7 +1062,7 @@ cGT_getDataTrajectory(void* ptr_acqs, size_t ptr_traj)
 			auto traj = tp.get_trajectory(acqs);
 			memcpy(fltptr_traj,&(*traj.begin()), traj.size()*sizeof(GoldenAngle2DTrajprep::TrajPointType));
 		}
-	
+
         return new DataHandle;
     }
     CATCH;
@@ -1079,14 +1079,14 @@ cGT_setDataTrajectory(void* ptr_acqs, int const traj_dim, size_t ptr_traj)
 
         float* fltptr_traj = (float*) ptr_traj;
 		acqs.set_trajectory(traj_dim, fltptr_traj);
-	
+
         return new DataHandle;
     }
     CATCH;
 }
 
 extern "C"
-void* 
+void*
 cGT_setEncodingLimits(void* ptr_acqs, const char* name, const int min, const int max, const int ctr)
 {
 	try {
@@ -1111,10 +1111,10 @@ cGT_setTrajectoryType(void* ptr_acqs, int const traj_type)
         CAST_PTR(DataHandle, h_acqs, ptr_acqs);
         MRAcquisitionData& acqs =
             objectFromHandle<MRAcquisitionData>(h_acqs);
-		
+
 		const ISMRMRD::TrajectoryType type = static_cast<ISMRMRD::TrajectoryType>(traj_type);
 		acqs.set_trajectory_type(type);
-			
+
         return new DataHandle;
     }
     CATCH;
@@ -1323,13 +1323,17 @@ cGT_imageWrapFromContainer(void* ptr_imgs, unsigned int img_num)
 }
 
 extern "C"
-void
+void*
 cGT_getImageDim(void* ptr_img, size_t ptr_dim)
 {
-	int* dim = (int*)ptr_dim;
-	ImageWrap& image = objectFromHandle<ImageWrap>(ptr_img);
-	image.get_dim(dim);
-//	image.show_attributes();
+	try {
+		int* dim = (int*)ptr_dim;
+		ImageWrap& image = objectFromHandle<ImageWrap>(ptr_img);
+		image.get_dim(dim);
+	//	image.show_attributes();
+		return new DataHandle;
+	}
+	CATCH;
 }
 
 extern "C"
@@ -1718,22 +1722,22 @@ cGT_sendParametersString(void* ptr_con, const char* par)
 }
 
 extern "C"
-void* 
+void*
 cGT_sendAcquisitions(void* ptr_con, void* ptr_dat)
 {
 	try {
 		CAST_PTR(DataHandle, h_con, ptr_con);
 		CAST_PTR(DataHandle, h_dat, ptr_dat);
-	
+
 		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
 		GadgetronClientConnector& con = conn();
 		Mutex mutex;
 		std::mutex& mtx = mutex();
 		mtx.lock();
-		ISMRMRD::Dataset& ismrmrd_dataset = 
+		ISMRMRD::Dataset& ismrmrd_dataset =
 			objectFromHandle<ISMRMRD::Dataset>(h_dat);
 		mtx.unlock();
-	
+
 		uint32_t acquisitions = 0;
 		{
 			mtx.lock();
@@ -1742,7 +1746,7 @@ cGT_sendAcquisitions(void* ptr_con, void* ptr_dat)
 		}
 
 		//std::cout << acquisitions << " acquisitions" << std::endl;
-	
+
 		ISMRMRD::Acquisition acq_tmp;
 		for (uint32_t i = 0; i < acquisitions; i++) {
 			{

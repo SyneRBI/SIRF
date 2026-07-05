@@ -1,0 +1,9 @@
+[run]
+data_file = .coverage-torch
+relative_files = True
+source = sirf.torch
+[paths]
+source =
+    src/torch
+    /home/sirfuser/devel/install/python/sirf
+    /home/runner/install/python/sirf
