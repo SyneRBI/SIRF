@@ -21,9 +21,17 @@
   target_link_libraries(cstir_tests csirf cstir ${STIR_LIBRARIES})
   INSTALL(TARGETS cstir_tests DESTINATION bin)
 
+  add_executable(cstir_test3  test3.cpp ${STIR_REGISTRIES})
+  target_link_libraries(cstir_test3 csirf cstir ${STIR_LIBRARIES})
+  INSTALL(TARGETS cstir_test3 DESTINATION bin)
+
   add_executable(cstir_test4  test4.cpp run_test4.cpp ${STIR_REGISTRIES})
   target_link_libraries(cstir_test4 csirf cstir ${STIR_LIBRARIES})
   INSTALL(TARGETS cstir_test4 DESTINATION bin)
+
+  add_executable(cstir_test5  test5.cpp ${STIR_REGISTRIES})
+  target_link_libraries(cstir_test5 csirf cstir ${STIR_LIBRARIES})
+  INSTALL(TARGETS cstir_test5 DESTINATION bin)
 
   add_executable(cstir_test6  test6.cpp run_test6.cpp ${STIR_REGISTRIES})
   target_link_libraries(cstir_test6 csirf cstir ${STIR_LIBRARIES})
@@ -35,8 +43,12 @@
 
 ADD_TEST(NAME PET_TESTS_CPLUSPLUS_1 COMMAND cstir_tests WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 add_SIRF_DATA_PATH(PET_TESTS_CPLUSPLUS_1)
+ADD_TEST(NAME PET_TESTS_CPLUSPLUS_3 COMMAND cstir_test3 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+add_SIRF_DATA_PATH(PET_TESTS_CPLUSPLUS_3)
 ADD_TEST(NAME PET_TESTS_CPLUSPLUS_4 COMMAND cstir_test4 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 add_SIRF_DATA_PATH(PET_TESTS_CPLUSPLUS_4)
+ADD_TEST(NAME PET_TESTS_CPLUSPLUS_5 COMMAND cstir_test3 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+add_SIRF_DATA_PATH(PET_TESTS_CPLUSPLUS_5)
 ADD_TEST(NAME PET_TESTS_CPLUSPLUS_6 COMMAND cstir_test6 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 add_SIRF_DATA_PATH(PET_TESTS_CPLUSPLUS_6)
 ADD_TEST(NAME PET_TESTS_CPLUSPLUS_7 COMMAND cstir_test7 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})

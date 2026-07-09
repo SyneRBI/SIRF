@@ -44,6 +44,9 @@ namespace sirf {
 
 	std::string examples_data_path(const char* data_type)
 	{
-		return append_path(SIRF_INSTALLED_EXAMPLE_DATA_PATH, "data", "examples", data_type);
+		std::string SIRF_data_path = sirf::getenv("SIRF_DATA_PATH");
+		if (SIRF_data_path.length() > 0)
+			return append_path(SIRF_data_path, "examples", data_type);
+		return append_path(sirf_installed_example_data_path, "data", "examples", data_type);
 	}
 }
