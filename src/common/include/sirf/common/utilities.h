@@ -62,7 +62,7 @@ namespace sirf {
       return append_path(append_path(path, a), args...);
     }
     ///@{
-    //! Returns where the examples are installed
+    //! Returns the path to folder containing the data needed by the examples
     /*!
       \ingroup Common
       \par Example:

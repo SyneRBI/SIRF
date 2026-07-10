@@ -42,11 +42,13 @@ namespace sirf {
 		return filename[found];
 	}
 
+	//! The path to the data needed for the examples
 	std::string examples_data_path(const char* data_type)
 	{
 		std::string SIRF_data_path = sirf::getenv("SIRF_DATA_PATH");
-		if (SIRF_data_path.length() > 0)
+		if (SIRF_data_path.length() > 0)  //! The path is provided by the user
 			return append_path(SIRF_data_path, "examples", data_type);
+		//! The path is provided in CMakeLists.txt
 		return append_path(sirf_installed_example_data_path, "examples", data_type);
 	}
 }
