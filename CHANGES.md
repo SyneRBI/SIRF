@@ -1,5 +1,9 @@
 # ChangeLog
 
+## v3.10.2
+*SIRF
+  - The environment variables `SIRF_PATH`and `SIRF_INSTALL_PATH` no longer used, the use of `SIRF_DATA_PATH` is optional.
+
 ## v3.10.1
 
 * Python interface
