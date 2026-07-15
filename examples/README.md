@@ -36,5 +36,5 @@ The contents of subfolder named Python are described [here](Python/README.md). T
 The resolution order for the examples data path is:
 
 1. The directory pointed by `${SIRF_DATA_PATH}` if the environment variable `SIRF_DATA_PATH` is set by the user.
-2. The directory pointed by `${SIRF_EXAMPLE_DATA_PATH}` if the environment variable `SIRF_EXAMPE_DATA_PATH` is set by the user.
+2. The directory pointed by `${SIRF_EXAMPLES_DATA_PATH}` if the environment variable `SIRF_EXAMPLES_DATA_PATH` is set by the user.
 3. The directory `${CMAKE_INSTALL_PREFIX}/share/SIRF-<version_major>.<version_minor>`

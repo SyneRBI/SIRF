@@ -49,6 +49,6 @@ namespace sirf {
 		if (SIRF_data_path.length() > 0)  //! The path is provided by the user
 			return append_path(SIRF_data_path, "examples", data_type);
 		//! The path is provided in CMakeLists.txt
-		return append_path(sirf_installed_example_data_path, "examples", data_type);
+		return append_path(sirf_installed_examples_data_path, "examples", data_type);
 	}
 }

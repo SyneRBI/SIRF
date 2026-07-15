@@ -2,6 +2,6 @@
 #define SIRF_PATHS
 
 constexpr const char * sirf_install_path = "@CMAKE_INSTALL_PREFIX@";
-constexpr const char * sirf_installed_example_data_path = "@SIRF_EXAMPLE_DATA_PATH@";
+constexpr const char * sirf_installed_examples_data_path = "@SIRF_EXAMPLES_DATA_PATH@";
 
 #endif /* SIRF_PATHS */
