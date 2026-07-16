@@ -28,6 +28,7 @@ limitations under the License.
 */
 #include "sirf/common/utilities.h"
 #include "sirf/common/version.h"
+#include "sirf/common/sirf_paths.h"
 #include "sirf/common/getenv.h"
 #include <sstream>
 
@@ -47,21 +48,14 @@ namespace sirf {
 		return filename[found];
 	}
 
+	//! The path to the data needed for the examples
 	std::string examples_data_path(const char* data_type)
 	{
 		std::string SIRF_data_path = sirf::getenv("SIRF_DATA_PATH");
-		if (SIRF_data_path.length() > 0)
+		if (SIRF_data_path.length() > 0)  //! The path is provided by the user
 			return append_path(SIRF_data_path, "examples", data_type);
-		std::string SIRF_install_path = sirf::getenv("SIRF_INSTALL_PATH");
-		if (SIRF_install_path.length() > 0) {
-			std::stringstream sirf_version;
-			sirf_version << "SIRF-" << SIRF_VERSION_MAJOR << '.' << SIRF_VERSION_MINOR;
-			return append_path(SIRF_install_path, "share", sirf_version.str(), "data", "examples", data_type);
-		}
-		std::string SIRF_path = sirf::getenv("SIRF_PATH");
-		if (SIRF_path.length() > 0)
-			return append_path(SIRF_path, "data", "examples", data_type);
-		return "";
+		//! The path is provided in CMakeLists.txt
+		return append_path(sirf_installed_examples_data_path, "examples", data_type);
 	}
 
 	bool

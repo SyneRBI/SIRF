@@ -30,40 +30,29 @@ limitations under the License.
 
 #include "stir/common.h"
 #include "stir/IO/stir_ecat_common.h"
-//USING_NAMESPACE_STIR
-//USING_NAMESPACE_ECAT
-//#include "stir/listmode/LmToProjData.h"
 
-#include "cstir.h"
+#include "sirf/STIR/stir_x.h"
+#include "sirf/common/getenv.h"
+#include "sirf/common/iequals.h"
+#include "sirf/common/csirf.h"
+#include "sirf/common/utilities.h"
+
 #include "object.h"
-//#include "stir_types.h"
-//#include "stir_data_containers.h"
-#include "stir_x.h"
-//#include "SIRF/common/envar.h"
 
 using namespace stir;
 using namespace ecat;
 using namespace sirf;
 
-int test3()
+int main()
 {
-	//std::string SIRF_path = EnvironmentVariable("SIRF_PATH");
-	std::string SIRF_path = std::getenv("SIRF_PATH");
-	if (SIRF_path.length() < 1) {
-		std::cout << "SIRF_PATH not defined, cannot find data" << std::endl;
-		return 1;
-	}
-	std::string path = SIRF_path + "/data/examples/PET/";
-	std::string filename = path + "list.l.hdr";
-	//std::string filename = path + "list.l.hdr.STIR";
+	std::string SIRF_data_path = examples_data_path("PET");
+	std::string path = append_path(SIRF_data_path, "mMR");
+	std::string filename = append_path(path, "list.l.hdr");
 
-	//LmToProjData lm_data("lm_to_projdata.par");
-	//lm_data.process_data();
-	ListmodeToSinograms converter; // ("lm_to_projdata.par");
-	//converter.set_input("list.l.hdr.STIR");
+	ListmodeToSinograms converter;
 	converter.set_input(filename);
 	converter.set_output("proj_data");
-	filename = path + "template_span11.hs";
+	filename = append_path(path, "mMR_template_span11.hs");
 	converter.set_template(filename);
 	//converter.set_template("template_span11.hs");
 	converter.set_time_interval(0, 10);
@@ -75,6 +64,8 @@ int test3()
 
 	return 0;
 }
+
+#if 0
 
 #include "cstir.h"
 #include "handle.h"
@@ -206,3 +197,4 @@ int test3d()
 	}
 	return 0;
 }
+#endif
