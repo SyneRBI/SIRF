@@ -61,7 +61,6 @@ namespace sirf {
     {
       return append_path(append_path(path, a), args...);
     }
-    ///@{
     //! Returns where the examples are installed
     /*!
       \ingroup Common
@@ -71,6 +70,10 @@ namespace sirf {
       \endcode
     */
     std::string examples_data_path(const char* data_type);
+
+    //! Returns if the pointer is a CUDA pointer or CUDA managed pointer
+    bool
+    pointer_supports_cuda_array_view(const void* ptr);
 }
 
 #endif
