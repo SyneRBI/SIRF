@@ -116,6 +116,17 @@ which rely on the same features of the items.
 		{
 			return false;
 		}
+		virtual bool supports_cuda_array_view() const;
+		virtual size_t address() const
+		{
+			THROW("data address defined only for contiguous data in memory");
+		}
+		size_t cuda_address() const
+		{
+			if (!this->supports_cuda_array_view())
+				THROW("data is not backed by CUDA-managed memory");
+			return this->address();
+		}
 		/// returns the size of data elements
 		virtual int bits() const
 		{

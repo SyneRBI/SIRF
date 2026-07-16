@@ -2,7 +2,8 @@
 
 # SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 # Copyright 2015 - 2022 Rutherford Appleton Laboratory STFC
-# Copyright 2015 - 2022 University College London
+# Copyright 2015 - 2022, 2026 University College London
+# Copyright 2026 Biomedical Research Foundation, Academy of Athens
 # Copyright 2019 University of Hull
 #
 # This is software developed for the Collaborative Computational
@@ -19,7 +20,7 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-
+#
 import abc
 
 import numpy
@@ -1135,9 +1136,15 @@ class AcquisitionData(ScanData):
         """As per https://numpy.org/doc/stable/reference/arrays.interface.html"""
         if not self.supports_array_view:
             raise ContiguousError("views not supported, please consider using `asarray()` or `as_array()`")
-        return {
-            'shape': self.shape, 'typestr': '<f4', 'version': 3,
-            'data': (parms.size_t_par(self.handle, 'AcquisitionData', 'address'), False)}
+        return {'shape': self.shape, 'typestr': '<f4', 'version': 3,
+                'data': (self.address, False)}
+
+    @property
+    def __cuda_array_interface__(self):
+        if not self.supports_cuda_array_view:
+            raise AttributeError('__cuda_array_interface__')
+        return {'shape': self.shape, 'typestr': '<f4', 'version': 3,
+                'data': (self.cuda_address, False)}
 
     def as_array(self):
         """

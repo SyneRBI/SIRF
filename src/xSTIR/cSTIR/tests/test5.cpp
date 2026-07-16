@@ -27,10 +27,16 @@ limitations under the License.
 */
 #include <iostream>
 
-//#include "stir/common.h"
+#include "stir/common.h"
+#include "stir/IO/stir_ecat_common.h"
+
+#include "sirf/STIR/stir_x.h"
+#include "sirf/common/getenv.h"
+#include "sirf/common/iequals.h"
+#include "sirf/common/csirf.h"
+#include "sirf/common/utilities.h"
 
 #include "object.h"
-#include "sirf/cSTIR/stir_x.h"
 
 using namespace stir;
 using namespace sirf;
@@ -52,9 +58,11 @@ int test5()
 		std::cout << "SIRF_PATH not defined, cannot find data" << std::endl;
 		return 1;
 	}
+	std::string SIRF_data_path = examples_data_path("SPECT");
+        filename = SIRF_data_path + "/working_folder/simple/simulation.hs";
 
 	//filename = SIRF_path + "/data/examples/PET/my_forward_projection.hs";
-        filename = SIRF_path + "/data/examples/SPECT/working_folder/simple/simulation.hs";
+        //filename = SIRF_path + "/data/examples/SPECT/working_folder/simple/simulation.hs";
 
 	CREATE_OBJECT(PETAcquisitionData, PETAcquisitionDataInFile,
 		acq_data, sptr_ad, filename.c_str());

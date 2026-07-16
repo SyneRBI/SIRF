@@ -68,6 +68,10 @@ mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 set(SIRF_VERSION
   ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
+if(NOT DEFINED SIRF_EXAMPLES_DATA_PATH)
+  set(SIRF_EXAMPLES_DATA_PATH ${CMAKE_INSTALL_PREFIX}/share/SIRF-${VERSION_MAJOR}.${VERSION_MINOR}/data)
+endif()
+
 if (WIN32)
   set (DEFAULT_SIRF_INSTALL_DEPENDENCIES ON)
 else()
@@ -217,6 +221,8 @@ set(SHARE_DIR ${CMAKE_INSTALL_PREFIX}/share/SIRF-${VERSION_MAJOR}.${VERSION_MINO
 set(BUILD_INCLUDE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/cmake/include)
 configure_file("cmake/version.h.in" "${BUILD_INCLUDE_DIRECTORY}/sirf/common/version.h")
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/cmake/include/sirf/common/version.h" DESTINATION "${CMAKE_INSTALL_PREFIX}/include/sirf/common/")
+configure_file("cmake/sirf_paths.h.in" "${BUILD_INCLUDE_DIRECTORY}/sirf/common/sirf_paths.h")
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/cmake/include/sirf/common/sirf_paths.h" DESTINATION "${CMAKE_INSTALL_PREFIX}/include/sirf/common/")
 
 if (CMAKE_VERSION VERSION_LESS 3.21.0)
   # Possibly superfluous finding of HDF5, looking for both C and CXX libraries

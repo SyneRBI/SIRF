@@ -107,6 +107,10 @@ sirf::cSTIR_AcquisitionDataParameter(void* hp, const char* name)
 		return charDataHandleFromCharData(ad.modality().c_str());
 	else if (sirf::iequals(name, "address"))
 		return dataHandle<size_t>(ad.address());
+	else if (sirf::iequals(name, "supports_cuda_array_view"))
+		return dataHandle<int>(ad.supports_cuda_array_view() ? 1 : 0);
+	else if (sirf::iequals(name, "cuda_address"))
+		return dataHandle<size_t>(ad.cuda_address());
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 }
@@ -130,6 +134,10 @@ sirf::cSTIR_ImageDataParameter(void* hp, const char* name)
 		return charDataHandleFromCharData(id.modality().c_str());
 	else if (sirf::iequals(name, "address"))
 		return dataHandle<size_t>(id.address());
+	else if (sirf::iequals(name, "supports_cuda_array_view"))
+		return dataHandle<int>(id.supports_cuda_array_view() ? 1 : 0);
+	else if (sirf::iequals(name, "cuda_address"))
+		return dataHandle<size_t>(id.cuda_address());
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 }
