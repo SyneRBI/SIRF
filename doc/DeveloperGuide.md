@@ -172,15 +172,15 @@ Matlab and Python interfaces of the previous section are not user-friendly and n
     SIRF/src
         common         : code common to all engines
         iUtilities     : interface utilities
-        Registration   
+        Registration
             cReg       : C wrappers for NiftyReg
             mReg       : Object-Oriented Matlab interface
             pReg       : Object-Oriented Python interface
-        xGadgetron     
+        xGadgetron
             cGadgetron : Gadgetron extensions and C wrappers
             mGadgetron : Object-Oriented Matlab interface
             pGadgetron : Object-Oriented Python interface
-        xSTIR          
+        xSTIR
             cSTIR      : STIR extensions and C wrappers
             mSTIR      : Object-Oriented Matlab interface
             pSTIR      : Object-Oriented Python interface
@@ -213,7 +213,7 @@ The C function that is called is as follows:
         if (!boost::filesystem::exists(file))
             return fileNotFound(file, __FILE__, __LINE__);
         try {
-            shared_ptr<MRAcquisitionData> 
+            shared_ptr<MRAcquisitionData>
                 acquisitions(new AcquisitionsFile(file));
             return newObjectHandle<MRAcquisitionData>(acquisitions);
         }
@@ -287,7 +287,7 @@ Some further principles are illustrated by the following example of a wrapper:
 		CATCH;
 	}
 
-This wrapper returns the return value of the method `norm()` of an object of the class `DataContainer`, from which all SIRF data container classes (`MRImageData`, `PETAcquisitionData` etc.) are derived. The argument of the wrapper is actually a pointer to a `DataHandle` object that stores a shared pointer to a `DataContainer` object. The function template `objectFromHandle` obtains a reference to this object, thus enabling the call to its method `norm()`. The function template `dataHandle`, which has one argument of arbitrary scalar type, wraps the return value of `norm()` into a `DataHandle` object, and returns the pointer to this object as `void*`. 
+This wrapper returns the return value of the method `norm()` of an object of the class `DataContainer`, from which all SIRF data container classes (`MRImageData`, `PETAcquisitionData` etc.) are derived. The argument of the wrapper is actually a pointer to a `DataHandle` object that stores a shared pointer to a `DataContainer` object. The function template `objectFromHandle` obtains a reference to this object, thus enabling the call to its method `norm()`. The function template `dataHandle`, which has one argument of arbitrary scalar type, wraps the return value of `norm()` into a `DataHandle` object, and returns the pointer to this object as `void*`.
 
 The next two wrappers demonstrate how data is exchanged between C++ and Matlab/Python arrays.
 
@@ -305,7 +305,7 @@ The next two wrappers demonstrate how data is exchanged between C++ and Matlab/P
 		}
 		CATCH;
 	}
-	
+
 	extern "C"
 	void*
 	cGT_fillAcquisitionsData(void* ptr_acqs, size_t ptr_z, int all)
@@ -419,7 +419,7 @@ To add a Gadgetron gadget to SIRF gadgets library, follow the steps below.
 	        return NEW_GADGET_CLASS_STRING;
 	    }
 	};
-~~~ 
+~~~
 Here `GADGET_CLASS` is the name of the gadget class, `GADGET_NAME` and `NEW_GADGET_CLASS` are arbitrary names for the gadget and new class and (it is recommended that `NEW_GADGET_CLASS = GADGET_CLASS`), `PROPERTY1` and `VALUE1` are C strings containing the first property name and value etc. (these lines are not needed if the gadget does not have properties), and `NEW_GADGET_CLASS_STRING` is a C string containing the name `NEW_GADGET_CLASS`.
 
 * Add a line
@@ -435,7 +435,7 @@ The programming style used in SIRF resembles closely that used in STIR. When imp
 ## Naming <a name="conventions_naming"></a>
 * Classes/types: Use camel caps (also known as medial capitals), for example `ProjMatrixByBin`.
 * Variables, methods and members: lower case, with underscores between each word, for example `set_bin_efficiency`.
-	* Variable for a number of something: `num_var` 
+	* Variable for a number of something: `num_var`
 	* Number of an item in a sequence: `var_num`
 	* Pointers, shared pointers and auto pointers should have the respective suffixes: `ptr`, `sptr` and `aptr`.
 
@@ -486,24 +486,17 @@ The ctests are configured to use [coverage](https://coverage.readthedocs.io/) vi
 [pytest-cov](https://pytest-cov.readthedocs.io/), such that we get some feedback how much
 of the Python functionality is tested via `pytest`. This is currently somewhat complicated
 unfortunately as when running the tests, the **source files are picked up from the installation
-directory** (see above), not the current source. We use `.coveragerc-*` files (in the root directory) to
+directory** (see above), not the current source. We use the `.coveragerc` files (in the root directory) to
 map these to the files in the source directory using the `[paths]` configuration setting.
-The first path listed is the one in the source, then we list some common installation paths
-(e.g. on the VM and on GitHub ).
 
 Caveats:
-- Unfortunately, this mapping depends on your installation location. We currently do not
+- Unfortunately, only the first path in `[paths]` is allowed to be the source.
+Since we actually have multiple sources, we need to `sed -i -e 's#virtual#real#' coverage.xml` to fix the paths
+(see `.github/workflows/build-test.yml`).
+- The mapping depends on your installation location. We currently do not
 attempt to handle this. If it matters for you (but it probably doesn't), you could
-add your installation directory to the `.coveragerc-*` files.
+prefix your installation directory to the `.coveragerc` file.
 
 ## Continuous Integration and deployment via GitHub Actions
 Pushes to the `master` branch and pull-requests on GitHub are tested automatically.
 You could check `.github/workflows` for more information.
-
-As part of the workflow, we also report the Python test coverage. To do this, we need
-to combine the coverage output of each SIRF Python test (called e.g. `.coverage-STIR`)
-into one file using `coverage combine`. Unfortunately, at the time of writing, this
-does not work yet as coverage numbers are lost. This also means that information
-uploaded on [coveralls.io](https://coveralls.io/github/SyneRBI/SIRF) is incomplete.
-Hopefully by the time you read this, this will be fixed, but check
-Issues on GitHub.

@@ -1,4 +1,4 @@
 [pytest]
 python_files = ["test*.py"]
 filterwarnings = ["error"]
-addopts = ["--cov=sirf.Reg", "--cov-config=.coveragerc-Reg"]
+addopts = ["--cov=sirf", "--cov-append"]

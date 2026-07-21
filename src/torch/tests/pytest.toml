@@ -9,6 +9,6 @@ markers = [
     "objective_wrapped",
 ]
 addopts = [
-    "--cov=sirf.torch", "--cov-config=.coveragerc-torch",
+    "--cov=sirf", "--cov-append",
     "-v", '-k not (PET and (test_objective_function_gradcheck or test_objective_function_gradient_gradcheck))'
 ]
