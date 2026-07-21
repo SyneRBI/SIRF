@@ -33,32 +33,30 @@ Options:
 ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
-
-__version__ = '0.1.0'
-from docopt import docopt
-args = docopt(__doc__, version=__version__)
+import importlib
 
 import numpy
+from docopt import docopt
+from sirf.Utilities import examples_data_path, existing_filepath
 
-from sirf.Utilities import error, examples_data_path, existing_filepath
+__version__ = '0.1.0'
 
-# import engine module
-import importlib
-mr = importlib.import_module('sirf.' + args['--engine'])
 
-# process command-line options
-data_file = args['--file']
-data_path = args['--path']
-if data_path is None:
-    data_path = examples_data_path('MR')
-show_plot = not args['--non-interactive']
-
-def main():
+def main(argv):
+    # process command-line options
+    args = docopt(__doc__, version=__version__, argv=argv)
+    # import engine module
+    mr = importlib.import_module('sirf.' + args['--engine'])
+    data_file = args['--file']
+    data_path = args['--path']
+    if data_path is None:
+        data_path = examples_data_path('MR')
+    show_plot = not args['--non-interactive']
 
     # locate the input data file
     input_file = existing_filepath(data_path, data_file)
 
-    # MR raw data formats from different vendors can be transformed to 
+    # MR raw data formats from different vendors can be transformed to
     # HDF file format using siemens_to_ismrmrd, philips_to_ismrmrd or
     # bruker_to_ismrmrd on https://github.com/ismrmrd/.
     # Acquisition data will be read from an HDF file input_file
@@ -66,8 +64,8 @@ def main():
     acq_data = mr.AcquisitionData(input_file)
 
     # pre-process acquired k-space data:
-    # prior to image reconstruction several pre-processing steps such as 
-    # asymmetric echo compensation, noise decorelation for multi-coil data or 
+    # prior to image reconstruction several pre-processing steps such as
+    # asymmetric echo compensation, noise decorelation for multi-coil data or
     # removal of oversampling along frequency encoding (i.e. readout or kx)
     # direction. So far only the removal of readout oversampling and noise and
     # asymmetric echo adjusting is implemented
@@ -79,7 +77,7 @@ def main():
     # provide pre-processed k-space data as input
     recon = mr.FullySampledReconstructor()
     recon.set_input(processed_data)
-    
+
     # perform reconstruction
     print('---\n reconstructing...')
     recon.process()
@@ -100,11 +98,5 @@ def main():
     if show_plot:
         image_data.show(title = 'Filtered image data (magnitude)')
 
-try:
-    main()
-    print('\n=== done with %s' % __file__)
-
-except error as err:
-    # display error information
-    print('??? %s' % err.value)
-    exit(1)
+if __name__ == "__main__":
+    main(None)

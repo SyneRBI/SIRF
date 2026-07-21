@@ -31,31 +31,29 @@ Options:
 ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
-
-__version__ = '0.1.0'
 from docopt import docopt
-args = docopt(__doc__, version=__version__)
-
 # import engine module
 from pGadgetron import *
 
-# process command-line options
-data_file = args['--file']
-data_path = args['--path']
-if data_path is None:
-    data_path = examples_data_path('MR')
-output_file = args['--output']
-show_plot = not args['--non-interactive']
+__version__ = '0.1.0'
 
-def main():
+
+def main(argv):
+    # process command-line options
+    args = docopt(__doc__, version=__version__, argv=argv)
+    data_file = args['--file']
+    data_path = args['--path']
+    if data_path is None:
+        data_path = examples_data_path('MR')
+    output_file = args['--output']
+    show_plot = not args['--non-interactive']
 
     # locate the input data
     input_file = existing_filepath(data_path, data_file)
     acq_data = AcquisitionData(input_file)
 
     # create reconstruction object
-    recon = Reconstructor(['RemoveROOversamplingGadget', \
-        'SimpleReconGadgetSet'])
+    recon = Reconstructor(['RemoveROOversamplingGadget', 'SimpleReconGadgetSet'])
     # reconstruct images
     image_data = recon.reconstruct(acq_data)
     # show reconstructed images
@@ -67,11 +65,5 @@ def main():
         print('writing to %s' % output_file)
         image_data.write(output_file)
 
-try:
-    main()
-    print('\n=== done with %s' % __file__)
-
-except error as err:
-    # display error information
-    print('??? %s' % err.value)
-    exit(1)
+if __name__ == "__main__":
+    main(None)

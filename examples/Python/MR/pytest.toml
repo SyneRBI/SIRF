@@ -1,0 +1,9 @@
+[pytest]
+python_files = ["*.py"]
+python_functions = ["main"]
+filterwarnings = [
+    "error",
+    "ignore:.*scipy.ndimage.filters.*:DeprecationWarning",
+]
+addopts = ["--cov=sirf", "--cov-config=.coveragerc-SIRF"]
+# see also: conftest.py
