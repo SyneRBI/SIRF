@@ -246,7 +246,7 @@ def try_niftiimage():
 
     # Test geom info
     geom_info = im.get_geometrical_info()
-    geom_info.print_info()
+    print(geom_info.get_info())
     # Get voxel sizes
     if geom_info.get_size() != (64, 64, 64):
         raise AssertionError("SIRF get_geometrical_info().get_size() failed.")
