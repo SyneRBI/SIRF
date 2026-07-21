@@ -5,5 +5,5 @@ filterwarnings = [
     "error",
     "ignore:.*scipy.ndimage.filters.*:DeprecationWarning",
 ]
-addopts = ["--cov=sirf", "--cov-config=.coveragerc-SIRF", "--cov-append"]
+addopts = ["--cov=sirf", "--cov-append"]
 # see also: conftest.py

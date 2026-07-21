@@ -1,5 +1,4 @@
 name: Build-test CI
-
 on:
   push:
     branches: [ master ]
@@ -19,7 +18,6 @@ on:
     - CITATION.cff
 jobs:
   build:
-
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -61,23 +59,21 @@ jobs:
           CMAKE_BUILD_TYPE: "Release"
       # let's run all of them, as opposed to aborting when one fails
       fail-fast: false
-
     steps:
     - uses: actions/checkout@v7
-      with:
-        submodules: recursive
+      with: {submodules: recursive}
     - name: install_dependencies
-      run:
-          cd ${GITHUB_WORKSPACE};
-          git clone https://github.com/SyneRBI/SIRF-SuperBuild --recursive -b docopt-ng;
-          cd SIRF-SuperBuild/docker;
-          sudo bash raw-ubuntu.sh;
-          sudo bash build_essential-ubuntu.sh;
-          sudo bash build_python-ubuntu.sh;
-          sudo bash build_gadgetron-ubuntu.sh;
-          sudo bash build_system-ubuntu.sh;
-          PYTHON_EXECUTABLE=python3 PYTHON_INSTALL_DIR=~/virtualenv bash user_python-ubuntu.sh;
-          ~/virtualenv/bin/python -m pip install torch --index-url https://download.pytorch.org/whl/cpu;
+      run: |
+        cd ${GITHUB_WORKSPACE}
+        git clone https://github.com/SyneRBI/SIRF-SuperBuild --recursive -b master
+        cd SIRF-SuperBuild/docker
+        sudo bash raw-ubuntu.sh
+        sudo bash build_essential-ubuntu.sh
+        sudo bash build_python-ubuntu.sh
+        sudo bash build_gadgetron-ubuntu.sh
+        sudo bash build_system-ubuntu.sh
+        PYTHON_EXECUTABLE=python3 PYTHON_INSTALL_DIR=~/virtualenv bash user_python-ubuntu.sh
+        ~/virtualenv/bin/python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
     - name: ccache
       uses: hendrikmuhs/ccache-action@v1
       with:
@@ -85,81 +81,85 @@ jobs:
     - name: set_compiler_variables
       shell: bash
       run: |
-          set -ex
-          if test 'XX${{ matrix.compiler }}' = 'XXclang'; then
-            CC="clang"
-            CXX="clang++"
-          elif test 'XX${{ matrix.compiler }}' = 'XXgcc'; then
-            CC="gcc"
-            CXX="g++"
-          fi
-          if test 'XX${{ matrix.compiler_version }}' != 'XX'; then
-            CC=${CC}-${{ matrix.compiler_version }}
-            CXX=${CXX}-${{ matrix.compiler_version }}
-            sudo apt install -yq ${CXX} ${CC}
-          fi
+        set -ex
+        if test 'XX${{ matrix.compiler }}' = 'XXclang'; then
+          CC="clang"
+          CXX="clang++"
+        elif test 'XX${{ matrix.compiler }}' = 'XXgcc'; then
+          CC="gcc"
+          CXX="g++"
+        fi
+        if test 'XX${{ matrix.compiler_version }}' != 'XX'; then
+          CC=${CC}-${{ matrix.compiler_version }}
+          CXX=${CXX}-${{ matrix.compiler_version }}
+          sudo apt install -yq ${CXX} ${CC}
+        fi
 
-          export CC CXX
-          # make available to jobs below
-          echo CC="$CC" >> $GITHUB_ENV
-          echo CXX="$CXX" >> $GITHUB_ENV
+        export CC CXX
+        # make available to jobs below
+        echo CC="$CC" >> $GITHUB_ENV
+        echo CXX="$CXX" >> $GITHUB_ENV
     - if: matrix.cuda_version != '0'
       uses: Jimver/cuda-toolkit@v0.2.35
-      id: cuda-toolkit
       with:
-          cuda: ${{ matrix.cuda_version }}
-          linux-local-args: '["--toolkit"]'
+        cuda: ${{ matrix.cuda_version }}
+        linux-local-args: '["--toolkit"]'
     - name: configure
       shell: bash
       run: |
-          set -ex;
-          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-          cmake --version
-          #echo "cmake flags ${{ matrix.CMAKE_BUILD_TYPE }} ${{ matrix.EXTRA_BUILD_FLAGS }}"
-          # Note: need USE_SYSTEM_SWIG=OFF on Ubuntu 22.04 as the SB asks for 4.2 (for STIR)
-          BUILD_FLAGS="-DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }} -DUSE_SYSTEM_ACE=ON -DUSE_SYSTEM_Armadillo=ON -DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON -DBUILD_siemens_to_ismrmrd=ON -DUSE_SYSTEM_SWIG=OFF -DCMAKE_INSTALL_PREFIX=~/install -DPYVER=3";
-          BUILD_FLAGS="$BUILD_FLAGS -DSIRF_SOURCE_DIR:PATH=${GITHUB_WORKSPACE} -DDISABLE_GIT_CHECKOUT_SIRF=ON"
-          # only test SIRF (others are tested in the SIRF-SuperBuild action)
-          BUILD_FLAGS="$BUILD_FLAGS -DBUILD_TESTING_GADGETRON=OFF -DBUILD_TESTING_ISMRMRD=OFF"
-          DEVEL_BUILD="-DDEVEL_BUILD=${{ matrix.DEVEL_BUILD }}"
-          mkdir -p build/;
-          cd build;
-          source ~/virtualenv/bin/activate;
-          cmake -G Ninja -S ../SIRF-SuperBuild ${BUILD_FLAGS} ${{ matrix.EXTRA_BUILD_FLAGS }} ${DEVEL_BUILD};
+        set -ex
+        export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+        cmake --version
+        #echo "cmake flags ${{ matrix.CMAKE_BUILD_TYPE }} ${{ matrix.EXTRA_BUILD_FLAGS }}"
+        # Note: need USE_SYSTEM_SWIG=OFF on Ubuntu 22.04 as the SB asks for 4.2 (for STIR)
+        BUILD_FLAGS="-DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }} -DUSE_SYSTEM_ACE=ON -DUSE_SYSTEM_Armadillo=ON -DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON -DBUILD_siemens_to_ismrmrd=ON -DUSE_SYSTEM_SWIG=OFF -DCMAKE_INSTALL_PREFIX=~/install -DPYVER=3"
+        BUILD_FLAGS="$BUILD_FLAGS -DSIRF_SOURCE_DIR:PATH=${GITHUB_WORKSPACE} -DDISABLE_GIT_CHECKOUT_SIRF=ON"
+        # only test SIRF (others are tested in the SIRF-SuperBuild action)
+        BUILD_FLAGS="$BUILD_FLAGS -DBUILD_TESTING_GADGETRON=OFF -DBUILD_TESTING_ISMRMRD=OFF"
+        DEVEL_BUILD="-DDEVEL_BUILD=${{ matrix.DEVEL_BUILD }}"
+        mkdir -p build/
+        cd build
+        source ~/virtualenv/bin/activate
+        cmake -G Ninja -S ../SIRF-SuperBuild ${BUILD_FLAGS} ${{ matrix.EXTRA_BUILD_FLAGS }} ${DEVEL_BUILD}
     - name: build
       shell: bash
-      run:
-          cd ${GITHUB_WORKSPACE}/build;
-          source ~/virtualenv/bin/activate;
-          source ~/install/bin/env_sirf.sh;
-          cmake --build . -j 2;
+      run: |
+        cd ${GITHUB_WORKSPACE}/build
+        source ~/virtualenv/bin/activate
+        source ~/install/bin/env_sirf.sh
+        cmake --build . -j 2
     - if: matrix.cuda_version == '0' # only run tests for non-CUDA builds
-      id: tests
+      name: ctest
       shell: bash
-      run:
-          bash -v ${GITHUB_WORKSPACE}/SIRF-SuperBuild/docker/ctest_sirf.sh
+      run: bash -v ${GITHUB_WORKSPACE}/SIRF-SuperBuild/docker/ctest_sirf.sh
     - if: matrix.cuda_version == '0'
-      id: Coverage
+      name: Coverage
       shell: bash
       run: |
-          pwd
-          source ~/virtualenv/bin/activate
-          coverage combine .coverage-*
-          coverage report
+        pwd
+        source ~/virtualenv/bin/activate
+        coverage report
+        coverage xml
+
+        # hack to fix paths in coverage.xml
+        coverage json
+        SRC=$(dirname $(jq '.files|keys[0]' coverage.json -r))
+        sed -ri \
+        -e 's#'$SRC'/(SIRF|Utilities).py#src/common/\1.py#g' \
+        -e 's#'$SRC'/(Gadgetron|STIR).py#src/x\1/p\1/\1.py#g' \
+        -e 's#'$SRC'/(Reg).py#src/Registration/p\1/\1.py#g' \
+        -e 's#'$SRC'/(torch).py#src/\1/\1.py#g' \
+        coverage.xml
+        rm coverage.json .coverage
     - if: matrix.cuda_version == '0'
-      id: Coveralls
       uses: AndreMiras/coveralls-python-action@develop
       with:
         parallel: true
-        flag-name: python test
+        flag-name: ${{ matrix.os }}-${{ matrix.compiler_version }}-${{ matrix.DEVEL_BUILD }}
         debug: true
-
-  # disabled as currently not functional
-  # coveralls_finish:
-  #  needs: build
-  #  runs-on: ubuntu-latest
-  #  steps:
-  #  - name: Coveralls Finished
-  #    uses: AndreMiras/coveralls-python-action@develop
-  #    with:
-  #      parallel-finished: true
+  coverage:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: AndreMiras/coveralls-python-action@develop
+      with: {parallel-finished: true}
