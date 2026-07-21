@@ -18,7 +18,7 @@
 #
 #=========================================================================
 add_test(NAME MR_TESTS_PYTHON
-  COMMAND ${Python_EXECUTABLE} -m pytest --cov=sirf.Gadgetron --cov-config=.coveragerc-Gadgetron src/xGadgetron/pGadgetron/
+  COMMAND ${Python_EXECUTABLE} -m pytest src/xGadgetron/pGadgetron/tests
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 add_test(NAME MR_DEMOS_PYTHON
   COMMAND ${Python_EXECUTABLE} run_all.py --non-interactive

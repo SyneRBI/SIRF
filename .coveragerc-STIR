@@ -7,3 +7,4 @@ source =
     src/xSTIR/pSTIR
     /home/sirfuser/devel/install/python/sirf
     /home/runner/install/python/sirf
+    /opt/SIRF-SuperBuild/INSTALL/python/sirf

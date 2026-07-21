@@ -1,0 +1,14 @@
+[pytest]
+python_files = ["test_*.py"]
+filterwarnings = ["error"]
+markers = [
+    "adjoint",
+    "forward",
+    "objective",
+    "objective_gradient",
+    "objective_wrapped",
+]
+addopts = [
+    "--cov=sirf.torch", "--cov-config=.coveragerc-torch",
+    "-v", '-k not (PET and (test_objective_function_gradcheck or test_objective_function_gradient_gradcheck))'
+]
