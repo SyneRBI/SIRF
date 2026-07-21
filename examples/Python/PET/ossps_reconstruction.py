@@ -16,7 +16,6 @@ Options:
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
   --non-interactive            do not show plots
 '''
-
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC
 ## Copyright 2015 - 2017 University College London.
@@ -34,40 +33,36 @@ Options:
 ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
+import importlib
 
-__version__ = '0.1.0'
 from docopt import docopt
-args = docopt(__doc__, version=__version__)
+from sirf.Utilities import (error, examples_data_path, existing_filepath,
+                            show_2D_array)
 
 try:
     import pylab
     HAVE_PYLAB = True
 except RuntimeWarning:
     HAVE_PYLAB = False
-
-from sirf.Utilities import error, examples_data_path, existing_filepath
-from sirf.Utilities import show_2D_array
-
-# import engine module
-import importlib
-engine = args['--engine']
-pet = importlib.import_module('sirf.' + engine)
+__version__ = '0.1.0'
 
 
-# process command-line options
-pen_factor = args['--penf']
-num_subsets = int(args['--subs'])
-num_subiterations = int(args['--subiter'])
-data_file = args['--file']
-data_path = args['--path']
-if data_path is None:
-    data_path = examples_data_path('PET')
-raw_data_file = existing_filepath(data_path, data_file)
-init_file = args['--init']
-show_plot = not args['--non-interactive'] and HAVE_PYLAB
-
-
-def main():
+def main(argv):
+    args = docopt(__doc__, version=__version__, argv=argv)
+    # process command-line options
+    pen_factor = args['--penf']
+    num_subsets = int(args['--subs'])
+    num_subiterations = int(args['--subiter'])
+    data_file = args['--file']
+    data_path = args['--path']
+    if data_path is None:
+        data_path = examples_data_path('PET')
+    raw_data_file = existing_filepath(data_path, data_file)
+    init_file = args['--init']
+    show_plot = not args['--non-interactive'] and HAVE_PYLAB
+    # import engine module
+    engine = args['--engine']
+    pet = importlib.import_module('sirf.' + engine)
 
     # no info printing from the engine, warnings and errors sent to stdout
     _ = pet.MessageRedirector()
@@ -135,12 +130,5 @@ def main():
         image.show(title='Reconstructed images') # show all
 
 
-# if anything goes wrong, an exception will be thrown 
-# (cf. Error Handling section in the spec)
-try:
-    main()
-    print('\n=== done with %s' % __file__)
-
-except error as err:
-    # display error information
-    print('%s' % err.value)
+if __name__ == "__main__":
+    main(None)

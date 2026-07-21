@@ -1,5 +1,5 @@
 '''Steepest ascent demo.
-Applies few steps of steepest ascent for the maximization of Poisson 
+Applies few steps of steepest ascent for the maximization of Poisson
 log-likelihood objective function using subset gradients.
 
 Usage:
@@ -16,7 +16,6 @@ Options:
   -v, --verbose               verbose
   --non-interactive           do not show plots
 '''
-
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
 ## Copyright 2015 - 2020 University College London.
@@ -34,33 +33,12 @@ Options:
 ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
+import importlib
 
-__version__ = '0.1.0'
 from docopt import docopt
-args = docopt(__doc__, version=__version__)
-
 from sirf.Utilities import error, examples_data_path, existing_filepath
 
-# import engine module
-import importlib
-engine = args['--engine']
-pet = importlib.import_module('sirf.' + engine)
-
-
-# process command-line options
-steps = int(args['--steps'])
-opt = args['--optimal']
-verbose = args['--verbose']
-data_file = args['--file']
-data_path = args['--path']
-if data_path is None:
-    data_path = examples_data_path('PET')
-raw_data_file = existing_filepath(data_path, data_file)
-show_plot = not args['--non-interactive']
-
-
-if opt:
-    import scipy.optimize
+__version__ = '0.1.0'
 
 
 def trunc(image):
@@ -71,7 +49,26 @@ def trunc(image):
     return out
 
 
-def main():
+def main(argv):
+    args = docopt(__doc__, version=__version__, argv=argv)
+
+    # import engine module
+    engine = args['--engine']
+    pet = importlib.import_module('sirf.' + engine)
+
+    # process command-line options
+    steps = int(args['--steps'])
+    opt = args['--optimal']
+    verbose = args['--verbose']
+    data_file = args['--file']
+    data_path = args['--path']
+    if data_path is None:
+        data_path = examples_data_path('PET')
+    raw_data_file = existing_filepath(data_path, data_file)
+    show_plot = not args['--non-interactive']
+
+    if opt:
+        import scipy.optimize
 
     # engine's messages go to files
     _ = pet.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
@@ -135,14 +132,14 @@ def main():
             image0 = image
             grad0 = grad
             # in the quadratic case F(v) = (H v, v)/2,
-            # grad F(v) = H v, hence a rough idea about lmd_max 
+            # grad F(v) = H v, hence a rough idea about lmd_max
             # is given by
             lmd_max = 2*grad.norm()/image.norm()
             tau = 1/lmd_max
             maxstep = tau
         else:
             di = image - image0
-            dg = grad - grad0 
+            dg = grad - grad0
             # dg = H di, hence a rough idea about lmd_max is given by
             lmd_max = 2*dg.norm()/di.norm()
             # alternative smaller estimate for lmd_max is
@@ -175,12 +172,5 @@ def main():
         print('objective function value: %e' % (obj_fun.value(image)))
 
 
-# if anything goes wrong, an exception will be thrown 
-# (cf. Error Handling section in the spec)
-try:
-    main()
-    print('\n=== done with %s' % __file__)
-
-except error as err:
-    # display error information
-    print('%s' % err.value)
+if __name__ == "__main__":
+    main(None)

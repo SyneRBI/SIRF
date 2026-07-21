@@ -25,7 +25,6 @@ Options:
   --gpu                        use gpu
   --non-interactive            do not show plots
 '''
-
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2015 - 2018 Rutherford Appleton Laboratory STFC
 ## Copyright 2015 - 2020 University College London.
@@ -43,15 +42,15 @@ Options:
 ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
+import importlib
+import os
+from ast import literal_eval
+
+from docopt import docopt
+from sirf.Utilities import error, examples_data_path, show_2D_array
 
 __version__ = '0.1.0'
-from docopt import docopt
-args = docopt(__doc__, version=__version__)
 
-from ast import literal_eval
-import os
-
-from sirf.Utilities import error, examples_data_path, show_2D_array
 
 def file_exists(filename):
     """Check if file exists, optionally throw error if not"""
@@ -64,80 +63,78 @@ def check_file_exists(filename):
         raise error('File not found: %s' % filename)
 
 
-# import engine module
-import importlib
-engine = args['--engine']
-pet = importlib.import_module('sirf.' + engine)
+def main(argv):
+    args = docopt(__doc__, version=__version__, argv=argv)
+    # import engine module
+    engine = args['--engine']
+    pet = importlib.import_module('sirf.' + engine)
 
 
-# Sinogram. if sino not found, get the one in the example data
-sino_file = args['--sino']
-if not sino_file:
-    print("Sinogram not given, using data/examples/PET/my_forward_projection.hs")
-    sino_file = os.path.join(examples_data_path('PET'), "my_forward_projection.hs")
-if not file_exists(sino_file):
-    raise error("Sinogram not found: " + sino_file)
+    # Sinogram. if sino not found, get the one in the example data
+    sino_file = args['--sino']
+    if not sino_file:
+        print("Sinogram not given, using data/examples/PET/my_forward_projection.hs")
+        sino_file = os.path.join(examples_data_path('PET'), "my_forward_projection.hs")
+    if not file_exists(sino_file):
+        raise error("Sinogram not found: " + sino_file)
 
-# Randoms
-rand_file = None
-if args['--rand']:
-    rand_file = args['--rand']
-    check_file_exists(rand_file)
+    # Randoms
+    rand_file = None
+    if args['--rand']:
+        rand_file = args['--rand']
+        check_file_exists(rand_file)
 
-# Attenuation - image
-attn_im_file = None
-if args['--attn_im']:
-    attn_im_file = args['--attn_im']
-    check_file_exists(attn_im_file)
+    # Attenuation - image
+    attn_im_file = None
+    if args['--attn_im']:
+        attn_im_file = args['--attn_im']
+        check_file_exists(attn_im_file)
 
-# Attenuation - sinogram
-attn_sn_file = None
-if args['--attn_sn']:
-    attn_sn_file = args['--attn_sn']
-    check_file_exists(attn_sn_file)
+    # Attenuation - sinogram
+    attn_sn_file = None
+    if args['--attn_sn']:
+        attn_sn_file = args['--attn_sn']
+        check_file_exists(attn_sn_file)
 
-# Norm - ECAT8
-norm_e8_file = None
-if args['--norm_e8']:
-    norm_e8_file = args['--norm_e8']
-    check_file_exists(norm_e8_file)
+    # Norm - ECAT8
+    norm_e8_file = None
+    if args['--norm_e8']:
+        norm_e8_file = args['--norm_e8']
+        check_file_exists(norm_e8_file)
 
-# Norm - sinogram
-norm_sn_file = None
-if args['--norm_sn']:
-    norm_sn_file = args['--norm_sn']
-    check_file_exists(norm_sn_file)
+    # Norm - sinogram
+    norm_sn_file = None
+    if args['--norm_sn']:
+        norm_sn_file = args['--norm_sn']
+        check_file_exists(norm_sn_file)
 
-# Number of voxels
-nxny = literal_eval(args['--nxny'])
+    # Number of voxels
+    nxny = literal_eval(args['--nxny'])
 
-# Output file
-outp_file = args['--outp']
+    # Output file
+    outp_file = args['--outp']
 
-if args['--visualisations']:
-    visualisations = True
-else:
-    visualisations = False
-if args['--non-interactive']:
-    visualisations = False
+    if args['--visualisations']:
+        visualisations = True
+    else:
+        visualisations = False
+    if args['--non-interactive']:
+        visualisations = False
 
-if args['--nifti']:
-    nifti = True
-    import sirf.Reg
-else:
-    nifti = False
+    if args['--nifti']:
+        nifti = True
+        import sirf.Reg
+    else:
+        nifti = False
 
-if args['--gpu']:
-    use_gpu = True
-else:
-    use_gpu = False
+    if args['--gpu']:
+        use_gpu = True
+    else:
+        use_gpu = False
 
-# process command-line options
-num_subsets = int(args['--subs'])
-num_subiterations = int(args['--subiter'])
-
-
-def main():
+    # process command-line options
+    num_subsets = int(args['--subs'])
+    num_subiterations = int(args['--subiter'])
 
     # direct all engine's messages to files
     _ = pet.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
@@ -178,7 +175,7 @@ def main():
     if norm_sn_file:
         norm_sino = pet.AcquisitionData(norm_sn_file)
         asm_norm = pet.AcquisitionSensitivityModel(norm_sino)
-    
+
     # If attenuation is present
     asm_attn = None
     if attn_im_file and attn_sn_file:
@@ -270,12 +267,5 @@ def main():
         #pylab.show()
 
 
-# if anything goes wrong, an exception will be thrown 
-# (cf. Error Handling section in the spec)
-try:
-    main()
-    print('\n=== done with %s' % __file__)
-
-except error as err:
-    # display error information
-    print('%s' % err.value)
+if __name__ == "__main__":
+    main(None)

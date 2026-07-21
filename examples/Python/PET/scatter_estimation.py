@@ -23,7 +23,6 @@ Options: (defaults are set to work for mMR data processed in the current directo
                               Set this to an empty string to prevent output on disk.
   --non-interactive           do not show plots
 '''
-
 ## CCP SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2019 University of Hull
 ## Copyright 2020-2021 University College London
@@ -41,34 +40,28 @@ Options: (defaults are set to work for mMR data processed in the current directo
 ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
+import PET_plot_functions
+import sirf.STIR as PET
+from docopt import docopt
+from sirf.Utilities import show_2D_array
 
 __version__ = '1.0.1'
-from docopt import docopt
-
-args = docopt(__doc__, version=__version__)
-
-# import engine module
-import sirf.STIR as PET
-
-from sirf.Utilities import show_2D_array
-import PET_plot_functions
-#import os
 
 
-# process command-line options
-raw_data_file = args['--file']
-randoms_data_file = args['--randoms']
-acf_file = args['--attenuation_correction_factors']
-data_path = args['--path']
-if data_path is None:
-    data_path = PET.examples_data_path('PET') + '/mMR'
-norm_file = PET.existing_filepath(data_path, args['--norm'])
-mu_map_file = PET.existing_filepath(data_path, args['--attenuation_image'])
-output_prefix = args['--output']
-interactive = not args['--non-interactive']
+def main(argv):
+    args = docopt(__doc__, version=__version__, argv=argv)
 
-
-def main():
+    # process command-line options
+    raw_data_file = args['--file']
+    randoms_data_file = args['--randoms']
+    acf_file = args['--attenuation_correction_factors']
+    data_path = args['--path']
+    if data_path is None:
+        data_path = PET.examples_data_path('PET') + '/mMR'
+    norm_file = PET.existing_filepath(data_path, args['--norm'])
+    mu_map_file = PET.existing_filepath(data_path, args['--attenuation_image'])
+    output_prefix = args['--output']
+    interactive = not args['--non-interactive']
 
     # direct all engine's messages to files
     _ = PET.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
@@ -116,8 +109,6 @@ def main():
     # we will average over all sinograms to reduce noise
     PET_plot_functions.plot_sinogram_profile(prompts, randoms=randoms, scatter=scatter_estimate)
 
-try:
-    main()
-    print('done')
-except PET.error as err:
-    print('%s' % err.value)
+
+if __name__ == "__main__":
+    main(None)

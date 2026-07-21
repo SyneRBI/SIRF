@@ -17,7 +17,6 @@ WARNING: Currently this computes scatter at the same sampling as the template. I
 real projection data as template, this will be very slow (and might run out of memory).
 (The STIR upsampling facility is currently not yet in SIRF. Sorry)
 '''
-
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2019 University of Hull
 ## Copyright 2020 University College London
@@ -35,31 +34,29 @@ real projection data as template, this will be very slow (and might run out of m
 ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
-
-__version__ = '0.1.0'
-from docopt import docopt
-import matplotlib.pyplot as plt
-
-args = docopt(__doc__, version=__version__)
-
-# import engine module
-import sirf.STIR as PET
 import os
+
+import matplotlib.pyplot as plt
+import sirf.STIR as PET
+from docopt import docopt
 from sirf.Utilities import show_2D_array
 
-# process command-line options
-data_file = args['--file']
-data_path = args['--path']
-print ("FILE",__file__)
-if data_path is None:
-    data_path = os.path.join(os.path.dirname(__file__), '..', '..', 'parameter_files')
-    print(data_path)
-acq_template_filename = PET.existing_filepath(data_path, data_file)
-output_file = args['--output']
-interactive = not args['--non-interactive']
+__version__ = '0.1.0'
 
 
-def main():
+def main(argv):
+    args = docopt(__doc__, version=__version__, argv=argv)
+
+    # process command-line options
+    data_file = args['--file']
+    data_path = args['--path']
+    print("FILE", __file__)
+    if data_path is None:
+        data_path = os.path.join(os.path.dirname(__file__), '..', '..', 'parameter_files')
+        print(data_path)
+    acq_template_filename = PET.existing_filepath(data_path, data_file)
+    output_file = args['--output']
+    interactive = not args['--non-interactive']
     ##    PET.AcquisitionData.set_storage_scheme('memory')
 
     # no info printing from the engine, warnings and errors sent to stdout
@@ -153,8 +150,7 @@ def main():
     plt.plot(simulated_scatter_as_array[0,4,0,:], label='scattered')
     ax.legend()
     plt.show()
-try:
-    main()
-    print('done')
-except PET.error as err:
-    print('%s' % err.value)
+
+
+if __name__ == "__main__":
+    main(None)
