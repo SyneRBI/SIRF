@@ -2,5 +2,6 @@
 python_files = ["*.py"]
 python_functions = ["main"]
 filterwarnings = ["error"]
+markers = ["slow: takes more than 30s to run"]
 addopts = ["--cov=sirf", "--cov-config=.coveragerc-SIRF"]
 # see also: conftest.py

@@ -39,9 +39,11 @@ Options:
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
 import importlib
+import os
 from ast import literal_eval
 
 import numpy as np
+import pytest
 from docopt import docopt
 from sirf.Utilities import examples_data_path, existing_filepath, show_3D_array
 
@@ -53,6 +55,8 @@ except RuntimeWarning:
 __version__ = '0.1.0'
 
 
+@pytest.mark.skipif(bool(os.getenv("CI", False)), reason="slow")
+@pytest.mark.slow
 def main(argv):
     # process command-line options
     args = docopt(__doc__, version=__version__, argv=argv)

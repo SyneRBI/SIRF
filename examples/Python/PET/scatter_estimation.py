@@ -40,14 +40,18 @@ Options: (defaults are set to work for mMR data processed in the current directo
 ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
+import os
+
 import PET_plot_functions
+import pytest
 import sirf.STIR as PET
 from docopt import docopt
 from sirf.Utilities import show_2D_array
 
 __version__ = '1.0.1'
 
-
+@pytest.mark.skipif(bool(os.getenv("CI", False)), reason="slow")
+@pytest.mark.slow
 def main(argv):
     args = docopt(__doc__, version=__version__, argv=argv)
 

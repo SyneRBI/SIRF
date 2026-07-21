@@ -47,12 +47,15 @@ import os
 from ast import literal_eval
 
 import PET_plot_functions
+import pytest
 from docopt import docopt
 from sirf.Utilities import examples_data_path, existing_filepath, show_2D_array
 
 __version__ = '1.1.0'
 
 
+@pytest.mark.skipif(bool(os.getenv("CI", False)), reason="slow")
+@pytest.mark.slow
 def main(argv):
     args = docopt(__doc__, version=__version__, argv=argv)
     # process command-line options
