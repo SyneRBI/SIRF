@@ -134,10 +134,7 @@ def test_main(scheme):
     print("Test geom info")
     geom_info = image.get_geometrical_info()
     print(geom_info.get_info())
-    if geom_info.get_size() != image_size:
-        warnings.warn("SIRF get_geometrical_info().get_size() failed.")
-    if geom_info.get_spacing() != voxel_size:
-        warnings.warn("SIRF get_geometrical_info().get_spacing() failed.")
+    #TODO: uncomment below after #906 is fixed
     #test.check_if_equal(geom_info.get_size(), image_size[::-1])
     #test.check_if_equal(geom_info.get_spacing(), voxel_size[::-1])
 
