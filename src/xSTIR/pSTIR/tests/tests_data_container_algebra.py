@@ -34,7 +34,11 @@ def test_main(rec=False, verb=False, throw=True, no_ret_val=True):
         AcquisitionData.set_storage_scheme(scheme)
         raw_data_file = existing_filepath(data_path, 'Utahscat600k_ca_seg4.hs')
         ad = AcquisitionData(raw_data_file)
-        data_container_algebra_tests(test, ad) # TODO: ad should be non-zero as it's used as a divisor
+        ad_arr = ad.as_array()
+        ad_arr += ad_arr.min() + 1e-6
+        adc = ad.clone()
+        adc.fill(ad_arr)
+        data_container_algebra_tests(test, adc)
 
         image_size = (31, 111, 111)
         voxel_size = (3.375, 3, 3)
