@@ -54,7 +54,7 @@ def test_main(rec=False, verb=False, throw=True, no_ret_val=True):
     pad2_arr = pad2.as_array()
     d = numpy.linalg.norm(pad2_arr - pad_arr*pad_arr)
     #print('acquisitions multiplication error: %.1e' % d)
-    test.check_if_equal(0, d) # TODO: fix
+    test.check_if_equal_within_tolerance(0, d)
     processed_data.multiply(processed_data, out=pad2)
     pad2_arr = pad2.as_array()
     d = numpy.linalg.norm(pad2_arr - pad_arr*pad_arr)
