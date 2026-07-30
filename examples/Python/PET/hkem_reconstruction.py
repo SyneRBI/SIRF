@@ -76,7 +76,7 @@ def divide_sino(numerator, denominator, small_num):
 def main(argv):
     # process command-line options
     args = docopt(__doc__, version=__version__, argv=argv)
-    num_subsets = int(args['--subs'])
+    #num_subsets = int(args['--subs'])
     num_subiterations = int(args['--subiter'])
     data_file = args['--file']
     data_path = args['--path']

@@ -19,12 +19,14 @@ import importlib
 import timeit
 
 import numpy
+if int(numpy.__version__[0]) < 2:
+    print('Using data views requires numpy version major not less than 2, exiting.')
+    exit()
 from docopt import docopt
 from sirf.SIRF import copyto
 from sirf.Utilities import examples_data_path, existing_filepath
 
 __version__ = "0.1.0"
-assert int(numpy.__version__[0]) >= 2, 'Using data views requires numpy version major not less than 2, exiting.'
 
 
 def main(argv):

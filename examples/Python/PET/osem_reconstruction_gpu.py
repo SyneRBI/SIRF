@@ -121,11 +121,11 @@ def main(argv):
     if args['--non-interactive']:
         visualisations = False
 
-    if args['--nifti']:
-        nifti = True
-        import sirf.Reg
-    else:
-        nifti = False
+    #if args['--nifti']:
+    #    nifti = True
+    #    import sirf.Reg
+    #else:
+    #    nifti = False
 
     if args['--gpu']:
         use_gpu = True
