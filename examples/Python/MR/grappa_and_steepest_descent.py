@@ -37,39 +37,37 @@ Options:
 ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
-
-__version__ = '0.1.0'
-from docopt import docopt
-args = docopt(__doc__, version=__version__)
+import importlib
 
 import numpy
+from docopt import docopt
+from sirf.Utilities import examples_data_path, existing_filepath
 
-from sirf.Utilities import error, examples_data_path, existing_filepath
+__version__ = '0.1.0'
 
-# import engine module
-import importlib
-mr = importlib.import_module('sirf.' + args['--engine'])
 
-# process command-line options
-data_file = args['--file']
-data_path = args['--path']
-if data_path is None:
-    data_path = examples_data_path('MR')
-niter = int(args['--iter'])
-slc = int(args['--slice'])
-output_file = args['--output']
-if slc < 0:
-    slc = None
-zdim = args['--zdim']
-if zdim == 1:
-    zyx = (1, 0, 2)
-elif zdim == 2:
-    zyx = (2, 1, 0)
-else:
-    zyx = None
-show_plot = not args['--non-interactive']
-
-def main():
+def main(argv):
+    # process command-line options
+    args = docopt(__doc__, version=__version__, argv=argv)
+    # import engine module
+    mr = importlib.import_module('sirf.' + args['--engine'])
+    data_file = args['--file']
+    data_path = args['--path']
+    if data_path is None:
+        data_path = examples_data_path('MR')
+    niter = int(args['--iter'])
+    slc = int(args['--slice'])
+    output_file = args['--output']
+    if slc < 0:
+        slc = None
+    zdim = args['--zdim']
+    if zdim == 1:
+        zyx = (1, 0, 2)
+    elif zdim == 2:
+        zyx = (2, 1, 0)
+    else:
+        zyx = None
+    show_plot = not args['--non-interactive']
 
     # locate the input data file
     input_file = existing_filepath(data_path, data_file)
@@ -155,11 +153,6 @@ def main():
         print('writing to %s' % output_file)
         image_data.write(output_file)
 
-try:
-    main()
-    print('\n=== done with %s' % __file__)
 
-except error as err:
-    # display error information
-    print('??? %s' % err.value)
-    exit(1)
+if __name__ == "__main__":
+    main(None)

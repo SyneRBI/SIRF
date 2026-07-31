@@ -21,7 +21,6 @@ Options:
   -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: file]
   --non-interactive            do not show plots
 '''
-
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2018 - 2019 Rutherford Appleton Laboratory STFC
 ## Copyright 2018 University College London.
@@ -39,54 +38,52 @@ Options:
 ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
-
-__version__ = '0.1.0'
-from docopt import docopt
-args = docopt(__doc__, version=__version__)
-
+import importlib
+import os
 from ast import literal_eval
 
-from sirf.Utilities import error, examples_data_path, existing_filepath
-from sirf.Utilities import show_3D_array
-
 import numpy as np
+import pytest
+from docopt import docopt
+from sirf.Utilities import examples_data_path, existing_filepath, show_3D_array
+
 try:
     import pylab
     HAVE_PYLAB = True
 except RuntimeWarning:
     HAVE_PYLAB = False
+__version__ = '0.1.0'
 
 
-# import engine module
-import importlib
-engine = args['--engine']
-pet = importlib.import_module('sirf.' + engine)
-
-
-# process command-line options
-data_path = args['--path']
-if data_path is None:
-    # default to data/examples/PET/mMR
-    # Note: seem to need / even on Windows
-    #data_path = os.path.join(examples_data_path('PET'), 'mMR')
-    data_path = examples_data_path('PET') + '/mMR'
-list_file = args['--list']
-sino_file = args['--sino']
-rand_file = args['--rand']
-tmpl_file = args['--tmpl']
-list_file = existing_filepath(data_path, list_file)
-tmpl_file = existing_filepath(data_path, tmpl_file)
-interval = literal_eval(args['--interval'])
-storage = args['--storage']
-show_plot = not args['--non-interactive'] and HAVE_PYLAB
-
-
-def main():
+@pytest.mark.skipif(bool(os.getenv("CI", False)), reason="slow")
+@pytest.mark.slow
+def main(argv):
+    # process command-line options
+    args = docopt(__doc__, version=__version__, argv=argv)
+    data_path = args['--path']
+    if data_path is None:
+        # default to data/examples/PET/mMR
+        # Note: seem to need / even on Windows
+        #data_path = os.path.join(examples_data_path('PET'), 'mMR')
+        data_path = examples_data_path('PET') + '/mMR'
+    list_file = args['--list']
+    sino_file = args['--sino']
+    rand_file = args['--rand']
+    tmpl_file = args['--tmpl']
+    list_file = existing_filepath(data_path, list_file)
+    tmpl_file = existing_filepath(data_path, tmpl_file)
+    interval = literal_eval(args['--interval'])
+    storage = args['--storage']
+    show_plot = not args['--non-interactive'] and HAVE_PYLAB
+    # import engine module
+    engine = args['--engine']
+    pet = importlib.import_module('sirf.' + engine)
 
     # direct all engine's messages to files
     _ = pet.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     # select acquisition data storage scheme
+    scheme = pet.AcquisitionData.get_storage_scheme()
     pet.AcquisitionData.set_storage_scheme(storage)
 
     # create listmode-to-sinograms converter object
@@ -103,7 +100,7 @@ def main():
     # set flags such that we only get the delayed coincidences
     lm2sino.flag_on('store_delayeds')
     lm2sino.flag_off('store_prompts')
-    
+
     # set up the converter
     lm2sino.set_up()
 
@@ -112,12 +109,12 @@ def main():
 
     # get access to the sinograms
     delayeds_acq_data = lm2sino.get_output()
-    
+
     # estimate the randoms from the delayeds via Maximum Likelihood estimation
     # This will take at least a few seconds
     randoms_estimate_acq_data = lm2sino.estimate_randoms();
     randoms_estimate_acq_data.write(rand_file)
-    
+
     # copy the acquisition data into Python arrays
     delayeds_acq_array = delayeds_acq_data.as_array()
     randoms_estimate_acq_array = randoms_estimate_acq_data.as_array()
@@ -135,10 +132,9 @@ def main():
         show_3D_array(np.stack((delayeds_acq_array[0,z,:,:], randoms_estimate_acq_array[0,z,:,:])), titles=('raw delayeds', ' estimated randoms'))
         pylab.show()
 
+    if scheme != storage:
+        pet.AcquisitionData.set_storage_scheme(scheme)
 
-try:
-    main()
-    print('\n=== done with %s' % __file__)
 
-except error as err:
-    print('%s' % err.value)
+if __name__ == "__main__":
+    main(None)

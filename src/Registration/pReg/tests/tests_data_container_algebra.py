@@ -34,6 +34,7 @@ def test_main(rec=False, verb=False, throw=True, no_ret_val=True):
     data_path = examples_data_path('Registration')
     image = reg.ImageData(os.path.join(data_path, 'test2.nii.gz'))
     image /= image.norm()
+    image += image.min() + 1e-6
     data_container_algebra_tests(test, image)
 
     numpy.testing.assert_equal(test.failed, 0)

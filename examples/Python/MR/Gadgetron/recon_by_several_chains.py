@@ -38,36 +38,29 @@ Options:
 ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
-
 import numpy
+from docopt import docopt
+# import engine module objects
+from pGadgetron import (AcquisitionData, AcquisitionDataProcessor,
+                        ImageDataProcessor, Reconstructor, examples_data_path,
+                        existing_filepath)
 
 __version__ = '0.1.0'
-from docopt import docopt
-args = docopt(__doc__, version=__version__)
-
-# import engine module objects
-from pGadgetron import examples_data_path
-from pGadgetron import existing_filepath
-from pGadgetron import AcquisitionData
-from pGadgetron import AcquisitionDataProcessor
-from pGadgetron import Reconstructor
-from pGadgetron import ImageDataProcessor
-from pGadgetron import error
-
-# process command-line options
-data_file = args['--file']
-data_path = args['--path']
-if data_path is None:
-    data_path = examples_data_path('MR')
-sigma = float(args['--sigma'])
-show_plot = not args['--non-interactive']
 
 
 def gaussian(x, mu, sigma):
     return numpy.exp(-numpy.power(x - mu, 2.) / (2 * numpy.power(sigma, 2.)))
 
 
-def main():
+def main(argv):
+    # process command-line options
+    args = docopt(__doc__, version=__version__, argv=argv)
+    data_file = args['--file']
+    data_path = args['--path']
+    if data_path is None:
+        data_path = examples_data_path('MR')
+    sigma = float(args['--sigma'])
+    show_plot = not args['--non-interactive']
 
     # Acquisitions will be read from this HDF file
     input_file = existing_filepath(data_path, data_file)
@@ -91,7 +84,7 @@ def main():
     k_space_dimensions = preprocessed_data.dimensions()
     print('Size of k-space slice reduced from %dx%dx%d' % acq_data.dimensions())
     print('to %dx%dx%d' % k_space_dimensions)
-    
+
     # Create simple Gaussian weighting function and apply it along the
     # readout direction onto the k-space data
     print('Apply Gaussian weighting function along readout')
@@ -111,13 +104,12 @@ def main():
         'GRAPPA:GenericReconCartesianGrappaGadget',
         'GenericReconFieldOfViewAdjustmentGadget',
         'GenericReconImageArrayScalingGadget'] if undersampled else ['SimpleReconGadget']
-    recon = Reconstructor \
-        (['AcquisitionAccumulateTriggerGadget', 'BucketToBufferGadget']
-         + recon_gadgets + ['ImageArraySplitGadget'])
-    
+    recon = Reconstructor(
+        ['AcquisitionAccumulateTriggerGadget', 'BucketToBufferGadget'] + recon_gadgets + ['ImageArraySplitGadget'])
+
     # provide pre-processed k-space data
     recon.set_input(preprocessed_data)
-    
+
     # perform reconstruction
     recon.process()
 
@@ -148,10 +140,5 @@ def main():
         image_data.show(title = 'Reconstructed image data (magnitude)')
 
 
-try:
-    main()
-    print('\n=== done with %s' % __file__)
-except error as err:
-    # display error information
-    print('??? %s' % err.value)
-    #exit(1)
+if __name__ == "__main__":
+    main(None)

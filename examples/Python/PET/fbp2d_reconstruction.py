@@ -29,29 +29,28 @@ Options:
 ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
+import importlib
+
+from docopt import docopt
+from sirf.Utilities import examples_data_path, existing_filepath
 
 __version__ = '0.1.0'
-from docopt import docopt
-args = docopt(__doc__, version=__version__)
-
-from sirf.Utilities import error, examples_data_path, existing_filepath
-
-# import engine module
-import importlib
-engine = args['--engine']
-pet = importlib.import_module('sirf.' + engine)
 
 
-# process command-line options
-data_file = args['--file']
-data_path = args['--path']
-if data_path is None:
-    data_path = examples_data_path('PET')
-raw_data_file = existing_filepath(data_path, data_file)
-show_plot = not args['--non-interactive']
+def main(argv):
+    args = docopt(__doc__, version=__version__, argv=argv)
 
+    # import engine module
+    engine = args['--engine']
+    pet = importlib.import_module('sirf.' + engine)
 
-def main():
+    # process command-line options
+    data_file = args['--file']
+    data_path = args['--path']
+    if data_path is None:
+        data_path = examples_data_path('PET')
+    raw_data_file = existing_filepath(data_path, data_file)
+    show_plot = not args['--non-interactive']
 
     # no info printing from the engine, warnings and errors sent to stdout
     _ = pet.MessageRedirector()
@@ -120,12 +119,5 @@ def main():
         image.show(z)
 
 
-# if anything goes wrong, an exception will be thrown 
-# (cf. Error Handling section in the spec)
-try:
-    main()
-    print('\n=== done with %s' % __file__)
-
-except error as err:
-    # display error information
-    print('%s' % err.value)
+if __name__ == "__main__":
+    main(None)

@@ -33,29 +33,28 @@ Options:
 ##   limitations under the License.
 
 __version__ = '0.1.0'
-from docopt import docopt
-args = docopt(__doc__, version=__version__)
-
-from sirf.Utilities import error, examples_data_path, existing_filepath
-from sirf.Utilities import show_2D_array
-
-# import engine module
 import importlib
-engine = args['--engine']
-pet = importlib.import_module('sirf.' + engine)
+
+from docopt import docopt
+from sirf.Utilities import (error, examples_data_path, existing_filepath,
+                            show_2D_array)
 
 
-data_path = args['--path']
-if data_path is None:
-    data_path = examples_data_path('PET')
-templ_file = args['--tfile']
-templ_file = existing_filepath(data_path, templ_file)
-acq_file = args['--afile']
-img_file = args['--ifile']
-show_plot = not args['--non-interactive']
+def main(argv):
+    args = docopt(__doc__, version=__version__, argv=argv)
 
+    # import engine module
+    engine = args['--engine']
+    pet = importlib.import_module('sirf.' + engine)
 
-def main():
+    data_path = args['--path']
+    if data_path is None:
+        data_path = examples_data_path('PET')
+    templ_file = args['--tfile']
+    templ_file = existing_filepath(data_path, templ_file)
+    acq_file = args['--afile']
+    img_file = args['--ifile']
+    show_plot = not args['--non-interactive']
 
     # engine's messages go to files, except error messages, which go to stdout
     _ = pet.MessageRedirector('info.txt', 'warn.txt')
@@ -155,9 +154,5 @@ def main():
         show_2D_array('Phantom', image_array[z,:,:])
 
 
-try:
-    main()
-    print('\n=== done with %s' % __file__)
-
-except error as err:
-    print('%s' % err.value)
+if __name__ == "__main__":
+    main(None)

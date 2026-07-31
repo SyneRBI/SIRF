@@ -2,8 +2,11 @@
 ## vxx
 * Python interface
   - Added `supports_cuda_array_view()` and related `DataContainer`/Python support, including `__cuda_array_interface__`, to expose CUDA-backed arrays directly for supported containers.
-*SIRF
+* SIRF
   - The environment variables `SIRF_PATH`and `SIRF_INSTALL_PATH` no longer used, the use of `SIRF_DATA_PATH` is optional.
+* CI and testing
+  - replace examples' custom test framework with pytest.
+  - fix Python src coverage.
 
 ## v3.10.1
 

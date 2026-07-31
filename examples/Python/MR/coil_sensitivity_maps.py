@@ -1,5 +1,5 @@
 '''
-Medium-level demo demonstrating how 2D coil sensitivity maps can be obtained 
+Medium-level demo demonstrating how 2D coil sensitivity maps can be obtained
 from a multi-coil 2D Cartesian MR acquisition
 
 Usage:
@@ -34,27 +34,26 @@ Options:
 ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
+import importlib
+
+from docopt import docopt
+from sirf.Utilities import examples_data_path, existing_filepath, show_3D_array
 
 __version__ = '0.1.0'
-from docopt import docopt
-args = docopt(__doc__, version=__version__)
 
-from sirf.Utilities import error, examples_data_path, existing_filepath, show_3D_array
 
-# import engine module
-import importlib
-mr = importlib.import_module('sirf.' + args['--engine'])
-
-# process command-line options
-data_file = args['--file']
-data_path = args['--path']
-if data_path is None:
-    data_path = examples_data_path('MR')
-nit = int(args['--iter'])
-cks = int(args['--conv'])
-show_plot = not args['--non-interactive']
-
-def main():
+def main(argv):
+    # process command-line options
+    args = docopt(__doc__, version=__version__, argv=argv)
+    # import engine module
+    mr = importlib.import_module('sirf.' + args['--engine'])
+    data_file = args['--file']
+    data_path = args['--path']
+    if data_path is None:
+        data_path = examples_data_path('MR')
+    nit = int(args['--iter'])
+    cks = int(args['--conv'])
+    show_plot = not args['--non-interactive']
 
     # 1. Prepare data:
 
@@ -71,7 +70,7 @@ def main():
     #
     # sort k-space data into a 2D Cartesian matrix for each coil
     processed_data.sort()
-    
+
     # 2. Calculate coil sensitivity maps directly from the raw k-space data:
 
     # create coil sensitivity object
@@ -80,7 +79,7 @@ def main():
     # set number of smoothing iterations to suppress noise
     CSMs.smoothing_iterations = nit
     CSMs.conv_kernel_halfsize = cks
-    
+
     # calculate coil sensitivity maps directly from the raw k-space data by the
     # Square-Root-of-the-Sum-of-Squares over all coils (SRSS) method
     print('using default Square-Root-of-the-Sum-of-Squares (SRSS) method...')
@@ -123,11 +122,11 @@ def main():
             import matplotlib.pyplot as plt
             plt.show()
         return
-    # calculate coil sensitivity maps using an approach suggested by 
+    # calculate coil sensitivity maps using an approach suggested by
     #   Inati SJ, Hansen MS, Kellman P.
     #   A solution to the phase problem in adaptive coil combination.
-    #   In: ISMRM proceeding; April; Salt Lake City, Utah, USA; 2013. 2672.  
-    # for more details please see 
+    #   In: ISMRM proceeding; April; Salt Lake City, Utah, USA; 2013. 2672.
+    # for more details please see
     # gadgetron/toolboxes/mri_core/mri_core_coil_map_estimation.h
     print('using Inati method...')
     print('A) calculating from raw data...')
@@ -145,11 +144,6 @@ def main():
     diff = CSs - CSMs
     print('difference between A and B: %f' % diff.norm())
 
-try:
-    main()
-    print('\n=== done with %s' % __file__)
 
-except error as err:
-    # display error information
-    print('??? %s' % err.value)
-    exit(1)
+if __name__ == "__main__":
+    main(None)

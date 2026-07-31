@@ -28,27 +28,13 @@ Options:
 ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
+import importlib
+
+import numpy
+from docopt import docopt
+from sirf.Utilities import examples_data_path, existing_filepath
 
 __version__ = '0.1.0'
-from docopt import docopt
-args = docopt(__doc__, version=__version__)
-
-#import math
-import numpy
-
-from sirf.Utilities import error, examples_data_path, existing_filepath
-
-# import engine module
-import importlib
-engine = args['--engine']
-pet = importlib.import_module('sirf.' + engine)
-
-# process command-line options
-data_file = args['--file']
-data_path = args['--path']
-if data_path is None:
-    data_path = examples_data_path('PET')
-pet.AcquisitionData.set_storage_scheme('memory')
 
 
 def test_img_asarray(img_data):
@@ -68,7 +54,20 @@ def test_img_asarray(img_data):
     print('norm of img_data.asarray() - img_data.as_array(): %f' % numpy.linalg.norm(diff))
 
 
-def main():
+def main(argv):
+    args = docopt(__doc__, version=__version__, argv=argv)
+
+    # import engine module
+    engine = args['--engine']
+    pet = importlib.import_module('sirf.' + engine)
+
+    # process command-line options
+    data_file = args['--file']
+    data_path = args['--path']
+    if data_path is None:
+        data_path = examples_data_path('PET')
+    pet.AcquisitionData.set_storage_scheme('memory')
+
     engine_version = pet.get_engine_version_string()
     print('Using %s version %s as the reconstruction engine' % (engine, engine_version))
     print('%s doc path: %s' % (engine, pet.get_engine_doc_dir()))
@@ -108,9 +107,6 @@ def main():
     img_data = pet.ImageData(acq_data)
     test_img_asarray(img_data)
 
-try:
-    main()
-    print('\n=== done with %s' % __file__)
-except error as err:
-    print('%s' % err.value)
 
+if __name__ == "__main__":
+    main(None)

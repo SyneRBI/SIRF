@@ -15,5 +15,5 @@
 #
 #=========================================================================
 ADD_TEST(NAME REG_TESTS_PYTHON
-  COMMAND ${Python_EXECUTABLE} -m pytest --cov=sirf.Reg --cov-config=.coveragerc-Reg src/Registration/pReg
+  COMMAND ${Python_EXECUTABLE} -m pytest src/Registration/pReg/tests
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

@@ -15,7 +15,6 @@ Options:
   -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: memory]
   --non-interactive            do not show plots
 '''
-
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2018 - 2019 Rutherford Appleton Laboratory STFC
 ## Copyright 2018 University College London.
@@ -33,41 +32,39 @@ Options:
 ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
-
-__version__ = '1.0.0'
-from docopt import docopt
-args = docopt(__doc__, version=__version__)
-
+import importlib
+import os
 from ast import literal_eval
 
-from sirf.Utilities import error, examples_data_path, existing_filepath
-from sirf.Utilities import show_2D_array
+import pytest
+from docopt import docopt
+from sirf.Utilities import examples_data_path, existing_filepath, show_2D_array
 
-# import engine module
-import importlib
-engine = args['--engine']
-pet = importlib.import_module('sirf.' + engine)
+__version__ = '1.0.0'
 
 
-# process command-line options
-data_path = args['--path']
-if data_path is None:
-    # default to data/examples/PET/mMR
-    # Note: seem to need / even on Windows
-    #data_path = os.path.join(examples_data_path('PET'), 'mMR')
-    data_path = examples_data_path('PET') + '/mMR'
-prefix = data_path + '/'
-list_file = args['--list']
-sino_file = args['--sino']
-tmpl_file = args['--tmpl']
-list_file = existing_filepath(data_path, list_file)
-tmpl_file = existing_filepath(data_path, tmpl_file)
-interval = literal_eval(args['--interval'])
-storage = args['--storage']
-show_plot = not args['--non-interactive']
-
-
-def main():
+@pytest.mark.skipif(bool(os.getenv("CI", False)), reason="slow")
+@pytest.mark.slow
+def main(argv):
+    args = docopt(__doc__, version=__version__, argv=argv)
+    # process command-line options
+    data_path = args['--path']
+    if data_path is None:
+        # default to data/examples/PET/mMR
+        # Note: seem to need / even on Windows
+        #data_path = os.path.join(examples_data_path('PET'), 'mMR')
+        data_path = examples_data_path('PET') + '/mMR'
+    list_file = args['--list']
+    sino_file = args['--sino']
+    tmpl_file = args['--tmpl']
+    list_file = existing_filepath(data_path, list_file)
+    tmpl_file = existing_filepath(data_path, tmpl_file)
+    interval = literal_eval(args['--interval'])
+    storage = args['--storage']
+    show_plot = not args['--non-interactive']
+    # import engine module
+    engine = args['--engine']
+    pet = importlib.import_module('sirf.' + engine)
 
     # select acquisition data storage scheme
     pet.AcquisitionData.set_storage_scheme(storage)
@@ -82,7 +79,7 @@ def main():
     lm2sino.set_input(list_file)
     lm2sino.set_output_prefix(sino_file)
     # the template is used to specify the sizes of the output sinogram.
-    # see the acquisition_data_from_scanner_info demo for an example how to 
+    # see the acquisition_data_from_scanner_info demo for an example how to
     # make your own template file
     lm2sino.set_template(acq_data_template)
     # old way (now just an alternative option)
@@ -119,9 +116,5 @@ def main():
         show_2D_array('Randoms', rnd_array[0,z,:,:])
 
 
-try:
-    main()
-    print('\n=== done with %s' % __file__)
-
-except error as err:
-    print('%s' % err.value)
+if __name__ == "__main__":
+    main(None)

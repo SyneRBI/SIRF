@@ -28,61 +28,58 @@ Options:
 ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
-
-__version__ = '0.1.0'
 from docopt import docopt
-args = docopt(__doc__, version=__version__)
-
-import time
-
-# import SIRF utilities
-from sirf.Utilities import examples_data_path, existing_filepath, error
 # import MR engine types
 from sirf.Gadgetron import AcquisitionData, Reconstructor
+# import SIRF utilities
+from sirf.Utilities import examples_data_path, existing_filepath
 
-# process command-line options
-data_file = args['--file']
-data_path = args['--path']
-if data_path is None:
-    data_path = examples_data_path('MR')
+__version__ = '0.1.0'
 
-def main():
+
+if __name__ == "__main__":
+    # process command-line options
+    args = docopt(__doc__, version=__version__)
+    data_file = args['--file']
+    data_path = args['--path']
+    if data_path is None:
+        data_path = examples_data_path('MR')
 
     # locate the input data
     input_file = existing_filepath(data_path, data_file)
     acq_data = AcquisitionData(input_file)
-    
+
     # create reconstruction object
-    recon = Reconstructor([ \
-        'NoiseAdjustGadget', \
-        'PCACoilGadget', \
-        'CoilReductionGadget(coils_out=16)', \
-        'gpuRadialSensePrepGadget(' + \
-            'mode=2,' + \
-            'profiles_per_frame=16,' + \
-            'rotations_per_reconstruction=16,' + \
-            'buffer_frames_per_rotation=16,' + \
-            'buffer_length_in_rotations=2,' + \
-            'reconstruction_os_factor_x=1.5,' + \
-            'reconstruction_os_factor_y=1.5' + \
-        ')', \
-        'slice0:gpuCgSenseGadget(' + \
-            'number_of_iterations=10,' + \
-            'oversampling_factor=1.25,' + \
-            'output_convergence=true' + \
-        ')', \
-        'slice1:gpuCgSenseGadget(' + \
-            'sliceno=1,' + \
-            'number_of_iterations=10,' + \
-            'oversampling_factor=1.25,' + \
-            'output_convergence=true' + \
-        ')', \
-        'slice2:gpuCgSenseGadget(' + \
-            'sliceno=2,' + \
-            'number_of_iterations=10,' + \
-            'oversampling_factor=1.25,' + \
-            'output_convergence=true' + \
-        ')', \
+    recon = Reconstructor([
+        'NoiseAdjustGadget',
+        'PCACoilGadget',
+        'CoilReductionGadget(coils_out=16)',
+        'gpuRadialSensePrepGadget(' +
+            'mode=2,' +
+            'profiles_per_frame=16,' +
+            'rotations_per_reconstruction=16,' +
+            'buffer_frames_per_rotation=16,' +
+            'buffer_length_in_rotations=2,' +
+            'reconstruction_os_factor_x=1.5,' +
+            'reconstruction_os_factor_y=1.5' +
+        ')',
+        'slice0:gpuCgSenseGadget(' +
+            'number_of_iterations=10,' +
+            'oversampling_factor=1.25,' +
+            'output_convergence=true' +
+        ')',
+        'slice1:gpuCgSenseGadget(' +
+            'sliceno=1,' +
+            'number_of_iterations=10,' +
+            'oversampling_factor=1.25,' +
+            'output_convergence=true' +
+        ')',
+        'slice2:gpuCgSenseGadget(' +
+            'sliceno=2,' +
+            'number_of_iterations=10,' +
+            'oversampling_factor=1.25,' +
+            'output_convergence=true' +
+        ')',
         'ExtractGadget', 'AutoScaleGadget'])
 
     # provide raw k-space data as input
@@ -95,12 +92,3 @@ def main():
     image_data = recon.get_output()
 
     image_data.show(title = 'Images')
-
-try:
-    main()
-    print('done')
-
-except error as err:
-    # display error information
-    print('??? %s' % err.value)
-    exit(1)

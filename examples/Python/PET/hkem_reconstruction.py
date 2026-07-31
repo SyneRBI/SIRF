@@ -15,7 +15,6 @@ Options:
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
   --non-interactive            do not show plots
 '''
-
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2023 National Physical Laboratory
 ## Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
@@ -34,39 +33,17 @@ Options:
 ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
+import importlib
+
+import numpy as np
+from docopt import docopt
+from sirf.Utilities import examples_data_path, existing_filepath
 
 __version__ = '0.1.0'
-from docopt import docopt
-args = docopt(__doc__, version=__version__)
 
-from matplotlib.pyplot import title
-import numpy as np
-
-from sirf.Utilities import error, examples_data_path, existing_filepath
-
-# import engine module
-import importlib
-engine = args['--engine']
-pet = importlib.import_module('sirf.' + engine)
-
-
-# process command-line options
-num_subsets = int(args['--subs'])
-num_subiterations = int(args['--subiter'])
-data_file = args['--file']
-data_path = args['--path']
-if data_path is None:
-    data_path = examples_data_path('PET')
-raw_data_file = existing_filepath(data_path, data_file)
-if args['--anim'] is not None:
-    ai_file = existing_filepath(data_path, args['--anim'])
-else:
-    ai_file = None
-show_plot = not args['--non-interactive']
 
 def divide(numerator, denominator, small_num):
-    """ division like in STIR 
-    """
+    """division like in STIR."""
     small_value = np.max(numerator)*small_num
     if small_value<=0:
         small_value=0
@@ -81,8 +58,7 @@ def divide(numerator, denominator, small_num):
     return numerator
 
 def divide_sino(numerator, denominator, small_num):
-    """ division like in STIR 
-    """
+    """division like in STIR."""
     small_value = np.max(numerator)*small_num
     if small_value<=0:
         small_value=0
@@ -97,24 +73,24 @@ def divide_sino(numerator, denominator, small_num):
     return numerator
 
 
-# Define a function that does something with an image. This function
-# provides a simplistic example of user's involvement in the reconstruction
-def image_data_processor(image_array, im_num):
-    """ Process/display an image
-
-        image is not modified in this simplistic example - but might have been
-    """
-    if not show_plot:
-        return image_array
-    # display the current estimate of the image at z = 20
-    pylab.figure(im_num)
-    pylab.title('image estimate %d' % im_num)
-    pylab.imshow(image_array[20,:,:])
-    print('You may need to close Figure %d window to continue' % im_num)
-    return image_array
-
-
-def main():
+def main(argv):
+    # process command-line options
+    args = docopt(__doc__, version=__version__, argv=argv)
+    num_subsets = int(args['--subs'])
+    num_subiterations = int(args['--subiter'])
+    data_file = args['--file']
+    data_path = args['--path']
+    if data_path is None:
+        data_path = examples_data_path('PET')
+    raw_data_file = existing_filepath(data_path, data_file)
+    if args['--anim'] is not None:
+        ai_file = existing_filepath(data_path, args['--anim'])
+    else:
+        ai_file = None
+    show_plot = not args['--non-interactive']
+    # import engine module
+    engine = args['--engine']
+    pet = importlib.import_module('sirf.' + engine)
 
     # direct all engine's information and warnings printing to files
     _ = pet.MessageRedirector('info.txt', 'warn.txt')
@@ -193,9 +169,9 @@ def main():
         # perform one KOSMAPOSL sub-iteration
         recon.update_current_estimate()
         current_alpha1 = recon.get_current_estimate()
-        image_update1 = recon.compute_kernelised_image(current_alpha1, iterative_kernel_info1)   
-        iterative_kernel_info1 = current_alpha1  
-        recon.set_current_estimate(current_alpha1)  
+        image_update1 = recon.compute_kernelised_image(current_alpha1, iterative_kernel_info1)
+        iterative_kernel_info1 = current_alpha1
+        recon.set_current_estimate(current_alpha1)
 
 # Now let's create a KOSMAPOSL algorithm in python
     recon2 = pet.KOSMAPOSLReconstructor()
@@ -229,7 +205,7 @@ def main():
         current_alpha2 *=mult_update #a(n+1)=a(n) * K*G/S
         image_update2=recon.compute_kernelised_image(current_alpha2, iterative_kernel_info2) #Lambda(n+1)=K(n)a(n+1)
         iterative_kernel_info2=current_alpha2 #K(n+1)<=K(n)
-    
+
     mean2=np.mean(image_update2.as_array())
     mean1=np.mean(image_update1.as_array())
     diff_im.fill(abs(image_update2.as_array()/mean2-image_update1.as_array()/mean1))
@@ -252,12 +228,5 @@ def main():
     print('relative residual norm: %e' % (diff.norm()/acq_data.norm()))
 
 
-# if anything goes wrong, an exception will be thrown 
-# (cf. Error Handling section in the spec)
-try:
-    main()
-    print('\n=== done with %s' % __file__)
-
-except error as err:
-    # display error information
-    print('%s' % err.value)
+if __name__ == "__main__":
+    main(None)

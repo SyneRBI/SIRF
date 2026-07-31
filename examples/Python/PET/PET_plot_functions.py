@@ -1,7 +1,6 @@
 '''
 Some functions for plotting used in the examples
 '''
-
 ## CCP SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2020-2021 University College London
 ##
@@ -18,10 +17,10 @@ Some functions for plotting used in the examples
 ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
-
-import sirf.STIR as PET
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+import sirf.STIR as PET
+
 
 def plot_sinogram_profile(prompts, randoms=None, scatter=None, sumaxis=(0,1), select=0):
     """
@@ -50,4 +49,3 @@ def plot_sinogram_profile(prompts, randoms=None, scatter=None, sumaxis=(0,1), se
             plt.plot(np.sum(scatter.as_array() + randoms_as_array, axis=sumaxis)[select,:], label='randoms+scatter')
     ax.legend()
     plt.show()
-
