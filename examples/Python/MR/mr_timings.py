@@ -20,8 +20,7 @@ import timeit
 
 import numpy
 if int(numpy.__version__[0]) < 2:
-    print('Using data views requires numpy version major not less than 2, exiting.')
-    exit()
+    raise ImportError("SIRF data views requires numpy>=2")
 from docopt import docopt
 from sirf.SIRF import copyto
 from sirf.Utilities import examples_data_path, existing_filepath
