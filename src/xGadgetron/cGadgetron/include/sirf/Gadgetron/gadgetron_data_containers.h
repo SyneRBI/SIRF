@@ -1650,6 +1650,7 @@ namespace sirf {
 		*/
 		GadgetronImagesVector(const MRAcquisitionData& ad, const bool coil_resolved=false);
         GadgetronImagesVector(const GadgetronImagesVector& images);
+        GadgetronImagesVector(const ImageData& id);
 		GadgetronImagesVector(GadgetronImagesVector& images, const char* attr,
 			const char* target);
 		virtual void empty()
