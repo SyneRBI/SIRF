@@ -154,6 +154,7 @@ void sirf::CartesianFourierEncoding::forward(MRAcquisitionData& ac, const CFImag
         int kz = nz/2 - kz_lim.center + acq.idx().kspace_encode_step_2;
 
         for (unsigned int c = 0; c < nc; c++) {
+#pragma omp parallel for
             for (unsigned int s = 0; s < nx; s++) {
                 acq.data(s, c) = ci(s, ky, kz, c);
             }
@@ -212,6 +213,7 @@ void sirf::CartesianFourierEncoding::backward(CFImage& img, const MRAcquisitionD
         int z = nz/2 - kz_lim.center + acq.idx().kspace_encode_step_2;
     
         for (unsigned int c = 0; c < nc; c++) {
+#pragma omp parallel for
             for (unsigned int s = 0; s < readout; s++) {
                 ci(s, y, z, c) += acq.data(s, c);
             }

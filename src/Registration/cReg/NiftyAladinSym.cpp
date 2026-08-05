@@ -33,7 +33,11 @@ limitations under the License.
 #include "sirf/Reg/NiftiImageData3D.h"
 #include "sirf/Reg/NiftiImageData3DDeformation.h"
 #include "sirf/Reg/NiftiImageData3DDisplacement.h"
+// Compatibility with NiftyReg builds where _reg_aladin.h still references
+// InputTransform while only TransformationMatrix is declared.
+#define InputTransform TransformationMatrix
 #include <_reg_aladin_sym.h>
+#undef InputTransform
 
 using namespace sirf;
 
