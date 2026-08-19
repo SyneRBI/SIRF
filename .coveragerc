@@ -1,0 +1,13 @@
+[run]
+relative_files = True
+source = sirf
+[paths]
+source =
+    /opt/SIRF-SuperBuild/INSTALL/python/sirf
+    /home/sirfuser/devel/install/python/sirf
+    /home/runner/install/python/sirf
+    src/common
+    src/xGadgetron/pGadgetron
+    src/Registration/pReg
+    src/xSTIR/pSTIR
+    src/torch

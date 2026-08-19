@@ -25,7 +25,6 @@ Options:
   --gpu                        use gpu
   --non-interactive            do not show plots
 '''
-
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2018 - 2020 Rutherford Appleton Laboratory STFC
 ## Copyright 2018 - 2021, 2024 University College London.
@@ -43,68 +42,54 @@ Options:
 ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
-
-__version__ = '1.1.0'
-from docopt import docopt
-args = docopt(__doc__, version=__version__)
-
-from ast import literal_eval
+import importlib
 import os
+from ast import literal_eval
 
 import PET_plot_functions
+import pytest
+from docopt import docopt
+from sirf.Utilities import examples_data_path, existing_filepath, show_2D_array
 
-from sirf.Utilities import error, examples_data_path, existing_filepath
-from sirf.Utilities import show_2D_array
-
-# import engine module
-import importlib
-engine = args['--engine']
-pet = importlib.import_module('sirf.' + engine)
+__version__ = '1.1.0'
 
 
-# process command-line options
-data_path = args['--path']
-if data_path is None:
-    # default to data/examples/PET/mMR
-    # Note: seem to need / even on Windows
-    #data_path = os.path.join(examples_data_path('PET'), 'mMR')
-    data_path = examples_data_path('PET') + '/mMR'
-print('Finding files in %s' % data_path)
-
-list_file = args['--list']
-sino_file = args['--sino']
-norm_file = args['--norm']
-attn_file = args['--attn']
-outp_file = args['--outp']
-# Check file exists (e.g., absolute path). Else prepend data_path
-if not os.path.isfile(list_file):
-    list_file = existing_filepath(data_path, list_file)
-if not os.path.isfile(norm_file):
-    norm_file = existing_filepath(data_path, norm_file)
-if not os.path.isfile(attn_file):
-    attn_file = existing_filepath(data_path, attn_file)
-nxny = literal_eval(args['--nxny'])
-input_interval = literal_eval(args['--interval'])
-num_subsets = int(args['--subs'])
-num_subiterations = int(args['--subiter'])
-storage = args['--storage']
-count_threshold = args['--counts']
-
-if args['--visualisations']:
-    visualisations = True
-else:
-    visualisations = False
-if args['--non-interactive']:
-    visualisations = False
-
-if args['--gpu']:
-    use_gpu = True
-#    import sirf.Reg
-else:
-    use_gpu = False
-
-
-def main():
+@pytest.mark.skipif(bool(os.getenv("CI", False)), reason="slow")
+@pytest.mark.slow
+def main(argv):
+    args = docopt(__doc__, version=__version__, argv=argv)
+    # process command-line options
+    data_path = args['--path']
+    if data_path is None:
+        # default to data/examples/PET/mMR
+        # Note: seem to need / even on Windows
+        #data_path = os.path.join(examples_data_path('PET'), 'mMR')
+        data_path = examples_data_path('PET') + '/mMR'
+    print('Finding files in %s' % data_path)
+    list_file = args['--list']
+    sino_file = args['--sino']
+    norm_file = args['--norm']
+    attn_file = args['--attn']
+    outp_file = args['--outp']
+    # Check file exists (e.g., absolute path). Else prepend data_path
+    if not os.path.isfile(list_file):
+        list_file = existing_filepath(data_path, list_file)
+    if not os.path.isfile(norm_file):
+        norm_file = existing_filepath(data_path, norm_file)
+    if not os.path.isfile(attn_file):
+        attn_file = existing_filepath(data_path, attn_file)
+    nxny = literal_eval(args['--nxny'])
+    input_interval = literal_eval(args['--interval'])
+    num_subsets = int(args['--subs'])
+    num_subiterations = int(args['--subiter'])
+    storage = args['--storage']
+    count_threshold = args['--counts']
+    visualisations = args['--visualisations']
+    if args['--non-interactive']:
+        visualisations = False
+    # import engine module
+    engine = args['--engine']
+    pet = importlib.import_module('sirf.' + engine)
 
     # engine's messages go to files, except error messages, which go to stdout
     _ = pet.MessageRedirector('info.txt', 'warn.txt')
@@ -256,12 +241,7 @@ def main():
         z = out.shape[0]//2
         image_array = out.as_array()
         show_2D_array('Reconstructed image', image_array[z,:,:])
-#        pylab.show()
 
 
-try:
-    main()
-    print('\n=== done with %s' % __file__)
-
-except error as err:
-    print('%s' % err.value)
+if __name__ == "__main__":
+    main(None)

@@ -10,7 +10,6 @@ Options:
   -s <file>, --scatter=<file> scatter data file [default: None]
   --non-interactive           do not show plots
 '''
-
 ## CCP SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2020-2021 University College London
 ##
@@ -27,18 +26,18 @@ Options:
 ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
-
-__version__ = '1.0.0'
+import PET_plot_functions
 from docopt import docopt
 
-args = docopt(__doc__, version=__version__)
-if args['--non-interactive']:
-    exit()
+__version__ = '1.0.0'
 
-prompts = args["--file"]
-scatter = args["--scatter"]
-randoms = args["--randoms"]
+if __name__ == "__main__":
+    args = docopt(__doc__, version=__version__)
+    if args['--non-interactive']:
+        exit()
 
-import PET_plot_functions
+    prompts = args["--file"]
+    scatter = args["--scatter"]
+    randoms = args["--randoms"]
 
-PET_plot_functions.plot_sinogram_profile(prompts, randoms=randoms, scatter=scatter)
+    PET_plot_functions.plot_sinogram_profile(prompts, randoms=randoms, scatter=scatter)

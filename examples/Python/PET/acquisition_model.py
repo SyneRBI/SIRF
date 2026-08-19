@@ -37,41 +37,39 @@ You probably want to check that instead.
 ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
+import importlib
+
+from docopt import docopt
+from sirf.Utilities import (error, examples_data_path, existing_filepath,
+                            show_2D_array)
 
 __version__ = '0.1.0'
-from docopt import docopt
-args = docopt(__doc__, version=__version__)
-
-from sirf.Utilities import error, examples_data_path, existing_filepath
-from sirf.Utilities import show_2D_array
-
-# import engine module
-import importlib
-engine = args['--engine']
-pet = importlib.import_module('sirf.' + engine)
 
 
-# process command-line options
-data_file = args['--file']
-data_path = args['--path']
-if data_path is None:
-    data_path = examples_data_path('PET')
-raw_data_file = existing_filepath(data_path, data_file)
-addv = float(args['--addv'])
-back = float(args['--back'])
-beff = 1/float(args['--norm'])
-output_file = args['--output']
-parallelproj = args['--parallelproj']
-show_plot = not args['--non-interactive']
+def main(argv):
+    args = docopt(__doc__, version=__version__, argv=argv)
 
+    # import engine module
+    engine = args['--engine']
+    pet = importlib.import_module('sirf.' + engine)
 
-try:
-    import matplotlib.pyplot as plt
-except:
-    show_plot = False
+    # process command-line options
+    data_file = args['--file']
+    data_path = args['--path']
+    if data_path is None:
+        data_path = examples_data_path('PET')
+    raw_data_file = existing_filepath(data_path, data_file)
+    addv = float(args['--addv'])
+    back = float(args['--back'])
+    beff = 1/float(args['--norm'])
+    output_file = args['--output']
+    parallelproj = args['--parallelproj']
+    show_plot = not args['--non-interactive']
 
-
-def main():
+    try:
+        import matplotlib.pyplot as plt
+    except:
+        show_plot = False
 
     print(pet.scanner_names())
 
@@ -250,7 +248,7 @@ def main():
         # show simulated acquisition data
         simulated_data_as_array_direct = simulated_data.as_array()
         show_2D_array('Direct projection', simulated_data_as_array_direct[0,0,:,:])
-    
+
     # adjoint is an alias for the backward method for a linear AcquisitionModel
     # raises error if the AcquisitionModel is not linear.
     try:
@@ -266,9 +264,5 @@ def main():
         show_2D_array('Adjoint projection', back_projected_image_as_array_adj[z,:,:])
 
 
-try:
-    main()
-    print('\n=== done with %s' % __file__)
-
-except error as err:
-    print('%s' % err.value)
+if __name__ == "__main__":
+    main(None)

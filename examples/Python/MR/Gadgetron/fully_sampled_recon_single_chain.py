@@ -1,6 +1,6 @@
 '''
-Medium-level interface demo that illustrates 2D Cartesian MR image 
-reconstruction using Gadgetron by directly creating and running a chain of 
+Medium-level interface demo that illustrates 2D Cartesian MR image
+reconstruction using Gadgetron by directly creating and running a chain of
 gadgets.
 
 Usage:
@@ -35,59 +35,55 @@ Options:
 ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
-
-__version__ = '0.1.0'
 from docopt import docopt
-args = docopt(__doc__, version=__version__)
-
-import time
-import sys
-
-# import SIRF utilities
-from sirf.Utilities import examples_data_path, existing_filepath, error
 # import MR engine types
 from sirf.Gadgetron import AcquisitionData, Reconstructor
+# import SIRF utilities
+from sirf.Utilities import examples_data_path, existing_filepath
 
-# process command-line options
-data_file = args['--file']
-data_path = args['--path']
-if data_path is None:
-    data_path = examples_data_path('MR')
+__version__ = '0.1.0'
 
-output_file = args['--output']
-if output_file[-4:] == '.dcm':
-    dcm_prefix = output_file[: -4]
-else:
-    dcm_prefix = ''
-dcm_output = len(dcm_prefix)
 
-type_to_save = args['--type-to-save']
-show_plot = not args['--non-interactive']
+def main(argv):
+    # process command-line options
+    args = docopt(__doc__, version=__version__, argv=argv)
+    data_file = args['--file']
+    data_path = args['--path']
+    if data_path is None:
+        data_path = examples_data_path('MR')
 
-algorithm = args['--algorithm']
+    output_file = args['--output']
+    if output_file[-4:] == '.dcm':
+        dcm_prefix = output_file[: -4]
+    else:
+        dcm_prefix = ''
+    dcm_output = len(dcm_prefix)
 
-def main():
+    type_to_save = args['--type-to-save']
+    show_plot = not args['--non-interactive']
+
+    algorithm = args['--algorithm']
 
     # locate the input data
     input_file = existing_filepath(data_path, data_file)
     acq_data = AcquisitionData(input_file)
-    
+
     if algorithm == 'SimpleReconGadget':
         extra_gadgets = [algorithm]
     else:
         extra_gadgets = [algorithm, 'GenericReconFieldOfViewAdjustmentGadget']
-    
+
     # create reconstruction object
-    # Rather than using a predefined image reconstruction object, here a new 
-    # image reconstruction object is created by concatinating multiple gadgets 
-    # (for more information on Gadgetron and its gadgets please see: 
+    # Rather than using a predefined image reconstruction object, here a new
+    # image reconstruction object is created by concatinating multiple gadgets
+    # (for more information on Gadgetron and its gadgets please see:
     # https://github.com/gadgetron/.).
-    # Parameters for individual gadgets can be defined either during the 
+    # Parameters for individual gadgets can be defined either during the
     # creation of the reconstruction object:
     #   e.g. AcquisitionAccumulateTriggerGadget(trigger_dimension=repetition)
     # or by giving a gadget a label (cf. label ex: for the last gadget)
     # and using set_gadget_property(label, propery, value).
-    # The gadgets will be concatenated and will be executed as soon as 
+    # The gadgets will be concatenated and will be executed as soon as
     # process() is called.
     recon_gadgets = ['NoiseAdjustGadget',
         'AsymmetricEchoAdjustROGadget',
@@ -95,7 +91,7 @@ def main():
         'AcquisitionAccumulateTriggerGadget(trigger_dimension=repetition)',
         'BucketToBufferGadget(split_slices=true, verbose=false)'] \
         + extra_gadgets + \
-        ['ImageArraySplitGadget', 
+        ['ImageArraySplitGadget',
         'ex:ExtractGadget'
         ]
 
@@ -125,7 +121,7 @@ def main():
     # Note: each gadget chain can run on a different VM - to try, start two VMs
     # and do the above steps 1 and 2 on one of them, then add
     # recon.set_port('9003') before recon.process in grappa_detail.py
-    # (where preprocessing will still run on default port 9002). 
+    # (where preprocessing will still run on default port 9002).
 
     # perform reconstruction
     recon.process()
@@ -134,7 +130,7 @@ def main():
         print('== Gadgetron cannot output to both memory and DICOM files, quitting')
         print('== Set output file extension to .h5 to run the rest of this demo')
         return
-    
+
     # retrieve reconstructed image data
     image_data = recon.get_output()
 
@@ -161,11 +157,5 @@ def main():
     if output_file is not None:
         image_data.write(output_file)
 
-try:
-    main()
-    print('\n=== done with %s' % __file__)
-
-except error as err:
-    # display error information
-    print('??? %s' % err.value)
-    sys.exit(1)
+if __name__ == "__main__":
+    main(None)

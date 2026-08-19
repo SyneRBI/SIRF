@@ -11,7 +11,6 @@ Options:
   -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: file]
   --non-interactive            do not show plots
 '''
-
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2015 - 2019 Rutherford Appleton Laboratory STFC
 ## Copyright 2015 - 2017 University College London.
@@ -29,32 +28,28 @@ Options:
 ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
+import importlib
+
+from docopt import docopt
+from sirf.Utilities import examples_data_path, existing_filepath, show_2D_array
 
 __version__ = '0.1.0'
-from docopt import docopt
-args = docopt(__doc__, version=__version__)
-
-import math
-
-from sirf.Utilities import error, examples_data_path, existing_filepath
-from sirf.Utilities import show_2D_array
-
-# import engine module
-import importlib
-engine = args['--engine']
-pet = importlib.import_module('sirf.' + engine)
 
 
-# process command-line options
-data_file = args['--file']
-data_path = args['--path']
-if data_path is None:
-    data_path = examples_data_path('PET')
-storage = args['--storage']
-show_plot = not args['--non-interactive']
+def main(argv):
+    args = docopt(__doc__, version=__version__, argv=argv)
 
+    # import engine module
+    engine = args['--engine']
+    pet = importlib.import_module('sirf.' + engine)
 
-def main():
+    # process command-line options
+    data_file = args['--file']
+    data_path = args['--path']
+    if data_path is None:
+        data_path = examples_data_path('PET')
+    storage = args['--storage']
+    show_plot = not args['--non-interactive']
 
     # direct all engine's messages to files
     _ = pet.MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
@@ -117,9 +112,5 @@ def main():
         show_2D_array('Chain-normalized acquisition data', ad_array[0,z,:,:])
 
 
-try:
-    main()
-    print('\n=== done with %s' % __file__)
-
-except error as err:
-    print('%s' % err.value)
+if __name__ == "__main__":
+    main(None)

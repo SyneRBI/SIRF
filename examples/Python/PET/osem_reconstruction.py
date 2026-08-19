@@ -18,6 +18,8 @@ Options:
   --non-interactive            do not show plots
 '''
 
+import importlib
+
 ## SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2015 - 2020 Rutherford Appleton Laboratory STFC
 ## Copyright 2015 - 2018 University College London.
@@ -35,43 +37,19 @@ Options:
 ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
-
-__version__ = '0.1.0'
 from docopt import docopt
-args = docopt(__doc__, version=__version__)
+from sirf.Utilities import examples_data_path, existing_filepath
 
 try:
     import pylab
     HAVE_PYLAB = True
 except RuntimeWarning:
     HAVE_PYLAB = False
-
-from sirf.Utilities import error, examples_data_path, existing_filepath
-
-# import engine module
-import importlib
-engine = args['--engine']
-pet = importlib.import_module('sirf.' + engine)
-
-
-# process command-line options
-num_subsets = int(args['--subs'])
-num_subiterations = int(args['--subiter'])
-data_file = args['--file']
-data_path = args['--path']
-if data_path is None:
-    data_path = examples_data_path('PET')
-raw_data_file = existing_filepath(data_path, data_file)
-if args['--anim'] is not None:
-    ai_file = existing_filepath(data_path, args['--anim'])
-else:
-    ai_file = None
-show_plot = not args['--non-interactive'] and HAVE_PYLAB
-
+__version__ = '0.1.0'
 
 # Define a function that does something with an image. This function
 # provides a simplistic example of user's involvement in the reconstruction
-def image_data_processor(image_array, im_num):
+def image_data_processor(image_array, im_num, show_plot=False):
     """ Process/display an image
 
         image is not modified in this simplistic example - but might have been
@@ -85,8 +63,27 @@ def image_data_processor(image_array, im_num):
     print('You may need to close Figure %d window to continue' % im_num)
     return image_array
 
-def main():
- 
+def main(argv):
+    args = docopt(__doc__, version=__version__, argv=argv)
+
+    # import engine module
+    engine = args['--engine']
+    pet = importlib.import_module('sirf.' + engine)
+
+    # process command-line options
+    num_subsets = int(args['--subs'])
+    num_subiterations = int(args['--subiter'])
+    data_file = args['--file']
+    data_path = args['--path']
+    if data_path is None:
+        data_path = examples_data_path('PET')
+    raw_data_file = existing_filepath(data_path, data_file)
+    if args['--anim'] is not None:
+        ai_file = existing_filepath(data_path, args['--anim'])
+    else:
+        ai_file = None
+    show_plot = not args['--non-interactive'] and HAVE_PYLAB
+
     # direct all engine's information and warnings printing to files
     _ = pet.MessageRedirector('info.txt', 'warn.txt')
 
@@ -141,7 +138,7 @@ def main():
         # copy current image estimate into python array to inspect/process
         image_array = recon.get_current_estimate().as_array()
         # apply user defined image data processor/visualizer
-        processed_image_array = image_data_processor(image_array, subiteration + 1)
+        processed_image_array = image_data_processor(image_array, subiteration + 1, show_plot)
         # fill the current image estimate with new data
         image.fill(processed_image_array)
         recon.set_current_estimate(image)
@@ -157,12 +154,5 @@ def main():
     print('relative residual norm: %e' % (diff.norm()/acq_data.norm()))
 
 
-# if anything goes wrong, an exception will be thrown 
-# (cf. Error Handling section in the spec)
-try:
-    main()
-    print('\n=== done with %s' % __file__)
-
-except error as err:
-    # display error information
-    print('%s' % err.value)
+if __name__ == "__main__":
+    main(None)

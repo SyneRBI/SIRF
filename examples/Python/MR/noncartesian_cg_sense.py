@@ -40,28 +40,14 @@ Options:
 ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
-
-__version__ = '0.1.0'
-from docopt import docopt
-args = docopt(__doc__, version=__version__)
-
-from sirf.Utilities import error, examples_data_path, existing_filepath
-
-# import engine module
 import importlib
-mr = importlib.import_module('sirf.' + args['--engine'])
-
-# process command-line options
-data_file = args['--file']
-data_path = args['--path']
-if data_path is None:
-    data_path = examples_data_path('MR') + '/zenodo/'
-output_file = args['--output']
-show_plot = not args['--non-interactive']
-trajtype = args['--traj']
-run_recon = args['--recon']
 
 import numpy
+from docopt import docopt
+from sirf.Utilities import examples_data_path, existing_filepath
+
+__version__ = '0.1.0'
+
 
 # define symmetrical operator for cg-optimisation
 def EhE(E, image):
@@ -73,7 +59,7 @@ def ConjugateGradient(rawdata, num_iter = 10, stop_criterion = 1e-7):
     csms = mr.CoilSensitivityData()
     csms.smoothing_iterations = 10
     csms.calculate(rawdata)
-    
+
     # create acquisition model based on the acquisition parameters
     print('---\n Setting up Acquisition Model...')
 
@@ -99,9 +85,9 @@ def ConjugateGradient(rawdata, num_iter = 10, stop_criterion = 1e-7):
 
     # initialize p
     p = r
-    
+
     print('Cost for k = 0: '  + str( rr/ rr0) )
-    
+
     for k in range(num_iter):
 
         Ap = EhE(E, p )
@@ -120,7 +106,7 @@ def ConjugateGradient(rawdata, num_iter = 10, stop_criterion = 1e-7):
         relative_residual = numpy.sqrt(rr/rr0)
 
         print('Cost at step  {} = {}'.format(k+1, relative_residual))
-        
+
         if( relative_residual  < stop_criterion ):
             print('We achieved our desired accuracy. Stopping iterative reconstruction')
             break
@@ -130,15 +116,28 @@ def ConjugateGradient(rawdata, num_iter = 10, stop_criterion = 1e-7):
 
     return x
 
-def main():
-    
+
+def main(argv):
+    # process command-line options
+    args = docopt(__doc__, version=__version__, argv=argv)
+    # import engine module
+    mr = importlib.import_module('sirf.' + args['--engine'])
+    data_file = args['--file']
+    data_path = args['--path']
+    if data_path is None:
+        data_path = examples_data_path('MR') + '/zenodo/'
+    output_file = args['--output']
+    show_plot = not args['--non-interactive']
+    trajtype = args['--traj']
+    run_recon = args['--recon']
+
     # locate the k-space raw data file
     input_file = existing_filepath(data_path, data_file)
 
     # acquisition data will be read from an HDF file input_file
     # AcquisitionData.set_storage_scheme('memory')
     acq_data = mr.AcquisitionData(input_file, False)
-    
+
     print('---\n acquisition data norm: %e' % acq_data.norm())
 
 
@@ -166,22 +165,16 @@ def main():
     # sort processed acquisition data;
     print('---\n sorting acquisition data...')
     processed_data.sort()
-    
+
     if run_recon:
         recon = ConjugateGradient(processed_data, num_iter = 20, stop_criterion = 1e-7)
-        
+
         if show_plot:
             recon.show(title = 'Reconstructed images using CG() (magnitude)')
-            
+
     else:
         print('---\n Skipping non-cartesian code...')
 
-try:
-    main()
-    print('\n=== done with %s' % __file__)
 
-except error as err:
-    # display error information
-    print('??? %s' % err.value)
-    exit(1)
-
+if __name__ == "__main__":
+    main(None)

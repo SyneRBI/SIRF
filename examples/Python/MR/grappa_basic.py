@@ -52,29 +52,26 @@ Options:
 ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
+import importlib
+
+from docopt import docopt
+from sirf.Utilities import examples_data_path, existing_filepath
 
 __version__ = '0.1.0'
-from docopt import docopt
-args = docopt(__doc__, version=__version__)
-
-from sirf.Utilities import error, examples_data_path, existing_filepath
-
-# import engine module
-import importlib
-mr = importlib.import_module('sirf.' + args['--engine'])
-
-# process command-line options
-data_file = args['--file']
-data_path = args['--path']
-if data_path is None:
-    data_path = examples_data_path('MR')
-output_file = args['--output']
-show_plot = not args['--non-interactive']
-
-output_file = args['--output']
 
 
-def main():
+def main(argv):
+    # process command-line options
+    args = docopt(__doc__, version=__version__, argv=argv)
+    # import engine module
+    mr = importlib.import_module('sirf.' + args['--engine'])
+    data_file = args['--file']
+    data_path = args['--path']
+    if data_path is None:
+        data_path = examples_data_path('MR')
+    output_file = args['--output']
+    show_plot = not args['--non-interactive']
+    output_file = args['--output']
 
     # locate the input data file
     input_file = existing_filepath(data_path, data_file)
@@ -82,26 +79,26 @@ def main():
     # Initially we create a container that points to the h5 file.
     # Data is not read from file until the 'process' method of the
     # reconstructor object is called.
-    
+
     # Create an acquisition container of type AcquisitionData
     print('---\n reading in file %s...' % input_file)
     mr.AcquisitionData.set_storage_scheme('memory')
 
     acq_data = mr.AcquisitionData(input_file)
-    
+
     # Pre-process this input data.
     # (Currently this is a Python script that just sets up a 3 chain gadget.
     # In the future it will be independent of the MR recon engine.)
     print('---\n pre-processing acquisition data...')
     preprocessed_data = mr.preprocess_acquisition_data(acq_data)
-    
+
     # Perform reconstruction of the preprocessed data.
     # 1. set the reconstruction to be for Cartesian GRAPPA data.
     recon = mr.CartesianGRAPPAReconstructor();
-    
+
     # 2. set the reconstruction input to be the data we just preprocessed.
     recon.set_input(preprocessed_data);
-    
+
     # 3. run (i.e. 'process') the reconstruction.
     print('---\n reconstructing...\n');
     recon.process();
@@ -119,10 +116,5 @@ def main():
         image_data.write(output_file)
 
 
-try:
-    main()
-    print('\n=== done with %s' % __file__)
-except error as err:
-    # display error information
-    print('??? %s' % err.value)
-    exit(1)
+if __name__ == "__main__":
+    main(None)

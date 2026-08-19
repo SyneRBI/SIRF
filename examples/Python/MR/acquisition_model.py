@@ -33,26 +33,25 @@ Options:
 ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
+import importlib
+
+from docopt import docopt
+from sirf.Utilities import examples_data_path, existing_filepath
 
 __version__ = '0.1.0'
-from docopt import docopt
-args = docopt(__doc__, version=__version__)
 
-from sirf.Utilities import error, examples_data_path, existing_filepath
 
-# import engine module
-import importlib
-mr = importlib.import_module('sirf.' + args['--engine'])
-
-# process command-line options
-data_file = args['--file']
-data_path = args['--path']
-if data_path is None:
-    data_path = examples_data_path('MR')
-output_file = args['--output']
-show_plot = not args['--non-interactive']
-
-def main():
+def main(argv):
+    # process command-line options
+    args = docopt(__doc__, version=__version__, argv=argv)
+    # import engine module
+    mr = importlib.import_module('sirf.' + args['--engine'])
+    data_file = args['--file']
+    data_path = args['--path']
+    if data_path is None:
+        data_path = examples_data_path('MR')
+    output_file = args['--output']
+    show_plot = not args['--non-interactive']
 
     # locate the k-space raw data file
     input_file = existing_filepath(data_path, data_file)
@@ -104,7 +103,7 @@ def main():
     ptp = reconstructed_images.get_ISMRMRD_info('patient_table_position')
     print('patient table positions:')
     print(ptp)
-    
+
     # sort processed acquisition data
     print('---\n sorting acquisition data...')
     processed_data.sort()
@@ -113,7 +112,7 @@ def main():
     print('---\n computing coil sensitivity maps...')
     csms = mr.CoilSensitivityData()
     csms.calculate(processed_data)
-    
+
     # create acquisition model based on the acquisition parameters
     # stored in processed_data and image parameters stored in reconstructed_images
     acq_model = mr.AcquisitionModel(processed_data, reconstructed_images)
@@ -163,11 +162,5 @@ def main():
     diff = backprojected_data/b_norm - reconstructed_images/r_norm
     print('norm of backprojected - reconstructed images: %f' % diff.norm())
 
-try:
-    main()
-    print('\n=== done with %s' % __file__)
-
-except error as err:
-    # display error information
-    print('??? %s' % err.value)
-    exit(1)
+if __name__ == "__main__":
+    main(None)

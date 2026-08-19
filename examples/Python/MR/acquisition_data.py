@@ -1,5 +1,5 @@
 '''
-Upper-level interface demo that illustrates how MR data can be interfaced 
+Upper-level interface demo that illustrates how MR data can be interfaced
 from python.
 
 Usage:
@@ -35,31 +35,30 @@ Options:
 ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
+import ast
+import importlib
+
+from docopt import docopt
+from sirf.Utilities import examples_data_path, existing_filepath
 
 __version__ = '0.1.0'
-from docopt import docopt
-args = docopt(__doc__, version=__version__)
 
-import ast
-from sirf.Utilities import error, examples_data_path, existing_filepath
 
-# import MR engine module
-import importlib
-mr = importlib.import_module('sirf.' + args['--engine'])
-
-# process command-line options
-data_file = args['--file']
-data_path = args['--path']
-if data_path is None:
-    data_path = examples_data_path('MR')
-slcs = int(args['--slices'])
-to_be_ignored = args['--ignore']
-ignore_mask = mr.IgnoreMask(0)
-if to_be_ignored is not None:
-    ignore_mask.ignore(ast.literal_eval(to_be_ignored))
-show_plot = not args['--non-interactive']
-
-def main():
+def main(argv):
+    # process command-line options
+    args = docopt(__doc__, version=__version__, argv=argv)
+    # import MR engine module
+    mr = importlib.import_module('sirf.' + args['--engine'])
+    data_file = args['--file']
+    data_path = args['--path']
+    if data_path is None:
+        data_path = examples_data_path('MR')
+    slcs = int(args['--slices'])
+    to_be_ignored = args['--ignore']
+    ignore_mask = mr.IgnoreMask(0)
+    if to_be_ignored is not None:
+        ignore_mask.ignore(ast.literal_eval(to_be_ignored))
+    show_plot = not args['--non-interactive']
 
     # locate the input data file
     input_file = existing_filepath(data_path, data_file)
@@ -96,23 +95,23 @@ def main():
         print('first readout is not image data')
         a0 = acq_data.as_array(0)
         print('first readout shape: %dx%d' % a0.shape)
-        
+
     print('Checking acquisitions %d to %d...' % (first, last))
 
     # display flags
     print('Flags')
     print(flags)
-    
+
     # inspect some kspace_encode_step_1 counters
     encode_step_1 = acq_data.get_ISMRMRD_info('kspace_encode_step_1', where)
     print('Ky/PE - encoding'),
     print(encode_step_1)
-    
+
     # inspect some slice counters
     slice = acq_data.get_ISMRMRD_info('slice', where)
     print('Slices'),
     print(slice)
-    
+
     # inspect some repetition counters
     repetition = acq_data.get_ISMRMRD_info('repetition', where)
     print('Repetitions'),
@@ -123,8 +122,8 @@ def main():
     print('Physiology time stamps'),
     print(pts)
 
-    # in the case of the provided dataset 'simulated_MR_2D_cartesian.h5' the 
-    # size is 2x256 phase encoding, 8 receiver coils and points 512 readout 
+    # in the case of the provided dataset 'simulated_MR_2D_cartesian.h5' the
+    # size is 2x256 phase encoding, 8 receiver coils and points 512 readout
     # points (frequency encoding dimension)
     dim = acq_data.dimensions()
     print('input data dimensions: %dx%dx%d' % dim)
@@ -143,8 +142,8 @@ def main():
         cloned_acq_data.show(title = title, postpone = True)
 
     # pre-process acquired k-space data
-    # Prior to image reconstruction several pre-processing steps such as 
-    # asymmetric echo compensation, noise decorelation for multi-coil data or 
+    # Prior to image reconstruction several pre-processing steps such as
+    # asymmetric echo compensation, noise decorelation for multi-coil data or
     # removal of oversampling along frequency encoding (i.e. readout or kx)
     # direction. So far only the removal of readout oversampling and noise and
     # asymmetric echo adjusting is implemented
@@ -164,11 +163,5 @@ def main():
         title = 'Processed acquisition data (magnitude)'
         processed_acq_data.show(title = title)
 
-try:
-    main()
-    print('\n=== done with %s' % __file__)
-
-except error as err:
-    # display error information
-    print('??? %s' % err.value)
-    exit(1)
+if __name__ == "__main__":
+    main(None)

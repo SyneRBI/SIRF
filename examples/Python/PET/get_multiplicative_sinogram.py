@@ -14,7 +14,6 @@ Options:
   -t <str>, --trans_type=<str>  transform type (tm, disp, def) [default: tm]
   --non-interactive           do not show plots
 """
-
 # SyneRBI Synergistic Image Reconstruction Framework (SIRF)
 # Copyright 2020 University College London.
 #
@@ -33,14 +32,14 @@ Options:
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-from docopt import docopt
 from os import path
-import sirf.STIR as pet
+
 import sirf.Reg as reg
-from sirf.Utilities import error, show_3D_array, examples_data_path, existing_filepath
+import sirf.STIR as pet
+from docopt import docopt
+from sirf.Utilities import error, examples_data_path, existing_filepath
 
 __version__ = '0.1.0'
-args = docopt(__doc__, version=__version__)
 
 
 def check_file_exists(filename):
@@ -49,35 +48,8 @@ def check_file_exists(filename):
         raise error('File not found: %s' % filename)
 
 
-# process command-line options
-data_path = args['--path']
-if data_path is None:
-    # default to data/examples/PET/mMR
-    # Note: seem to need / even on Windows
-    #data_path = os.path.join(examples_data_path('PET'), 'mMR')
-    data_path = examples_data_path('PET') + '/mMR'
-print('Finding files in %s' % data_path)
 
-# Sinogram. if sino not found, get the one in the example data
-sino_file = existing_filepath(data_path, args['--sino'])
-
-# Attenuation - image
-attn_im_file = existing_filepath(data_path, args['--attn'])
-
-# Norm - ECAT8
-norm_e8_file = existing_filepath(data_path, args['--norm'])
-
-# Attn transformation
-trans = args['--trans']
-if trans:
-    check_file_exists(trans)
-trans_type = args['--trans_type']
-
-# Output file
-outp_file = args['--outp']
-
-
-def resample_attn_image(image):
+def resample_attn_image(image, trans, trans_type):
     """Resample the attenuation image."""
     if trans_type == 'tm':
         transformation = reg.AffineTransformation(trans)
@@ -97,8 +69,35 @@ def resample_attn_image(image):
     return resampler.forward(image)
 
 
-def main():
-    """Do main."""
+def main(argv):
+    # process command-line options
+    args = docopt(__doc__, version=__version__, argv=argv)
+    data_path = args['--path']
+    if data_path is None:
+        # default to data/examples/PET/mMR
+        # Note: seem to need / even on Windows
+        #data_path = os.path.join(examples_data_path('PET'), 'mMR')
+        data_path = examples_data_path('PET') + '/mMR'
+    print('Finding files in %s' % data_path)
+
+    # Sinogram. if sino not found, get the one in the example data
+    sino_file = existing_filepath(data_path, args['--sino'])
+
+    # Attenuation - image
+    attn_im_file = existing_filepath(data_path, args['--attn'])
+
+    # Norm - ECAT8
+    norm_e8_file = existing_filepath(data_path, args['--norm'])
+
+    # Attn transformation
+    trans = args['--trans']
+    if trans:
+        check_file_exists(trans)
+    trans_type = args['--trans_type']
+
+    # Output file
+    outp_file = args['--outp']
+
     # Acq model and template sino
     acq_model = pet.AcquisitionModelUsingRayTracingMatrix()
     acq_data = pet.AcquisitionData(sino_file)
@@ -114,7 +113,7 @@ def main():
     if attn_im_file:
         attn_image = pet.ImageData(attn_im_file)
         if trans:
-            attn_image = resample_attn_image(attn_image)
+            attn_image = resample_attn_image(attn_image, trans, trans_type)
         asm_attn = pet.AcquisitionSensitivityModel(attn_image, acq_model)
         # temporary fix pending attenuation offset fix in STIR:
         # converting attenuation into 'bin efficiency'
@@ -153,4 +152,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(None)

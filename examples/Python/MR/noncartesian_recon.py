@@ -41,38 +41,35 @@ Options:
 ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
+import importlib
+
+import matplotlib.pyplot as plt
+import numpy as np
+from docopt import docopt
+#from pUtilities import *
+from sirf.Utilities import examples_data_path, existing_filepath, show_3D_array
 
 __version__ = '0.1.0'
-from docopt import docopt
-args = docopt(__doc__, version=__version__)
 
-#from pUtilities import *
 
-import numpy as np
-import matplotlib.pyplot as plt
-
-from sirf.Utilities import error, examples_data_path, existing_filepath, show_3D_array
-
-# import engine module
-import importlib
-mr = importlib.import_module('sirf.' + args['--engine'])
-
-# process command-line options
-data_file = args['--file']
-data_path = args['--path']
-if data_path is None:
-    data_path = examples_data_path('MR') + '/zenodo/'
-output_file = args['--output']
-show_plot = not args['--non-interactive']
-trajtype = args['--traj']
-run_recon = args['--recon']
-
-def main():
+def main(argv):
+    # process command-line options
+    args = docopt(__doc__, version=__version__, argv=argv)
+    # import engine module
+    mr = importlib.import_module('sirf.' + args['--engine'])
+    data_file = args['--file']
+    data_path = args['--path']
+    if data_path is None:
+        data_path = examples_data_path('MR') + '/zenodo/'
+    output_file = args['--output']
+    show_plot = not args['--non-interactive']
+    trajtype = args['--traj']
+    run_recon = args['--recon']
 
     # locate the k-space raw data file adn read
     input_file = existing_filepath(data_path, data_file)
     acq_data = mr.AcquisitionData(input_file, False)
-    
+
     # pre-process acquisition data
     if trajtype != 'radial' and trajtype != 'goldenangle':
         print('---\n pre-processing acquisition data...')
@@ -91,8 +88,7 @@ def main():
     elif trajtype == 'goldenangle':
             processed_data = mr.set_goldenangle2D_trajectory(processed_data)
     else:
-        raise NameError('Please submit a trajectory name of the following list: (cartesian, grpe, radial). You gave {}'\
-                        .format(trajtype))
+        raise NameError(f'Please submit a trajectory name of the following list: (cartesian, grpe, radial). You gave {trajtype}')
 
     if show_plot:
         traj = np.transpose( mr.get_data_trajectory(processed_data))
@@ -106,7 +102,6 @@ def main():
     processed_data.sort()
 
     if run_recon is True:
-    
         print('---\n computing coil sensitivity maps...')
         csms = mr.CoilSensitivityData()
         csms.smoothing_iterations = 10
@@ -120,32 +115,26 @@ def main():
             title = 'SRSS from raw data (magnitude)'
             show_3D_array(abs(csms_array[:, nz//2, :, :]), suptitle=title, \
                     xlabel='samples', ylabel='readouts', label='coil', show=False)
-        
+
         # create acquisition model based on the acquisition parameters
         print('---\n Setting up Acquisition Model...')
-    
+
         acq_model = mr.AcquisitionModel()
         acq_model.set_up(processed_data, csms.copy())
         acq_model.set_coil_sensitivity_maps(csms)
-    
+
         print('---\n Backward projection ...')
         #recon_img = acq_model.backward(processed_data)
         bwd_img = acq_model.backward(processed_data)
         inv_img = acq_model.inverse(processed_data)
-        
+
         if show_plot:
             bwd_img.show(title = 'Reconstructed images using backward() (magnitude)')
             inv_img.show(title = 'Reconstructed images using inverse() (magnitude)')
-    
+
     else:
         print('---\n Skipping non-cartesian code...')
 
-try:
-    main()
-    print('\n=== done with %s' % __file__)
 
-except error as err:
-    # display error information
-    print('??? %s' % err.value)
-    exit(1)
-
+if __name__ == "__main__":
+    main(None)
