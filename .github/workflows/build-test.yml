@@ -1,21 +1,14 @@
 name: Build-test CI
 on:
-  push:
-    branches: [ master ]
+  push: &triggers
+    branches: [master]
     paths-ignore:
     - '**.md'
-    - LICENSE.txt
-    - NOTICE.txt
     - .mailmap
     - CITATION.cff
-  pull_request:
-    branches: [ master ]
-    paths-ignore:
-    - '**.md'
     - LICENSE.txt
     - NOTICE.txt
-    - .mailmap
-    - CITATION.cff
+  pull_request: *triggers
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -100,7 +93,7 @@ jobs:
         echo CC="$CC" >> $GITHUB_ENV
         echo CXX="$CXX" >> $GITHUB_ENV
     - if: matrix.cuda_version != '0'
-      uses: Jimver/cuda-toolkit@v0.2.35
+      uses: Jimver/cuda-toolkit@v0.2.36
       with:
         cuda: ${{ matrix.cuda_version }}
         linux-local-args: '["--toolkit"]'
@@ -142,26 +135,27 @@ jobs:
         coverage xml
 
         # hack to fix paths in coverage.xml
-        coverage json
-        SRC=$(dirname $(jq '.files|keys[0]' coverage.json -r))
+        SRC=home/runner/install/python/sirf
         echo replacing $SRC with src in coverage.xml
         sed -ri \
-        -e 's#'$SRC'/(SIRF|Utilities).py#src/common/\1.py#g' \
-        -e 's#'$SRC'/(Gadgetron|STIR).py#src/x\1/p\1/\1.py#g' \
-        -e 's#'$SRC'/(Reg).py#src/Registration/p\1/\1.py#g' \
-        -e 's#'$SRC'/(torch).py#src/\1/\1.py#g' \
+        -e 's#/?'$SRC'/(SIRF|Utilities|select_module|show_image).py#src/common/\1.py#g' \
+        -e 's#/?'$SRC'/(Gadgetron|STIR)(.*).py#src/x\1/p\1/\1\2.py#g' \
+        -e 's#/?'$SRC'/(Reg)(.*).py#src/Registration/p\1/\1\2.py#g' \
+        -e 's#/?'$SRC'/(torch).py#src/\1/\1.py#g' \
+        -e 's#/?'$SRC'#INSTALL/sirf#g' \
+        -e 's#\.?home\.runner\.install\.python\.##g' \
         coverage.xml
-        grep -E 'src.*\.py' coverage.xml
-        rm coverage.json .coverage
+        cat coverage.xml
     - if: matrix.cuda_version == '0'
-      uses: AndreMiras/coveralls-python-action@develop
+      uses: coverallsapp/github-action@v2
       with:
+        file: coverage.xml
         parallel: true
         flag-name: ${{ matrix.os }}-${{ matrix.compiler_version }}-${{ matrix.DEVEL_BUILD }}
         debug: true
   coverage:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
-    - uses: AndreMiras/coveralls-python-action@develop
+    - uses: coverallsapp/github-action@v2
       with: {parallel-finished: true}

@@ -78,10 +78,10 @@ def main(argv):
     if data_path is None:
         data_path = examples_data_path('PET')
     raw_data_file = existing_filepath(data_path, data_file)
-    if args['--anim'] is not None:
-        ai_file = existing_filepath(data_path, args['--anim'])
-    else:
-        ai_file = None
+    #if args['--anim'] is not None:
+    #    ai_file = existing_filepath(data_path, args['--anim'])
+    #else:
+    #    ai_file = None
     show_plot = not args['--non-interactive'] and HAVE_PYLAB
 
     # direct all engine's information and warnings printing to files

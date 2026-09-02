@@ -19,7 +19,7 @@ import warnings
 import numpy
 import pytest
 from sirf.STIR import *
-from sirf.Utilities import RE_PYEXT, __license__
+from sirf.Utilities import RE_PYEXT
 
 __version__ = "0.2.3"
 

@@ -53,7 +53,7 @@ def main(argv):
     data_path = args['--path']
     if data_path is None:
         data_path = examples_data_path('MR')
-    slcs = int(args['--slices'])
+    #slcs = int(args['--slices'])
     to_be_ignored = args['--ignore']
     ignore_mask = mr.IgnoreMask(0)
     if to_be_ignored is not None:
