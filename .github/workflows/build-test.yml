@@ -93,7 +93,7 @@ jobs:
         echo CC="$CC" >> $GITHUB_ENV
         echo CXX="$CXX" >> $GITHUB_ENV
     - if: matrix.cuda_version != '0'
-      uses: Jimver/cuda-toolkit@v0.2.35
+      uses: Jimver/cuda-toolkit@v0.2.36
       with:
         cuda: ${{ matrix.cuda_version }}
         linux-local-args: '["--toolkit"]'
