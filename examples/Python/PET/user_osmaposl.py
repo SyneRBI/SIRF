@@ -33,7 +33,7 @@ Options:
 import importlib
 
 from docopt import docopt
-from sirf.Utilities import (error, examples_data_path, existing_filepath,
+from sirf.Utilities import (examples_data_path, existing_filepath,
                             show_2D_array)
 
 __version__ = '0.1.0'

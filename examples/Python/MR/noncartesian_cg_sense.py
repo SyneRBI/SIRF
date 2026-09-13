@@ -126,7 +126,7 @@ def main(argv):
     data_path = args['--path']
     if data_path is None:
         data_path = examples_data_path('MR') + '/zenodo/'
-    output_file = args['--output']
+    #output_file = args['--output']
     show_plot = not args['--non-interactive']
     trajtype = args['--traj']
     run_recon = args['--recon']

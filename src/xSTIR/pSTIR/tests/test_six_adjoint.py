@@ -15,7 +15,7 @@ Options:
 """
 import pytest
 import sirf.STIR as pet
-from sirf.Utilities import __license__, is_operator_adjoint
+from sirf.Utilities import is_operator_adjoint
 
 __version__ = "0.2.3"
 

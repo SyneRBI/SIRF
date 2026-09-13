@@ -6,7 +6,7 @@
   - The environment variables `SIRF_PATH`and `SIRF_INSTALL_PATH` no longer used, the use of `SIRF_DATA_PATH` is optional.
 * CI and testing
   - replace examples' custom test framework with pytest.
-  - fix Python src coverage.
+  - fix Python coverage reporting.
 
 ## v3.10.1
 

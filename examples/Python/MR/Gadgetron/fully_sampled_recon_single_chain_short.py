@@ -31,9 +31,13 @@ Options:
 ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
+
 from docopt import docopt
-# import engine module
-from pGadgetron import *
+
+# import MR engine types
+from sirf.Gadgetron import AcquisitionData, Reconstructor
+# import SIRF utilities
+from sirf.Utilities import examples_data_path, existing_filepath
 
 __version__ = '0.1.0'
 
