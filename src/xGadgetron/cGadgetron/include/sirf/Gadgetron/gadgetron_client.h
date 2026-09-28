@@ -374,7 +374,7 @@ namespace sirf {
 
 		GadgetronClientMessageReader* find_reader(unsigned short r);
 
-		boost::asio::io_service io_service;
+		boost::asio::io_context io_service;
 		boost::asio::ip::tcp::socket* socket_;
 		boost::thread reader_thread_;
 		maptype readers_;

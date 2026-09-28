@@ -152,11 +152,8 @@ void
 GadgetronClientConnector::connect(std::string hostname, std::string port)
 {
 	boost::asio::ip::tcp::resolver resolver(io_service);
-	boost::asio::ip::tcp::resolver::query 
-		query(boost::asio::ip::tcp::v4(), hostname.c_str(), port.c_str());
-	boost::asio::ip::tcp::resolver::iterator 
-		endpoint_iterator = resolver.resolve(query);
-	boost::asio::ip::tcp::resolver::iterator end;
+	boost::system::error_code res_ec;
+	auto results = resolver.resolve(hostname, port, res_ec);
 
 	socket_ = new boost::asio::ip::tcp::socket(io_service);
 	if (!socket_) {
@@ -168,12 +165,10 @@ GadgetronClientConnector::connect(std::string hostname, std::string port)
 
 	boost::system::error_code error = boost::asio::error::host_not_found;
 	std::thread t([&](){
-		//TODO:
-		//For newer versions of Boost, we should use
-		//   boost::asio::connect(*socket_, iterator);
-		while (error && endpoint_iterator != end) {
+		for (const auto& endpoint : results) {
+			if (!error) break;
 			socket_->close();
-			socket_->connect(*endpoint_iterator++, error);
+			socket_->connect(endpoint, error);
 		}
 		cv.notify_all();
 	});
