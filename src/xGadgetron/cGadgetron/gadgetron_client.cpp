@@ -152,40 +152,21 @@ void
 GadgetronClientConnector::connect(std::string hostname, std::string port)
 {
 	boost::asio::ip::tcp::resolver resolver(io_service);
-	boost::system::error_code res_ec;
-	auto results = resolver.resolve(hostname, port, res_ec);
+	boost::system::error_code ec;
+	auto results = resolver.resolve(hostname, port, ec);
+	if (ec)
+		throw GadgetronClientException("Error resolving " + hostname + ":" +
+			port + ": " + ec.message());
 
 	socket_ = new boost::asio::ip::tcp::socket(io_service);
 	if (!socket_) {
 		throw GadgetronClientException("Unable to create socket.");
 	}
 
-	std::condition_variable cv;
-	std::mutex cv_m;
-
-	boost::system::error_code error = boost::asio::error::host_not_found;
-	std::thread t([&](){
-		for (const auto& endpoint : results) {
-			if (!error) break;
-			socket_->close();
-			socket_->connect(endpoint, error);
-		}
-		cv.notify_all();
-	});
-
-	{
-		std::unique_lock<std::mutex> lk(cv_m);
-		if (std::cv_status::timeout ==
-			cv.wait_until(lk, std::chrono::system_clock::now() +
-			std::chrono::milliseconds(timeout_ms_))) {
-			socket_->close();
-		}
-	}
-
-	t.join();
-
-	if (error)
-		throw GadgetronClientException("Error connecting using socket.");
+	boost::asio::connect(*socket_, results, ec);
+	if (ec)
+		throw GadgetronClientException("Error connecting to " + hostname + ":" +
+			port + ": " + ec.message());
 
 	reader_thread_ =
 		boost::thread(boost::bind(&GadgetronClientConnector::read_task, this));
