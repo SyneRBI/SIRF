@@ -107,6 +107,12 @@ if (DISABLE_Registration)
   set(SIRF_BUILT_WITH_REGISTRATION False PARENT_SCOPE)
 else()
   FIND_PACKAGE(NIFTYREG 1.5.61 REQUIRED)
+  # conda-forge's NiftyReg config sets NIFTYREG_LIBRARY_DIRS to the feedstock's
+  # build-environment path (e.g. D:/bld/niftyreg_.../Library/lib) which does not
+  # exist on the build host. The niftyreg import libs (and their deps, e.g. zlib
+  # as 'z') live in the package prefix, so add the prefix lib dir to the search.
+  set(NIFTYREG_LIBRARY_DIRS "${CMAKE_PREFIX_PATH}/Library/lib"
+      "${CMAKE_PREFIX_PATH}/lib" ${NIFTYREG_LIBRARY_DIRS})
   # NIFTYREG
   FOREACH(NR_lib ${NIFTYREG_LIBRARIES})
     set(_nr_names ${NR_lib})
