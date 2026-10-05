@@ -111,6 +111,12 @@ if (WIN32)
   add_compile_definitions(_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1)
   # This still leaves a lot of warnings about sscanf etc, so we'll silence them all for now
   add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+  # Make MSVC report the actual C++ standard in __cplusplus (it otherwise
+  # defaults to 199711L), which keeps the C++98 shims in ismrmrd/cpp98.h
+  # (e.g. `#define noexcept`) from clobbering the STL.
+  if(MSVC)
+    add_compile_options(/Zc:__cplusplus)
+  endif()
 endif()
 
 ####### External packages
