@@ -138,4 +138,19 @@ install(TARGETS cgadgetron EXPORT SIRFTargets
   COMPONENT Development
   DESTINATION lib)
 
-ADD_SUBDIRECTORY(tests)
+# The cGadgetron C++ test (MR_PROCESS_TESTDATA) links the static cgadgetron
+# archive into an executable; its NonCartesianEncoding.cpp holds strong refs to
+# the Gadgetron NFFT vtables/member functions, which are weak_odr symbols living
+# only in the gadgetron toolbox .dylibs. Mach-O does not let a static archive
+# (merged into an executable) bind such weak dylib symbols, so the test fails to
+# link on Apple. The sirf.Gadgetron Python module is itself a dylib and binds
+# fine (dylib->dylib); the recipe only runs Python imports, so skip the C++
+# test on Apple.
+# On Windows the same test's GENERATE_SIMULATED_TESTDATA falls back to a no-op
+# `add_custom_target(... COMMAND "")` when RUN_ISMRMRD_SHEPP_LOGAN=OFF, and an
+# empty command makes CMake call CreateProcess with an empty program path
+# ("The system cannot find the file specified"). The recipe does not need the
+# C++ test either way, so skip it on Windows as well.
+if (NOT APPLE AND NOT WIN32)
+  ADD_SUBDIRECTORY(tests)
+endif()
