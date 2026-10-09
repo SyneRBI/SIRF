@@ -120,7 +120,7 @@ target_include_directories(cgadgetron PUBLIC "${ISMRMRD_INCLUDE_DIR}")
 
 target_link_libraries(cgadgetron PUBLIC iutilities csirf)
 # Add boost library dependencies
-target_link_libraries(cgadgetron PUBLIC Boost::system Boost::filesystem Boost::thread Boost::date_time Boost::chrono)
+target_link_libraries(cgadgetron PUBLIC Boost::filesystem Boost::thread Boost::date_time Boost::chrono)
 
 target_link_libraries(cgadgetron PUBLIC ISMRMRD::ISMRMRD)
 target_link_libraries(cgadgetron PUBLIC "${FFTW3_LIBRARIES}")
