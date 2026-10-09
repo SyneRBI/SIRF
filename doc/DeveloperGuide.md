@@ -7,15 +7,13 @@
     	1. [Reconstruction engines](#reconstruction_engines)
     	2. [Extended engine functionality](#extended_engine_functionality)
     	3. [C interface](#c_interface)
-    	4. [Matlab and Pyton interfaces to C](#matlab_python_interfaces)
-    	5. [Matlab and Pyton OO interfaces](#matlab_python_oo_interfaces)
+        4. [Pyton interfaces to C](#python_interfaces)
+        5. [Pyton OO interfaces](#python_oo_interfaces)
     3. [Data handling](#data_handling)
     4. [Illustration](#illustration)
-        1. [Python](#Illustration_Python)
-        2. [Matlab](#Illustration_Matlab)
 3. [Adding new functionality to SIRF](#adding_new_functionality)
 	1. [Step 1: create C wrappers](#create_wrappers)
-	2. [Step 2: create Matlab and Python Object-Oriented interface for your additions](#Create_OO_interface)
+	2. [Step 2: create Python Object-Oriented interface for your additions](#Create_OO_interface)
 4. [Adding a gadget to SIRF gadget library](#adding_gadget)
 5. [SIRF programming conventions](#sirf_programming_conventions)
 	1. [Naming](#conventions_naming)
@@ -41,9 +39,9 @@ The way we use reconstruction engines differs from the one intended by their dev
 
 To avoid difficulties with the interfacing of a C\+\+ code into the script languages we are targeting, we add another layer by wrapping C\+\+ code into C. This extra step (pretty routine as C\+\+ is built upon C) dramatically simplifies interfacing and widens the scope of our targets to practically any programming language in use.
 
-Interfacing of C into Matlab is pretty straightforward, as Matlab has facilities (the function calllib etc.) for calling functions from C libraries, with just a little 'syntactic sugar' needed under Windows. For Python we use [SWIG](http://www.swig.org) (Simple Wrapper and Interface Generator), which can also be used for a number of other prospective languages (follow SWIG link to see the list of currently covered languages).
+For Python interface we use [SWIG](http://www.swig.org) (Simple Wrapper and Interface Generator), which can also be used for a number of other prospective languages (follow SWIG link to see the list of currently covered languages).
 
-Our topmost interface layer are Object-Oriented Matlab and Python modules that cover up in a nice user-friendly way all the technicalities involved in the inner interface layers.
+Our topmost interface layer are Object-Oriented Python modules that cover up in a nice user-friendly way all the technicalities involved in the inner interface layers.
 
 ## Software layers <a name="software_layers"></a>
 
@@ -51,12 +49,12 @@ To summarise, SIRF software is structured as the following set of layers (from t
 
 | SIRF software layers | PET | MR | Registration | Common |
 | --- | --- | --- | --- | --- |
-| Matlab/Python OO interfaces | `+STIR STIR.py` | `+Gadgetron Gadgetron.py`| `+Reg Reg.py` | `+SIRF SIRF.py` |
-| Matlab/Python interfaces to C | `mstir.* pystir.*` | `mgadgetron.* pygadgetron.*` | `mreg.* pyreg.py`| `msirf.m pysirf.py` |
+| Python OO interfaces | `+STIR STIR.py` | `+Gadgetron Gadgetron.py`| `+Reg Reg.py` | `+SIRF SIRF.py` |
+| Python interfaces to C | `pystir.*` | `pygadgetron.*` | `pyreg.py`| `pysirf.py` |
 | C interface to C\++ code | `cstir.*` | `cgadgetron.*` | `cReg.*`| `csirf.*` |
 | Extended engine functionality | `xSTIR/cSTIR/*` | `xGadgetron/cGadgetron/*` | Registration | common |
 
-As you start to explore SIRF code, you may notice files and folders preceded by the characters "x", "c", "p" and "m". These correspond to the various layers of SIRF: eXtended engine functionality, C-interface, Python and Matlab.
+As you start to explore SIRF code, you may notice files and folders preceded by the characters "x", "c" and "p". These correspond to the various layers of SIRF: eXtended engine functionality C-interface and Python.
 
 ### Reconstruction engines <a name="reconstruction_engines"></a>
 
@@ -146,15 +144,13 @@ and some other (reader/writer/finish) gadgets not accessible from SIRF scripts. 
 
 The C interface layer is a set of C functions that wrap SIRF C++ code.
 
-Each interface function has arguments of basic C types: `void*`, `int`, `float` and `char*`, and some functions have either arguments of types `int*` and `float*` (for interfacing to Matlab) or of type `size_t` (for interfacing to Python). The return value of each interface function is either `void` (to be deprecated) or `void*`. *Files:* `SIRF/src/xSTIR/cSTIR/cstir.*`, `SIRF/src/xGadgetron/cGadgetron/cgadgetron.*`.
+Each interface function has arguments of basic C types: `void*`, `int`, `float` and `char*`, and some functions have arguments of type `size_t`. The return value of each interface function is either `void` (to be deprecated) or `void*`. *Files:* `SIRF/src/xSTIR/cSTIR/cstir.*`, `SIRF/src/xGadgetron/cGadgetron/cgadgetron.*`.
 
-SIRF Python and Matlab objects do not have direct access to C\++ objects and their data. Their role is to obtain a reference to a C\++ object or its data by calling a C interface function and pass it to another C\++ object by calling another C interface function. A C\++ object or data reference is wrapped into an object of the class `DataHandle`, which additionally has a property that records any exceptions thrown by the C++ code, and the pointer to this `DataHandle` object is passed as a `void*` argument or return value. To simplify/shorten the coding of wrapping/unwrapping, a class template `ObjectHandle` is derived from `DataHandle`. *Files:* `SIRF/src/iUtilities/data_handle.h`, `SIRF/scr/common/include/SIRF/common/object_handle.inl`.
+Most SIRF Python objects do not have direct access to C\++ objects and their data. Their role is to obtain a reference to a C\++ object or its data by calling a C interface function and pass it to another C\++ object by calling another C interface function. A C\++ object or data reference is wrapped into an object of the class `DataHandle`, which additionally has a property that records any exceptions thrown by the C++ code, and the pointer to this `DataHandle` object is passed as a `void*` argument or return value. To simplify/shorten the coding of wrapping/unwrapping, a class template `ObjectHandle` is derived from `DataHandle`. *Files:* `SIRF/src/iUtilities/data_handle.h`, `SIRF/scr/common/include/SIRF/common/object_handle.inl`.
 
-### Matlab and Python interfaces to C <a name="matlab_python_interfaces"></a>
+### Python interfaces to C <a name="python_interfaces"></a>
 
-Wrapping C\++ into C dramatically simplifies the interfacing into any programming language. In the case of Matlab, no interfacing is required under Linux, where Matlab can call C library functions directly via `calllib()`, whereas under Windows one just need to add  `__declspec(dllexport)` in front of every C function, which is done by executables `gmi_xstir.exe`, `gmi_xgadgetron.exe` etc.
-
-For Python, we use SWIG, which requires just these 5 lines to generate the interface for STIR (and similar lines for Gadgetron and Registration):
+Wrapping C\++ into C dramatically simplifies the interfacing into any programming language. Our Python interace uses SWIG, which requires just these 5 lines to generate the interface for STIR (and similar lines for Gadgetron and Registration):
 
     %module pystir
     %{
@@ -163,9 +159,9 @@ For Python, we use SWIG, which requires just these 5 lines to generate the inter
     %include "cstir.h"
 
 
-### Matlab and Python OO interfaces <a name="matlab_python_oo_interfaces"></a>
+### Python OO interfaces <a name="python_oo_interfaces"></a>
 
-Matlab and Python interfaces of the previous section are not user-friendly and not Object-Oriented, which is why on top of them we have Object-Oriented modules `+STIR`, `+Gadgetron` and `+Reg` in Matlab and `STIR.py`, `Gadgetron.py` and `Reg.py` in Python. These modules are described in User Guide.
+Python interfaces of the previous section are not user-friendly and not Object-Oriented, which is why on top of them we have Object-Oriented modules `STIR.py`, `Gadgetron.py` and `Reg.py`. These modules are described in User Guide.
 
 ## Source files folder structure
 
@@ -174,15 +170,12 @@ Matlab and Python interfaces of the previous section are not user-friendly and n
         iUtilities     : interface utilities
         Registration
             cReg       : C wrappers for NiftyReg
-            mReg       : Object-Oriented Matlab interface
             pReg       : Object-Oriented Python interface
         xGadgetron
             cGadgetron : Gadgetron extensions and C wrappers
-            mGadgetron : Object-Oriented Matlab interface
             pGadgetron : Object-Oriented Python interface
         xSTIR
             cSTIR      : STIR extensions and C wrappers
-            mSTIR      : Object-Oriented Matlab interface
             pSTIR      : Object-Oriented Python interface
 
 ## Data handling principles <a name="data_handling"></a>
@@ -194,8 +187,6 @@ The only way for user's scripts to work with the engine data is to get a copy of
 # Illustration <a name="illustration"></a>
 
 In this section we illustrate how the SIRF software layers interact. To avoid duplication, we focus on the case of MR reconstruction by Gadgetron. The PET and Registration cases are totally parallel.
-
-### Python <a name="illustration_python"></a>
 
 A reconstruction script would normally contain the following line indicating the source of raw acquisition data:
 
@@ -227,29 +218,7 @@ As can be seen from the above C source, the function checks if the acquisition d
 
 showing that the acquisition data file is handled by the Dataset object of ISMRMRD library employed by Gadgetron engine.
 
-If exception is thrown, it is caught by the `CATCH` macro, which records it in the `DataHandle` object that this function will return, so that it can be reported by Python and Matlab interface module `AcquistionData` objects.
-
-### Matlab <a name="illustration_matlab"></a>
-
-In the case of a Matlab script, the line
-
-    acq_data = AcquisitionData(filename);
-
-creates a Matlab object of `AcquisitionData` class, the constructor of which contains a C function call (via Matlab's `calllib` function)
-
-    self.handle_ = calllib('mgadgetron', ...
-        'mGT_ISMRMRDAcquisitionsFromFile', filename);
-
-to the following C function
-
-    #ifdef _WIN32
-    #define EXPORTED_FUNCTION __declspec(dllexport)
-    #else
-    #define EXPORTED_FUNCTION
-    #endif
-    EXPORTED_FUNCTION void* mGT_ISMRMRDAcquisitionsFile(const char* file) {
-        return cGT_ISMRMRDAcquisitionsFile(file);
-    }
+If exception is thrown, it is caught by the `CATCH` macro, which records it in the `DataHandle` object that this function will return, so that it can be reported by Python interface module `AcquistionData` objects.
 
 # Adding new functionality to SIRF <a name="adding_new_functionality"></a>
 
@@ -269,7 +238,7 @@ For all other constructors and other methods of your class you will need to writ
 It is advised to use existing C wrappers as templates. An example of a C wrapper for a constructor of an object of class `MRAcquisitionData` was given above in section Illustration. It exposes some general principles in creating C wrappers:
 
 - wrapper should return a pointer to `DataHandle` object cast into `void*`;
-- wrapper should use `try{} CATCH;` bracket for passing C++ exceptions to Python and Matlab;
+- wrapper should use `try{} CATCH;` bracket for passing C++ exceptions to Python;
 - a pointer to newly constructed object should be stored in a shared pointer (file `cgadgetron_shared_ptr.h` specifies which shared pointer to use, `std::shared_ptr` or `boost::shared_ptr`);
 - a `DataHandle` wrapper for a shared pointer can be created by the function template `newObjectHandle`, which returns a pointer to the `DataHandle` object it creates.
 
@@ -289,7 +258,7 @@ Some further principles are illustrated by the following example of a wrapper:
 
 This wrapper returns the return value of the method `norm()` of an object of the class `DataContainer`, from which all SIRF data container classes (`MRImageData`, `PETAcquisitionData` etc.) are derived. The argument of the wrapper is actually a pointer to a `DataHandle` object that stores a shared pointer to a `DataContainer` object. The function template `objectFromHandle` obtains a reference to this object, thus enabling the call to its method `norm()`. The function template `dataHandle`, which has one argument of arbitrary scalar type, wraps the return value of `norm()` into a `DataHandle` object, and returns the pointer to this object as `void*`.
 
-The next two wrappers demonstrate how data is exchanged between C++ and Matlab/Python arrays.
+The next two wrappers demonstrate how data is exchanged between C++ and Python arrays.
 
 	extern "C"
 	void*
@@ -321,13 +290,11 @@ The next two wrappers demonstrate how data is exchanged between C++ and Matlab/P
 		CATCH;
 	}
 
-Both wrappers obtain a pointer `ptr_acqs` to a `DataHandle` object containing the reference `acqs` to an `MRAcquisitionData` object and pointer `ptr_z` to the data of a Matlab/Python array storing MR acquisitions data. The reference `acqs` is used to call methods `get_data` and `set_data` which perform the data exchange. The argument `all` specifies whether all acquisition data must be put in the receiving `ptr_z`-referenced array or whether data not directly used in the reconstruction (e.g. noise calibration data) must be ignored. Exceptions are handled by the `CATCH` macro, successful execution returns a default empty `DataHandle` object, the only role of which in this case is to report successful return.
+Both wrappers obtain a pointer `ptr_acqs` to a `DataHandle` object containing the reference `acqs` to an `MRAcquisitionData` object and pointer `ptr_z` to the data of a Python array storing MR acquisitions data. The reference `acqs` is used to call methods `get_data` and `set_data` which perform the data exchange. The argument `all` specifies whether all acquisition data must be put in the receiving `ptr_z`-referenced array or whether data not directly used in the reconstruction (e.g. noise calibration data) must be ignored. Exceptions are handled by the `CATCH` macro, successful execution returns a default empty `DataHandle` object, the only role of which in this case is to report successful return.
 
-### Step 2: create Matlab and Python Object-Oriented interface for your additions <a name="create_oo_interface"></a>
+### Step 2: create Python Object-Oriented interface for your additions <a name="create_oo_interface"></a>
 
 This section demonstrates how C wrappers of the previous section are used by the objects of SIRF Object-Oriented interface modules.
-
-#### Python
 
 The SIRF build creates a Python module `pygadgetron.py` with SWIG-generated interface to Python for C wrappers declared in `cgadgetron.h` and a Python module `pyutilities.py` with various interface utilities. An example of a Python interface function from `pygadgetron.py` is the function `pygadgetron.cGT_ISMRMRDAcquisitionsFromFile` featuring in Illustration section. This function is called by the constructor of the Python class `AcquisitionData` defined in SIRF Object-Oriented interface module `Gadgetron.py`:
 
@@ -358,43 +325,6 @@ The hierarchy of SIRF interface classes mirrors that of its C\++ classes: the C+
     return r
 
 where `check_status` is the status-checking function (called by `try_calling` in the previous examples), and the function `floatDataFromHandle` retrieves a single precision `float` value stored in `DataHandle` object of `handle`.
-
-#### Matlab
-
-SIRF build at present does not generate Matlab interface. to generate them, the user must execute `gmi_*` executables in subfolder `bin` of the installation folder. This will create files `m*.c` containing Matlab callable C wrappers for SIRF C interface functions (cf. `mGT_ISMRMRDAcquisitionsFile` in section Illustration), and corresponding specification files `m*.h`.
-
-The Matlab counterparts of the code pieces of the previous section are:
-
-    % AcquisitionData constructor contains
-    self.handle_ = calllib('mgadgetron', ...
-        'mGT_ISMRMRDAcquisitionsFromFile', filename);
-
-    % AcquisitionData destructor contains
-    if ~isempty(self.handle_)
-        sirf.Utilities.delete(self.handle_)
-        self.handle_ = []; % to avoid deletion by the base class
-    end
-
-    % AcquisitionData.as_array() contains
-    n = ns*nc*na;
-    ptr_z = libpointer('singlePtr', zeros(2, n));
-    calllib('mgadgetron', 'mGT_acquisitionsDataAsArray', ...
-        self.handle_, ptr_z, all);
-    data = reshape(ptr_z.Value(1:2:end) + 1i*ptr_z.Value(2:2:end), ...
-        ns, nc, na);
-
-    % AcquisitionData.fill() contains
-    z = [real(data(:))'; imag(data(:))'];
-    h = calllib('mgadgetron', 'mGT_fillAcquisitionsData', ...
-        self.handle_, ptr_z, all);
-    sirf.Utilities.check_status('AcquisitionData', h);
-    sirf.Utilities.delete(h)
-
-    % DataContainer.norm() contains
-    handle = calllib('msirf', 'mSIRF_norm', self.handle_);
-    self.Utilities.check_status('DataContainer', handle);
-    r = calllib('miutilities', 'mFloatDataFromHandle', handle);
-    sirf.Utilities.delete(handle)
 
 # Adding a gadget to SIRF gadget library <a name="adding_gadget"></a>
 
