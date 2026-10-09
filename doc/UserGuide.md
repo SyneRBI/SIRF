@@ -39,9 +39,9 @@ This User’s Guide describes version 3.10 of SIRF[^1]. The software can be foun
 
 ## General architecture <a name="general_architecture"></a>
 
-The code builds upon existing Open Source software packages for medical image reconstruction. At the outset, these packages are STIR for PET reconstruction, Gadgetron for MRI and NiftyReg for registration/resampling. SIRF provides MATLAB and Python interfaces to these underlying reconstruction engines. This is done by wrapping the engines in a C++ layer, and then placing a C-interface between the wrapped C++ engines and the MATLAB and Python interfaces. 
+The code builds upon existing Open Source software packages for medical image reconstruction. At the outset, these packages are STIR for PET reconstruction, Gadgetron for MRI and NiftyReg for registration/resampling. SIRF provides Python interfaces to these underlying reconstruction engines. This is done by wrapping the engines in a C++ layer, and then placing a C-interface between the wrapped C++ engines and the Python interfaces.
 
-At present, you should only use the C++, MATLAB and Python interfaces. The underlying C library is internal and likely to change over the next few releases.
+At present, you should only use the C++ and Python interfaces. The underlying C library is internal and likely to change over the next few releases.
 
 ## Supported scanners and file formats <a name="supported_scanners_and_file_formats"></a>
 
@@ -65,7 +65,7 @@ STIR can handle data from the Siemens mMR Biograph with progress being made for 
 
 - SyneRBI Virtual Machine Wiki [https://github.com/SyneRBI/SyneRBI_VM/wiki](https://github.com/SyneRBI/SyneRBI_VM/wiki) with information on how to use the Virtual Machine that we supply with pre-installed software. 
 
-- Inline documentation within MATLAB and Python functions, see below for examples. 
+- Inline documentation within Python functions, see below for examples.
 
 - Demo functions to demonstrate SIRF features. After installing SIRF, these will be available in SIRF/examples. 
 
@@ -76,19 +76,19 @@ version is on [github](https://github.com/SyneRBI/SIRF/blob/master/doc/SIRFLongT
 
 # General notes of usage <a name="general_notes"></a>
 
-Please note that with the installation set-up, you will normally have two copies of the Matlab/Python module files: the original ones in the SIRF clone and the installed ones. This only matters if you want to debug or modify the files. The installation instructions point Python and Matlab to the “installed” files. 
+Please note that with the installation set-up, you will normally have two copies of the Python module files: the original ones in the SIRF clone and the installed ones. This only matters if you want to debug or modify the files. The installation instructions point Python to the “installed” files.
 
 The MR module and the demos create temporary files during operation. They are normally created in the same folder as the input data, but are cleaned up afterwards. Therefore,  the data cannot reside in a read-only folder. 
 	
 # Framework basic functionality <a name="basic_functionality"></a>
 
-This section mostly describes the Python/MATLAB interface of SIRF, although a lot of the text applies to the underlying C++ library as well. See the [appendix on using SIRF C++](#using_the_c++_libraries) for additional information if you use C++.
+This section mostly describes the Python interface of SIRF, although a lot of the text applies to the underlying C++ library as well. See the [appendix on using SIRF C++](#using_the_c++_libraries) for additional information if you use C++.
 
 ## General conventions <a name="general_conventions"></a> 
 
 ### Object-oriented paradigm <a name="object-oriented_paradigm"></a>
 
-SIRF Python/MATLAB modules are interfaces to object-oriented C++, which makes it reasonable for them to follow the object-oriented programming paradigm as well. This means that instead of having data containers (arrays, files etc.) and functions that operate on them, we employ objects, which contain data and come with sets of functions, called their _methods_, that operate on data. Each object contains a special method called constructor, which has the same name as the object class name and must be called to create that object. For example, to create an object of class `ImageData` that handles MR image data and fill it with data stored in the HDF5 file 'my_image.h5' one needs to do assignment 
+SIRF Python modules are interfaces to object-oriented C++, which makes it reasonable for them to follow the object-oriented programming paradigm as well. This means that instead of having data containers (arrays, files etc.) and functions that operate on them, we employ objects, which contain data and come with sets of functions, called their _methods_, that operate on data. Each object contains a special method called constructor, which has the same name as the object class name and must be called to create that object. For example, to create an object of class `ImageData` that handles MR image data and fill it with data stored in the HDF5 file 'my_image.h5' one needs to do assignment
 
     image = ImageData('my_image.h5'); 
 
@@ -96,7 +96,7 @@ We note that an `ImageData` object contains not only the voxel values, but also 
 
     image.show(); 
 
-and to copy the data into a Python/Matlab array one uses method `as_array()`: 
+and to copy the data into a Python array one uses method `as_array()`:
 
     image_data_array = image.as_array(); 
 
@@ -132,52 +132,42 @@ Error handling is via exceptions, i.e. functions do not return an error status, 
 
 Distances are expressed in mm. 
 
-For arrays in the target language, we use “native” ordering of indices in Python and Matlab. These are unfortunately opposite, so we would write
+For arrays, we use “native” ordering of indices in Python:
 
-    image_array[z,y,x] # Python 
-
-    image_array(x,y,z) % Matlab 
+    image_array[z,y,x]
 
 For images, the meaning of `x`, `y` and `z` is currently acquisition dependent. You *cannot* rely that this order is related
 to the patient orientation in a fixed manner. Use the methods for getting geometrical information to know how these indices are related to LPS coordinates.
 
 ### Handles <a name="handles"></a>
 
-In both Matlab and Python, SIRF operates with handles to objects, which affects the meaning of the assignment `x = y`: instead of creating a separate copy of `y` stored in `x`, `x` simply points to the same underlying data. As the result, any changes in `x` simultaneously change `y`. 
+SIRF operates with handles to objects, which affects the meaning of the assignment `x = y`: instead of creating a separate copy of `y` stored in `x`, `x` simply points to the same underlying data. As the result, any changes in `x` simultaneously change `y`.
 
 In order to have a true (i.e. independent) copy of a SIRF object, the user must call the object methods that create copies of them (see below). 
 	
 ## Library components <a name="library_components"></a>
 
-At present, the SIRF library provides Python package `sirf` containing modules `sirf.STIR` and `sirf.Gadgetron` implementing Python interfaces to STIR and Gadgetron respectively and module `sirf.SIRF` containing base classes specifying functionality that is common to all reconstruction engines. Respective Matlab interface package and modules have the same names.
+At present, the SIRF library provides Python package `sirf` containing modules `sirf.STIR` and `sirf.Gadgetron` implementing Python interfaces to STIR and Gadgetron respectively and module `sirf.SIRF` containing base classes specifying functionality that is common to all reconstruction engines.
 <!--`sirf.STIR` and `sirf.Gadgetron`.--> 
 
 ### Getting help on SIRF library modules <a name="getting_help_on_sirf_library_modules"></a>
 
-We remind that to see the contents of a Python module, the user needs to import it and use Python's help, and in Matlab one needs to use doc. For example,
+We remind that to see the contents of a Python module, the user needs to import it and use Python's help. For example,
 
-    # Python
     import sirf.STIR 
     help(sirf.STIR) 
 
-will show the components of the module `sirf.STIR`, and similarly 
+will show the components of the module `sirf.STIR`.In the same way,
 
-    % Matlab 
-    doc sirf.Gadgetron 
-
-will show the components of `sirf.Gadgetron`. In the same way,   
-
-    # Python  
     help(sirf.Gadgetron.ImageData) 
 
-will provide information on the class `ImageData` defined in the module `sirf.Gadgetron`, and  
+will provide information on the class `ImageData` defined in the module `sirf.Gadgetron`, and
 
-    % Matlab 
-    doc sirf.STIR.AcquisitionData  
+    help(sirf.STIR.AcquisitionData)
 
-on the `sirf.STIR.AcquisitionData` class. Regrettably, help and doc show all methods, including some common built-in methods such as `__weakref__` method in Python or `addlistener` method in Matlab. Methods that are not related to SIRF is relatively easy to identify in Python (built-in methods have underscores in names). In Matlab they are difficult to identify, which is why we mark relevant Matlab methods other than constructors with `***SIRF***`. Methods not marked this way should be ignored. 
+on the `sirf.STIR.AcquisitionData` class. Regrettably, `help` shows all methods, including some common built-in methods such as `__weakref__` method. Methods that are not related to SIRF are actually relatively easy to identify: built-in methods have underscores in names.
 
-In order to understand the functionality of a derived class (see [Object-oriented paradigm](#Object-oriented_paradigm)), you are advised to first get help on the classes it is derived from. In Python, you can see that a class is derived by the presence of "Method resolution order" section in Python help output, which lists all classes it is derived from. You are advised to get help on all these classes except Python's class `builtins.object`. In Matlab, look at "Superclasses" item in "Class Details", and get help on the classes listed there except Matlab's class `handle`.
+In order to understand the functionality of a derived class (see [Object-oriented paradigm](#Object-oriented_paradigm)), you are advised to first get help on the classes it is derived from. In Python, you can see that a class is derived by the presence of "Method resolution order" section in Python help output, which lists all classes it is derived from. You are advised to get help on all these classes except Python's class `builtins.object`.
 
 ### General structure of the classes <a name="general_structure_of_the_classes"></a>
 
@@ -196,7 +186,7 @@ and a method to create a copy of the object
     recon.process(); 
     output_image_data=recon.get_output(); 
 
-Classes follow a simple hierarchy, where top-level describes the generic functionality, and derived classes add/specify functionality. To see an example, look up `Reconstructor` and `IterativeReconstructor` classes in `sirf.STIR` or `sirf.STIR` using `help` or `doc`. We note that `help(sirf.STIR.IterativeReconstructor)` and `doc sirf.STIR.IterativeReconstructor` will show all the functionality of this class, i.e. including that of `Reconstructor` (and also some built-in functionality common to Python/Matlab classes). 
+Classes follow a simple hierarchy, where top-level describes the generic functionality, and derived classes add/specify functionality. To see an example, look up `Reconstructor` and `IterativeReconstructor` classes in `sirf.STIR` or `sirf.STIR` using `help` or `doc`. We note that `help(sirf.STIR.IterativeReconstructor)` and `doc sirf.STIR.IterativeReconstructor` will show all the functionality of this class, i.e. including that of `Reconstructor` (and also some built-in functionality common to Python classes).
 
 <!---
 In what follows we use PET instead of `sirf.STIR` and MR instead of `sirf.Gadgetron` to cover prospective alternative reconstruction engines. 
@@ -329,17 +319,17 @@ Class for storing coil sensitivity maps.
 					 
 ##### Examples:
 
-    PET_image = ImageData('image.hv'); % read image data from a file 
-    PET_image0 = ImageData(); % create empty image object 
-    PET_image0.initialise([128,128,31], [3,3,3.375]); % in Python: (128,128,31) etc. 
-    PET_image0.fill(1.0); % assign value 1.0 at each voxel 
-    PET_image_array = PET_image.as_array(); % copy image data to a Matlab array 
+    PET_image = ImageData('image.hv') # read image data from a file
+    PET_image0 = ImageData() # create empty image object
+    PET_image0.initialise((31,128,128), (3.375,3,3))
+    PET_image0.fill(1.0); # assign value 1.0 at each voxel
+    PET_image_array = PET_image.as_array() # copy image data to a Python array
  
-    MR_image_array = MR_image.as_array(); % copy image data to a Matlab array 
-    MR_acquisition_data = AcquisitionData('mr_raw_data.h5'); 
-    cs_data = CoilSensitivityData(); % create empty object 
-    cs_data.calculate(MR_acquisition_data); % calculate coil sensitivities 
-    csm0 = cs_data.csm_as_array(0); % obtain coil sensitivities for slice 0 as array 
+    MR_image_array = MR_image.as_array() # copy image data to a Python array
+    MR_acquisition_data = AcquisitionData('mr_raw_data.h5')
+    cs_data = CoilSensitivityData() # create empty object
+    cs_data.calculate(MR_acquisition_data) # calculate coil sensitivities
+    csm0 = cs_data.csm_as_array(0) # obtain coil sensitivities for slice 0 as array
 
 #### Data Processors
 
@@ -560,7 +550,7 @@ Class for a reconstructor from undersampled Cartesian raw data. Inherits the met
 
 SIRF is capable of performing rigid, affine and non-rigid registrations. Resampling functionality is also available. Initially, this has provided through the wrapping of NiftyReg (although future releases may incorporate other packages).
 
-Below examples are given for rigid/affine and non-rigid registrations, as well as resampling. More complete examples for both Matlab and python can be found in the examples folder.
+Below examples are given for rigid/affine and non-rigid registrations, as well as resampling. More complete examples can be found in the examples folder.
 
 #### Rigid/affine registration (NiftyAladinSym)
 
@@ -1073,7 +1063,7 @@ where `scheme` is either `"memory"` or `"file"`. To see which scheme is currentl
 
     scheme = AcquisitionData.get_storage_scheme()
     
-A particular setting of storage scheme by a Matlab script or a Python script run from Spyder is persistent: any script run afterwards will use the same storage scheme unless a different storage scheme is explicitly set by `set_storage_scheme` or Matlab/Spyder is re-started.
+A particular setting of storage scheme by a Python script run from Spyder is persistent: any script run afterwards will use the same storage scheme unless a different storage scheme is explicitly set by `set_storage_scheme` or Spyder is re-started.
 
 ## Programming chains of Gadgetron gadgets <a name="programming_gadgetron_chains"></a>
 
@@ -1081,11 +1071,11 @@ A particular setting of storage scheme by a Matlab script or a Python script run
 
 ### Creating and running gadget chains by SIRF script  <a name="creating_and_running_gadget_chains"></a>
 
-The standard way of using Gadgetron is to run `gadgetron_ismrmrd_client` from a command line (with Gadgetron running in another terminal window), providing the name of the raw data file (in HDF5 format) and the name of the xml file containing the description of the gadget chain via command-line options. SIRF offers an equivalent alternative whereby the data and the gadget chain are defined in a Python or Matlab script. The gadget chain is defined by creating a Reconstructor object and providing the list of gadgets descriptions as an argument:
+The standard way of using Gadgetron is to run `gadgetron_ismrmrd_client` from a command line (with Gadgetron running in another terminal window), providing the name of the raw data file (in HDF5 format) and the name of the xml file containing the description of the gadget chain via command-line options. SIRF offers an equivalent alternative whereby the data and the gadget chain are defined in a Python script. The gadget chain is defined by creating a Reconstructor object and providing the list of gadgets descriptions as an argument:
 
     my_recon = Reconstructor(my_gadget_list);
 
-Here `my_gadget_list` is a list of strings in Python or a cell array of strings in Matlab, each string describing a gadget in the following format:
+Here `my_gadget_list` is a list of Python strings, each string describing a gadget in the following format:
 
     [label:]gadget_name[(property1=value1[,property2=value2,...])]
 
@@ -1364,7 +1354,7 @@ for fully sampled reconstruction.
 
 ### Using the C++ libraries<a name="using_the_c++_libraries"></a>
 
-The Python/MATLAB interface is based on the underlying C++ code. However, the mapping is currently not one-to-one. Python/MATLAB classes do correspond to C++ classes but might have extra methods or vice versa.
+The Python interface is based on the underlying C++ code. However, the mapping is currently not one-to-one. Python classes do correspond to C++ classes but might have extra methods or vice versa.
 
 The C++ library is currently still somewhat preliminary, although quite usable of course.
 We use [Doxygen](https://www.doxygen.nl/index.html) to generate the documentation for the C++ classes. The documentation for the current SIRF release can be found via the [SyneRBI website](http://www.ccpsynerbi.ac.uk/) (currently the link is in the Wiki, accessible via the Software tab).
