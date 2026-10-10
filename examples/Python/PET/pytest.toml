@@ -1,7 +1,9 @@
 [pytest]
 python_files = ["*.py"]
 python_functions = ["main"]
-filterwarnings = ["error"]
+filterwarnings = [
+  "error",
+  "ignore:invalid escape sequence:SyntaxWarning"]
 markers = ["slow: takes more than 30s to run"]
 addopts = ["--cov=sirf", "--cov-append"]
 # see also: conftest.py

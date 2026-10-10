@@ -111,13 +111,19 @@ if (WIN32)
   add_compile_definitions(_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1)
   # This still leaves a lot of warnings about sscanf etc, so we'll silence them all for now
   add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+  # Make MSVC report the actual C++ standard in __cplusplus (it otherwise
+  # defaults to 199711L), which keeps the C++98 shims in ismrmrd/cpp98.h
+  # (e.g. `#define noexcept`) from clobbering the STL.
+  if(MSVC)
+    add_compile_options(/Zc:__cplusplus)
+  endif()
 endif()
 
 ####### External packages
 
 #### we need the boost library from boost.org
 set(BOOST_ROOT CACHE PATH "root of Boost")
-find_package(Boost 1.36.0 REQUIRED COMPONENTS system filesystem thread date_time chrono)
+find_package(Boost 1.36.0 REQUIRED COMPONENTS filesystem thread date_time chrono)
 # For Visual Studio we have to disable the auto-linking feature of boost
 # where just including a boost file automatically adds it to the linker path.
 # Although this sounds great, it sadly breaks because of conflicting file-paths when linking etc etc.

@@ -35,6 +35,7 @@ limitations under the License.
 #include <ismrmrd/dataset.h>
 #include <ismrmrd/meta.h>
 #include <ismrmrd/xml.h>
+#include <functional>
 
 #include "sirf/common/ANumRef.h"
 #include "sirf/common/iequals.h"

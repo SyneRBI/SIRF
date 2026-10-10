@@ -21,13 +21,7 @@
 #=========================================================================
 
 
-function(get_zenodo_file path url md5)
-        message(STATUS "Downloading (if not already done)...
-                Path:     ${path}
-                URL:      ${url}
-                MD5:      ${md5}")
-        file(DOWNLOAD "${url}" "${path}" SHOW_PROGRESS EXPECTED_MD5 "${md5}")
-endfunction()
+include(zenodo_retry)
 
 OPTION(DOWNLOAD_ZENODO_TEST_DATA "download zenodo data for tests" ON)
 if (DOWNLOAD_ZENODO_TEST_DATA)
