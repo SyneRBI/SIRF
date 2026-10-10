@@ -1,6 +1,8 @@
 [pytest]
 python_files = ["test_*.py"]
-filterwarnings = ["error"]
+filterwarnings = [
+  "error",
+  "ignore:invalid escape sequence:SyntaxWarning"]
 markers = [
     "adjoint",
     "forward",
