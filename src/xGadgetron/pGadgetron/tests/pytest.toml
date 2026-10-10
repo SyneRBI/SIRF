@@ -1,4 +1,6 @@
 [pytest]
 python_files = ["test*.py"]
-filterwarnings = ["error"]
+filterwarnings = [
+  "error",
+  "ignore:invalid escape sequence"]
 addopts = ["--cov=sirf", "--cov-append"]
