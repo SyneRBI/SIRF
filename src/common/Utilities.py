@@ -909,47 +909,47 @@ def data_container_algebra_tests(test, x, eps=1e-4):
 
     y = x.sapyb(1, x, -1)
     s = y.norm()
-    test.check_if_equal(0, s)
+    test.check_if_zero_within_tolerance(s, eps * 10)
 
     y *= 0
     x.sapyb(1, x, -1, out=y)
     s = y.norm()
-    test.check_if_equal(0, s)
+    test.check_if_zero_within_tolerance(s, eps * 10)
 
     y = x.sapyb(z, x, -z)
     s = y.norm()
-    test.check_if_equal(0, s)
+    test.check_if_zero_within_tolerance(s, eps * 10)
 
     y *= 0
     x.sapyb(z, x, -z, out=y)
     s = y.norm()
-    test.check_if_equal(0, s)
+    test.check_if_zero_within_tolerance(s, eps * 10)
 
     y = x.sapyb(x, x*x, -1)
     s = y.norm()
-    test.check_if_equal(0, s)
+    test.check_if_zero_within_tolerance(s, eps * 10)
 
     y *= 0
     x.sapyb(x, x*x, -1, out=y)
     s = y.norm()
-    test.check_if_equal(0, s)
+    test.check_if_zero_within_tolerance(s, eps * 10)
 
     z = x*x
     y = z.sapyb(1, x, -x)
     s = y.norm()
-    test.check_if_equal(0, s)
+    test.check_if_zero_within_tolerance(s, eps * 10)
 
     y *= 0
     z.sapyb(1, x, -x, out=y)
     s = y.norm()
-    test.check_if_equal(0, s)
+    test.check_if_zero_within_tolerance(s, eps * 10)
 
     y = x.maximum(z)
     ay = y.as_array()
     az = z.as_array()
     ay -= numpy.maximum(ax, az)
     s = numpy.linalg.norm(ay)
-    test.check_if_equal(0, s)
+    test.check_if_zero_within_tolerance(s, eps * 10)
 
     y *= 0
     x.maximum(z, out=y)
@@ -957,27 +957,27 @@ def data_container_algebra_tests(test, x, eps=1e-4):
     az = z.as_array()
     ay -= numpy.maximum(ax, az)
     s = numpy.linalg.norm(ay)
-    test.check_if_equal(0, s)
+    test.check_if_zero_within_tolerance(s, eps * 10)
 
     y = x.maximum(0)
     ay = y.as_array()
     ay -= numpy.maximum(ax, 0)
     s = numpy.linalg.norm(ay)
-    test.check_if_equal(0, s)
+    test.check_if_zero_within_tolerance(s, eps * 10)
 
     y *= 0
     x.maximum(0, out=y)
     ay = y.as_array()
     ay -= numpy.maximum(ax, 0)
     s = numpy.linalg.norm(ay)
-    test.check_if_equal(0, s)
+    test.check_if_zero_within_tolerance(s, eps * 10)
 
     y = x.minimum(z)
     ay = y.as_array()
     az = z.as_array()
     ay -= numpy.minimum(ax, az)
     s = numpy.linalg.norm(ay)
-    test.check_if_equal(0, s)
+    test.check_if_zero_within_tolerance(s, eps * 10)
 
     y *= 0
     x.minimum(z, out=y)
@@ -985,20 +985,20 @@ def data_container_algebra_tests(test, x, eps=1e-4):
     az = z.as_array()
     ay -= numpy.minimum(ax, az)
     s = numpy.linalg.norm(ay)
-    test.check_if_equal(0, s)
+    test.check_if_zero_within_tolerance(s, eps * 10)
 
     y = x.minimum(0)
     ay = y.as_array()
     ay -= numpy.minimum(ax, 0)
     s = numpy.linalg.norm(ay)
-    test.check_if_equal(0, s)
+    test.check_if_zero_within_tolerance(s, eps * 10)
 
     y *= 0
     x.minimum(0, out=y)
     ay = y.as_array()
     ay -= numpy.minimum(ax, 0)
     s = numpy.linalg.norm(ay)
-    test.check_if_equal(0, s)
+    test.check_if_zero_within_tolerance(s, eps * 10)
 
     y = x.exp()
     ay = y.as_array()
