@@ -175,7 +175,7 @@ def existing_filepath(data_path, file_name):
     data_path: path to the file
     file_name: file name
     '''
-    full_name = os.path.join(os.path.abspath(data_path), file_name)
+    full_name = os.path.normpath(os.path.join(os.path.abspath(data_path), file_name))
     if not os.path.isfile(full_name):
         raise error('file %s not found' % full_name)
     return full_name
