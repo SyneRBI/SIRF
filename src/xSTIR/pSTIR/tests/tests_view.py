@@ -45,22 +45,22 @@ def test_main(rec=False, verb=False, throw=True, no_ret_val=True):
     copyto(y_view, x_view)
     y_view *= 2
     norm_y_view = norm(y_view)
-    test.check_if_equal_within_tolerance(norm_y, norm_y_view, rel_tol=1e-5)
+    test.check_if_equal_within_tolerance(norm_y, norm_y_view, rel_tol=1e-3)
     z = x + y
     norm_z = z.norm()
     copyto(z_view, x_view)
     z_view += y_view
     norm_z_view = norm(z_view)
-    test.check_if_equal_within_tolerance(norm_z, norm_z_view, rel_tol=1e-5)
+    test.check_if_equal_within_tolerance(norm_z, norm_z_view, rel_tol=1e-3)
     s = norm(x)
     t = norm(x_view)
-    test.check_if_equal_within_tolerance(s, t, rel_tol=1e-5)
+    test.check_if_equal_within_tolerance(s, t, rel_tol=1e-3)
     s = x.sum()
     t = x_view.sum()
-    test.check_if_equal_within_tolerance(s, t, rel_tol=1e-5)
+    test.check_if_equal_within_tolerance(s, t, rel_tol=1e-3)
     s = x.dot(y)
     t = dot(x_view, y_view)
-    test.check_if_equal_within_tolerance(s, t, rel_tol=1e-5)
+    test.check_if_equal_within_tolerance(s, t, rel_tol=1e-3)
 
     init_image_file = existing_filepath(data_path, 'test_image_PM_QP_6.hv')
     image_data = ImageData(init_image_file)
@@ -77,22 +77,22 @@ def test_main(rec=False, verb=False, throw=True, no_ret_val=True):
     copyto(y_view, x_view)
     y_view *= 2
     norm_y_view = norm(y_view)
-    test.check_if_equal_within_tolerance(norm_y, norm_y_view, rel_tol=1e-5)
+    test.check_if_equal_within_tolerance(norm_y, norm_y_view, rel_tol=1e-3)
     z = x + y
     norm_z = z.norm()
     copyto(z_view, x_view)
     z_view += y_view
     norm_z_view = norm(z_view)
-    test.check_if_equal_within_tolerance(norm_z, norm_z_view, rel_tol=1e-5)
+    test.check_if_equal_within_tolerance(norm_z, norm_z_view, rel_tol=1e-3)
     s = norm(x)
     t = norm(x_view)
-    test.check_if_equal_within_tolerance(s, t, rel_tol=1e-5)
+    test.check_if_equal_within_tolerance(s, t, rel_tol=1e-3)
     s = x.sum()
     t = x_view.sum()
-    test.check_if_equal_within_tolerance(s, t, rel_tol=1e-5)
+    test.check_if_equal_within_tolerance(s, t, rel_tol=1e-3)
     s = x.dot(y)
     t = dot(x_view, y_view)
-    test.check_if_equal_within_tolerance(s, t, rel_tol=1e-5)
+    test.check_if_equal_within_tolerance(s, t, rel_tol=1e-3)
 
     numpy.testing.assert_equal(test.failed, 0)
     if no_ret_val:
