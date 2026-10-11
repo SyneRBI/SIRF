@@ -371,55 +371,71 @@ void* cSTIR_parameter(const void* ptr, const char* obj, const char* name)
 	CATCH;
 }
 
+namespace {
+// STIR's Windows path utilities locate the filename at the *last* backslash, so a
+// mixed-separator path (e.g. "C:\a\b/c") silently loses the directory parts after
+// that backslash. Forward slashes are accepted by the C runtime and by STIR on every
+// platform, so normalise to them before handing the name to STIR.
+std::string normalise_path_separators(const char* p)
+{
+	std::string s(p);
+	for (char& c : s)
+		if (c == '\\')
+			c = '/';
+	return s;
+}
+}
+
 extern "C"
 void* cSTIR_objectFromFile(const char* name, const char* filename)
 {
 	try {
+		const std::string fn = normalise_path_separators(filename);
 		if (sirf::iequals(name, "OSMAPOSLReconstruction"))
 			return cSTIR_newReconstructionMethod
 			<OSMAPOSLReconstruction<Image3DF> >
-			(filename);
+			(fn.c_str());
 #ifdef USE_HKEM
 		if (sirf::iequals(name, "KOSMAPOSLReconstruction"))
 			return cSTIR_newReconstructionMethod
 			<KOSMAPOSLReconstruction<Image3DF> >
-			(filename);
+			(fn.c_str());
 #endif
 		if (sirf::iequals(name, "OSSPSReconstruction"))
 			return cSTIR_newReconstructionMethod
 			<OSSPSReconstruction<Image3DF> >
-			(filename);
+			(fn.c_str());
 		if (sirf::iequals(name, "Image")) {
-                        std::shared_ptr<STIRImageData> sptr(new STIRImageData(filename));
+                        std::shared_ptr<STIRImageData> sptr(new STIRImageData(fn));
 			return newObjectHandle(sptr);
 		}
 		if (sirf::iequals(name, "AcquisitionData")) {
 
             std::shared_ptr<STIRAcquisitionData> sptr;
             if (STIRAcquisitionData::storage_scheme().compare("file") == 0)
-                sptr.reset(new STIRAcquisitionDataInFile(filename));
+                sptr.reset(new STIRAcquisitionDataInFile(fn.c_str()));
             else
-                sptr.reset(new STIRAcquisitionDataInMemory(filename));
+                sptr.reset(new STIRAcquisitionDataInMemory(fn.c_str()));
 			return newObjectHandle(sptr);
 		}
 		if (sirf::iequals(name, "ListmodeData")) {
 			std::shared_ptr<STIRListmodeData>
-				sptr(new STIRListmodeData(filename));
+				sptr(new STIRListmodeData(fn));
 			return newObjectHandle(sptr);
 		}
 		if (sirf::iequals(name, "ListmodeToSinograms")) {
 			std::shared_ptr<ListmodeToSinograms>
-				sptr(new ListmodeToSinograms(filename));
+				sptr(new ListmodeToSinograms(fn.c_str()));
 			return newObjectHandle(sptr);
 		}
                 if (sirf::iequals(name, "PETSingleScatterSimulator")) {
                     stir::shared_ptr<PETSingleScatterSimulator>
-                    sptr(new PETSingleScatterSimulator(filename));
+                    sptr(new PETSingleScatterSimulator(fn));
                   return newObjectHandle(sptr);
                 }
                 if (sirf::iequals(name, "PETScatterEstimator")) {
                   stir::shared_ptr<PETScatterEstimator>
-                    sptr(new PETScatterEstimator(filename));
+                    sptr(new PETScatterEstimator(fn));
                   return newObjectHandle(sptr);
                 }
 		return unknownObject("object", name, __FILE__, __LINE__);
