@@ -2,7 +2,7 @@
 python_files = ["test_*.py"]
 filterwarnings = [
   "error",
-  "ignore:invalid escape sequence:SyntaxWarning"]
+  "ignore:invalid escape sequence"]
 markers = [
     "adjoint",
     "forward",

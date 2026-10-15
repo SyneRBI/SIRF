@@ -2,5 +2,5 @@
 python_files = ["tests_*.py"]
 filterwarnings = [
   "error",
-  "ignore:invalid escape sequence:SyntaxWarning"]
+  "ignore:invalid escape sequence"]
 addopts = ["--cov=sirf", "--cov-append"]
