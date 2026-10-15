@@ -29,7 +29,11 @@ limitations under the License.
 
 #include "sirf/Reg/SPMRegistration.h"
 #include "sirf/Reg/NiftiImageData3D.h"
+#ifdef _WIN32
+#include <stdio.h>  // MSVC: deprecated stat()/struct stat compatibility
+#else
 #include <sys/stat.h>
+#endif
 #include <MatlabEngine.hpp>
 #include <boost/filesystem.hpp>
 #include "sirf/Reg/AffineTransformation.h"

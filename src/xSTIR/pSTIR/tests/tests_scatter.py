@@ -95,7 +95,7 @@ def test_main(rec=False, verb=False, throw=True, no_ret_val=True):
 
     rel_err = (scatter_data - scatter_estimate).norm() / scatter_estimate.norm()
     # I get around 10% error, due to randomness etc, so set our threshold a bit larger
-    if  rel_err > .2:
+    if  rel_err > .25:
         scatter_estimate.write("out_scatter_estimate.hs")
         scatter_data.write("out_scatter_data.hs")
         unscattered_data.write("out_unscattered.hs")

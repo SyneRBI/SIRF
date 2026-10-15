@@ -45,7 +45,7 @@ target_include_directories(cstir PUBLIC "${STIR_INCLUDE_DIRS}")
 target_link_libraries(cstir csirf iutilities)
 target_link_libraries(cstir "${STIR_LIBRARIES}")
 # Add boost library dependencies
-target_link_libraries(cstir Boost::system Boost::filesystem Boost::thread Boost::date_time Boost::chrono)
+target_link_libraries(cstir Boost::filesystem Boost::thread Boost::date_time Boost::chrono)
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/"
   COMPONENT Development

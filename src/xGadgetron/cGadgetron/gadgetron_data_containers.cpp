@@ -2089,7 +2089,7 @@ CoilImagesVector::calculate(const MRAcquisitionData& ad)
     {
         ASSERT(ad.get_trajectory_dimensions()>0, "You should set a type ISMRMRD::TrajectoryType::OTHER trajectory before calling the calculate method with dimension > 0.");
     #ifdef GADGETRON_TOOLBOXES_AVAILABLE
-    #warning "Compiling non-cartesian code into coil sensitivity class"
+    #pragma message("Compiling non-cartesian code into coil sensitivity class")
         this->sptr_enc_ = std::make_shared<sirf::RPEFourierEncoding>();
     #else
         throw std::runtime_error("Non-cartesian reconstruction is not supported, but your file contains ISMRMRD::TrajectoryType::OTHER data.");
@@ -2101,7 +2101,7 @@ CoilImagesVector::calculate(const MRAcquisitionData& ad)
 	{
 		ASSERT(ad.get_trajectory_dimensions()>0, "You should set a type ISMRMRD::TrajectoryType::RADIAL, ISMRMRD::TrajectoryType::GOLDENANGLE or ISMRMRD::TrajectoryType::SPIRAL trajectory before calling the calculate method with dimension > 0.");
 	#ifdef GADGETRON_TOOLBOXES_AVAILABLE
-	#warning "Compiling non-cartesian code into coil sensitivity class"
+	#pragma message("Compiling non-cartesian code into coil sensitivity class")
 		this->sptr_enc_ = std::make_shared<sirf::NonCartesian2DEncoding>();
 	#else
 		throw std::runtime_error("Non-cartesian reconstruction is not supported, but your file contains ISMRMRD::TrajectoryType::RADIAL data.");

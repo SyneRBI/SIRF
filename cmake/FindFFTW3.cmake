@@ -78,7 +78,9 @@ if (WIN32)
 
       string(TOUPPER ${_lib} _LIB)
 
-      find_library(${_LIB}_LIBRARY NAMES lib${_lib}-3 lib${_lib}
+      # conda-forge on Windows installs the import libs as <name>.lib (fftw3.lib,
+      # fftw3f.lib, ...) with no "lib" prefix, so search for that too.
+      find_library(${_LIB}_LIBRARY NAMES lib${_lib}-3 lib${_lib} ${_lib}
         HINTS $ENV{FFTW3_ROOT_DIR} PATH_SUFFIXES lib)
       mark_as_advanced(${_LIB}_LIBRARY)
       list(APPEND FFTW3_LIBRARIES ${${_LIB}_LIBRARY})

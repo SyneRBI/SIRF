@@ -30,6 +30,7 @@ limitations under the License.
 #pragma once
 
 #include <nifti1_io.h>
+#include <functional>
 #include <vector>
 #include <string>
 #include <memory>

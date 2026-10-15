@@ -404,7 +404,7 @@ MRAcquisitionModel::set_up(shared_ptr<MRAcquisitionData> sptr_ac,
 	{
 		ASSERT(sptr_ac->get_trajectory_dimensions()>0, "You should set a type ISMRMRD::TrajectoryType::OTHER trajectory before calling the calculate method with dimension > 0.");
 	#ifdef GADGETRON_TOOLBOXES_AVAILABLE
-	#warning "We compile the non-cartesian code in GADGETRON_X"
+	#pragma message("We compile the non-cartesian code in GADGETRON_X")
 		this->sptr_enc_ = std::make_shared<sirf::RPEFourierEncoding>();
 	#else
 		throw std::runtime_error("Non-cartesian reconstruction is not supported, but your file contains ISMRMRD::TrajectoryType::OTHER data.");
@@ -414,7 +414,7 @@ MRAcquisitionModel::set_up(shared_ptr<MRAcquisitionData> sptr_ac,
 	{
 		ASSERT(sptr_ac->get_trajectory_dimensions()>0, "You should set a type ISMRMRD::TrajectoryType::RADIAL, ISMRMRD::TrajectoryType::GOLDENANGLE or ISMRMRD::TrajectoryType::SPIRAL trajectory before calling the calculate method with dimension > 0.");
 	#ifdef GADGETRON_TOOLBOXES_AVAILABLE
-	#warning "We compile the non-cartesian code in GADGETRON_X"
+	#pragma message("We compile the non-cartesian code in GADGETRON_X")
 		this->sptr_enc_ = std::make_shared<sirf::NonCartesian2DEncoding>();
 	#else
 		throw std::runtime_error("Non-cartesian reconstruction is not supported, but your file contains ISMRMRD::TrajectoryType::OTHER data.");
