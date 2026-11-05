@@ -59,11 +59,13 @@ STIR can handle data from the Siemens mMR Biograph with progress being made for 
 
 # Where to find further information <a name="further_information"></a>
 
-- SyneRBI website [http://www.SyneRBI.ac.uk](http://www.SyneRBI.ac.uk) for links to project overview, meeting notes, design documents etc 
+- SyneRBI website [http://www.SyneRBI.ac.uk](http://www.SyneRBI.ac.uk) for links to project overview, meeting notes, design documents etc.
 
-- SyneRBI SIRF Wiki [https://github.com/SyneRBI/SIRF/wiki](https://github.com/SyneRBI/SIRF/wiki)  for detailed instructions and user-contributed content 
+- SyneRBI SIRF Wiki [https://github.com/SyneRBI/SIRF/wiki](https://github.com/SyneRBI/SIRF/wiki) for detailed instructions and user-contributed content.
 
-- SyneRBI Virtual Machine Wiki [https://github.com/SyneRBI/SyneRBI_VM/wiki](https://github.com/SyneRBI/SyneRBI_VM/wiki) with information on how to use the Virtual Machine that we supply with pre-installed software. 
+- SyneRBI Virtual Machine Wiki [https://github.com/SyneRBI/SIRF-SuperBuild/blob/master/VirtualBox/documentation/README.md]
+(https://github.com/SyneRBI/SIRF-SuperBuild/blob/master/VirtualBox/documentation/README.md)
+ with information on how to use the Virtual Machine that we supply with pre-installed software.
 
 - Inline documentation within Python functions, see below for examples.
 
