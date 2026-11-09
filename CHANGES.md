@@ -7,6 +7,18 @@
 * CI and testing
   - replace examples' custom test framework with pytest.
   - fix Python coverage reporting.
+* Build & test fixes (SyneRBI/SIRF-SuperBuild#1041)
+  - Boost: >=1.69; drop `system` component
+  - misc `boost::asio::connect` fixes (#1359)
+  - Gadgetron: support Boost 1.90 `asio`
+  - cSTIR: normalise path separators to fix STIR on Windows
+  - misc Windows & MacOS build fixes
+  - misc test fixes
+    - fix `mr_recon_h5_filename` missing init in `test_pSynergistic`
+    - loosen data-container algebra & STIR tolerances
+    - suppress docopt invalid-escape ignore
+    - retry zenodo download 5 times
+    - skip cGadgetron C++
 
 ## v3.10.1
 
