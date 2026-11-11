@@ -1,1 +1,1 @@
-Please visit https://github.com/CCPPETMR/SIRF/wiki for installation instructions.
+Please visit https://github.com/SyneRBI/SIRF/wiki for installation instructions.

@@ -16,7 +16,7 @@ setup(
     license='Apache 2.0',
     author='CCP PET-MR',
     author_email='ccppetmr@stfc.ac.uk',
-    url='https://github.com/CCPPETMR/SIRF',
+    url='https://github.com/SyneRBI/SIRF',
     platforms=['any'],
     package_data={'sirf': ['*.so', '*.dll', '*.lib', '*.dylib']},
     packages=[${PYTHON_SETUP_PKGS_CSV}],

@@ -12,6 +12,7 @@
   - misc `boost::asio::connect` fixes (#1359)
   - Gadgetron: support Boost 1.90 `asio`
   - cSTIR: normalise path separators to fix STIR on Windows
+  - SIRF_data: 8123339 (SyneRBI/SIRF_data#8)
   - misc Windows & MacOS build fixes
   - misc test fixes
     - fix `mr_recon_h5_filename` missing init in `test_pSynergistic`
