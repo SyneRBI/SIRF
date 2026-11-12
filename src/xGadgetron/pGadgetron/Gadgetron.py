@@ -1347,7 +1347,7 @@ class AcquisitionModel:
         '''Alias of forward
 
            Added for CCPi CIL compatibility
-           https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
+           https://github.com/SyneRBI/SIRF/pull/237#issuecomment-439894266
         '''
         if out is not None:
             #raise error('out is not supported')
@@ -1360,7 +1360,7 @@ class AcquisitionModel:
         '''Alias of backward
 
            Added for CCPi CIL compatibility
-           https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
+           https://github.com/SyneRBI/SIRF/pull/237#issuecomment-439894266
         '''
         if out is not None:
             #raise error('out is not supported')

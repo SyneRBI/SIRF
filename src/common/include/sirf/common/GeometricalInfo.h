@@ -24,6 +24,7 @@
 #define SIRF_GEOMETRICAL_INFO_TYPE
 
 #include <array>
+#include <cmath>
 #include <string>
 
 namespace sirf {

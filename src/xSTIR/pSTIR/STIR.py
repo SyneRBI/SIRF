@@ -1791,7 +1791,7 @@ class AcquisitionModel:
            calls forward with num_subset and on subset_num members
 
            Added for CCPi CIL compatibility
-           https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
+           https://github.com/SyneRBI/SIRF/pull/237#issuecomment-439894266
         '''
         if self.is_linear():
             return self.forward(image, \
@@ -1808,7 +1808,7 @@ class AcquisitionModel:
 
            calls backward with num_subset and on subset_num members
            Added for CCPi CIL compatibility
-           https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
+           https://github.com/SyneRBI/SIRF/pull/237#issuecomment-439894266
         '''
         if self.is_linear():
             return self.backward(ad, subset_num=self.subset_num, num_subsets=self.num_subsets, out=out)

@@ -37,6 +37,7 @@ limitations under the License.
 #include <string>
 #include <vector>
 #include <tuple>
+#include <functional>
 
 //#include <boost/algorithm/string.hpp>
 

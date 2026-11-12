@@ -1192,7 +1192,7 @@ cGT_imageParameter(void* ptr_im, const char* name)
 		if (sirf::iequals(name, "patient_table_position"))
 			return dataHandle((float*)head.patient_table_position);
 		if (sirf::iequals(name, "address"))
-			return dataHandle(reinterpret_cast<size_t>(im.address()));
+			return dataHandle(im.address());
 		return parameterNotFound(name, __FILE__, __LINE__);
 	}
 	CATCH;

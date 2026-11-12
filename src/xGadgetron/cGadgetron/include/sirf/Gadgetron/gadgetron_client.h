@@ -67,8 +67,6 @@ IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define WIN32_LEAN_AND_MEAN
 #endif
 
-#include <chrono>
-#include <condition_variable>
 #include <exception>
 #include <fstream>
 #include <iomanip>
@@ -303,6 +301,7 @@ namespace sirf {
 			}
 		}
 
+		// kept for API compat; timeout_ms_ is no longer used by connect()
 		void set_timeout(unsigned int t)
 		{
 			timeout_ms_ = t;
@@ -374,7 +373,7 @@ namespace sirf {
 
 		GadgetronClientMessageReader* find_reader(unsigned short r);
 
-		boost::asio::io_service io_service;
+		boost::asio::io_context io_service;
 		boost::asio::ip::tcp::socket* socket_;
 		boost::thread reader_thread_;
 		maptype readers_;

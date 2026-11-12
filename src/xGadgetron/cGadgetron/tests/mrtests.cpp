@@ -550,7 +550,7 @@ bool test_set_rpe_trajectory(AcquisitionsVector av)
 }
 
 #ifdef GADGETRON_TOOLBOXES_AVAILABLE
-#warning "INCLUDING THE NON-CARTESIAN TESTS FOR C++."
+#pragma message("INCLUDING THE NON-CARTESIAN TESTS FOR C++.")
 bool test_rpe_csm(MRAcquisitionData& av)
 {
     try
@@ -762,7 +762,7 @@ bool run_cartesian_tests(const std::string& filename_testdata)
 }
 
 #ifdef GADGETRON_TOOLBOXES_AVAILABLE
-#warning "RUNNING THE NON-CARTESIAN TESTS FOR C++."
+#pragma message("RUNNING THE NON-CARTESIAN TESTS FOR C++.")
 bool run_rpe_tests(const std::string& filename_testdata)
 {
     
@@ -846,7 +846,7 @@ int main ( int argc, char* argv[])
         bool test_successful = run_cartesian_tests(filename_simulated_2D_testdata);
 
         #ifdef GADGETRON_TOOLBOXES_AVAILABLE
-        #warning "RUNNING THE NON-CARTESIAN TESTS FOR C++."
+        #pragma message("RUNNING THE NON-CARTESIAN TESTS FOR C++.")
             const std::string  filename_rpe_testdata = argv[2];
             test_successful *= run_rpe_tests(filename_rpe_testdata);
             test_successful *= run_2D_radial_tests(filename_simulated_2D_testdata);

@@ -301,7 +301,7 @@ void* cSTIR_setParameter
 }
 
 extern "C"
-void* cSTIR_parameter(const void* ptr, const char* obj, const char* name) 
+void* cSTIR_parameter(const void* ptr, const char* obj, const char* name)
 {
 	try {
 		CAST_PTR(DataHandle, handle, ptr);
@@ -371,24 +371,37 @@ void* cSTIR_parameter(const void* ptr, const char* obj, const char* name)
 	CATCH;
 }
 
+namespace {
+// because STIR Windows path utils do not handle mixed separators (e.g. "C:\a\b/c") correctly
+std::string normalise_path_separators(const char* p)
+{
+	std::string s(p);
+	for (char& c : s)
+		if (c == '\\')
+			c = '/';
+	return s;
+}
+}
+
 extern "C"
-void* cSTIR_objectFromFile(const char* name, const char* filename)
+void* cSTIR_objectFromFile(const char* name, const char* _filename)
 {
 	try {
+		const std::string filename = normalise_path_separators(_filename);
 		if (sirf::iequals(name, "OSMAPOSLReconstruction"))
 			return cSTIR_newReconstructionMethod
 			<OSMAPOSLReconstruction<Image3DF> >
-			(filename);
+			(filename.c_str());
 #ifdef USE_HKEM
 		if (sirf::iequals(name, "KOSMAPOSLReconstruction"))
 			return cSTIR_newReconstructionMethod
 			<KOSMAPOSLReconstruction<Image3DF> >
-			(filename);
+			(filename.c_str());
 #endif
 		if (sirf::iequals(name, "OSSPSReconstruction"))
 			return cSTIR_newReconstructionMethod
 			<OSSPSReconstruction<Image3DF> >
-			(filename);
+			(filename.c_str());
 		if (sirf::iequals(name, "Image")) {
                         std::shared_ptr<STIRImageData> sptr(new STIRImageData(filename));
 			return newObjectHandle(sptr);
@@ -397,9 +410,9 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
 
             std::shared_ptr<STIRAcquisitionData> sptr;
             if (STIRAcquisitionData::storage_scheme().compare("file") == 0)
-                sptr.reset(new STIRAcquisitionDataInFile(filename));
+                sptr.reset(new STIRAcquisitionDataInFile(filename.c_str()));
             else
-                sptr.reset(new STIRAcquisitionDataInMemory(filename));
+                sptr.reset(new STIRAcquisitionDataInMemory(filename.c_str()));
 			return newObjectHandle(sptr);
 		}
 		if (sirf::iequals(name, "ListmodeData")) {
@@ -409,7 +422,7 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
 		}
 		if (sirf::iequals(name, "ListmodeToSinograms")) {
 			std::shared_ptr<ListmodeToSinograms>
-				sptr(new ListmodeToSinograms(filename));
+				sptr(new ListmodeToSinograms(filename.c_str()));
 			return newObjectHandle(sptr);
 		}
                 if (sirf::iequals(name, "PETSingleScatterSimulator")) {
@@ -481,7 +494,7 @@ void* cSTIR_setupListmodeToSinogramsConverter(void* ptr)
 		DataHandle* handle = new DataHandle;
 		if (lm2s.set_up() == stir::Succeeded::no) {
 			ExecutionStatus status
-				("cSTIR_setupListmodeToSinogramConverter failed", 
+				("cSTIR_setupListmodeToSinogramConverter failed",
 					__FILE__, __LINE__);
 			handle->set(0, &status);
 		}
@@ -623,7 +636,7 @@ extern "C"
 void* cSTIR_createPoissonNoiseGenerator(const float scaling_factor, const bool preserve_mean)
 {
 	try {
-		shared_ptr<PoissonNoiseGenerator> 
+		shared_ptr<PoissonNoiseGenerator>
 			sptr(new PoissonNoiseGenerator(scaling_factor, preserve_mean));
 		return newObjectHandle(sptr);
 	}
@@ -668,7 +681,7 @@ void* cSTIR_createPETAttenuationModel(const void* ptr_img, const void* ptr_am)
 	try {
 		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_img);
 		PETAcquisitionModel& am = objectFromHandle<PETAcquisitionModel>(ptr_am);
-		shared_ptr<PETAcquisitionSensitivityModel> 
+		shared_ptr<PETAcquisitionSensitivityModel>
 			sptr(new PETAttenuationModel(id, am));
 		return newObjectHandle(sptr);
 	}
@@ -701,7 +714,7 @@ void* cSTIR_chainPETAcquisitionSensitivityModels
 			objectFromHandle<PETAcquisitionSensitivityModel>(ptr_first);
 		PETAcquisitionSensitivityModel& second =
 			objectFromHandle<PETAcquisitionSensitivityModel>(ptr_second);
-		shared_ptr<PETAcquisitionSensitivityModel> 
+		shared_ptr<PETAcquisitionSensitivityModel>
 			sptr(new PETAcquisitionSensitivityModel(first, second));
 		return newObjectHandle(sptr);
 	}
@@ -712,7 +725,7 @@ extern "C"
 void* cSTIR_setupAcquisitionSensitivityModel(void* ptr_sm, void* ptr_ad)
 {
 	try {
-		PETAcquisitionSensitivityModel& sm = 
+		PETAcquisitionSensitivityModel& sm =
 			objectFromHandle<PETAcquisitionSensitivityModel>(ptr_sm);
 		SPTR_FROM_HANDLE(STIRAcquisitionData, sptr_ad, ptr_ad);
 		sm.set_up(sptr_ad->get_exam_info_sptr(),
@@ -807,7 +820,7 @@ void* cSTIR_acquisitionModelFwdReplace
 }
 
 extern "C"
-void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad, 
+void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad,
 	int subset_num, int num_subsets)
 {
 	try {
@@ -884,7 +897,7 @@ void* cSTIR_acquisitionDataFromListmode(void* ptr_t)
 extern "C"
 void*
 cSTIR_setAcquisitionDataStorageScheme(const char* scheme)
-{ 
+{
 	try {
 		if (scheme[0] == 'f' || strcmp(scheme, "default") == 0)
 			STIRAcquisitionDataInFile::set_as_template();
@@ -926,7 +939,7 @@ void* cSTIR_cloneAcquisitionData(void* ptr_ad)
 }
 
 extern "C"
-void* cSTIR_rebinnedAcquisitionData(void* ptr_t, 
+void* cSTIR_rebinnedAcquisitionData(void* ptr_t,
 const int num_segments_to_combine,
 const int num_views_to_combine,
 const int num_tang_poss_to_trim,
@@ -1139,7 +1152,7 @@ void* cSTIR_setupReconstruction(void* ptr_r, void* ptr_i)
 }
 
 extern "C"
-void* cSTIR_runReconstruction(void* ptr_r, void* ptr_i) 
+void* cSTIR_runReconstruction(void* ptr_r, void* ptr_i)
 {
 	try {
 		DataHandle* handle = new DataHandle;
@@ -1254,7 +1267,7 @@ void*
 cSTIR_objectiveFunctionGradientNotDivided(void* ptr_f, void* ptr_i, int subset)
 {
 	try {
-		PoissonLogLhLinModMean3DF& fun = 
+		PoissonLogLhLinModMean3DF& fun =
 			objectFromHandle<PoissonLogLhLinModMean3DF>(ptr_f);
 		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_i);
 		Image3DF& image = id.data();
@@ -1556,8 +1569,8 @@ void* cSTIR_ImageData_zoom_image(void* ptr_im, const size_t zooms_ptr_raw, const
 }
 
 extern "C"
-void* cSTIR_ImageData_zoom_image_as_template(void* zoomed_image_ptr, const void* template_image_ptr, 
-                                                const char *const zoom_options) 
+void* cSTIR_ImageData_zoom_image_as_template(void* zoomed_image_ptr, const void* template_image_ptr,
+                                                const char *const zoom_options)
 {
     try {
         STIRImageData& zoomed_id = objectFromHandle<STIRImageData>(zoomed_image_ptr);
@@ -1642,7 +1655,7 @@ void* cSTIR_fillImage(void* ptr_i, float v)
 }
 
 extern "C"
-void* cSTIR_getImageDimensions(const void* ptr_im, size_t ptr_dim) 
+void* cSTIR_getImageDimensions(const void* ptr_im, size_t ptr_dim)
 {
 	try {
 		int* dim = (int*)ptr_dim;
